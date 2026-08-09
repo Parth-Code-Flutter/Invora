@@ -5,6 +5,7 @@ import '../../data/services/app_storage.dart';
 import '../../data/services/local_database_service.dart';
 import '../../data/repositories/business_repository.dart';
 import '../../data/repositories/customer_repository.dart';
+import '../../data/repositories/product_repository.dart';
 import '../controllers/app_controller.dart';
 
 class InitialBinding extends Bindings {
@@ -24,6 +25,10 @@ class InitialBinding extends Bindings {
     );
     Get.put<CustomerRepository>(
       CustomerRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<ProductRepository>(
+      ProductRepository(databaseService.database),
       permanent: true,
     );
     Get.put<AppController>(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../constants/app_constants.dart';
 import '../utils/responsive_utils.dart';
 
 class ResponsiveScaffold extends StatelessWidget {
@@ -25,8 +24,8 @@ class ResponsiveScaffold extends StatelessWidget {
       bottomNavigationBar: bottomNavigationBar,
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppConstants.maxContentWidth,
+          constraints: BoxConstraints(
+            maxWidth: ResponsiveUtils.contentMaxWidth(context),
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(

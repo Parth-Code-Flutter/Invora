@@ -2468,6 +2468,656 @@ class CustomersCompanion extends UpdateCompanion<Customer> {
   }
 }
 
+class $ProductServicesTable extends ProductServices
+    with TableInfo<$ProductServicesTable, ProductService> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProductServicesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _salePriceMinorMeta = const VerificationMeta(
+    'salePriceMinor',
+  );
+  @override
+  late final GeneratedColumn<int> salePriceMinor = GeneratedColumn<int>(
+    'sale_price_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hsnSacMeta = const VerificationMeta('hsnSac');
+  @override
+  late final GeneratedColumn<String> hsnSac = GeneratedColumn<String>(
+    'hsn_sac',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _taxRateBasisPointsMeta =
+      const VerificationMeta('taxRateBasisPoints');
+  @override
+  late final GeneratedColumn<int> taxRateBasisPoints = GeneratedColumn<int>(
+    'tax_rate_basis_points',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    type,
+    description,
+    unit,
+    salePriceMinor,
+    hsnSac,
+    taxRateBasisPoints,
+    isDeleted,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'product_services';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ProductService> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_unitMeta);
+    }
+    if (data.containsKey('sale_price_minor')) {
+      context.handle(
+        _salePriceMinorMeta,
+        salePriceMinor.isAcceptableOrUnknown(
+          data['sale_price_minor']!,
+          _salePriceMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_salePriceMinorMeta);
+    }
+    if (data.containsKey('hsn_sac')) {
+      context.handle(
+        _hsnSacMeta,
+        hsnSac.isAcceptableOrUnknown(data['hsn_sac']!, _hsnSacMeta),
+      );
+    }
+    if (data.containsKey('tax_rate_basis_points')) {
+      context.handle(
+        _taxRateBasisPointsMeta,
+        taxRateBasisPoints.isAcceptableOrUnknown(
+          data['tax_rate_basis_points']!,
+          _taxRateBasisPointsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProductService map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProductService(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      )!,
+      salePriceMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sale_price_minor'],
+      )!,
+      hsnSac: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hsn_sac'],
+      ),
+      taxRateBasisPoints: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tax_rate_basis_points'],
+      )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ProductServicesTable createAlias(String alias) {
+    return $ProductServicesTable(attachedDatabase, alias);
+  }
+}
+
+class ProductService extends DataClass implements Insertable<ProductService> {
+  final int id;
+  final String name;
+  final String type;
+  final String? description;
+  final String unit;
+  final int salePriceMinor;
+  final String? hsnSac;
+  final int taxRateBasisPoints;
+  final bool isDeleted;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const ProductService({
+    required this.id,
+    required this.name,
+    required this.type,
+    this.description,
+    required this.unit,
+    required this.salePriceMinor,
+    this.hsnSac,
+    required this.taxRateBasisPoints,
+    required this.isDeleted,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['type'] = Variable<String>(type);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['unit'] = Variable<String>(unit);
+    map['sale_price_minor'] = Variable<int>(salePriceMinor);
+    if (!nullToAbsent || hsnSac != null) {
+      map['hsn_sac'] = Variable<String>(hsnSac);
+    }
+    map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  ProductServicesCompanion toCompanion(bool nullToAbsent) {
+    return ProductServicesCompanion(
+      id: Value(id),
+      name: Value(name),
+      type: Value(type),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      unit: Value(unit),
+      salePriceMinor: Value(salePriceMinor),
+      hsnSac: hsnSac == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hsnSac),
+      taxRateBasisPoints: Value(taxRateBasisPoints),
+      isDeleted: Value(isDeleted),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ProductService.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProductService(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      type: serializer.fromJson<String>(json['type']),
+      description: serializer.fromJson<String?>(json['description']),
+      unit: serializer.fromJson<String>(json['unit']),
+      salePriceMinor: serializer.fromJson<int>(json['salePriceMinor']),
+      hsnSac: serializer.fromJson<String?>(json['hsnSac']),
+      taxRateBasisPoints: serializer.fromJson<int>(json['taxRateBasisPoints']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'type': serializer.toJson<String>(type),
+      'description': serializer.toJson<String?>(description),
+      'unit': serializer.toJson<String>(unit),
+      'salePriceMinor': serializer.toJson<int>(salePriceMinor),
+      'hsnSac': serializer.toJson<String?>(hsnSac),
+      'taxRateBasisPoints': serializer.toJson<int>(taxRateBasisPoints),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  ProductService copyWith({
+    int? id,
+    String? name,
+    String? type,
+    Value<String?> description = const Value.absent(),
+    String? unit,
+    int? salePriceMinor,
+    Value<String?> hsnSac = const Value.absent(),
+    int? taxRateBasisPoints,
+    bool? isDeleted,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => ProductService(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    type: type ?? this.type,
+    description: description.present ? description.value : this.description,
+    unit: unit ?? this.unit,
+    salePriceMinor: salePriceMinor ?? this.salePriceMinor,
+    hsnSac: hsnSac.present ? hsnSac.value : this.hsnSac,
+    taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+    isDeleted: isDeleted ?? this.isDeleted,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  ProductService copyWithCompanion(ProductServicesCompanion data) {
+    return ProductService(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      type: data.type.present ? data.type.value : this.type,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      salePriceMinor: data.salePriceMinor.present
+          ? data.salePriceMinor.value
+          : this.salePriceMinor,
+      hsnSac: data.hsnSac.present ? data.hsnSac.value : this.hsnSac,
+      taxRateBasisPoints: data.taxRateBasisPoints.present
+          ? data.taxRateBasisPoints.value
+          : this.taxRateBasisPoints,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductService(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('description: $description, ')
+          ..write('unit: $unit, ')
+          ..write('salePriceMinor: $salePriceMinor, ')
+          ..write('hsnSac: $hsnSac, ')
+          ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    type,
+    description,
+    unit,
+    salePriceMinor,
+    hsnSac,
+    taxRateBasisPoints,
+    isDeleted,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProductService &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.type == this.type &&
+          other.description == this.description &&
+          other.unit == this.unit &&
+          other.salePriceMinor == this.salePriceMinor &&
+          other.hsnSac == this.hsnSac &&
+          other.taxRateBasisPoints == this.taxRateBasisPoints &&
+          other.isDeleted == this.isDeleted &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ProductServicesCompanion extends UpdateCompanion<ProductService> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String> type;
+  final Value<String?> description;
+  final Value<String> unit;
+  final Value<int> salePriceMinor;
+  final Value<String?> hsnSac;
+  final Value<int> taxRateBasisPoints;
+  final Value<bool> isDeleted;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const ProductServicesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.type = const Value.absent(),
+    this.description = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.salePriceMinor = const Value.absent(),
+    this.hsnSac = const Value.absent(),
+    this.taxRateBasisPoints = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  ProductServicesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required String type,
+    this.description = const Value.absent(),
+    required String unit,
+    required int salePriceMinor,
+    this.hsnSac = const Value.absent(),
+    this.taxRateBasisPoints = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : name = Value(name),
+       type = Value(type),
+       unit = Value(unit),
+       salePriceMinor = Value(salePriceMinor);
+  static Insertable<ProductService> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? type,
+    Expression<String>? description,
+    Expression<String>? unit,
+    Expression<int>? salePriceMinor,
+    Expression<String>? hsnSac,
+    Expression<int>? taxRateBasisPoints,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (type != null) 'type': type,
+      if (description != null) 'description': description,
+      if (unit != null) 'unit': unit,
+      if (salePriceMinor != null) 'sale_price_minor': salePriceMinor,
+      if (hsnSac != null) 'hsn_sac': hsnSac,
+      if (taxRateBasisPoints != null)
+        'tax_rate_basis_points': taxRateBasisPoints,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  ProductServicesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<String>? type,
+    Value<String?>? description,
+    Value<String>? unit,
+    Value<int>? salePriceMinor,
+    Value<String?>? hsnSac,
+    Value<int>? taxRateBasisPoints,
+    Value<bool>? isDeleted,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return ProductServicesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      description: description ?? this.description,
+      unit: unit ?? this.unit,
+      salePriceMinor: salePriceMinor ?? this.salePriceMinor,
+      hsnSac: hsnSac ?? this.hsnSac,
+      taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+      isDeleted: isDeleted ?? this.isDeleted,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (salePriceMinor.present) {
+      map['sale_price_minor'] = Variable<int>(salePriceMinor.value);
+    }
+    if (hsnSac.present) {
+      map['hsn_sac'] = Variable<String>(hsnSac.value);
+    }
+    if (taxRateBasisPoints.present) {
+      map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProductServicesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('description: $description, ')
+          ..write('unit: $unit, ')
+          ..write('salePriceMinor: $salePriceMinor, ')
+          ..write('hsnSac: $hsnSac, ')
+          ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2478,6 +3128,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $CustomersTable customers = $CustomersTable(this);
+  late final $ProductServicesTable productServices = $ProductServicesTable(
+    this,
+  );
   late final Index customersName = Index(
     'customers_name',
     'CREATE INDEX customers_name ON customers (name)',
@@ -2490,6 +3143,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'customers_gstin',
     'CREATE INDEX customers_gstin ON customers (gstin)',
   );
+  late final Index productsName = Index(
+    'products_name',
+    'CREATE INDEX products_name ON product_services (name)',
+  );
+  late final Index productsType = Index(
+    'products_type',
+    'CREATE INDEX products_type ON product_services (type)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2498,9 +3159,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     databaseMetadata,
     businessProfiles,
     customers,
+    productServices,
     customersName,
     customersMobile,
     customersGstin,
+    productsName,
+    productsType,
   ];
 }
 
@@ -3656,6 +4320,326 @@ typedef $$CustomersTableProcessedTableManager =
       Customer,
       PrefetchHooks Function()
     >;
+typedef $$ProductServicesTableCreateCompanionBuilder =
+    ProductServicesCompanion Function({
+      Value<int> id,
+      required String name,
+      required String type,
+      Value<String?> description,
+      required String unit,
+      required int salePriceMinor,
+      Value<String?> hsnSac,
+      Value<int> taxRateBasisPoints,
+      Value<bool> isDeleted,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$ProductServicesTableUpdateCompanionBuilder =
+    ProductServicesCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<String> type,
+      Value<String?> description,
+      Value<String> unit,
+      Value<int> salePriceMinor,
+      Value<String?> hsnSac,
+      Value<int> taxRateBasisPoints,
+      Value<bool> isDeleted,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$ProductServicesTableFilterComposer
+    extends Composer<_$AppDatabase, $ProductServicesTable> {
+  $$ProductServicesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get salePriceMinor => $composableBuilder(
+    column: $table.salePriceMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get hsnSac => $composableBuilder(
+    column: $table.hsnSac,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ProductServicesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ProductServicesTable> {
+  $$ProductServicesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get salePriceMinor => $composableBuilder(
+    column: $table.salePriceMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get hsnSac => $composableBuilder(
+    column: $table.hsnSac,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ProductServicesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ProductServicesTable> {
+  $$ProductServicesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<int> get salePriceMinor => $composableBuilder(
+    column: $table.salePriceMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get hsnSac =>
+      $composableBuilder(column: $table.hsnSac, builder: (column) => column);
+
+  GeneratedColumn<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ProductServicesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ProductServicesTable,
+          ProductService,
+          $$ProductServicesTableFilterComposer,
+          $$ProductServicesTableOrderingComposer,
+          $$ProductServicesTableAnnotationComposer,
+          $$ProductServicesTableCreateCompanionBuilder,
+          $$ProductServicesTableUpdateCompanionBuilder,
+          (
+            ProductService,
+            BaseReferences<
+              _$AppDatabase,
+              $ProductServicesTable,
+              ProductService
+            >,
+          ),
+          ProductService,
+          PrefetchHooks Function()
+        > {
+  $$ProductServicesTableTableManager(
+    _$AppDatabase db,
+    $ProductServicesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProductServicesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProductServicesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProductServicesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<String> unit = const Value.absent(),
+                Value<int> salePriceMinor = const Value.absent(),
+                Value<String?> hsnSac = const Value.absent(),
+                Value<int> taxRateBasisPoints = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ProductServicesCompanion(
+                id: id,
+                name: name,
+                type: type,
+                description: description,
+                unit: unit,
+                salePriceMinor: salePriceMinor,
+                hsnSac: hsnSac,
+                taxRateBasisPoints: taxRateBasisPoints,
+                isDeleted: isDeleted,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                required String type,
+                Value<String?> description = const Value.absent(),
+                required String unit,
+                required int salePriceMinor,
+                Value<String?> hsnSac = const Value.absent(),
+                Value<int> taxRateBasisPoints = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ProductServicesCompanion.insert(
+                id: id,
+                name: name,
+                type: type,
+                description: description,
+                unit: unit,
+                salePriceMinor: salePriceMinor,
+                hsnSac: hsnSac,
+                taxRateBasisPoints: taxRateBasisPoints,
+                isDeleted: isDeleted,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ProductServicesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ProductServicesTable,
+      ProductService,
+      $$ProductServicesTableFilterComposer,
+      $$ProductServicesTableOrderingComposer,
+      $$ProductServicesTableAnnotationComposer,
+      $$ProductServicesTableCreateCompanionBuilder,
+      $$ProductServicesTableUpdateCompanionBuilder,
+      (
+        ProductService,
+        BaseReferences<_$AppDatabase, $ProductServicesTable, ProductService>,
+      ),
+      ProductService,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3666,4 +4650,6 @@ class $AppDatabaseManager {
       $$BusinessProfilesTableTableManager(_db, _db.businessProfiles);
   $$CustomersTableTableManager get customers =>
       $$CustomersTableTableManager(_db, _db.customers);
+  $$ProductServicesTableTableManager get productServices =>
+      $$ProductServicesTableTableManager(_db, _db.productServices);
 }

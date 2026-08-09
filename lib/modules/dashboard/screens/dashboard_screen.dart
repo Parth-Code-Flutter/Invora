@@ -5,6 +5,7 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/responsive_content.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardScreen extends GetView<DashboardController> {
@@ -25,44 +26,70 @@ class DashboardScreen extends GetView<DashboardController> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.zero,
         children: [
-          AppCard(
-            padding: const EdgeInsets.all(24),
+          ResponsiveContent(
+            paddingTop: 8,
             child: Column(
               children: [
-                const Icon(
-                  Icons.check_circle_rounded,
-                  color: AppColors.success,
-                  size: 48,
+                AppCard(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.success,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Business setup complete',
+                        style: AppTextStyles.sectionTitle,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Your offline workspace is ready. Dashboard features arrive in a later phase.',
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  'Business setup complete',
-                  style: AppTextStyles.sectionTitle,
+                AppCard(
+                  child: ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: AppColors.primaryLight,
+                      child: Icon(
+                        Icons.people_outline,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    title: const Text('Customers'),
+                    subtitle: const Text('Manage customer and billing details'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => Get.toNamed<void>(AppRoutes.customers),
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Your offline workspace is ready. Dashboard features arrive in a later phase.',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.body.copyWith(
-                    color: AppColors.textSecondary,
+                const SizedBox(height: 12),
+                AppCard(
+                  child: ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: AppColors.secondaryLight,
+                      child: Icon(
+                        Icons.inventory_2_outlined,
+                        color: AppColors.secondary,
+                      ),
+                    ),
+                    title: const Text('Products & services'),
+                    subtitle: const Text('Manage reusable invoice items'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => Get.toNamed<void>(AppRoutes.products),
                   ),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          AppCard(
-            child: ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: AppColors.primaryLight,
-                child: Icon(Icons.people_outline, color: AppColors.primary),
-              ),
-              title: const Text('Customers'),
-              subtitle: const Text('Manage customer and billing details'),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => Get.toNamed<void>(AppRoutes.customers),
             ),
           ),
         ],

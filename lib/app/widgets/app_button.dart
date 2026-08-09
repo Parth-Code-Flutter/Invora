@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/responsive_utils.dart';
+
 class AppButton extends StatelessWidget {
   const AppButton({
     required this.label,
@@ -35,9 +37,12 @@ class AppButton extends StatelessWidget {
             ],
           );
 
-    final button = FilledButton(
-      onPressed: isLoading ? null : onPressed,
-      child: child,
+    final button = SizedBox(
+      height: ResponsiveUtils.height(context, 52),
+      child: FilledButton(
+        onPressed: isLoading ? null : onPressed,
+        child: child,
+      ),
     );
     return expand ? SizedBox(width: double.infinity, child: button) : button;
   }

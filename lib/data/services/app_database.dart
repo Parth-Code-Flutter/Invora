@@ -70,7 +70,26 @@ class Customers extends Table {
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(tables: [DatabaseMetadata, BusinessProfiles, Customers])
+@TableIndex(name: 'products_name', columns: {#name})
+@TableIndex(name: 'products_type', columns: {#type})
+class ProductServices extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get type => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get unit => text()();
+  IntColumn get salePriceMinor => integer()();
+  TextColumn get hsnSac => text().nullable()();
+  IntColumn get taxRateBasisPoints =>
+      integer().withDefault(const Constant(0))();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@DriftDatabase(
+  tables: [DatabaseMetadata, BusinessProfiles, Customers, ProductServices],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -88,6 +107,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 3) {
         await migrator.createTable(customers);
+      }
+      if (from < 4) {
+        await migrator.createTable(productServices);
       }
     },
   );

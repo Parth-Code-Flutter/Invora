@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/responsive_content.dart';
+import '../../../app/utils/responsive_utils.dart';
 import '../controllers/onboarding_controller.dart';
 
 class OnboardingScreen extends GetView<OnboardingController> {
@@ -34,8 +36,9 @@ class OnboardingScreen extends GetView<OnboardingController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+        child: ResponsiveContent(
+          paddingTop: 8,
+          tabletMaxWidth: 980,
           child: Column(
             children: [
               Align(
@@ -74,14 +77,19 @@ class OnboardingScreen extends GetView<OnboardingController> {
                   ),
                 ),
               ),
-              const SizedBox(height: 28),
-              Obx(
-                () => AppButton(
-                  label: controller.currentPage.value == _pages.length - 1
-                      ? 'Set up my business'
-                      : 'Continue',
-                  onPressed: controller.next,
-                  icon: Icons.arrow_forward_rounded,
+              ResponsiveUtils.verticalGap(context, 28),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: ResponsiveUtils.isTablet(context) ? 420 : 520,
+                ),
+                child: Obx(
+                  () => AppButton(
+                    label: controller.currentPage.value == _pages.length - 1
+                        ? 'Set up my business'
+                        : 'Continue',
+                    onPressed: controller.next,
+                    icon: Icons.arrow_forward_rounded,
+                  ),
                 ),
               ),
             ],
@@ -99,39 +107,62 @@ class _OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 520),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 132,
-              height: 132,
-              decoration: const BoxDecoration(
-                color: AppColors.primaryLight,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(data.icon, size: 58, color: AppColors.primary),
-            ),
-            const SizedBox(height: 40),
-            Text(
-              data.title,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.pageTitle,
-            ),
-            const SizedBox(height: 14),
-            Text(
-              data.message,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textSecondary,
-                height: 1.55,
-              ),
-            ),
-          ],
-        ),
+    final illustration = Container(
+      width: ResponsiveUtils.width(context, 132),
+      height: ResponsiveUtils.width(context, 132),
+      decoration: const BoxDecoration(
+        color: AppColors.primaryLight,
+        shape: BoxShape.circle,
       ),
+      child: Icon(
+        data.icon,
+        size: ResponsiveUtils.width(context, 58),
+        color: AppColors.primary,
+      ),
+    );
+    final copy = ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 520),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            data.title,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.pageTitle.copyWith(
+              fontSize: ResponsiveUtils.fontSize(context, 24),
+            ),
+          ),
+          ResponsiveUtils.verticalGap(context, 14),
+          Text(
+            data.message,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.55,
+              fontSize: ResponsiveUtils.fontSize(context, 15),
+            ),
+          ),
+        ],
+      ),
+    );
+    return Center(
+      child: ResponsiveUtils.isTablet(context)
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                illustration,
+                ResponsiveUtils.horizontalGap(context, 56),
+                Flexible(child: copy),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                illustration,
+                ResponsiveUtils.verticalGap(context, 40),
+                copy,
+              ],
+            ),
     );
   }
 }

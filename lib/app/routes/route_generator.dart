@@ -12,6 +12,10 @@ import '../../modules/customers/bindings/customer_bindings.dart';
 import '../../modules/customers/screens/customer_details_screen.dart';
 import '../../modules/customers/screens/customer_form_screen.dart';
 import '../../modules/customers/screens/customer_list_screen.dart';
+import '../../modules/products/bindings/product_bindings.dart';
+import '../../modules/products/screens/product_details_screen.dart';
+import '../../modules/products/screens/product_form_screen.dart';
+import '../../modules/products/screens/product_list_screen.dart';
 import 'app_routes.dart';
 
 abstract final class AppRouter {
@@ -58,6 +62,26 @@ abstract final class AppRouter {
       name: AppRoutes.customerDetails,
       page: CustomerDetailsScreen.new,
       binding: CustomerDetailsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.products,
+      page: ProductListScreen.new,
+      binding: ProductListBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.productAdd,
+      page: ProductFormScreen.new,
+      binding: ProductFormBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.productEdit,
+      page: ProductFormScreen.new,
+      binding: ProductFormBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.productDetails,
+      page: ProductDetailsScreen.new,
+      binding: ProductDetailsBinding(),
     ),
   ];
 }

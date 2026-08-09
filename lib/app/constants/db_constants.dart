@@ -1,3 +1,3 @@
 abstract final class DbConstants {
-  static const schemaVersion = 3;
+  static const schemaVersion = 4;
 }

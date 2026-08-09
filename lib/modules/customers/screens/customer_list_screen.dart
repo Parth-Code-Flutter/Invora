@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
+import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../data/models/customer_model.dart';
@@ -24,7 +25,12 @@ class CustomerListScreen extends GetView<CustomerListController> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+            padding: EdgeInsets.fromLTRB(
+              ResponsiveUtils.horizontalPadding(context),
+              ResponsiveUtils.height(context, 8),
+              ResponsiveUtils.horizontalPadding(context),
+              ResponsiveUtils.height(context, 12),
+            ),
             child: TextField(
               onChanged: controller.updateSearch,
               textInputAction: TextInputAction.search,
@@ -58,14 +64,16 @@ class CustomerListScreen extends GetView<CustomerListController> {
               }
               return LayoutBuilder(
                 builder: (context, constraints) {
-                  final columns = constraints.maxWidth >= 900
-                      ? 3
-                      : constraints.maxWidth >= 600
-                      ? 2
-                      : 1;
+                  final columns = ResponsiveUtils.gridColumns(context);
+                  final horizontal = ResponsiveUtils.horizontalPadding(context);
                   if (columns == 1) {
                     return ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
+                      padding: EdgeInsets.fromLTRB(
+                        horizontal,
+                        4,
+                        horizontal,
+                        100,
+                      ),
                       itemCount: controller.customers.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 10),
                       itemBuilder: (context, index) => _CustomerCard(
@@ -78,12 +86,17 @@ class CustomerListScreen extends GetView<CustomerListController> {
                     );
                   }
                   return GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
+                    padding: EdgeInsets.fromLTRB(
+                      horizontal,
+                      4,
+                      horizontal,
+                      100,
+                    ),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: columns,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
-                      mainAxisExtent: 156,
+                      mainAxisExtent: ResponsiveUtils.height(context, 156),
                     ),
                     itemCount: controller.customers.length,
                     itemBuilder: (context, index) => _CustomerCard(

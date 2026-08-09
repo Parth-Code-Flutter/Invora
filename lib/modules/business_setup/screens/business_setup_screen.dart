@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
+import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_section_header.dart';
@@ -25,7 +26,12 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
             : Form(
                 key: controller.formKey,
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                  padding: EdgeInsets.fromLTRB(
+                    ResponsiveUtils.horizontalPadding(context),
+                    ResponsiveUtils.height(context, 8),
+                    ResponsiveUtils.horizontalPadding(context),
+                    ResponsiveUtils.height(context, 32),
+                  ),
                   children: [
                     Text(
                       'Add the details you want to appear on invoices. Only the business name is required.',
@@ -296,7 +302,7 @@ class _ResponsiveFields extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 680 ? 2 : 1;
+        final columns = ResponsiveUtils.formColumns(context);
         final width = columns == 2
             ? (constraints.maxWidth - 12) / 2
             : constraints.maxWidth;
@@ -331,7 +337,7 @@ class _ImagePickerCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
-        height: 116,
+        height: ResponsiveUtils.height(context, 116),
         decoration: BoxDecoration(
           color: AppColors.primaryLight,
           borderRadius: BorderRadius.circular(14),

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
+import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_text_field.dart';
@@ -24,11 +25,18 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
             : Form(
                 key: controller.formKey,
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                  padding: EdgeInsets.fromLTRB(
+                    ResponsiveUtils.horizontalPadding(context),
+                    ResponsiveUtils.height(context, 8),
+                    ResponsiveUtils.horizontalPadding(context),
+                    ResponsiveUtils.height(context, 32),
+                  ),
                   children: [
                     Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 900),
+                        constraints: BoxConstraints(
+                          maxWidth: ResponsiveUtils.contentMaxWidth(context),
+                        ),
                         child: Column(
                           children: [
                             AppCard(
@@ -180,7 +188,7 @@ class _ResponsiveFields extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final twoColumns = constraints.maxWidth >= 620;
+        final twoColumns = ResponsiveUtils.formColumns(context) == 2;
         final width = twoColumns
             ? (constraints.maxWidth - 12) / 2
             : constraints.maxWidth;

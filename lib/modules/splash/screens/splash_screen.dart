@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_constants.dart';
 import '../../../app/themes/app_text_styles.dart';
+import '../../../app/utils/responsive_utils.dart';
 import '../controllers/splash_controller.dart';
 
 class SplashScreen extends GetView<SplashController> {
@@ -18,25 +19,32 @@ class SplashScreen extends GetView<SplashController> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: ResponsiveUtils.width(context, 72),
+              height: ResponsiveUtils.width(context, 72),
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: AppColors.primary,
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveUtils.width(context, 22),
+                ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.receipt_long_rounded,
                 color: Colors.white,
-                size: 36,
+                size: ResponsiveUtils.width(context, 36),
               ),
             ),
-            const SizedBox(height: 20),
-            Text(AppConstants.appName, style: AppTextStyles.pageTitle),
-            const SizedBox(height: 24),
-            const SizedBox.square(
-              dimension: 22,
-              child: CircularProgressIndicator(strokeWidth: 2.5),
+            ResponsiveUtils.verticalGap(context, 20),
+            Text(
+              AppConstants.appName,
+              style: AppTextStyles.pageTitle.copyWith(
+                fontSize: ResponsiveUtils.fontSize(context, 24),
+              ),
+            ),
+            ResponsiveUtils.verticalGap(context, 24),
+            SizedBox.square(
+              dimension: ResponsiveUtils.width(context, 22),
+              child: const CircularProgressIndicator(strokeWidth: 2.5),
             ),
           ],
         ),
