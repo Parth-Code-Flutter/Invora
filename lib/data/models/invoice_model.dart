@@ -4,6 +4,48 @@ import '../../app/enums/tax_type.dart';
 import 'customer_model.dart';
 import 'invoice_calculation_models.dart';
 
+enum InvoiceListFilter { all, draft, unpaid, paid, overdue }
+
+enum InvoiceSort { newest, oldest, highestAmount, lowestAmount }
+
+class InvoiceSummaryModel {
+  const InvoiceSummaryModel({
+    required this.id,
+    required this.invoiceNumber,
+    required this.customerName,
+    this.companyName,
+    required this.invoiceDate,
+    this.dueDate,
+    required this.status,
+    required this.grandTotalMinor,
+    required this.balanceMinor,
+  });
+
+  final int id;
+  final String invoiceNumber;
+  final String customerName;
+  final String? companyName;
+  final DateTime invoiceDate;
+  final DateTime? dueDate;
+  final InvoiceStatus status;
+  final int grandTotalMinor;
+  final int balanceMinor;
+
+  InvoiceStatus effectiveStatus(DateTime now) {
+    final canBecomeOverdue =
+        status == InvoiceStatus.unpaid || status == InvoiceStatus.partiallyPaid;
+    if (canBecomeOverdue &&
+        dueDate != null &&
+        dueDate!.isBefore(_dateOnly(now))) {
+      return InvoiceStatus.overdue;
+    }
+    return status;
+  }
+
+  static DateTime _dateOnly(DateTime value) =>
+      DateTime(value.year, value.month, value.day);
+}
+
 class CustomerSnapshotModel {
   const CustomerSnapshotModel({
     this.customerId,

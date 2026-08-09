@@ -11,6 +11,63 @@ import 'base_repository.dart';
 class InvoiceRepository extends BaseRepository {
   const InvoiceRepository(super.database);
 
+  Stream<List<InvoiceSummaryModel>> watchSummaries({
+    String query = '',
+    InvoiceListFilter filter = InvoiceListFilter.all,
+    InvoiceSort sort = InvoiceSort.newest,
+  }) {
+    return database.select(database.invoices).watch().map((rows) {
+      final search = query.trim().toLowerCase();
+      final now = DateTime.now();
+      final results = rows
+          .map(
+            (row) => InvoiceSummaryModel(
+              id: row.id,
+              invoiceNumber: row.invoiceNumber,
+              customerName: row.customerName,
+              companyName: row.customerCompany,
+              invoiceDate: row.invoiceDate,
+              dueDate: row.dueDate,
+              status: InvoiceStatus.values.byName(row.status),
+              grandTotalMinor: row.grandTotalMinor,
+              balanceMinor: row.balanceMinor,
+            ),
+          )
+          .where((invoice) {
+            final matchesSearch =
+                search.isEmpty ||
+                invoice.invoiceNumber.toLowerCase().contains(search) ||
+                invoice.customerName.toLowerCase().contains(search) ||
+                (invoice.companyName?.toLowerCase().contains(search) ?? false);
+            if (!matchesSearch) return false;
+            final status = invoice.effectiveStatus(now);
+            return switch (filter) {
+              InvoiceListFilter.all => true,
+              InvoiceListFilter.draft => status == InvoiceStatus.draft,
+              InvoiceListFilter.unpaid =>
+                status == InvoiceStatus.unpaid ||
+                    status == InvoiceStatus.partiallyPaid,
+              InvoiceListFilter.paid => status == InvoiceStatus.paid,
+              InvoiceListFilter.overdue => status == InvoiceStatus.overdue,
+            };
+          })
+          .toList();
+      results.sort(
+        (left, right) => switch (sort) {
+          InvoiceSort.newest => right.invoiceDate.compareTo(left.invoiceDate),
+          InvoiceSort.oldest => left.invoiceDate.compareTo(right.invoiceDate),
+          InvoiceSort.highestAmount => right.grandTotalMinor.compareTo(
+            left.grandTotalMinor,
+          ),
+          InvoiceSort.lowestAmount => left.grandTotalMinor.compareTo(
+            right.grandTotalMinor,
+          ),
+        },
+      );
+      return results;
+    });
+  }
+
   Future<String> nextInvoiceNumber({
     required String prefix,
     required int startingNumber,

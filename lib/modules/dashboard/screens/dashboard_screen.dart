@@ -93,6 +93,22 @@ class DashboardScreen extends GetView<DashboardController> {
                 AppCard(
                   child: ListTile(
                     leading: const CircleAvatar(
+                      backgroundColor: AppColors.warningLight,
+                      child: Icon(
+                        Icons.list_alt_rounded,
+                        color: AppColors.warning,
+                      ),
+                    ),
+                    title: const Text('Invoices'),
+                    subtitle: const Text('Search and manage saved invoices'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => Get.toNamed<void>(AppRoutes.invoices),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                AppCard(
+                  child: ListTile(
+                    leading: const CircleAvatar(
                       backgroundColor: AppColors.secondaryLight,
                       child: Icon(
                         Icons.inventory_2_outlined,
