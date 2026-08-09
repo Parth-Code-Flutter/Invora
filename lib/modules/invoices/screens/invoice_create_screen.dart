@@ -23,7 +23,9 @@ class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create invoice'),
+        title: Text(
+          controller.isQuotation ? 'Create quotation' : 'Create invoice',
+        ),
         actions: [
           Obx(
             () => TextButton(
@@ -50,7 +52,9 @@ class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.check_rounded),
-              label: const Text('Save invoice'),
+              label: Text(
+                controller.isQuotation ? 'Save quotation' : 'Save invoice',
+              ),
             ),
           ),
         ),

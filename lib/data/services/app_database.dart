@@ -92,6 +92,8 @@ class ProductServices extends Table {
 class Invoices extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get invoiceNumber => text()();
+  TextColumn get documentType =>
+      text().withDefault(const Constant('invoice'))();
   IntColumn get customerId => integer().nullable()();
   TextColumn get customerName => text()();
   TextColumn get customerCompany => text().nullable()();
@@ -195,14 +197,21 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createTable(invoiceItems);
         await migrator.createTable(invoiceCharges);
       }
+      if (from < 6) {
+        await migrator.addColumn(invoices, invoices.documentType);
+      }
     },
   );
 }
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final directory = await getApplicationSupportDirectory();
-    final file = File(p.join(directory.path, AppConstants.databaseFileName));
+    final file = await appDatabaseFile();
     return NativeDatabase.createInBackground(file);
   });
+}
+
+Future<File> appDatabaseFile() async {
+  final directory = await getApplicationSupportDirectory();
+  return File(p.join(directory.path, AppConstants.databaseFileName));
 }

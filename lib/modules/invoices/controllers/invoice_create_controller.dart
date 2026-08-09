@@ -20,14 +20,17 @@ class InvoiceCreateController extends GetxController {
     this._business,
     this._customers,
     this._products,
-    this._calculator,
-  );
+    this._calculator, {
+    this.documentType = DocumentType.invoice,
+  });
 
   final InvoiceRepository _invoices;
   final BusinessRepository _business;
   final CustomerRepository _customers;
   final ProductRepository _products;
   final InvoiceCalculationService _calculator;
+  final DocumentType documentType;
+  bool get isQuotation => documentType == DocumentType.quotation;
 
   final invoiceNumber = ''.obs;
   final customer = Rxn<CustomerSnapshotModel>();
@@ -46,6 +49,7 @@ class InvoiceCreateController extends GetxController {
   final paidController = TextEditingController(text: '0.00');
   int? _id;
   DateTime _createdAt = DateTime.now();
+  InvoiceStatus _originalStatus = InvoiceStatus.draft;
   var _counter = 0;
 
   @override
@@ -68,15 +72,15 @@ class InvoiceCreateController extends GetxController {
     currencySymbol.value = profile?.currencySymbol ?? '₹';
     final argumentId = Get.arguments is int ? Get.arguments as int : null;
     final saved = argumentId == null
-        ? await _invoices.latestDraft()
+        ? await _invoices.latestDraftOfType(documentType)
         : await _invoices.getById(argumentId);
     if (saved != null) {
       _restore(saved);
       Get.snackbar('Draft restored', saved.invoiceNumber);
     } else {
       invoiceNumber.value = await _invoices.nextInvoiceNumber(
-        prefix: profile?.invoicePrefix ?? 'INV',
-        startingNumber: profile?.startingInvoiceNumber ?? 1,
+        prefix: isQuotation ? 'QTN' : profile?.invoicePrefix ?? 'INV',
+        startingNumber: isQuotation ? 1 : profile?.startingInvoiceNumber ?? 1,
       );
       recalculate();
     }
@@ -174,6 +178,10 @@ class InvoiceCreateController extends GetxController {
   }
 
   Future<void> save({required bool draft}) async {
+    if (_originalStatus == InvoiceStatus.cancelled) {
+      Get.snackbar('Invoice cancelled', 'Cancelled invoices cannot be edited.');
+      return;
+    }
     if (customer.value == null) {
       Get.snackbar('Customer required', 'Select a customer before saving.');
       return;
@@ -193,6 +201,8 @@ class InvoiceCreateController extends GetxController {
       final paymentStatus = result.paymentStatus;
       final status = draft
           ? InvoiceStatus.draft
+          : isQuotation
+          ? InvoiceStatus.sent
           : switch (paymentStatus) {
               InvoicePaymentStatus.unpaid => InvoiceStatus.unpaid,
               InvoicePaymentStatus.partiallyPaid => InvoiceStatus.partiallyPaid,
@@ -201,6 +211,7 @@ class InvoiceCreateController extends GetxController {
       final saved = await _invoices.save(
         InvoiceModel(
           id: _id,
+          documentType: documentType,
           invoiceNumber: invoiceNumber.value,
           customer: customer.value!,
           invoiceDate: invoiceDate.value,
@@ -231,6 +242,7 @@ class InvoiceCreateController extends GetxController {
   void _restore(InvoiceModel model) {
     _id = model.id;
     _createdAt = model.createdAt;
+    _originalStatus = model.status;
     invoiceNumber.value = model.invoiceNumber;
     customer.value = model.customer;
     invoiceDate.value = model.invoiceDate;

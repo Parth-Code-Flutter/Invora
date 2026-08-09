@@ -5,18 +5,87 @@ import '../../app/enums/invoice_status.dart';
 import '../../app/enums/tax_type.dart';
 import '../models/invoice_calculation_models.dart';
 import '../models/invoice_model.dart';
+import '../models/report_summary_model.dart';
 import '../services/app_database.dart';
 import 'base_repository.dart';
 
 class InvoiceRepository extends BaseRepository {
   const InvoiceRepository(super.database);
 
+  Stream<ReportSummaryModel> watchCurrentMonthReport() {
+    return database.select(database.invoices).watch().map((rows) {
+      final now = DateTime.now();
+      final current = rows.where(
+        (row) =>
+            row.documentType == DocumentType.invoice.name &&
+            row.invoiceDate.year == now.year &&
+            row.invoiceDate.month == now.month &&
+            row.status != InvoiceStatus.draft.name &&
+            row.status != InvoiceStatus.cancelled.name,
+      );
+      var sales = 0;
+      var received = 0;
+      var outstanding = 0;
+      var count = 0;
+      var paid = 0;
+      var pending = 0;
+      final monthStarts = List.generate(6, (index) {
+        final offset = 5 - index;
+        return DateTime(now.year, now.month - offset);
+      });
+      final monthlySales = monthStarts
+          .map((month) => MonthlySalesPoint(month: month, amountMinor: 0))
+          .toList();
+      for (final row in rows.where(
+        (row) =>
+            row.documentType == DocumentType.invoice.name &&
+            row.status != InvoiceStatus.draft.name &&
+            row.status != InvoiceStatus.cancelled.name,
+      )) {
+        final index = monthStarts.indexWhere(
+          (month) =>
+              month.year == row.invoiceDate.year &&
+              month.month == row.invoiceDate.month,
+        );
+        if (index >= 0) {
+          monthlySales[index] = MonthlySalesPoint(
+            month: monthStarts[index],
+            amountMinor: monthlySales[index].amountMinor + row.grandTotalMinor,
+          );
+        }
+      }
+      for (final row in current) {
+        sales += row.grandTotalMinor;
+        received += row.paidAmountMinor;
+        outstanding += row.balanceMinor;
+        count++;
+        if (row.status == InvoiceStatus.paid.name) {
+          paid++;
+        } else {
+          pending++;
+        }
+      }
+      return ReportSummaryModel(
+        totalSalesMinor: sales,
+        totalReceivedMinor: received,
+        outstandingMinor: outstanding,
+        invoiceCount: count,
+        paidCount: paid,
+        pendingCount: pending,
+        monthlySales: monthlySales,
+      );
+    });
+  }
+
   Stream<List<InvoiceSummaryModel>> watchSummaries({
     String query = '',
     InvoiceListFilter filter = InvoiceListFilter.all,
     InvoiceSort sort = InvoiceSort.newest,
+    DocumentType documentType = DocumentType.invoice,
   }) {
-    return database.select(database.invoices).watch().map((rows) {
+    final statement = database.select(database.invoices)
+      ..where((table) => table.documentType.equals(documentType.name));
+    return statement.watch().map((rows) {
       final search = query.trim().toLowerCase();
       final now = DateTime.now();
       final results = rows
@@ -49,6 +118,10 @@ class InvoiceRepository extends BaseRepository {
                     status == InvoiceStatus.partiallyPaid,
               InvoiceListFilter.paid => status == InvoiceStatus.paid,
               InvoiceListFilter.overdue => status == InvoiceStatus.overdue,
+              InvoiceListFilter.sent => status == InvoiceStatus.sent,
+              InvoiceListFilter.accepted => status == InvoiceStatus.accepted,
+              InvoiceListFilter.rejected => status == InvoiceStatus.rejected,
+              InvoiceListFilter.expired => status == InvoiceStatus.expired,
             };
           })
           .toList();
@@ -95,10 +168,17 @@ class InvoiceRepository extends BaseRepository {
     return await query.getSingleOrNull() != null;
   }
 
-  Future<InvoiceModel?> latestDraft() async {
+  Future<InvoiceModel?> latestDraft() =>
+      latestDraftOfType(DocumentType.invoice);
+
+  Future<InvoiceModel?> latestDraftOfType(DocumentType documentType) async {
     final row =
         await (database.select(database.invoices)
-              ..where((table) => table.status.equals(InvoiceStatus.draft.name))
+              ..where(
+                (table) =>
+                    table.status.equals(InvoiceStatus.draft.name) &
+                    table.documentType.equals(documentType.name),
+              )
               ..orderBy([(table) => OrderingTerm.desc(table.updatedAt)])
               ..limit(1))
             .getSingleOrNull();
@@ -112,11 +192,148 @@ class InvoiceRepository extends BaseRepository {
     return row == null ? null : _load(row);
   }
 
+  Future<void> updatePayment(int id, int paidAmountMinor) async {
+    final invoice = await getById(id);
+    if (invoice == null) throw StateError('Invoice not found.');
+    if (invoice.status == InvoiceStatus.cancelled) {
+      throw StateError('A cancelled invoice cannot receive payments.');
+    }
+    if (paidAmountMinor < 0 ||
+        paidAmountMinor > invoice.calculation.grandTotalMinor) {
+      throw ArgumentError('Payment must be between zero and the grand total.');
+    }
+    final balance = invoice.calculation.grandTotalMinor - paidAmountMinor;
+    final status = paidAmountMinor == 0
+        ? InvoiceStatus.unpaid
+        : balance == 0
+        ? InvoiceStatus.paid
+        : InvoiceStatus.partiallyPaid;
+    await (database.update(
+      database.invoices,
+    )..where((table) => table.id.equals(id))).write(
+      InvoicesCompanion(
+        paidAmountMinor: Value(paidAmountMinor),
+        balanceMinor: Value(balance),
+        status: Value(status.name),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<void> cancel(int id) async {
+    await (database.update(
+      database.invoices,
+    )..where((table) => table.id.equals(id))).write(
+      InvoicesCompanion(
+        status: Value(InvoiceStatus.cancelled.name),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<void> updateStatus(int id, InvoiceStatus status) async {
+    await (database.update(
+      database.invoices,
+    )..where((table) => table.id.equals(id))).write(
+      InvoicesCompanion(
+        status: Value(status.name),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<InvoiceModel> convertQuotationToInvoice({
+    required int quotationId,
+    required String invoiceNumber,
+  }) async {
+    final converted = await duplicate(
+      id: quotationId,
+      newInvoiceNumber: invoiceNumber,
+    );
+    await (database.update(
+      database.invoices,
+    )..where((table) => table.id.equals(converted.id!))).write(
+      InvoicesCompanion(
+        documentType: Value(DocumentType.invoice.name),
+        status: Value(InvoiceStatus.unpaid.name),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+    await updateStatus(quotationId, InvoiceStatus.accepted);
+    return (await getById(converted.id!))!;
+  }
+
+  Future<void> delete(int id) async {
+    await (database.delete(
+      database.invoices,
+    )..where((table) => table.id.equals(id))).go();
+  }
+
+  Future<InvoiceModel> duplicate({
+    required int id,
+    required String newInvoiceNumber,
+  }) async {
+    final source = await getById(id);
+    if (source == null) throw StateError('Invoice not found.');
+    final now = DateTime.now();
+    final copiedCalculation = InvoiceCalculationResult(
+      items: source.calculation.items,
+      subtotalMinor: source.calculation.subtotalMinor,
+      itemDiscountTotalMinor: source.calculation.itemDiscountTotalMinor,
+      invoiceDiscountMinor: source.calculation.invoiceDiscountMinor,
+      taxableTotalMinor: source.calculation.taxableTotalMinor,
+      taxTotalMinor: source.calculation.taxTotalMinor,
+      cgstMinor: source.calculation.cgstMinor,
+      sgstMinor: source.calculation.sgstMinor,
+      igstMinor: source.calculation.igstMinor,
+      additionalChargeTotalMinor: source.calculation.additionalChargeTotalMinor,
+      roundOffMinor: source.calculation.roundOffMinor,
+      grandTotalMinor: source.calculation.grandTotalMinor,
+      paidAmountMinor: 0,
+      balanceDueMinor: source.calculation.grandTotalMinor,
+      paymentStatus: InvoicePaymentStatus.unpaid,
+    );
+    return save(
+      InvoiceModel(
+        documentType: source.documentType,
+        invoiceNumber: newInvoiceNumber,
+        customer: source.customer,
+        invoiceDate: now,
+        status: InvoiceStatus.draft,
+        taxType: source.taxType,
+        invoiceDiscount: source.invoiceDiscount,
+        items: source.items
+            .map(
+              (item) => InvoiceItemModel(
+                localId: 'copy-${item.localId}',
+                productId: item.productId,
+                name: item.name,
+                description: item.description,
+                quantityScaled: item.quantityScaled,
+                unit: item.unit,
+                rateMinor: item.rateMinor,
+                hsnSac: item.hsnSac,
+                taxRateBasisPoints: item.taxRateBasisPoints,
+                discount: item.discount,
+              ),
+            )
+            .toList(),
+        charges: source.charges,
+        calculation: copiedCalculation,
+        notes: source.notes,
+        terms: source.terms,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+  }
+
   Future<InvoiceModel> save(InvoiceModel model) async {
     return database.transaction(() async {
       final invoice = InvoicesCompanion(
         id: model.id == null ? const Value.absent() : Value(model.id!),
         invoiceNumber: Value(model.invoiceNumber),
+        documentType: Value(model.documentType.name),
         customerId: Value(model.customer.customerId),
         customerName: Value(model.customer.name),
         customerCompany: Value(model.customer.companyName),
@@ -225,6 +442,7 @@ class InvoiceRepository extends BaseRepository {
     final discountType = DiscountType.values.byName(row.discountType);
     return InvoiceModel(
       id: row.id,
+      documentType: DocumentType.values.byName(row.documentType),
       invoiceNumber: row.invoiceNumber,
       customer: CustomerSnapshotModel(
         customerId: row.customerId,

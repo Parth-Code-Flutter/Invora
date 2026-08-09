@@ -3147,6 +3147,18 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _documentTypeMeta = const VerificationMeta(
+    'documentType',
+  );
+  @override
+  late final GeneratedColumn<String> documentType = GeneratedColumn<String>(
+    'document_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('invoice'),
+  );
   static const VerificationMeta _customerIdMeta = const VerificationMeta(
     'customerId',
   );
@@ -3510,6 +3522,7 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
   List<GeneratedColumn> get $columns => [
     id,
     invoiceNumber,
+    documentType,
     customerId,
     customerName,
     customerCompany,
@@ -3569,6 +3582,15 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
       );
     } else if (isInserting) {
       context.missing(_invoiceNumberMeta);
+    }
+    if (data.containsKey('document_type')) {
+      context.handle(
+        _documentTypeMeta,
+        documentType.isAcceptableOrUnknown(
+          data['document_type']!,
+          _documentTypeMeta,
+        ),
+      );
     }
     if (data.containsKey('customer_id')) {
       context.handle(
@@ -3884,6 +3906,10 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
         DriftSqlType.string,
         data['${effectivePrefix}invoice_number'],
       )!,
+      documentType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_type'],
+      )!,
       customerId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}customer_id'],
@@ -4028,6 +4054,7 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
 class Invoice extends DataClass implements Insertable<Invoice> {
   final int id;
   final String invoiceNumber;
+  final String documentType;
   final int? customerId;
   final String customerName;
   final String? customerCompany;
@@ -4064,6 +4091,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
   const Invoice({
     required this.id,
     required this.invoiceNumber,
+    required this.documentType,
     this.customerId,
     required this.customerName,
     this.customerCompany,
@@ -4103,6 +4131,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['invoice_number'] = Variable<String>(invoiceNumber);
+    map['document_type'] = Variable<String>(documentType);
     if (!nullToAbsent || customerId != null) {
       map['customer_id'] = Variable<int>(customerId);
     }
@@ -4167,6 +4196,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     return InvoicesCompanion(
       id: Value(id),
       invoiceNumber: Value(invoiceNumber),
+      documentType: Value(documentType),
       customerId: customerId == null && nullToAbsent
           ? const Value.absent()
           : Value(customerId),
@@ -4235,6 +4265,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     return Invoice(
       id: serializer.fromJson<int>(json['id']),
       invoiceNumber: serializer.fromJson<String>(json['invoiceNumber']),
+      documentType: serializer.fromJson<String>(json['documentType']),
       customerId: serializer.fromJson<int?>(json['customerId']),
       customerName: serializer.fromJson<String>(json['customerName']),
       customerCompany: serializer.fromJson<String?>(json['customerCompany']),
@@ -4278,6 +4309,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'invoiceNumber': serializer.toJson<String>(invoiceNumber),
+      'documentType': serializer.toJson<String>(documentType),
       'customerId': serializer.toJson<int?>(customerId),
       'customerName': serializer.toJson<String>(customerName),
       'customerCompany': serializer.toJson<String?>(customerCompany),
@@ -4317,6 +4349,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
   Invoice copyWith({
     int? id,
     String? invoiceNumber,
+    String? documentType,
     Value<int?> customerId = const Value.absent(),
     String? customerName,
     Value<String?> customerCompany = const Value.absent(),
@@ -4353,6 +4386,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
   }) => Invoice(
     id: id ?? this.id,
     invoiceNumber: invoiceNumber ?? this.invoiceNumber,
+    documentType: documentType ?? this.documentType,
     customerId: customerId.present ? customerId.value : this.customerId,
     customerName: customerName ?? this.customerName,
     customerCompany: customerCompany.present
@@ -4407,6 +4441,9 @@ class Invoice extends DataClass implements Insertable<Invoice> {
       invoiceNumber: data.invoiceNumber.present
           ? data.invoiceNumber.value
           : this.invoiceNumber,
+      documentType: data.documentType.present
+          ? data.documentType.value
+          : this.documentType,
       customerId: data.customerId.present
           ? data.customerId.value
           : this.customerId,
@@ -4492,6 +4529,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     return (StringBuffer('Invoice(')
           ..write('id: $id, ')
           ..write('invoiceNumber: $invoiceNumber, ')
+          ..write('documentType: $documentType, ')
           ..write('customerId: $customerId, ')
           ..write('customerName: $customerName, ')
           ..write('customerCompany: $customerCompany, ')
@@ -4533,6 +4571,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
   int get hashCode => Object.hashAll([
     id,
     invoiceNumber,
+    documentType,
     customerId,
     customerName,
     customerCompany,
@@ -4573,6 +4612,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
       (other is Invoice &&
           other.id == this.id &&
           other.invoiceNumber == this.invoiceNumber &&
+          other.documentType == this.documentType &&
           other.customerId == this.customerId &&
           other.customerName == this.customerName &&
           other.customerCompany == this.customerCompany &&
@@ -4611,6 +4651,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
 class InvoicesCompanion extends UpdateCompanion<Invoice> {
   final Value<int> id;
   final Value<String> invoiceNumber;
+  final Value<String> documentType;
   final Value<int?> customerId;
   final Value<String> customerName;
   final Value<String?> customerCompany;
@@ -4647,6 +4688,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
   const InvoicesCompanion({
     this.id = const Value.absent(),
     this.invoiceNumber = const Value.absent(),
+    this.documentType = const Value.absent(),
     this.customerId = const Value.absent(),
     this.customerName = const Value.absent(),
     this.customerCompany = const Value.absent(),
@@ -4684,6 +4726,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
   InvoicesCompanion.insert({
     this.id = const Value.absent(),
     required String invoiceNumber,
+    this.documentType = const Value.absent(),
     this.customerId = const Value.absent(),
     required String customerName,
     this.customerCompany = const Value.absent(),
@@ -4739,6 +4782,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
   static Insertable<Invoice> custom({
     Expression<int>? id,
     Expression<String>? invoiceNumber,
+    Expression<String>? documentType,
     Expression<int>? customerId,
     Expression<String>? customerName,
     Expression<String>? customerCompany,
@@ -4776,6 +4820,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (invoiceNumber != null) 'invoice_number': invoiceNumber,
+      if (documentType != null) 'document_type': documentType,
       if (customerId != null) 'customer_id': customerId,
       if (customerName != null) 'customer_name': customerName,
       if (customerCompany != null) 'customer_company': customerCompany,
@@ -4816,6 +4861,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
   InvoicesCompanion copyWith({
     Value<int>? id,
     Value<String>? invoiceNumber,
+    Value<String>? documentType,
     Value<int?>? customerId,
     Value<String>? customerName,
     Value<String?>? customerCompany,
@@ -4853,6 +4899,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     return InvoicesCompanion(
       id: id ?? this.id,
       invoiceNumber: invoiceNumber ?? this.invoiceNumber,
+      documentType: documentType ?? this.documentType,
       customerId: customerId ?? this.customerId,
       customerName: customerName ?? this.customerName,
       customerCompany: customerCompany ?? this.customerCompany,
@@ -4897,6 +4944,9 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     }
     if (invoiceNumber.present) {
       map['invoice_number'] = Variable<String>(invoiceNumber.value);
+    }
+    if (documentType.present) {
+      map['document_type'] = Variable<String>(documentType.value);
     }
     if (customerId.present) {
       map['customer_id'] = Variable<int>(customerId.value);
@@ -5005,6 +5055,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     return (StringBuffer('InvoicesCompanion(')
           ..write('id: $id, ')
           ..write('invoiceNumber: $invoiceNumber, ')
+          ..write('documentType: $documentType, ')
           ..write('customerId: $customerId, ')
           ..write('customerName: $customerName, ')
           ..write('customerCompany: $customerCompany, ')
@@ -7989,6 +8040,7 @@ typedef $$InvoicesTableCreateCompanionBuilder =
     InvoicesCompanion Function({
       Value<int> id,
       required String invoiceNumber,
+      Value<String> documentType,
       Value<int?> customerId,
       required String customerName,
       Value<String?> customerCompany,
@@ -8027,6 +8079,7 @@ typedef $$InvoicesTableUpdateCompanionBuilder =
     InvoicesCompanion Function({
       Value<int> id,
       Value<String> invoiceNumber,
+      Value<String> documentType,
       Value<int?> customerId,
       Value<String> customerName,
       Value<String?> customerCompany,
@@ -8119,6 +8172,11 @@ class $$InvoicesTableFilterComposer
 
   ColumnFilters<String> get invoiceNumber => $composableBuilder(
     column: $table.invoiceNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get documentType => $composableBuilder(
+    column: $table.documentType,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8357,6 +8415,11 @@ class $$InvoicesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get customerId => $composableBuilder(
     column: $table.customerId,
     builder: (column) => ColumnOrderings(column),
@@ -8537,6 +8600,11 @@ class $$InvoicesTableAnnotationComposer
 
   GeneratedColumn<String> get invoiceNumber => $composableBuilder(
     column: $table.invoiceNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get documentType => $composableBuilder(
+    column: $table.documentType,
     builder: (column) => column,
   );
 
@@ -8767,6 +8835,7 @@ class $$InvoicesTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> invoiceNumber = const Value.absent(),
+                Value<String> documentType = const Value.absent(),
                 Value<int?> customerId = const Value.absent(),
                 Value<String> customerName = const Value.absent(),
                 Value<String?> customerCompany = const Value.absent(),
@@ -8803,6 +8872,7 @@ class $$InvoicesTableTableManager
               }) => InvoicesCompanion(
                 id: id,
                 invoiceNumber: invoiceNumber,
+                documentType: documentType,
                 customerId: customerId,
                 customerName: customerName,
                 customerCompany: customerCompany,
@@ -8841,6 +8911,7 @@ class $$InvoicesTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required String invoiceNumber,
+                Value<String> documentType = const Value.absent(),
                 Value<int?> customerId = const Value.absent(),
                 required String customerName,
                 Value<String?> customerCompany = const Value.absent(),
@@ -8877,6 +8948,7 @@ class $$InvoicesTableTableManager
               }) => InvoicesCompanion.insert(
                 id: id,
                 invoiceNumber: invoiceNumber,
+                documentType: documentType,
                 customerId: customerId,
                 customerName: customerName,
                 customerCompany: customerCompany,

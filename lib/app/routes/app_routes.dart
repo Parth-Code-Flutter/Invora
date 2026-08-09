@@ -14,7 +14,9 @@ abstract final class AppRoutes {
   static const invoices = '/invoices';
   static const invoiceCreate = '/invoice/create';
   static const invoiceDetails = '/invoice/details';
+  static const invoicePreview = '/invoice/preview';
   static const quotations = '/quotations';
+  static const quotationCreate = '/quotation/create';
   static const reports = '/reports';
   static const settings = '/settings';
   static const backup = '/backup';

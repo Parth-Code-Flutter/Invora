@@ -13,13 +13,14 @@ import '../../../data/models/invoice_model.dart';
 import '../controllers/invoice_list_controller.dart';
 
 class InvoiceListScreen extends GetView<InvoiceListController> {
-  const InvoiceListScreen({super.key});
+  const InvoiceListScreen({this.quotation = false, super.key});
+  final bool quotation;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Invoices'),
+        title: Text(quotation ? 'Quotations' : 'Invoices'),
         actions: [
           Obx(
             () => PopupMenuButton<InvoiceSort>(
@@ -44,9 +45,11 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Get.toNamed<void>(AppRoutes.invoiceCreate),
+        onPressed: () => Get.toNamed<void>(
+          quotation ? AppRoutes.quotationCreate : AppRoutes.invoiceCreate,
+        ),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Create invoice'),
+        label: Text(quotation ? 'Create quotation' : 'Create invoice'),
       ),
       body: Column(
         children: [
@@ -72,20 +75,37 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
                   child: Obx(
                     () => ListView(
                       scrollDirection: Axis.horizontal,
-                      children: InvoiceListFilter.values
-                          .map(
-                            (filter) => Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: ChoiceChip(
-                                label: Text(_filterLabel(filter)),
-                                selected:
-                                    controller.selectedFilter.value == filter,
-                                onSelected: (_) =>
-                                    controller.selectFilter(filter),
-                              ),
-                            ),
-                          )
-                          .toList(),
+                      children:
+                          (quotation
+                                  ? const [
+                                      InvoiceListFilter.all,
+                                      InvoiceListFilter.draft,
+                                      InvoiceListFilter.sent,
+                                      InvoiceListFilter.accepted,
+                                      InvoiceListFilter.rejected,
+                                      InvoiceListFilter.expired,
+                                    ]
+                                  : const [
+                                      InvoiceListFilter.all,
+                                      InvoiceListFilter.draft,
+                                      InvoiceListFilter.unpaid,
+                                      InvoiceListFilter.paid,
+                                      InvoiceListFilter.overdue,
+                                    ])
+                              .map(
+                                (filter) => Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: ChoiceChip(
+                                    label: Text(_filterLabel(filter)),
+                                    selected:
+                                        controller.selectedFilter.value ==
+                                        filter,
+                                    onSelected: (_) =>
+                                        controller.selectFilter(filter),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                     ),
                   ),
                 ),
@@ -106,11 +126,19 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
                   title: searching ? 'No invoices found' : 'No invoices yet',
                   message: searching
                       ? 'Try a different search or status filter.'
-                      : 'Create your first offline invoice to see it here.',
-                  actionLabel: searching ? null : 'Create invoice',
+                      : 'Create your first offline ${quotation ? 'quotation' : 'invoice'} to see it here.',
+                  actionLabel: searching
+                      ? null
+                      : quotation
+                      ? 'Create quotation'
+                      : 'Create invoice',
                   onAction: searching
                       ? null
-                      : () => Get.toNamed<void>(AppRoutes.invoiceCreate),
+                      : () => Get.toNamed<void>(
+                          quotation
+                              ? AppRoutes.quotationCreate
+                              : AppRoutes.invoiceCreate,
+                        ),
                 );
               }
               final padding = ResponsiveUtils.horizontalPadding(context);
@@ -251,6 +279,10 @@ String _filterLabel(InvoiceListFilter filter) => switch (filter) {
   InvoiceListFilter.unpaid => 'Unpaid',
   InvoiceListFilter.paid => 'Paid',
   InvoiceListFilter.overdue => 'Overdue',
+  InvoiceListFilter.sent => 'Sent',
+  InvoiceListFilter.accepted => 'Accepted',
+  InvoiceListFilter.rejected => 'Rejected',
+  InvoiceListFilter.expired => 'Expired',
 };
 
 String _statusLabel(InvoiceStatus status) => switch (status) {

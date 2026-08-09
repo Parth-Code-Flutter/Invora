@@ -7,6 +7,7 @@ import 'package:invora/data/models/invoice_model.dart';
 import 'package:invora/data/repositories/invoice_repository.dart';
 import 'package:invora/data/services/app_database.dart';
 import 'package:invora/data/services/invoice_calculation_service.dart';
+import 'package:invora/data/services/invoice_pdf_service.dart';
 
 void main() {
   late AppDatabase database;
@@ -65,6 +66,61 @@ void main() {
       'INV-0003',
     );
   });
+
+  test('manages payments and converts an accepted quotation', () async {
+    final now = DateTime.now();
+    final invoice = await repository.save(
+      _invoice(
+        number: 'INV-0100',
+        customer: 'Dev Shah',
+        company: 'Dev & Sons',
+        totalMinor: 25000,
+        status: InvoiceStatus.unpaid,
+        date: now,
+      ),
+    );
+    await repository.updatePayment(invoice.id!, 10000);
+    final updated = await repository.getById(invoice.id!);
+    expect(updated?.status, InvoiceStatus.partiallyPaid);
+    expect(updated?.calculation.balanceDueMinor, 15000);
+
+    final quotation = await repository.save(
+      _invoice(
+        number: 'QTN-0001',
+        customer: 'Mira',
+        company: 'Mira Studio',
+        totalMinor: 50000,
+        status: InvoiceStatus.sent,
+        date: now,
+        documentType: DocumentType.quotation,
+      ),
+    );
+    final converted = await repository.convertQuotationToInvoice(
+      quotationId: quotation.id!,
+      invoiceNumber: 'INV-0101',
+    );
+    expect(converted.documentType, DocumentType.invoice);
+    expect(converted.status, InvoiceStatus.unpaid);
+    expect(
+      (await repository.getById(quotation.id!))?.status,
+      InvoiceStatus.accepted,
+    );
+    expect(
+      (await repository
+              .watchSummaries(documentType: DocumentType.quotation)
+              .first)
+          .single
+          .invoiceNumber,
+      'QTN-0001',
+    );
+    final report = await repository.watchCurrentMonthReport().first;
+    expect(report.invoiceCount, 2);
+    expect(report.totalSalesMinor, 75000);
+    expect(
+      const InvoicePdfService().fileName(converted),
+      'Invoice_INV-0101_Mira-Studio.pdf',
+    );
+  });
 }
 
 InvoiceModel _invoice({
@@ -75,6 +131,7 @@ InvoiceModel _invoice({
   required InvoiceStatus status,
   required DateTime date,
   DateTime? dueDate,
+  DocumentType documentType = DocumentType.invoice,
 }) {
   final item = InvoiceItemModel(
     localId: number,
@@ -95,6 +152,7 @@ InvoiceModel _invoice({
     ),
   );
   return InvoiceModel(
+    documentType: documentType,
     invoiceNumber: number,
     customer: CustomerSnapshotModel(name: customer, companyName: company),
     invoiceDate: date,

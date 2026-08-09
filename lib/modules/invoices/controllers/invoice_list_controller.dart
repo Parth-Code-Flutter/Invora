@@ -7,10 +7,15 @@ import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
 
 class InvoiceListController extends GetxController {
-  InvoiceListController(this._repository, this._businessRepository);
+  InvoiceListController(
+    this._repository,
+    this._businessRepository, {
+    this.documentType = DocumentType.invoice,
+  });
 
   final InvoiceRepository _repository;
   final BusinessRepository _businessRepository;
+  final DocumentType documentType;
   final invoices = <InvoiceSummaryModel>[].obs;
   final searchQuery = ''.obs;
   final selectedFilter = InvoiceListFilter.all.obs;
@@ -53,6 +58,7 @@ class InvoiceListController extends GetxController {
           query: searchQuery.value,
           filter: selectedFilter.value,
           sort: selectedSort.value,
+          documentType: documentType,
         )
         .listen((values) {
           invoices.assignAll(values);

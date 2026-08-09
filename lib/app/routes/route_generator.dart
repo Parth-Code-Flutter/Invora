@@ -20,6 +20,13 @@ import '../../modules/invoices/bindings/invoice_binding.dart';
 import '../../modules/invoices/screens/invoice_create_screen.dart';
 import '../../modules/invoices/screens/invoice_details_screen.dart';
 import '../../modules/invoices/screens/invoice_list_screen.dart';
+import '../../modules/invoices/screens/invoice_preview_screen.dart';
+import '../../modules/reports/bindings/report_binding.dart';
+import '../../modules/reports/screens/report_screen.dart';
+import '../../modules/backup_restore/bindings/backup_binding.dart';
+import '../../modules/backup_restore/screens/backup_screen.dart';
+import '../../modules/settings/bindings/settings_binding.dart';
+import '../../modules/settings/screens/settings_screen.dart';
 import 'app_routes.dart';
 
 abstract final class AppRouter {
@@ -93,14 +100,44 @@ abstract final class AppRouter {
       binding: InvoiceListBinding(),
     ),
     GetPage(
+      name: AppRoutes.quotations,
+      page: () => const InvoiceListScreen(quotation: true),
+      binding: QuotationListBinding(),
+    ),
+    GetPage(
       name: AppRoutes.invoiceCreate,
       page: InvoiceCreateScreen.new,
       binding: InvoiceCreateBinding(),
     ),
     GetPage(
+      name: AppRoutes.quotationCreate,
+      page: InvoiceCreateScreen.new,
+      binding: QuotationCreateBinding(),
+    ),
+    GetPage(
       name: AppRoutes.invoiceDetails,
       page: InvoiceDetailsScreen.new,
       binding: InvoiceDetailsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.settings,
+      page: SettingsScreen.new,
+      binding: SettingsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.backup,
+      page: BackupScreen.new,
+      binding: BackupBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.reports,
+      page: ReportScreen.new,
+      binding: ReportBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.invoicePreview,
+      page: InvoicePreviewScreen.new,
+      binding: InvoicePreviewBinding(),
     ),
   ];
 }
