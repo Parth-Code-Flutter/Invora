@@ -1,30 +1,38 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:invora/data/services/app_storage.dart';
+import 'package:invora/data/services/app_database.dart';
+import 'package:invora/data/services/local_database_service.dart';
 import 'package:invora/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('first launch routes from onboarding to business setup', (
+    tester,
+  ) async {
+    final storage = await AppStorage.create();
+    final databaseService = LocalDatabaseService(
+      AppDatabase.forTesting(NativeDatabase.memory()),
+    );
+    await databaseService.initialize();
+    addTearDown(databaseService.database.close);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.pumpWidget(
+      InvoraApp(appStorage: storage, databaseService: databaseService),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Invoices in seconds'), findsOneWidget);
+
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Set up your business'), findsOneWidget);
   });
 }

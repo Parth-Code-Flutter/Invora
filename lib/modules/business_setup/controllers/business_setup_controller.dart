@@ -1,0 +1,205 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../app/constants/app_storage_key_const.dart';
+import '../../../app/routes/app_routes.dart';
+import '../../../data/models/business_profile_model.dart';
+import '../../../data/repositories/business_repository.dart';
+import '../../../data/services/app_storage.dart';
+import '../../../data/services/image_storage_service.dart';
+
+class BusinessSetupController extends GetxController {
+  BusinessSetupController(this._repository, this._storage, this._imageStorage);
+
+  final BusinessRepository _repository;
+  final AppStorage _storage;
+  final ImageStorageService _imageStorage;
+  final formKey = GlobalKey<FormState>();
+
+  final businessName = TextEditingController();
+  final ownerName = TextEditingController();
+  final mobile = TextEditingController();
+  final email = TextEditingController();
+  final address = TextEditingController();
+  final city = TextEditingController();
+  final state = TextEditingController();
+  final pinCode = TextEditingController();
+  final gstin = TextEditingController();
+  final pan = TextEditingController();
+  final invoicePrefix = TextEditingController(text: 'INV');
+  final startingInvoiceNumber = TextEditingController(text: '1');
+  final bankName = TextEditingController();
+  final accountHolderName = TextEditingController();
+  final accountNumber = TextEditingController();
+  final ifsc = TextEditingController();
+  final upiId = TextEditingController();
+
+  final isLoading = true.obs;
+  final isSaving = false.obs;
+  final gstRegistered = false.obs;
+  final currencyCode = 'INR'.obs;
+  final logoPath = RxnString();
+  final paymentQrPath = RxnString();
+  final signaturePath = RxnString();
+  BusinessProfileModel? _existing;
+
+  static const currencies = <String, String>{
+    'INR': '₹',
+    'USD': r'$',
+    'EUR': '€',
+    'GBP': '£',
+    'AED': 'د.إ',
+  };
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadExistingProfile();
+  }
+
+  Future<void> pickLogo() => _pickImage('logo', logoPath);
+  Future<void> pickPaymentQr() => _pickImage('payment_qr', paymentQrPath);
+  Future<void> pickSignature() => _pickImage('signature', signaturePath);
+
+  Future<void> _pickImage(String name, RxnString target) async {
+    final path = await _imageStorage.pickAndStore(name);
+    if (path != null) {
+      target.value = path;
+    }
+  }
+
+  String? requiredBusinessName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Business name is required.';
+    }
+    return null;
+  }
+
+  String? validateEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    if (!GetUtils.isEmail(value.trim())) {
+      return 'Enter a valid email address.';
+    }
+    return null;
+  }
+
+  String? validateGstin(String? value) {
+    if (!gstRegistered.value) {
+      return null;
+    }
+    if (value == null || value.trim().isEmpty) {
+      return 'GSTIN is required.';
+    }
+    if (!RegExp(r'^[0-9A-Z]{15}$').hasMatch(value.trim().toUpperCase())) {
+      return 'Enter a valid 15-character GSTIN.';
+    }
+    return null;
+  }
+
+  Future<void> save() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (!(formKey.currentState?.validate() ?? false)) return;
+    isSaving.value = true;
+    try {
+      final now = DateTime.now();
+      final profile = BusinessProfileModel(
+        id: _existing?.id,
+        businessName: businessName.text.trim(),
+        ownerName: _optional(ownerName.text),
+        logoPath: logoPath.value,
+        mobile: _optional(mobile.text),
+        email: _optional(email.text),
+        address: _optional(address.text),
+        city: _optional(city.text),
+        state: _optional(state.text),
+        pinCode: _optional(pinCode.text),
+        gstRegistered: gstRegistered.value,
+        gstin: gstRegistered.value ? _optional(gstin.text.toUpperCase()) : null,
+        pan: _optional(pan.text.toUpperCase()),
+        invoicePrefix: invoicePrefix.text.trim().isEmpty
+            ? 'INV'
+            : invoicePrefix.text.trim().toUpperCase(),
+        startingInvoiceNumber: int.tryParse(startingInvoiceNumber.text) ?? 1,
+        currencyCode: currencyCode.value,
+        currencySymbol: currencies[currencyCode.value] ?? '₹',
+        bankName: _optional(bankName.text),
+        accountHolderName: _optional(accountHolderName.text),
+        accountNumber: _optional(accountNumber.text),
+        ifsc: _optional(ifsc.text.toUpperCase()),
+        upiId: _optional(upiId.text),
+        paymentQrPath: paymentQrPath.value,
+        signaturePath: signaturePath.value,
+        createdAt: _existing?.createdAt ?? now,
+        updatedAt: now,
+      );
+      _existing = await _repository.saveProfile(profile);
+      await _storage.setBool(AppStorageKeyConst.businessSetupCompleted, true);
+      Get.offAllNamed<void>(AppRoutes.dashboard);
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  Future<void> _loadExistingProfile() async {
+    _existing = await _repository.getProfile();
+    final profile = _existing;
+    if (profile != null) {
+      businessName.text = profile.businessName;
+      ownerName.text = profile.ownerName ?? '';
+      mobile.text = profile.mobile ?? '';
+      email.text = profile.email ?? '';
+      address.text = profile.address ?? '';
+      city.text = profile.city ?? '';
+      state.text = profile.state ?? '';
+      pinCode.text = profile.pinCode ?? '';
+      gstRegistered.value = profile.gstRegistered;
+      gstin.text = profile.gstin ?? '';
+      pan.text = profile.pan ?? '';
+      invoicePrefix.text = profile.invoicePrefix;
+      startingInvoiceNumber.text = '${profile.startingInvoiceNumber}';
+      currencyCode.value = profile.currencyCode;
+      bankName.text = profile.bankName ?? '';
+      accountHolderName.text = profile.accountHolderName ?? '';
+      accountNumber.text = profile.accountNumber ?? '';
+      ifsc.text = profile.ifsc ?? '';
+      upiId.text = profile.upiId ?? '';
+      logoPath.value = profile.logoPath;
+      paymentQrPath.value = profile.paymentQrPath;
+      signaturePath.value = profile.signaturePath;
+    }
+    isLoading.value = false;
+  }
+
+  String? _optional(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
+  @override
+  void onClose() {
+    for (final controller in [
+      businessName,
+      ownerName,
+      mobile,
+      email,
+      address,
+      city,
+      state,
+      pinCode,
+      gstin,
+      pan,
+      invoicePrefix,
+      startingInvoiceNumber,
+      bankName,
+      accountHolderName,
+      accountNumber,
+      ifsc,
+      upiId,
+    ]) {
+      controller.dispose();
+    }
+    super.onClose();
+  }
+}
