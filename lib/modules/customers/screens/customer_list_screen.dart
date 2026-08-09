@@ -7,6 +7,7 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
+import '../../../app/widgets/app_search_field.dart';
 import '../../../data/models/customer_model.dart';
 import '../controllers/customer_list_controller.dart';
 
@@ -31,13 +32,9 @@ class CustomerListScreen extends GetView<CustomerListController> {
               ResponsiveUtils.horizontalPadding(context),
               ResponsiveUtils.height(context, 12),
             ),
-            child: TextField(
+            child: AppSearchField(
               onChanged: controller.updateSearch,
-              textInputAction: TextInputAction.search,
-              decoration: const InputDecoration(
-                hintText: 'Search name, company, mobile or GSTIN',
-                prefixIcon: Icon(Icons.search_rounded),
-              ),
+              hint: 'Search name, company, mobile or GSTIN',
             ),
           ),
           Expanded(

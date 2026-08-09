@@ -28,6 +28,16 @@ abstract final class AppTextStyles {
     fontSize: 15,
     fontWeight: FontWeight.w400,
   );
+  static const secondaryBody = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 13,
+    fontWeight: FontWeight.w400,
+  );
+  static const caption = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+  );
   static const small = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,

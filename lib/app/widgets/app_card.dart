@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../constants/app_spacing.dart';
+
 class AppCard extends StatelessWidget {
   const AppCard({
     required this.child,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = AppSpacing.cardPadding,
     this.onTap,
     super.key,
   });
@@ -14,12 +16,10 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final content = Padding(padding: padding, child: child);
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(padding: padding, child: child),
-      ),
+      child: onTap == null ? content : InkWell(onTap: onTap, child: content),
     );
   }
 }

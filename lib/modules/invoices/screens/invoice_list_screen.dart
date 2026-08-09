@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
-import '../../../app/enums/invoice_status.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
+import '../../../app/widgets/app_search_field.dart';
+import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/invoice_list_controller.dart';
 
@@ -62,12 +63,9 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
             ),
             child: Column(
               children: [
-                TextField(
+                AppSearchField(
                   onChanged: controller.updateSearch,
-                  decoration: const InputDecoration(
-                    hintText: 'Search invoice, customer or company',
-                    prefixIcon: Icon(Icons.search_rounded),
-                  ),
+                  hint: 'Search invoice, customer or company',
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
@@ -203,7 +201,7 @@ class _InvoiceCard extends StatelessWidget {
                   style: AppTextStyles.cardTitle,
                 ),
               ),
-              _StatusBadge(status: status),
+              AppStatusChip(status: status),
             ],
           ),
           const SizedBox(height: 12),
@@ -243,36 +241,6 @@ class _InvoiceCard extends StatelessWidget {
   }
 }
 
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
-  final InvoiceStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final (background, foreground) = switch (status) {
-      InvoiceStatus.paid => (AppColors.successLight, AppColors.success),
-      InvoiceStatus.overdue ||
-      InvoiceStatus.cancelled => (AppColors.errorLight, AppColors.error),
-      InvoiceStatus.draft => (
-        AppColors.surfaceVariant,
-        AppColors.textSecondary,
-      ),
-      _ => (AppColors.warningLight, AppColors.warning),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(99),
-      ),
-      child: Text(
-        _statusLabel(status),
-        style: AppTextStyles.small.copyWith(color: foreground),
-      ),
-    );
-  }
-}
-
 String _filterLabel(InvoiceListFilter filter) => switch (filter) {
   InvoiceListFilter.all => 'All',
   InvoiceListFilter.draft => 'Draft',
@@ -283,11 +251,6 @@ String _filterLabel(InvoiceListFilter filter) => switch (filter) {
   InvoiceListFilter.accepted => 'Accepted',
   InvoiceListFilter.rejected => 'Rejected',
   InvoiceListFilter.expired => 'Expired',
-};
-
-String _statusLabel(InvoiceStatus status) => switch (status) {
-  InvoiceStatus.partiallyPaid => 'Partially paid',
-  _ => '${status.name[0].toUpperCase()}${status.name.substring(1)}',
 };
 
 String _date(DateTime value) =>

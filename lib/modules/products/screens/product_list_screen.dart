@@ -10,6 +10,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
+import '../../../app/widgets/app_search_field.dart';
 import '../../../data/models/product_service_model.dart';
 import '../controllers/product_list_controller.dart';
 
@@ -36,12 +37,9 @@ class ProductListScreen extends GetView<ProductListController> {
             ),
             child: Column(
               children: [
-                TextField(
+                AppSearchField(
                   onChanged: controller.updateSearch,
-                  decoration: const InputDecoration(
-                    hintText: 'Search name, description or HSN/SAC',
-                    prefixIcon: Icon(Icons.search_rounded),
-                  ),
+                  hint: 'Search name, description or HSN/SAC',
                 ),
                 ResponsiveUtils.verticalGap(context, 10),
                 Obx(

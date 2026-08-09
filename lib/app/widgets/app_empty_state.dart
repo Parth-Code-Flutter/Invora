@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
+import '../constants/app_spacing.dart';
 import '../themes/app_text_styles.dart';
 import 'app_button.dart';
 
@@ -26,18 +27,26 @@ class AppEmptyState extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 360),
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 48, color: AppColors.textTertiary),
-              const SizedBox(height: 16),
+              Container(
+                width: 72,
+                height: 72,
+                decoration: const BoxDecoration(
+                  color: AppColors.primaryLight,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 34, color: AppColors.primary),
+              ),
+              const SizedBox(height: AppSpacing.md),
               Text(
                 title,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.sectionTitle,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 message,
                 textAlign: TextAlign.center,
@@ -46,7 +55,7 @@ class AppEmptyState extends StatelessWidget {
                 ),
               ),
               if (actionLabel != null && onAction != null) ...[
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.xl),
                 AppButton(label: actionLabel!, onPressed: onAction),
               ],
             ],

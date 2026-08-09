@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/responsive_utils.dart';
+import '../constants/app_spacing.dart';
 
 class AppButton extends StatelessWidget {
   const AppButton({
@@ -37,11 +38,15 @@ class AppButton extends StatelessWidget {
             ],
           );
 
-    final button = SizedBox(
-      height: ResponsiveUtils.height(context, 52),
-      child: FilledButton(
-        onPressed: isLoading ? null : onPressed,
-        child: child,
+    final button = Semantics(
+      button: true,
+      label: label,
+      child: SizedBox(
+        height: ResponsiveUtils.height(context, AppSpacing.buttonHeight),
+        child: FilledButton(
+          onPressed: isLoading ? null : onPressed,
+          child: child,
+        ),
       ),
     );
     return expand ? SizedBox(width: double.infinity, child: button) : button;
