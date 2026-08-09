@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_card.dart';
 import '../controllers/dashboard_controller.dart';
@@ -49,6 +50,19 @@ class DashboardScreen extends GetView<DashboardController> {
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          AppCard(
+            child: ListTile(
+              leading: const CircleAvatar(
+                backgroundColor: AppColors.primaryLight,
+                child: Icon(Icons.people_outline, color: AppColors.primary),
+              ),
+              title: const Text('Customers'),
+              subtitle: const Text('Manage customer and billing details'),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => Get.toNamed<void>(AppRoutes.customers),
             ),
           ),
         ],

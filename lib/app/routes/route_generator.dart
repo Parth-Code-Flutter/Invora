@@ -8,6 +8,10 @@ import '../../modules/business_setup/bindings/business_setup_binding.dart';
 import '../../modules/business_setup/screens/business_setup_screen.dart';
 import '../../modules/dashboard/bindings/dashboard_binding.dart';
 import '../../modules/dashboard/screens/dashboard_screen.dart';
+import '../../modules/customers/bindings/customer_bindings.dart';
+import '../../modules/customers/screens/customer_details_screen.dart';
+import '../../modules/customers/screens/customer_form_screen.dart';
+import '../../modules/customers/screens/customer_list_screen.dart';
 import 'app_routes.dart';
 
 abstract final class AppRouter {
@@ -34,6 +38,26 @@ abstract final class AppRouter {
       name: AppRoutes.dashboard,
       page: DashboardScreen.new,
       binding: DashboardBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.customers,
+      page: CustomerListScreen.new,
+      binding: CustomerListBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.customerAdd,
+      page: CustomerFormScreen.new,
+      binding: CustomerFormBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.customerEdit,
+      page: CustomerFormScreen.new,
+      binding: CustomerFormBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.customerDetails,
+      page: CustomerDetailsScreen.new,
+      binding: CustomerDetailsBinding(),
     ),
   ];
 }

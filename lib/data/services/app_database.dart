@@ -50,7 +50,27 @@ class BusinessProfiles extends Table {
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(tables: [DatabaseMetadata, BusinessProfiles])
+@TableIndex(name: 'customers_name', columns: {#name})
+@TableIndex(name: 'customers_mobile', columns: {#mobile})
+@TableIndex(name: 'customers_gstin', columns: {#gstin})
+class Customers extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get companyName => text().nullable()();
+  TextColumn get mobile => text().nullable()();
+  TextColumn get email => text().nullable()();
+  TextColumn get address => text().nullable()();
+  TextColumn get city => text().nullable()();
+  TextColumn get state => text().nullable()();
+  TextColumn get pinCode => text().nullable()();
+  TextColumn get gstin => text().nullable()();
+  TextColumn get notes => text().nullable()();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@DriftDatabase(tables: [DatabaseMetadata, BusinessProfiles, Customers])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -65,6 +85,9 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: (migrator, from, to) async {
       if (from < 2) {
         await migrator.createTable(businessProfiles);
+      }
+      if (from < 3) {
+        await migrator.createTable(customers);
       }
     },
   );
