@@ -77,6 +77,22 @@ class DashboardScreen extends GetView<DashboardController> {
                 AppCard(
                   child: ListTile(
                     leading: const CircleAvatar(
+                      backgroundColor: AppColors.primaryLight,
+                      child: Icon(
+                        Icons.receipt_long_outlined,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    title: const Text('Create invoice'),
+                    subtitle: const Text('Build and save an offline invoice'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () => Get.toNamed<void>(AppRoutes.invoiceCreate),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                AppCard(
+                  child: ListTile(
+                    leading: const CircleAvatar(
                       backgroundColor: AppColors.secondaryLight,
                       child: Icon(
                         Icons.inventory_2_outlined,

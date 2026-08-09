@@ -16,6 +16,8 @@ import '../../modules/products/bindings/product_bindings.dart';
 import '../../modules/products/screens/product_details_screen.dart';
 import '../../modules/products/screens/product_form_screen.dart';
 import '../../modules/products/screens/product_list_screen.dart';
+import '../../modules/invoices/bindings/invoice_binding.dart';
+import '../../modules/invoices/screens/invoice_create_screen.dart';
 import 'app_routes.dart';
 
 abstract final class AppRouter {
@@ -82,6 +84,11 @@ abstract final class AppRouter {
       name: AppRoutes.productDetails,
       page: ProductDetailsScreen.new,
       binding: ProductDetailsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.invoiceCreate,
+      page: InvoiceCreateScreen.new,
+      binding: InvoiceCreateBinding(),
     ),
   ];
 }

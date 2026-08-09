@@ -87,8 +87,87 @@ class ProductServices extends Table {
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+@TableIndex(name: 'invoices_number', columns: {#invoiceNumber}, unique: true)
+@TableIndex(name: 'invoices_status', columns: {#status})
+class Invoices extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get invoiceNumber => text()();
+  IntColumn get customerId => integer().nullable()();
+  TextColumn get customerName => text()();
+  TextColumn get customerCompany => text().nullable()();
+  TextColumn get customerMobile => text().nullable()();
+  TextColumn get customerEmail => text().nullable()();
+  TextColumn get customerAddress => text().nullable()();
+  TextColumn get customerCity => text().nullable()();
+  TextColumn get customerState => text().nullable()();
+  TextColumn get customerPinCode => text().nullable()();
+  TextColumn get customerGstin => text().nullable()();
+  DateTimeColumn get invoiceDate => dateTime()();
+  DateTimeColumn get dueDate => dateTime().nullable()();
+  TextColumn get status => text()();
+  TextColumn get taxType => text()();
+  TextColumn get discountType => text()();
+  IntColumn get discountValue => integer().withDefault(const Constant(0))();
+  IntColumn get subtotalMinor => integer()();
+  IntColumn get itemDiscountMinor => integer()();
+  IntColumn get invoiceDiscountMinor => integer()();
+  IntColumn get taxableMinor => integer()();
+  IntColumn get taxMinor => integer()();
+  IntColumn get cgstMinor => integer()();
+  IntColumn get sgstMinor => integer()();
+  IntColumn get igstMinor => integer()();
+  IntColumn get chargesMinor => integer()();
+  IntColumn get roundOffMinor => integer()();
+  IntColumn get grandTotalMinor => integer()();
+  IntColumn get paidAmountMinor => integer()();
+  IntColumn get balanceMinor => integer()();
+  TextColumn get notes => text().nullable()();
+  TextColumn get terms => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class InvoiceItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get invoiceId =>
+      integer().references(Invoices, #id, onDelete: KeyAction.cascade)();
+  IntColumn get productId => integer().nullable()();
+  TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+  IntColumn get quantityScaled => integer()();
+  TextColumn get unit => text()();
+  IntColumn get rateMinor => integer()();
+  TextColumn get hsnSac => text().nullable()();
+  IntColumn get taxRateBasisPoints => integer()();
+  TextColumn get discountType => text()();
+  IntColumn get discountValue => integer().withDefault(const Constant(0))();
+  IntColumn get baseAmountMinor => integer()();
+  IntColumn get discountAmountMinor => integer()();
+  IntColumn get taxableAmountMinor => integer()();
+  IntColumn get taxAmountMinor => integer()();
+  IntColumn get totalMinor => integer()();
+  IntColumn get sortOrder => integer()();
+}
+
+class InvoiceCharges extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get invoiceId =>
+      integer().references(Invoices, #id, onDelete: KeyAction.cascade)();
+  TextColumn get title => text()();
+  IntColumn get amountMinor => integer()();
+  IntColumn get sortOrder => integer()();
+}
+
 @DriftDatabase(
-  tables: [DatabaseMetadata, BusinessProfiles, Customers, ProductServices],
+  tables: [
+    DatabaseMetadata,
+    BusinessProfiles,
+    Customers,
+    ProductServices,
+    Invoices,
+    InvoiceItems,
+    InvoiceCharges,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -110,6 +189,11 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 4) {
         await migrator.createTable(productServices);
+      }
+      if (from < 5) {
+        await migrator.createTable(invoices);
+        await migrator.createTable(invoiceItems);
+        await migrator.createTable(invoiceCharges);
       }
     },
   );

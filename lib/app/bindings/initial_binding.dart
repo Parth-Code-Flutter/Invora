@@ -7,6 +7,7 @@ import '../../data/services/invoice_calculation_service.dart';
 import '../../data/repositories/business_repository.dart';
 import '../../data/repositories/customer_repository.dart';
 import '../../data/repositories/product_repository.dart';
+import '../../data/repositories/invoice_repository.dart';
 import '../controllers/app_controller.dart';
 
 class InitialBinding extends Bindings {
@@ -30,6 +31,10 @@ class InitialBinding extends Bindings {
     );
     Get.put<ProductRepository>(
       ProductRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<InvoiceRepository>(
+      InvoiceRepository(databaseService.database),
       permanent: true,
     );
     Get.put<InvoiceCalculationService>(

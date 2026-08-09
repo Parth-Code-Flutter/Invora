@@ -12,6 +12,7 @@ abstract final class AppRoutes {
   static const productEdit = '/product/edit';
   static const productDetails = '/product/details';
   static const invoices = '/invoices';
+  static const invoiceCreate = '/invoice/create';
   static const quotations = '/quotations';
   static const reports = '/reports';
   static const settings = '/settings';
