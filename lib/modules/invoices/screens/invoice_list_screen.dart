@@ -12,6 +12,7 @@ import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_search_field.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_module_banner.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/invoice_list_controller.dart';
 
@@ -28,14 +29,6 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
       appBar: AppBar(
         title: Text(quotation ? 'Quotations' : 'Invoices'),
         actions: [
-          _HeaderActionButton(
-            tooltip: quotation ? 'Create quotation' : 'Create invoice',
-            icon: Icons.add_rounded,
-            onTap: () => Get.toNamed<void>(
-              quotation ? AppRoutes.quotationCreate : AppRoutes.invoiceCreate,
-            ),
-          ),
-          const SizedBox(width: 8),
           Obx(
             () => PopupMenuButton<InvoiceSort>(
               tooltip: 'Sort invoices',
@@ -90,6 +83,27 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
             ),
             child: Column(
               children: [
+                AppModuleBanner(
+                  title: quotation
+                      ? 'Plan the next win'
+                      : 'Your money timeline',
+                  subtitle: quotation
+                      ? 'Create, send and turn accepted work into an invoice.'
+                      : 'Create quickly and see what is paid or still due.',
+                  icon: quotation
+                      ? Icons.request_quote_outlined
+                      : Icons.receipt_long_outlined,
+                  colors: quotation
+                      ? const [AppColors.accent, AppColors.secondary]
+                      : const [AppColors.secondary, AppColors.primary],
+                  actionLabel: quotation ? 'New quote' : 'New invoice',
+                  onAction: () => Get.toNamed<void>(
+                    quotation
+                        ? AppRoutes.quotationCreate
+                        : AppRoutes.invoiceCreate,
+                  ),
+                ),
+                const SizedBox(height: 18),
                 AppSearchField(
                   onChanged: controller.updateSearch,
                   hint: 'Search invoice, customer or company',
@@ -191,33 +205,6 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
             }),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _HeaderActionButton extends StatelessWidget {
-  const _HeaderActionButton({
-    required this.tooltip,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String tooltip;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
-          child: _HeaderActionIcon(icon: icon),
-        ),
       ),
     );
   }

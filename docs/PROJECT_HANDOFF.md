@@ -30,6 +30,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Business profile, logo, signature, payment QR, bank, and UPI information
 - Responsive phone/tablet layouts and dark mode
 - Reusable fields, dropdown sheets, navigation, and modern notifications
+- Reusable gradient module banners give catalog, customer, invoice, and
+  quotation workspaces distinct task-focused identities
 - Offline backup/restore with validation and database rollback
 
 ### Customers
@@ -48,6 +50,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Create, search, filter, edit, view, and soft-delete products/services
 - Price, description, HSN/SAC, GST rate, type, and unit support
 - Shared saved-unit picker with persistent custom-unit creation
+- Catalog-first add/edit flow keeps type, name, price, and description in the
+  main path while progressively disclosing unit, tax, and HSN/SAC details
 
 ### Invoices and quotations
 
@@ -155,7 +159,7 @@ transfer automatically.
 As of 2026-08-10:
 
 - Flutter analysis: no issues
-- Automated suite: all 27 tests passing
+- Automated suite: all 29 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -174,6 +178,24 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-10 — Module-specific UI and catalog redesign
+
+- Audited every application module and retained the already distinct
+  onboarding, business setup, dashboard, reports, backup, detail, and invoice
+  creation experiences.
+- Added reusable expressive module banners with different content and color
+  direction for products, customers, invoices, and quotations.
+- Rebuilt product/service creation around the frequent task: choose type, enter
+  name and price, then optionally add unit, GST, and HSN/SAC details.
+- Added a branded catalog intro, clearer field guidance, smaller field icons,
+  progressive disclosure, responsive layouts, and a sticky save action.
+- Important files: `app_module_banner.dart`, `product_form_screen.dart`,
+  `product_list_screen.dart`, `customer_list_screen.dart`, and
+  `invoice_list_screen.dart`.
+- No database, storage, backup, or migration changes.
+- Verified with formatting, clean analysis, all 29 automated tests, and an
+  Android debug APK build.
 
 ### 2026-08-10 — Required customer mobile number
 

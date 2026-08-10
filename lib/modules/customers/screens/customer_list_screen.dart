@@ -9,6 +9,7 @@ import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_search_field.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_module_banner.dart';
 import '../../../data/models/customer_model.dart';
 import '../controllers/customer_list_controller.dart';
 
@@ -18,16 +19,7 @@ class CustomerListScreen extends GetView<CustomerListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Customers'),
-        actions: [
-          IconButton(
-            tooltip: 'Add customer',
-            onPressed: () => Get.toNamed<void>(AppRoutes.customerAdd),
-            icon: const Icon(Icons.person_add_alt_1_rounded),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Customers')),
       bottomNavigationBar: const AppMainNavigation(
         current: MainDestination.customers,
       ),
@@ -42,6 +34,15 @@ class CustomerListScreen extends GetView<CustomerListController> {
             ),
             child: Column(
               children: [
+                AppModuleBanner(
+                  title: 'People you bill',
+                  subtitle: 'Keep billing details ready for the next invoice.',
+                  icon: Icons.people_alt_outlined,
+                  colors: const [AppColors.accent, AppColors.secondary],
+                  actionLabel: 'Add',
+                  onAction: () => Get.toNamed<void>(AppRoutes.customerAdd),
+                ),
+                const SizedBox(height: 18),
                 AppSearchField(
                   onChanged: controller.updateSearch,
                   hint: 'Search name, company, mobile or GSTIN',
