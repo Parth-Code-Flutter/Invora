@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import 'app/bindings/initial_binding.dart';
 import 'app/constants/app_constants.dart';
-import 'app/controllers/app_controller.dart';
+import 'app/constants/app_storage_key_const.dart';
 import 'app/routes/route_generator.dart';
 import 'app/themes/app_theme.dart';
 import 'data/services/app_database.dart';
@@ -40,16 +40,13 @@ class CreovoInvoiceApp extends StatelessWidget {
       getPages: AppRouter.pages,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
-      builder: (context, child) {
-        final appController = Get.find<AppController>();
-        return Obx(
-          () => Theme(
-            data: appController.isDarkMode ? AppTheme.dark : AppTheme.light,
-            child: child ?? const SizedBox.shrink(),
-          ),
-        );
-      },
+      themeMode: _initialThemeMode,
     );
+  }
+
+  ThemeMode get _initialThemeMode {
+    final stored = appStorage.getBool(AppStorageKeyConst.isDarkMode);
+    if (stored == null) return ThemeMode.system;
+    return stored ? ThemeMode.dark : ThemeMode.light;
   }
 }

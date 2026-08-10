@@ -1,5 +1,8 @@
 import 'package:drift/native.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
+import 'package:creovo_invoice/app/controllers/app_controller.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 import 'package:creovo_invoice/data/services/local_database_service.dart';
@@ -35,5 +38,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Let’s make it yours'), findsOneWidget);
+
+    final context = tester.element(find.text('Let’s make it yours'));
+    showDialog<void>(
+      context: context,
+      builder: (_) => const AlertDialog(title: Text('Open overlay')),
+    );
+    await tester.pumpAndSettle();
+    await Get.find<AppController>().setDarkMode(true);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Open overlay'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

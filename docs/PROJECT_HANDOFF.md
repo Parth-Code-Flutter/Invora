@@ -29,6 +29,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - First-launch onboarding and business setup
 - Business profile, logo, signature, payment QR, bank, and UPI information
 - Responsive phone/tablet layouts and dark mode
+- Theme mode is owned by `GetMaterialApp`; the Navigator/Overlay tree remains
+  stable when changing appearance while a dialog, sheet, or route is open
 - Reusable fields, dropdown sheets, navigation, and modern notifications
 - Reusable gradient module banners give catalog, customer, invoice, and
   quotation workspaces distinct task-focused identities
@@ -184,6 +186,20 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-10 — Stable theme changes with active overlays
+
+- Fixed Flutter's `_dependents.isEmpty` assertion caused by reactively replacing
+  a root `Theme` wrapper while Navigator overlay entries still depended on it.
+- Removed the reactive Theme around the complete navigation tree, initializes
+  `GetMaterialApp.themeMode` directly from storage, and uses
+  `Get.changeThemeMode` for supported runtime changes.
+- Added regression coverage that switches to dark mode while a dialog overlay
+  is open and confirms the overlay remains mounted without a framework error.
+- Important files: `main.dart`, `app_controller.dart`, and `widget_test.dart`;
+  no database, backup, or migration changes.
+- Verified with formatting, clean analysis, all 31 automated tests, and an
+  Android debug APK build.
 
 ### 2026-08-10 — Space-efficient invoice editor
 

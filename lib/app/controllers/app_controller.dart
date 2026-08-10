@@ -27,12 +27,15 @@ class AppController extends GetxController {
   }
 
   Future<void> setDarkMode(bool enabled) async {
-    themeMode.value = enabled ? ThemeMode.dark : ThemeMode.light;
+    final mode = enabled ? ThemeMode.dark : ThemeMode.light;
+    themeMode.value = mode;
+    Get.changeThemeMode(mode);
     await _storage.setBool(AppStorageKeyConst.isDarkMode, enabled);
   }
 
   Future<void> useSystemTheme() async {
     themeMode.value = ThemeMode.system;
+    Get.changeThemeMode(ThemeMode.system);
     await _storage.remove(AppStorageKeyConst.isDarkMode);
   }
 
