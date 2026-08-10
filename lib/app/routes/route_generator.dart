@@ -28,6 +28,7 @@ import '../../modules/backup_restore/screens/backup_screen.dart';
 import '../../modules/settings/bindings/settings_binding.dart';
 import '../../modules/settings/screens/settings_screen.dart';
 import '../../modules/settings/screens/more_screen.dart';
+import '../../modules/settings/screens/unit_settings_screen.dart';
 import 'app_routes.dart';
 
 abstract final class AppRouter {
@@ -137,6 +138,11 @@ abstract final class AppRouter {
       name: AppRoutes.settings,
       page: SettingsScreen.new,
       binding: SettingsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.unitSettings,
+      page: UnitSettingsScreen.new,
+      binding: UnitSettingsBinding(),
     ),
     GetPage(
       name: AppRoutes.backup,

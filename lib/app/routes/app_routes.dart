@@ -19,6 +19,7 @@ abstract final class AppRoutes {
   static const quotationCreate = '/quotation/create';
   static const reports = '/reports';
   static const settings = '/settings';
+  static const unitSettings = '/settings/units';
   static const more = '/more';
   static const backup = '/backup';
 }

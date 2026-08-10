@@ -1237,7 +1237,7 @@ class _ItemSheetState extends State<_ItemSheet> {
     quantity = TextEditingController(
       text: item == null ? '' : QuantityUtils.toInputValue(item.quantityScaled),
     );
-    unit = item?.unit ?? 'pcs';
+    unit = item?.unit ?? Get.find<UnitService>().defaultUnit;
     rate = TextEditingController(
       text: item == null ? '' : CurrencyUtils.toInputValue(item.rateMinor),
     );

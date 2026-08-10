@@ -72,6 +72,12 @@ class BackupService {
       AppStorageKeyConst.customUnits: _storage.getStringList(
         AppStorageKeyConst.customUnits,
       ),
+      AppStorageKeyConst.managedUnits: _storage.getStringList(
+        AppStorageKeyConst.managedUnits,
+      ),
+      AppStorageKeyConst.defaultUnit: _storage.getString(
+        AppStorageKeyConst.defaultUnit,
+      ),
     });
     archive.addFile(ArchiveFile.string('settings.json', settings));
     final bytes = ZipEncoder().encode(archive);

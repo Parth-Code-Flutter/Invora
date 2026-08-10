@@ -31,6 +31,21 @@ class MoreScreen extends GetView<MoreController> {
             ),
           ),
           const SizedBox(height: 20),
+          const _SectionLabel('Customization'),
+          const SizedBox(height: 9),
+          AppMenuGroup(
+            children: [
+              AppMenuTile(
+                icon: Icons.straighten_rounded,
+                title: 'Set default unit',
+                subtitle: 'Manage units and choose the default for new items',
+                color: AppColors.secondary,
+                background: AppColors.secondaryLight,
+                onTap: () => Get.toNamed<void>(AppRoutes.unitSettings),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
           const _SectionLabel('Create & manage'),
           const SizedBox(height: 9),
           AppMenuGroup(

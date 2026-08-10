@@ -65,7 +65,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 
 - Create, search, filter, edit, view, and soft-delete products/services
 - Price, description, HSN/SAC, GST rate, type, and unit support
-- Shared saved-unit picker with persistent custom-unit creation
+- Shared saved-unit picker plus a central manager for add, rename, delete, and
+  app-wide default selection; new items prefill the selected default
 - Catalog-first add/edit flow keeps type, name, price, and description in the
   main path while progressively disclosing unit, tax, and HSN/SAC details
 
@@ -109,8 +110,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   pre-v7 non-zero cumulative payment as a dated `Previous payment` entry.
 - Invoice numbers have a unique database index.
 - Historical documents use snapshots so later catalog edits do not alter them.
-- Custom units use `AppStorageKeyConst.customUnits` and are included in backup
-  and restore.
+- Managed units and the default selection use
+  `AppStorageKeyConst.managedUnits/defaultUnit`; legacy `customUnits` values are
+  imported into the initial list, and all unit preferences are backed up.
 - Evaluate every new `AppStorage` value for inclusion in `BackupService`.
 
 ## Important validation rules
@@ -203,6 +205,21 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Custom units and app-wide default
+
+- Added a top-level Customization section to More with a Set default unit
+  destination. Users can add, rename, delete, and select the default unit from
+  one focused manager; deleting or renaming never rewrites historical items.
+- New product/service forms and one-time invoice items now start with the
+  selected default unit. Existing product and invoice values remain unchanged.
+- Persisted the managed unit list and default selection in app preferences and
+  included both values in backup/restore settings. Older custom-unit values are
+  folded into the initial managed list for compatibility.
+- Important files: unit service/storage keys, backup service, More/routes,
+  unit settings controller/screen, product and invoice item creation, tests.
+- Verification covers default selection, rename/delete fallback, and custom
+  unit creation.
 
 ### 2026-08-11 — Partial-payment ledger and history
 

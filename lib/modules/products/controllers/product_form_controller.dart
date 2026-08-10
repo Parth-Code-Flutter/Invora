@@ -28,7 +28,7 @@ class ProductFormController extends GetxController {
   final hsnSac = TextEditingController();
   final taxRate = TextEditingController();
   final type = ItemType.product.obs;
-  final selectedUnit = 'pcs'.obs;
+  final selectedUnit = ''.obs;
   final selectedTaxBasisPoints = 0.obs;
   final isCustomTax = false.obs;
   final currencySymbol = '₹'.obs;
@@ -42,6 +42,7 @@ class ProductFormController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    selectedUnit.value = unitService.defaultUnit;
     _loadCurrency();
     final id = Get.arguments as int?;
     if (id != null) _load(id);
@@ -50,7 +51,7 @@ class ProductFormController extends GetxController {
   void selectType(ItemType value) {
     type.value = value;
     if (!isEditing) {
-      selectedUnit.value = value == ItemType.service ? 'service' : 'pcs';
+      selectedUnit.value = unitService.defaultUnit;
     }
   }
 
