@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/utils/validation_utils.dart';
+import '../../../app/utils/app_focus.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/repositories/customer_repository.dart';
 
@@ -93,6 +94,7 @@ class CustomerFormController extends GetxController {
         ),
       );
       // Only the invoice flow needs the saved model as a route result.
+      await AppFocus.dismissKeyboard();
       Get.back(result: isInvoiceFlow ? saved : null);
     } finally {
       isSaving.value = false;

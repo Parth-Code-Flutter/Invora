@@ -5,6 +5,7 @@ import '../../../app/enums/invoice_status.dart';
 import '../../../app/enums/tax_type.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/currency_utils.dart';
+import '../../../app/utils/app_focus.dart';
 import '../../../app/widgets/app_notification.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_calculation_models.dart';
@@ -252,7 +253,10 @@ class InvoiceCreateController extends GetxController {
         draft ? 'Draft saved' : 'Invoice saved',
         saved.invoiceNumber,
       );
-      if (!draft) Get.back(result: true);
+      if (!draft) {
+        await AppFocus.dismissKeyboard();
+        Get.back(result: true);
+      }
     } finally {
       isSaving.value = false;
     }

@@ -5,6 +5,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import '../routes/app_routes.dart';
 import '../themes/app_text_styles.dart';
+import '../utils/app_focus.dart';
 import 'app_bottom_sheet.dart';
 
 enum MainDestination { home, invoices, customers, more }
@@ -110,7 +111,7 @@ class AppMainNavigation extends StatelessWidget {
     final color = selected ? AppColors.primary : AppColors.textSecondary;
     return Expanded(
       child: InkWell(
-        onTap: selected ? null : () => Get.offAllNamed<void>(route),
+        onTap: selected ? null : () => _openDestination(route),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -136,7 +137,18 @@ class AppMainNavigation extends StatelessWidget {
   }
 
   Future<void> _showCreateSheet(BuildContext context) {
-    return showAppBottomSheet<void>(
+    return _openCreateSheet(context);
+  }
+
+  Future<void> _openDestination(String route) async {
+    await AppFocus.dismissKeyboard();
+    Get.offAllNamed<void>(route);
+  }
+
+  Future<void> _openCreateSheet(BuildContext context) async {
+    await AppFocus.dismissKeyboard();
+    if (!context.mounted) return;
+    await showAppBottomSheet<void>(
       context: context,
       title: 'Create new',
       child: Column(

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/enums/item_type.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/tax_utils.dart';
+import '../../../app/utils/app_focus.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
@@ -103,6 +104,7 @@ class ProductFormController extends GetxController {
           updatedAt: now,
         ),
       );
+      await AppFocus.dismissKeyboard();
       Get.back<ProductServiceModel>(result: saved);
     } finally {
       isSaving.value = false;

@@ -31,6 +31,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Responsive phone/tablet layouts and dark mode
 - Theme mode is owned by `GetMaterialApp`; the Navigator/Overlay tree remains
   stable when changing appearance while a dialog, sheet, or route is open
+- Shared `AppFocus` coordination settles keyboard/caret work before focused
+  fields are removed by dialogs, sheets, back actions, saves, or tab navigation
 - Reusable fields, dropdown sheets, navigation, and modern notifications
 - Reusable gradient module banners give catalog, customer, invoice, and
   quotation workspaces distinct task-focused identities
@@ -167,7 +169,7 @@ transfer automatically.
 As of 2026-08-10:
 
 - Flutter analysis: no issues
-- Automated suite: all 31 tests passing
+- Automated suite: all 32 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -186,6 +188,26 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-10 — App-wide focused-field lifecycle hardening
+
+- Fixed Flutter's scheduler `RenderObject.getTransformTo` / `attached` assertion
+  caused when a focused EditableText was removed before its scheduled caret
+  visibility callback completed.
+- Added shared keyboard/caret coordination that hides the IME, unfocuses the
+  field, waits for the frame to settle, and only then pops the route or overlay.
+- Audited every module and applied the safe path to invoice item, charge,
+  discount and payment editors, custom-unit creation, AppBar search, customer,
+  product, business and invoice saves, back navigation, and main-tab changes.
+- Rebuilt custom-unit input as a state-owned dialog, removing the remaining
+  externally disposed dialog controller pattern.
+- Added regression coverage for closing an autofocus text dialog without a
+  detached-render-object scheduler exception.
+- Important files: `app_focus.dart`, navigation/search/unit widgets, form
+  controllers, invoice editor/detail screens, and `design_system_test.dart`.
+- No database, storage, backup, or migration changes.
+- Verified with formatting, clean analysis, all 32 automated tests, and an
+  Android debug APK build.
 
 ### 2026-08-10 — Additional-charge dialog lifecycle fix
 

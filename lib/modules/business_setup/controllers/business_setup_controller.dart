@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/validation_utils.dart';
+import '../../../app/utils/app_focus.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/services/app_storage.dart';
@@ -211,6 +212,7 @@ class BusinessSetupController extends GetxController {
       );
       _existing = await _repository.saveProfile(profile);
       await _storage.setBool(AppStorageKeyConst.businessSetupCompleted, true);
+      await AppFocus.dismissKeyboard();
       Get.offAllNamed<void>(AppRoutes.dashboard);
     } finally {
       isSaving.value = false;

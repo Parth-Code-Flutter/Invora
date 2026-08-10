@@ -7,6 +7,7 @@ import '../../../app/enums/tax_type.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
+import '../../../app/utils/app_focus.dart';
 import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
@@ -1167,7 +1168,7 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
                         ),
                         title: Text(widget.titleFor(item)),
                         subtitle: Text(widget.subtitleFor(item)),
-                        onTap: () => Navigator.pop(context, item),
+                        onTap: () => AppFocus.pop(context, item),
                       );
                     },
                   );
@@ -1183,7 +1184,7 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
   Future<void> _runAction() async {
     final created = await widget.onAction?.call();
     if (created != null && mounted) {
-      Navigator.pop(context, created);
+      AppFocus.pop(context, created);
     }
   }
 }
@@ -1355,7 +1356,7 @@ class _ItemSheetState extends State<_ItemSheet> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => AppFocus.pop(context),
                     child: const Text('Cancel'),
                   ),
                 ),
@@ -1411,7 +1412,7 @@ class _ItemSheetState extends State<_ItemSheet> {
         TaxUtils.parseBasisPoints(discount.text) ?? 0,
       ),
     };
-    Navigator.pop(
+    AppFocus.pop(
       context,
       InvoiceItemModel(
         localId:
@@ -1466,7 +1467,7 @@ class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
       setState(() => error = 'Enter a title and an amount above zero.');
       return;
     }
-    Navigator.pop(
+    AppFocus.pop(
       context,
       InvoiceChargeModel(title: trimmedTitle, amountMinor: minor),
     );
@@ -1501,7 +1502,7 @@ class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
     ),
     actions: [
       TextButton(
-        onPressed: () => Navigator.pop(context),
+        onPressed: () => AppFocus.pop(context),
         child: const Text('Cancel'),
       ),
       FilledButton(onPressed: _submit, child: const Text('Add charge')),
@@ -1557,11 +1558,11 @@ class _DiscountDialogState extends State<_DiscountDialog> {
     ),
     actions: [
       TextButton(
-        onPressed: () => Navigator.pop(context),
+        onPressed: () => AppFocus.pop(context),
         child: const Text('Cancel'),
       ),
       FilledButton(
-        onPressed: () => Navigator.pop(context, switch (type) {
+        onPressed: () => AppFocus.pop(context, switch (type) {
           DiscountType.none => const DiscountInput.none(),
           DiscountType.fixed => DiscountInput.fixed(
             CurrencyUtils.parseMinor(value.text) ?? 0,

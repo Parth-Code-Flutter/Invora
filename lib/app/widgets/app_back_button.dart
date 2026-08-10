@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
+import '../utils/app_focus.dart';
 
 class AppBackButton extends StatelessWidget {
   const AppBackButton({super.key});
@@ -12,7 +13,7 @@ class AppBackButton extends StatelessWidget {
       padding: const EdgeInsets.only(left: 8, top: 7, bottom: 7),
       child: IconButton(
         tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-        onPressed: () => Navigator.maybePop(context),
+        onPressed: () => AppFocus.maybePop(context),
         style: IconButton.styleFrom(
           backgroundColor: isDark
               ? AppColors.darkSurfaceVariant

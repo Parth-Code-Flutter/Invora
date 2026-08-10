@@ -5,6 +5,7 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/enums/invoice_status.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
+import '../../../app/utils/app_focus.dart';
 import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
@@ -449,7 +450,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               children: [
                 Expanded(
                   child: TextButton(
-                    onPressed: isSaving ? null : () => Navigator.pop(context),
+                    onPressed: isSaving ? null : () => AppFocus.pop(context),
                     child: const Text('Cancel'),
                   ),
                 ),
@@ -482,7 +483,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     final validation = await widget.controller.updatePayment(input.text);
     if (!mounted) return;
     if (validation == null) {
-      Navigator.pop(context);
+      await AppFocus.pop(context);
       return;
     }
     setState(() {

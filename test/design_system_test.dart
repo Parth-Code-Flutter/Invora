@@ -5,6 +5,7 @@ import 'package:creovo_invoice/app/constants/app_colors.dart';
 import 'package:creovo_invoice/app/themes/app_theme.dart';
 import 'package:creovo_invoice/app/widgets/app_module_banner.dart';
 import 'package:creovo_invoice/app/widgets/app_search_app_bar.dart';
+import 'package:creovo_invoice/app/utils/app_focus.dart';
 import 'package:creovo_invoice/app/widgets/app_back_button.dart';
 import 'package:creovo_invoice/app/widgets/app_filter_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_search_field.dart';
@@ -135,5 +136,39 @@ void main() {
 
     expect(find.text('Customers'), findsOneWidget);
     expect(queries.last, isEmpty);
+  });
+
+  testWidgets('focused text overlay closes after caret work is settled', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (dialogContext) => AlertDialog(
+                content: const TextField(autofocus: true),
+                actions: [
+                  TextButton(
+                    onPressed: () => AppFocus.pop(dialogContext),
+                    child: const Text('Done'),
+                  ),
+                ],
+              ),
+            ),
+            child: const Text('Open input'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open input'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 }

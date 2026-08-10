@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/services/unit_service.dart';
 import '../constants/app_colors.dart';
 import '../themes/app_text_styles.dart';
+import '../utils/app_focus.dart';
 import 'app_notification.dart';
 
 class AppUnitField extends StatelessWidget {
@@ -152,36 +153,14 @@ class _UnitSheetState extends State<_UnitSheet> {
   );
 
   Future<void> _createUnit() async {
-    final controller = TextEditingController();
     final created = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Create unit'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLength: 20,
-          textCapitalization: TextCapitalization.none,
-          decoration: const InputDecoration(
-            labelText: 'Unit name',
-            hintText: 'e.g. bundle, plate, session',
-          ),
-          onSubmitted: (value) => Navigator.pop(dialogContext, value),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, controller.text),
-            child: const Text('Save unit'),
-          ),
-        ],
-      ),
+      builder: (_) => const _CreateUnitDialog(),
     );
-    controller.dispose();
     if (created == null || created.trim().isEmpty) return;
+    // Let the nested dialog finish its exit before closing the unit sheet.
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    if (!mounted) return;
     try {
       final unit = await widget.unitService.create(created);
       if (!mounted) return;
@@ -194,4 +173,51 @@ class _UnitSheetState extends State<_UnitSheet> {
       );
     }
   }
+}
+
+class _CreateUnitDialog extends StatefulWidget {
+  const _CreateUnitDialog();
+
+  @override
+  State<_CreateUnitDialog> createState() => _CreateUnitDialogState();
+}
+
+class _CreateUnitDialogState extends State<_CreateUnitDialog> {
+  final controller = TextEditingController();
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final value = controller.text.trim();
+    if (value.isNotEmpty) AppFocus.pop(context, value);
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    scrollable: true,
+    title: const Text('Create unit'),
+    content: TextField(
+      controller: controller,
+      autofocus: true,
+      maxLength: 20,
+      textCapitalization: TextCapitalization.none,
+      textInputAction: TextInputAction.done,
+      decoration: const InputDecoration(
+        labelText: 'Unit name',
+        hintText: 'e.g. bundle, plate, session',
+      ),
+      onSubmitted: (_) => _submit(),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => AppFocus.pop(context),
+        child: const Text('Cancel'),
+      ),
+      FilledButton(onPressed: _submit, child: const Text('Save unit')),
+    ],
+  );
 }

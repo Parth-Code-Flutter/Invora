@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
 import '../themes/app_text_styles.dart';
+import '../utils/app_focus.dart';
 
 class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   const AppSearchAppBar({
@@ -38,10 +39,11 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
     });
   }
 
-  void _closeSearch() {
+  Future<void> _closeSearch() async {
     _controller.clear();
     widget.onChanged('');
-    _focusNode.unfocus();
+    await AppFocus.dismissKeyboard();
+    if (!mounted) return;
     setState(() => _searching = false);
   }
 
