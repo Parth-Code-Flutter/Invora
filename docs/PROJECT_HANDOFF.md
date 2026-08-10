@@ -36,6 +36,7 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 
 - Create, search, edit, view, and soft-delete customers
 - Mobile length/format and email regex validation
+- Customer name and valid 10-digit Indian mobile number are required
 - GSTIN, address, company, and optional notes support
 - Essentials-first customer form keeps name/contact visible and progressively
   discloses company/tax, billing address, and private notes
@@ -174,10 +175,21 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-10 — Required customer mobile number
+
+- Made both customer name and mobile number mandatory for customer creation
+  and editing, including customers created from the invoice flow.
+- Added shared required-mobile validation and automated coverage while keeping
+  email and the remaining customer fields optional.
+- Important files: `validation_utils.dart`, `customer_form_controller.dart`,
+  `customer_form_screen.dart`, and `validation_utils_test.dart`.
+- No database, storage, backup, or migration changes.
+- Verified with formatting, analysis, automated tests, and Android debug build.
+
 ### 2026-08-10 — Faster customer capture
 
-- Reworked customer add/edit into an essentials-first flow: only the customer
-  name is required, with mobile and email kept close at hand.
+- Reworked customer add/edit into an essentials-first flow with name, mobile,
+  and email kept close at hand.
 - Moved company/GSTIN, billing address, and private notes into clearly labelled
   optional sections without removing any customer capability.
 - Added invoice-aware customer creation with a `Save & use customer` action

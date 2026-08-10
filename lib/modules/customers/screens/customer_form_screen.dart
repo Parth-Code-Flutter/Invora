@@ -65,7 +65,7 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                                   ),
                                   AppTextField(
                                     controller: controller.mobile,
-                                    label: 'Mobile number',
+                                    label: 'Mobile number *',
                                     prefixIcon: Icons.phone_outlined,
                                     keyboardType: TextInputType.phone,
                                     validator: controller.validateMobile,
@@ -261,7 +261,7 @@ class _FormIntro extends StatelessWidget {
       const SizedBox(height: 8),
       Text(
         invoiceFlow && !editing
-            ? 'Only a name is required. Add contact or billing details whenever they are useful.'
+            ? 'Add their name and mobile number, then continue building the invoice.'
             : 'Save billing information once and reuse it on every invoice.',
         style: AppTextStyles.body.copyWith(
           color: AppColors.textSecondary,

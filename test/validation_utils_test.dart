@@ -13,6 +13,12 @@ void main() {
       expect(ValidationUtils.optionalIndianMobile('98765432100'), isNotNull);
       expect(ValidationUtils.optionalIndianMobile('5876543210'), isNotNull);
     });
+
+    test('requires a mobile number when used by customer forms', () {
+      expect(ValidationUtils.requiredIndianMobile(null), isNotNull);
+      expect(ValidationUtils.requiredIndianMobile(''), isNotNull);
+      expect(ValidationUtils.requiredIndianMobile('9876543210'), isNull);
+    });
   });
 
   group('email validation', () {

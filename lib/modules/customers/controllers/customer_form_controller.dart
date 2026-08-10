@@ -58,7 +58,7 @@ class CustomerFormController extends GetxController {
   }
 
   String? validateMobile(String? value) =>
-      ValidationUtils.optionalIndianMobile(value);
+      ValidationUtils.requiredIndianMobile(value);
 
   String? validateGstin(String? value) {
     if (value == null || value.trim().isEmpty) {

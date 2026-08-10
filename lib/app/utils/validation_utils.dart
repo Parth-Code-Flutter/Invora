@@ -13,6 +13,12 @@ abstract final class ValidationUtils {
     return null;
   }
 
+  static String? requiredIndianMobile(String? value) {
+    final mobile = value?.trim() ?? '';
+    if (mobile.isEmpty) return 'Mobile number is required.';
+    return optionalIndianMobile(mobile);
+  }
+
   static String? optionalEmail(String? value) {
     final email = value?.trim() ?? '';
     if (email.isEmpty) return null;
