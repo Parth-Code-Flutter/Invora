@@ -36,6 +36,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Create-mode forms use non-destructive hints for example/default text; edit
   mode continues to load actual persisted values
 - Reusable fields, dropdown sheets, navigation, and modern notifications
+- Shared gradient `AppButton` owns full-width primary actions, including
+  loading, disabled, icon, sizing, semantics, and responsive behavior; compact
+  selectors, secondary actions, and destructive confirmations remain distinct
 - Reusable gradient module banners give catalog, customer, invoice, and
   quotation workspaces distinct task-focused identities
 - Shared icon-led filter pills, expressive segmented options, and branded
@@ -193,6 +196,19 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Unified gradient primary actions
+
+- Standardized the coral-to-plum gradient action shown in the customer flow as
+  the app-wide primary CTA for create, save, review, share, and continue tasks.
+- Replaced remaining one-off screen-level primary buttons in invoice creation,
+  invoice preview, item details, backup, and item-entry flows with the shared
+  `AppButton`, including consistent loading and disabled states.
+- Kept compact selectors, filters, secondary outlined actions, inverse banner
+  actions, and destructive confirmations purpose-specific so the primary CTA
+  remains clear. Exported the shared menu group through the widget barrel.
+- Important files: shared button/widget exports and affected feature screens.
+- No database, storage, backup, or migration changes.
 
 ### 2026-08-11 — Scannable More and settings navigation
 

@@ -4,6 +4,7 @@ import 'package:printing/printing.dart';
 
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_filter_chip.dart';
+import '../../../app/widgets/app_button.dart';
 import '../../../data/services/invoice_pdf_service.dart';
 import '../controllers/invoice_preview_controller.dart';
 
@@ -92,19 +93,15 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: FilledButton.icon(
+            child: AppButton(
               onPressed:
                   controller.isSavingDocument.value ||
                       controller.validationError.value != null
                   ? null
                   : controller.saveDocument,
-              icon: controller.isSavingDocument.value
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.check_rounded),
-              label: const Text('Save invoice'),
+              icon: Icons.check_rounded,
+              label: 'Save invoice',
+              isLoading: controller.isSavingDocument.value,
             ),
           ),
         );

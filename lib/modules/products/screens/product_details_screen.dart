@@ -9,6 +9,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_entity_header.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/product_details_controller.dart';
@@ -109,13 +110,13 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    FilledButton.icon(
+                    AppButton(
                       onPressed: () => Get.toNamed<void>(
                         AppRoutes.invoiceCreate,
                         arguments: InvoiceEditorArgs(productId: item.id),
                       ),
-                      icon: const Icon(Icons.receipt_long_outlined),
-                      label: const Text('Create invoice with this item'),
+                      icon: Icons.receipt_long_outlined,
+                      label: 'Create invoice with this item',
                     ),
                   ],
                 ),

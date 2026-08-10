@@ -10,6 +10,7 @@ export 'app_amount_text.dart';
 export 'app_list_tile.dart';
 export 'app_module_banner.dart';
 export 'app_main_navigation.dart';
+export 'app_menu_group.dart';
 export 'app_entity_header.dart';
 export 'app_card.dart';
 export 'app_empty_state.dart';

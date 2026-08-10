@@ -12,6 +12,7 @@ import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_notification.dart';
@@ -87,10 +88,13 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
                     ],
                   ),
                 ),
-                FilledButton.icon(
+                AppButton(
                   onPressed: controller.preview,
-                  icon: const Icon(Icons.visibility_outlined),
-                  label: const Text('Review invoice'),
+                  icon: Icons.visibility_outlined,
+                  label: controller.isQuotation
+                      ? 'Review estimate'
+                      : 'Review invoice',
+                  expand: false,
                 ),
               ],
             ),
@@ -1388,9 +1392,9 @@ class _ItemSheetState extends State<_ItemSheet> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: FilledButton(
+                  child: AppButton(
                     onPressed: _submit,
-                    child: Text(widget.item == null ? 'Add item' : 'Save'),
+                    label: widget.item == null ? 'Add item' : 'Save item',
                   ),
                 ),
               ],

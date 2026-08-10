@@ -24,7 +24,9 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = onPressed != null && !isLoading;
-    final branded = onPressed != null;
+    // Keep progress visible on the branded surface even when callers disable
+    // taps while an asynchronous action is running.
+    final branded = onPressed != null || isLoading;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final child = isLoading
         ? const SizedBox(
@@ -90,11 +92,19 @@ class AppButton extends StatelessWidget {
             child: Center(
               child: DefaultTextStyle.merge(
                 style: TextStyle(
-                  color: branded ? Colors.white : AppColors.textTertiary,
+                  color: branded
+                      ? Colors.white
+                      : isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.textTertiary,
                 ),
                 child: IconTheme(
                   data: IconThemeData(
-                    color: branded ? Colors.white : AppColors.textTertiary,
+                    color: branded
+                        ? Colors.white
+                        : isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.textTertiary,
                   ),
                   child: child,
                 ),

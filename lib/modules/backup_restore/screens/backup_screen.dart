@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_notification.dart';
 import '../../../app/widgets/responsive_content.dart';
@@ -67,12 +68,13 @@ class BackupScreen extends GetView<BackupController> {
                 ),
                 const SizedBox(height: 16),
                 Obx(
-                  () => FilledButton.icon(
+                  () => AppButton(
                     onPressed: controller.isWorking.value
                         ? null
                         : controller.createAndShare,
-                    icon: const Icon(Icons.archive_outlined),
-                    label: const Text('Create and share ZIP'),
+                    icon: Icons.archive_outlined,
+                    label: 'Create and share ZIP',
+                    isLoading: controller.isWorking.value,
                   ),
                 ),
               ],

@@ -624,14 +624,10 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: FilledButton(
+                  child: AppButton(
                     onPressed: isSaving ? null : _save,
-                    child: isSaving
-                        ? const SizedBox.square(
-                            dimension: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Save payment'),
+                    label: 'Save payment',
+                    isLoading: isSaving,
                   ),
                 ),
               ],
