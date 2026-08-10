@@ -12,6 +12,7 @@ class ReportController extends GetxController {
   final BusinessRepository _business;
   final report = const ReportSummaryModel().obs;
   final currencySymbol = '₹'.obs;
+  final selectedMonth = DateTime(DateTime.now().year, DateTime.now().month).obs;
   StreamSubscription<ReportSummaryModel>? _subscription;
 
   @override
@@ -20,9 +21,35 @@ class ReportController extends GetxController {
     _business.getProfile().then(
       (profile) => currencySymbol.value = profile?.currencySymbol ?? '₹',
     );
-    _subscription = _invoices.watchCurrentMonthReport().listen(
-      (value) => report.value = value,
+    _watchMonth();
+  }
+
+  bool get canMoveNext {
+    final now = DateTime.now();
+    return selectedMonth.value.isBefore(DateTime(now.year, now.month));
+  }
+
+  void previousMonth() => selectMonth(
+    DateTime(selectedMonth.value.year, selectedMonth.value.month - 1),
+  );
+
+  void nextMonth() {
+    if (!canMoveNext) return;
+    selectMonth(
+      DateTime(selectedMonth.value.year, selectedMonth.value.month + 1),
     );
+  }
+
+  void selectMonth(DateTime value) {
+    selectedMonth.value = DateTime(value.year, value.month);
+    _watchMonth();
+  }
+
+  void _watchMonth() {
+    _subscription?.cancel();
+    _subscription = _invoices
+        .watchMonthlyReport(selectedMonth.value)
+        .listen((value) => report.value = value);
   }
 
   @override

@@ -15,14 +15,17 @@ class InvoiceRepository extends BaseRepository {
 
   static const _validator = InvoiceValidationService();
 
-  Stream<ReportSummaryModel> watchCurrentMonthReport() {
+  Stream<ReportSummaryModel> watchCurrentMonthReport() =>
+      watchMonthlyReport(DateTime.now());
+
+  Stream<ReportSummaryModel> watchMonthlyReport(DateTime selectedMonth) {
     return database.select(database.invoices).watch().map((rows) {
-      final now = DateTime.now();
+      final monthStart = DateTime(selectedMonth.year, selectedMonth.month);
       final current = rows.where(
         (row) =>
             row.documentType == DocumentType.invoice.name &&
-            row.invoiceDate.year == now.year &&
-            row.invoiceDate.month == now.month &&
+            row.invoiceDate.year == monthStart.year &&
+            row.invoiceDate.month == monthStart.month &&
             row.status != InvoiceStatus.draft.name &&
             row.status != InvoiceStatus.cancelled.name,
       );
@@ -34,7 +37,7 @@ class InvoiceRepository extends BaseRepository {
       var pending = 0;
       final monthStarts = List.generate(6, (index) {
         final offset = 5 - index;
-        return DateTime(now.year, now.month - offset);
+        return DateTime(monthStart.year, monthStart.month - offset);
       });
       final monthlySales = monthStarts
           .map((month) => MonthlySalesPoint(month: month, amountMinor: 0))

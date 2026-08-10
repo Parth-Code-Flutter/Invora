@@ -21,32 +21,11 @@ class ReportScreen extends GetView<ReportController> {
     body: Obx(() {
       final value = controller.report.value;
       final symbol = controller.currencySymbol.value;
-      final entries = [
-        (
-          'Total received',
-          CurrencyUtils.formatMinor(value.totalReceivedMinor, symbol: symbol),
-          Icons.payments_outlined,
-        ),
-        (
-          'Outstanding',
-          CurrencyUtils.formatMinor(value.outstandingMinor, symbol: symbol),
-          Icons.schedule,
-        ),
-        (
-          'Invoices created',
-          '${value.invoiceCount}',
-          Icons.receipt_long_outlined,
-        ),
-        ('Paid invoices', '${value.paidCount}', Icons.check_circle_outline),
-        (
-          'Pending invoices',
-          '${value.pendingCount}',
-          Icons.pending_actions_outlined,
-        ),
-      ];
       return ListView(
         padding: EdgeInsets.all(ResponsiveUtils.horizontalPadding(context)),
         children: [
+          _MonthSelector(controller: controller),
+          const SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
@@ -72,7 +51,7 @@ class ReportScreen extends GetView<ReportController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'TOTAL SALES • THIS MONTH',
+                  'TOTAL SALES • ${_monthLabel(controller.selectedMonth.value).toUpperCase()}',
                   style: AppTextStyles.caption.copyWith(color: Colors.white70),
                 ),
                 const SizedBox(height: 8),
@@ -106,36 +85,55 @@ class ReportScreen extends GetView<ReportController> {
             ),
           ),
           const SizedBox(height: 14),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: ResponsiveUtils.gridColumns(
-                context,
-                tablet: 2,
-                largeTablet: 3,
-              ),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              mainAxisExtent: 122,
-            ),
-            itemCount: entries.length,
-            itemBuilder: (_, index) => AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(entries[index].$3, color: AppColors.primary),
-                  const Spacer(),
-                  Text(
-                    entries[index].$1,
-                    style: AppTextStyles.small.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+          Row(
+            children: [
+              Expanded(
+                child: _MetricCard(
+                  label: 'Received',
+                  value: CurrencyUtils.formatMinor(
+                    value.totalReceivedMinor,
+                    symbol: symbol,
                   ),
-                  const SizedBox(height: 5),
-                  Text(entries[index].$2, style: AppTextStyles.sectionTitle),
-                ],
+                  icon: Icons.payments_outlined,
+                  color: AppColors.success,
+                ),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _MetricCard(
+                  label: 'Outstanding',
+                  value: CurrencyUtils.formatMinor(
+                    value.outstandingMinor,
+                    symbol: symbol,
+                  ),
+                  icon: Icons.schedule_rounded,
+                  color: AppColors.warning,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          AppCard(
+            child: Row(
+              children: [
+                _CountMetric(
+                  label: 'Created',
+                  value: value.invoiceCount,
+                  icon: Icons.receipt_long_outlined,
+                ),
+                const _MetricDivider(),
+                _CountMetric(
+                  label: 'Paid',
+                  value: value.paidCount,
+                  icon: Icons.check_circle_outline_rounded,
+                ),
+                const _MetricDivider(),
+                _CountMetric(
+                  label: 'Pending',
+                  value: value.pendingCount,
+                  icon: Icons.pending_actions_outlined,
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 18),
@@ -143,7 +141,14 @@ class ReportScreen extends GetView<ReportController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Six-month sales', style: AppTextStyles.sectionTitle),
+                Text('Sales trend', style: AppTextStyles.sectionTitle),
+                const SizedBox(height: 3),
+                Text(
+                  'Six months ending ${_monthLabel(controller.selectedMonth.value)}',
+                  style: AppTextStyles.small.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 18),
                 SizedBox(
                   height: 180,
@@ -156,6 +161,173 @@ class ReportScreen extends GetView<ReportController> {
       );
     }),
   );
+}
+
+class _MonthSelector extends StatelessWidget {
+  const _MonthSelector({required this.controller});
+  final ReportController controller;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      IconButton.filledTonal(
+        tooltip: 'Previous month',
+        onPressed: controller.previousMonth,
+        icon: const Icon(Icons.chevron_left_rounded),
+      ),
+      Expanded(
+        child: TextButton.icon(
+          onPressed: () => _chooseMonth(context),
+          icon: const Icon(Icons.calendar_month_outlined, size: 20),
+          label: Text(_monthLabel(controller.selectedMonth.value)),
+        ),
+      ),
+      IconButton.filledTonal(
+        tooltip: 'Next month',
+        onPressed: controller.canMoveNext ? controller.nextMonth : null,
+        icon: const Icon(Icons.chevron_right_rounded),
+      ),
+    ],
+  );
+
+  Future<void> _chooseMonth(BuildContext context) async {
+    final now = DateTime.now();
+    final months = List.generate(
+      24,
+      (index) => DateTime(now.year, now.month - index),
+    );
+    final selected = await showModalBottomSheet<DateTime>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * .55,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                child: Text('Choose month', style: AppTextStyles.sectionTitle),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: months.length,
+                  itemBuilder: (context, index) {
+                    final month = months[index];
+                    final active =
+                        month.year == controller.selectedMonth.value.year &&
+                        month.month == controller.selectedMonth.value.month;
+                    return ListTile(
+                      leading: Icon(
+                        Icons.calendar_today_outlined,
+                        color: active ? AppColors.primary : null,
+                      ),
+                      title: Text(_monthLabel(month)),
+                      trailing: active
+                          ? const Icon(
+                              Icons.check_rounded,
+                              color: AppColors.primary,
+                            )
+                          : null,
+                      onTap: () => Navigator.pop(context, month),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (selected != null) controller.selectMonth(selected);
+  }
+}
+
+class _MetricCard extends StatelessWidget {
+  const _MetricCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: color, size: 22),
+        const SizedBox(height: 16),
+        Text(
+          label,
+          style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.sectionTitle,
+        ),
+      ],
+    ),
+  );
+}
+
+class _CountMetric extends StatelessWidget {
+  const _CountMetric({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+  final String label;
+  final int value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+    child: Column(
+      children: [
+        Icon(icon, color: AppColors.primary, size: 21),
+        const SizedBox(height: 7),
+        Text('$value', style: AppTextStyles.sectionTitle),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+        ),
+      ],
+    ),
+  );
+}
+
+class _MetricDivider extends StatelessWidget {
+  const _MetricDivider();
+  @override
+  Widget build(BuildContext context) =>
+      Container(width: 1, height: 54, color: AppColors.border);
+}
+
+String _monthLabel(DateTime value) {
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  return '${months[value.month - 1]} ${value.year}';
 }
 
 class _SalesChart extends StatelessWidget {

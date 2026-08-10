@@ -121,6 +121,39 @@ void main() {
       'Invoice_INV-0101_Mira-Studio.pdf',
     );
   });
+
+  test('builds reports for a selected historical month', () async {
+    await repository.save(
+      _invoice(
+        number: 'INV-JAN',
+        customer: 'January Client',
+        company: 'January Studio',
+        totalMinor: 12000,
+        status: InvoiceStatus.unpaid,
+        date: DateTime(2025, 1, 12),
+      ),
+    );
+    await repository.save(
+      _invoice(
+        number: 'INV-FEB',
+        customer: 'February Client',
+        company: 'February Studio',
+        totalMinor: 34000,
+        status: InvoiceStatus.paid,
+        date: DateTime(2025, 2, 8),
+      ),
+    );
+
+    final january = await repository
+        .watchMonthlyReport(DateTime(2025, 1))
+        .first;
+
+    expect(january.invoiceCount, 1);
+    expect(january.totalSalesMinor, 12000);
+    expect(january.pendingCount, 1);
+    expect(january.monthlySales.last.month, DateTime(2025, 1));
+    expect(january.monthlySales.last.amountMinor, 12000);
+  });
 }
 
 InvoiceModel _invoice({

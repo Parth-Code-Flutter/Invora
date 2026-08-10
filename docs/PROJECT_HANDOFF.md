@@ -191,6 +191,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Selectable monthly reports
+
+- Added real month-based reporting with previous/next controls and a 24-month
+  selection sheet; future navigation is disabled.
+- Report totals, payment status counts, and the six-month trend now recalculate
+  from stored invoices for the selected month instead of being fixed to today.
+- Replaced tall single-column metric cards with compact received/outstanding
+  cards and a grouped invoice-status summary for faster scanning.
+- Important files: invoice repository, report controller, and report screen.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Streamlined catalog item form
 
 - Removed the large decorative catalog hero and nested essential-details card
