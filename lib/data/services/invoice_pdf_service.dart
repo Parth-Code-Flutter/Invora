@@ -1,6 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data';
-
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -38,7 +37,7 @@ class InvoicePdfService {
     if (business.businessName.trim().isEmpty) {
       throw ArgumentError('Complete business setup before generating a PDF.');
     }
-    final document = pw.Document();
+    final document = pw.Document(theme: await _documentTheme());
     final style = _styleFor(template);
     final logo = await _memoryImage(business.logoPath);
     final signature = await _memoryImage(business.signaturePath);
@@ -266,12 +265,39 @@ class InvoicePdfService {
     return pw.TableHelper.fromTextArray(
       headers: headers,
       data: data,
+      columnWidths: const {
+        0: pw.FlexColumnWidth(3.2),
+        1: pw.FlexColumnWidth(1.25),
+        2: pw.FlexColumnWidth(1.25),
+        3: pw.FlexColumnWidth(1.35),
+        4: pw.FlexColumnWidth(1.05),
+        5: pw.FlexColumnWidth(1.5),
+      },
+      headerAlignments: const {
+        0: pw.Alignment.centerLeft,
+        1: pw.Alignment.centerLeft,
+        2: pw.Alignment.centerRight,
+        3: pw.Alignment.centerRight,
+        4: pw.Alignment.centerRight,
+        5: pw.Alignment.centerRight,
+      },
+      cellAlignments: const {
+        0: pw.Alignment.centerLeft,
+        1: pw.Alignment.centerLeft,
+        2: pw.Alignment.centerRight,
+        3: pw.Alignment.centerRight,
+        4: pw.Alignment.centerRight,
+        5: pw.Alignment.centerRight,
+      },
       headerDecoration: pw.BoxDecoration(color: style.accent),
       headerStyle: pw.TextStyle(
         color: PdfColors.white,
         fontWeight: pw.FontWeight.bold,
+        fontSize: style.compact ? 7.5 : 8.5,
       ),
+      cellStyle: pw.TextStyle(fontSize: style.compact ? 7.5 : 8.5),
       cellPadding: pw.EdgeInsets.all(style.compact ? 4 : 7),
+      oddRowDecoration: const pw.BoxDecoration(color: PdfColors.grey100),
       border: style.minimal
           ? null
           : pw.TableBorder.all(color: PdfColors.grey300),
@@ -379,6 +405,20 @@ class InvoicePdfService {
     return pw.MemoryImage(await file.readAsBytes());
   }
 
+  /// The built-in PDF fonts don't contain the Indian rupee glyph. Embedding
+  /// the app's font also keeps previews, saved files, and printed output
+  /// visually consistent and ready for user-selectable templates.
+  Future<pw.ThemeData> _documentTheme() async {
+    final data = await rootBundle.load('assets/fonts/Inter/InterVariable.ttf');
+    final font = pw.Font.ttf(data);
+    return pw.ThemeData.withFont(
+      base: font,
+      bold: font,
+      italic: font,
+      boldItalic: font,
+    );
+  }
+
   _PdfStyle _styleFor(InvoiceTemplate template) => switch (template) {
     InvoiceTemplate.minimal => const _PdfStyle(
       PdfColors.black,
@@ -391,8 +431,8 @@ class InvoicePdfService {
       false,
     ),
     InvoiceTemplate.professional => const _PdfStyle(
-      PdfColor.fromInt(0xFF7138E8),
-      PdfColor.fromInt(0xFF7138E8),
+      PdfColor.fromInt(0xFFF36F62),
+      PdfColor.fromInt(0xFF6A315F),
       PdfColors.white,
       26,
       14,
@@ -401,8 +441,8 @@ class InvoicePdfService {
       false,
     ),
     InvoiceTemplate.modern => const _PdfStyle(
-      PdfColor.fromInt(0xFF14B8A6),
-      PdfColor.fromInt(0xFFEEF2FF),
+      PdfColor.fromInt(0xFFF36F62),
+      PdfColor.fromInt(0xFFFFF5F1),
       PdfColors.black,
       24,
       16,
@@ -421,8 +461,8 @@ class InvoicePdfService {
       false,
     ),
     InvoiceTemplate.compact => const _PdfStyle(
-      PdfColor.fromInt(0xFF7138E8),
-      PdfColor.fromInt(0xFFF1F5F9),
+      PdfColor.fromInt(0xFF6A315F),
+      PdfColor.fromInt(0xFFFFF5F1),
       PdfColors.black,
       20,
       8,

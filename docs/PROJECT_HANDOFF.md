@@ -93,6 +93,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 ### Documents and reporting
 
 - Five selectable invoice PDF styles
+- PDFs embed the bundled Inter TrueType font for Unicode currency glyphs and
+  use explicit responsive table columns/alignment so real invoice values wrap
+  predictably without overlapping
 - Offline PDF preview, save, share, and print
 - Dashboard totals and basic reports
 - Customer and product detail history links
@@ -196,6 +199,19 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Reliable, template-ready invoice PDFs
+
+- Fixed missing Indian rupee symbols by embedding the bundled Inter font into
+  every generated PDF instead of relying on the limited built-in PDF fonts.
+- Rebuilt line-item table sizing around explicit flexible columns, right-aligned
+  numeric values, smaller document typography, alternating rows, and wrapping
+  so quantity, rate, tax, and amount values no longer collide.
+- Kept the current widely adopted `pdf` + `printing` stack at their latest
+  configured releases; refreshed professional, modern, and compact templates
+  toward the Creovo coral/plum identity while retaining five selectable styles.
+- Important files: invoice PDF service and project handoff.
+- No database, storage, backup, or migration changes.
 
 ### 2026-08-11 — Unified gradient primary actions
 

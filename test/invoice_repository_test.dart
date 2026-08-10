@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:creovo_invoice/app/enums/invoice_status.dart';
 import 'package:creovo_invoice/app/enums/tax_type.dart';
 import 'package:creovo_invoice/data/models/invoice_calculation_models.dart';
+import 'package:creovo_invoice/data/models/business_profile_model.dart';
 import 'package:creovo_invoice/data/models/invoice_model.dart';
 import 'package:creovo_invoice/data/repositories/invoice_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
@@ -10,6 +11,8 @@ import 'package:creovo_invoice/data/services/invoice_calculation_service.dart';
 import 'package:creovo_invoice/data/services/invoice_pdf_service.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late AppDatabase database;
   late InvoiceRepository repository;
 
@@ -153,6 +156,34 @@ void main() {
     expect(january.pendingCount, 1);
     expect(january.monthlySales.last.month, DateTime(2025, 1));
     expect(january.monthlySales.last.amountMinor, 12000);
+  });
+
+  test('renders every PDF template with the INR Unicode font', () async {
+    final now = DateTime(2026, 8, 11);
+    final invoice = _invoice(
+      number: 'INV-PDF-1',
+      customer: 'Rinkal Ben',
+      company: 'MDF Collections',
+      totalMinor: 73600,
+      status: InvoiceStatus.unpaid,
+      date: now,
+    );
+    final business = BusinessProfileModel(
+      businessName: 'MDF Collections',
+      currencySymbol: '₹',
+      createdAt: now,
+      updatedAt: now,
+    );
+    const service = InvoicePdfService();
+
+    for (final template in InvoiceTemplate.values) {
+      final bytes = await service.build(
+        invoice: invoice,
+        business: business,
+        template: template,
+      );
+      expect(bytes, isNotEmpty, reason: '${template.label} must render');
+    }
   });
 }
 
