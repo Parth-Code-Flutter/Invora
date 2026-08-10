@@ -34,6 +34,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   quotation workspaces distinct task-focused identities
 - Shared icon-led filter pills, expressive segmented options, and branded
   rounded back controls across nested routes
+- Expandable AppBar search on the Customers and Invoices/Quotations lists;
+  search stays out of the content area until requested
 - Offline backup/restore with validation and database rollback
 
 ### Customers
@@ -161,7 +163,7 @@ transfer automatically.
 As of 2026-08-10:
 
 - Flutter analysis: no issues
-- Automated suite: all 30 tests passing
+- Automated suite: all 31 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -180,6 +182,20 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-10 — Expandable main-tab search
+
+- Moved customer and invoice/quotation search from permanent page fields into
+  their AppBars to return more vertical space to the lists.
+- Search now expands in place with autofocus, live filtering, a clear action,
+  and a close action that resets the query and restores the normal title.
+- Kept invoice sorting accessible alongside search and left Home/More unchanged
+  because those tabs do not contain searchable collections.
+- Important files: `app_search_app_bar.dart`, `customer_list_screen.dart`,
+  `invoice_list_screen.dart`, and `design_system_test.dart`.
+- No database, storage, backup, or migration changes.
+- Verified with formatting, clean analysis, all 31 automated tests, and an
+  Android debug APK build.
 
 ### 2026-08-10 — Expressive filters and back navigation
 

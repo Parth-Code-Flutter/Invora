@@ -7,7 +7,7 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
-import '../../../app/widgets/app_search_field.dart';
+import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_module_banner.dart';
 import '../../../data/models/customer_model.dart';
@@ -19,7 +19,11 @@ class CustomerListScreen extends GetView<CustomerListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Customers')),
+      appBar: AppSearchAppBar(
+        title: 'Customers',
+        hint: 'Name, mobile or GSTIN',
+        onChanged: controller.updateSearch,
+      ),
       bottomNavigationBar: const AppMainNavigation(
         current: MainDestination.customers,
       ),
@@ -43,11 +47,6 @@ class CustomerListScreen extends GetView<CustomerListController> {
                   onAction: () => Get.toNamed<void>(AppRoutes.customerAdd),
                 ),
                 const SizedBox(height: 18),
-                AppSearchField(
-                  onChanged: controller.updateSearch,
-                  hint: 'Search name, company, mobile or GSTIN',
-                ),
-                const SizedBox(height: 8),
                 Obx(
                   () => Align(
                     alignment: Alignment.centerLeft,

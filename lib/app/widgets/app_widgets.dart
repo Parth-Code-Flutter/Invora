@@ -1,6 +1,7 @@
 export 'app_button.dart';
 export 'app_outlined_button.dart';
 export 'app_search_field.dart';
+export 'app_search_app_bar.dart';
 export 'app_status_chip.dart';
 export 'app_back_button.dart';
 export 'app_bottom_sheet.dart';

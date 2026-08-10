@@ -4,6 +4,7 @@ import 'package:creovo_invoice/app/enums/invoice_status.dart';
 import 'package:creovo_invoice/app/constants/app_colors.dart';
 import 'package:creovo_invoice/app/themes/app_theme.dart';
 import 'package:creovo_invoice/app/widgets/app_module_banner.dart';
+import 'package:creovo_invoice/app/widgets/app_search_app_bar.dart';
 import 'package:creovo_invoice/app/widgets/app_back_button.dart';
 import 'package:creovo_invoice/app/widgets/app_filter_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_search_field.dart';
@@ -103,5 +104,36 @@ void main() {
         isSelected: true,
       ),
     );
+  });
+
+  testWidgets('AppBar search expands, updates, and clears the query', (
+    tester,
+  ) async {
+    final queries = <String>[];
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          appBar: AppSearchAppBar(
+            title: 'Customers',
+            hint: 'Name or mobile',
+            onChanged: queries.add,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Customers'), findsOneWidget);
+    await tester.tap(find.byTooltip('Search'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'Asha');
+    expect(queries.last, 'Asha');
+    await tester.tap(find.byTooltip('Close search'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Customers'), findsOneWidget);
+    expect(queries.last, isEmpty);
   });
 }

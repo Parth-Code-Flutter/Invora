@@ -11,7 +11,7 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
-import '../../../app/widgets/app_search_field.dart';
+import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_module_banner.dart';
@@ -28,9 +28,11 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
       bottomNavigationBar: AppMainNavigation(
         current: quotation ? MainDestination.more : MainDestination.invoices,
       ),
-      appBar: AppBar(
+      appBar: AppSearchAppBar(
         leading: quotation ? const AppBackButton() : null,
-        title: Text(quotation ? 'Quotations' : 'Invoices'),
+        title: quotation ? 'Quotations' : 'Invoices',
+        hint: quotation ? 'Quote or customer' : 'Invoice or customer',
+        onChanged: controller.updateSearch,
         actions: [
           Obx(
             () => PopupMenuButton<InvoiceSort>(
@@ -107,11 +109,6 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
                   ),
                 ),
                 const SizedBox(height: 18),
-                AppSearchField(
-                  onChanged: controller.updateSearch,
-                  hint: 'Search invoice, customer or company',
-                ),
-                const SizedBox(height: 10),
                 SizedBox(
                   height: 42,
                   child: Obx(
