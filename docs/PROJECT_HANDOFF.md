@@ -200,6 +200,18 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Focused invoice details hierarchy
+
+- Compressed the invoice hero while keeping number, status, balance, total,
+  paid amount, issue date, and due date visible in one glance.
+- Removed the duplicate totals card and folded its useful values into the hero,
+  bringing customer and line-item content above the fold. Customer identity,
+  company, mobile, and GSTIN now share one compact row without decorative empty
+  space; items use a count, denser rows, and separators for faster scanning.
+- Payment remains the strongest action, with sharing clearly secondary.
+- Important file: invoice details screen.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Reliable, template-ready invoice PDFs
 
 - Fixed missing Indian rupee symbols by embedding the bundled Inter font into

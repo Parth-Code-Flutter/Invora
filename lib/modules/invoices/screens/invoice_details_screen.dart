@@ -100,7 +100,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         final symbol = controller.currencySymbol.value;
         final sections = [
           Container(
-            padding: const EdgeInsets.all(22),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [
@@ -136,7 +136,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                     AppStatusChip(status: invoice.status),
                   ],
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 12),
                 Text(
                   invoice.calculation.balanceDueMinor > 0
                       ? 'Balance due'
@@ -155,36 +155,32 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 18),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: .1),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _HeroDate(
-                          label: 'ISSUED',
-                          value: _date(invoice.invoiceDate),
-                        ),
+                const SizedBox(height: 6),
+                Text(
+                  '${CurrencyUtils.formatMinor(invoice.calculation.grandTotalMinor, symbol: symbol)} total  •  ${CurrencyUtils.formatMinor(invoice.calculation.paidAmountMinor, symbol: symbol)} paid',
+                  style: AppTextStyles.small.copyWith(color: Colors.white70),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _HeroDate(
+                        icon: Icons.calendar_today_outlined,
+                        label: 'Issued',
+                        value: _date(invoice.invoiceDate),
                       ),
-                      Container(width: 1, height: 30, color: Colors.white24),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: _HeroDate(
-                          label: 'DUE',
-                          value: invoice.dueDate == null
-                              ? 'Not set'
-                              : _date(invoice.dueDate!),
-                        ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _HeroDate(
+                        icon: Icons.event_available_outlined,
+                        label: 'Due',
+                        value: invoice.dueDate == null
+                            ? 'Not set'
+                            : _date(invoice.dueDate!),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -222,97 +218,100 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
             ],
           ),
           AppCard(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primary, AppColors.secondary],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    invoice.customer.name.trim().isEmpty
+                        ? '?'
+                        : invoice.customer.name.characters.first.toUpperCase(),
+                    style: AppTextStyles.cardTitle.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        invoice.customer.name,
+                        style: AppTextStyles.cardTitle,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        [
+                          if (invoice.customer.companyName != null)
+                            invoice.customer.companyName!,
+                          if (invoice.customer.mobile != null)
+                            invoice.customer.mobile!,
+                          if (invoice.customer.gstin != null)
+                            'GSTIN ${invoice.customer.gstin!}',
+                        ].join(' • '),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.small.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.person_outline_rounded,
+                  size: 21,
+                  color: AppColors.textTertiary,
+                ),
+              ],
+            ),
+          ),
+          AppCard(
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Container(
-                      width: 46,
-                      height: 46,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.primary, AppColors.secondary],
-                        ),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Text(
-                        invoice.customer.name.trim().isEmpty
-                            ? '?'
-                            : invoice.customer.name.characters.first
-                                  .toUpperCase(),
-                        style: AppTextStyles.cardTitle.copyWith(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            invoice.customer.name,
-                            style: AppTextStyles.cardTitle,
-                          ),
-                          if (invoice.customer.companyName != null)
-                            Text(
-                              invoice.customer.companyName!,
-                              style: AppTextStyles.small.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                        ],
-                      ),
+                      child: Text('Items', style: AppTextStyles.sectionTitle),
                     ),
-                    const Icon(
-                      Icons.person_outline_rounded,
-                      color: AppColors.textTertiary,
+                    Text(
+                      '${invoice.items.length} ${invoice.items.length == 1 ? 'item' : 'items'}',
+                      style: AppTextStyles.small.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
-                if (invoice.customer.mobile != null ||
-                    invoice.customer.gstin != null) ...[
-                  const SizedBox(height: 14),
-                  const Divider(height: 1),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      if (invoice.customer.mobile != null)
-                        _InfoPill(
-                          icon: Icons.phone_outlined,
-                          label: invoice.customer.mobile!,
-                        ),
-                      if (invoice.customer.gstin != null)
-                        _InfoPill(
-                          icon: Icons.receipt_long_outlined,
-                          label: invoice.customer.gstin!,
-                        ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Items', style: AppTextStyles.sectionTitle),
-                const SizedBox(height: 8),
+                const SizedBox(height: 5),
                 ...invoice.items.asMap().entries.map((entry) {
                   final item = entry.value;
                   final total = invoice.calculation.items[entry.key].totalMinor;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 9),
+                  return Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: entry.key == invoice.items.length - 1
+                        ? null
+                        : const BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(color: AppColors.border),
+                            ),
+                          ),
                     child: Row(
                       children: [
                         Container(
-                          width: 34,
-                          height: 34,
+                          width: 30,
+                          height: 30,
                           alignment: Alignment.center,
                           decoration: const BoxDecoration(
                             color: AppColors.primaryLight,
@@ -350,42 +349,6 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                     ),
                   );
                 }),
-              ],
-            ),
-          ),
-          AppCard(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              children: [
-                _row(
-                  'Grand total',
-                  invoice.calculation.grandTotalMinor,
-                  symbol,
-                ),
-                _row('Paid', invoice.calculation.paidAmountMinor, symbol),
-                const Divider(),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: invoice.calculation.balanceDueMinor > 0
-                        ? AppColors.warningLight
-                        : AppColors.successLight,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: _row(
-                    invoice.calculation.balanceDueMinor > 0
-                        ? 'Balance due'
-                        : 'Fully paid',
-                    invoice.calculation.balanceDueMinor,
-                    symbol,
-                    color: invoice.calculation.balanceDueMinor > 0
-                        ? AppColors.warning
-                        : AppColors.success,
-                  ),
-                ),
               ],
             ),
           ),
@@ -658,61 +621,48 @@ class _PaymentSheetState extends State<_PaymentSheet> {
 }
 
 class _HeroDate extends StatelessWidget {
-  const _HeroDate({required this.label, required this.value});
+  const _HeroDate({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+  final IconData icon;
   final String label;
   final String value;
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label, style: AppTextStyles.caption.copyWith(color: Colors.white60)),
-      const SizedBox(height: 3),
-      Text(value, style: AppTextStyles.cardTitle.copyWith(color: Colors.white)),
-    ],
-  );
-}
-
-class _InfoPill extends StatelessWidget {
-  const _InfoPill({required this.icon, required this.label});
-  final IconData icon;
-  final String label;
-
-  @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
     decoration: BoxDecoration(
-      color: AppColors.surfaceMuted,
-      borderRadius: BorderRadius.circular(99),
+      color: Colors.white.withValues(alpha: .11),
+      borderRadius: BorderRadius.circular(12),
     ),
     child: Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: AppColors.secondary),
-        const SizedBox(width: 6),
-        Text(label, style: AppTextStyles.small),
+        Icon(icon, size: 16, color: Colors.white70),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: AppTextStyles.small.copyWith(color: Colors.white60),
+              ),
+              const SizedBox(height: 1),
+              Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(color: Colors.white),
+              ),
+            ],
+          ),
+        ),
       ],
     ),
   );
 }
-
-Widget _row(String label, int value, String symbol, {Color? color}) => Padding(
-  padding: const EdgeInsets.symmetric(vertical: 7),
-  child: Row(
-    children: [
-      Expanded(
-        child: Text(
-          label,
-          style: color == null ? null : TextStyle(color: color),
-        ),
-      ),
-      Text(
-        CurrencyUtils.formatMinor(value, symbol: symbol),
-        style: AppTextStyles.cardTitle.copyWith(color: color),
-      ),
-    ],
-  ),
-);
 
 String _date(DateTime value) =>
     '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}';
