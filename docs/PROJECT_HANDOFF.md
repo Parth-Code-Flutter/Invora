@@ -191,6 +191,18 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Unified AppBar and back navigation
+
+- Standardized all themed AppBars to a 64 px toolbar with consistent title
+  typography and leading geometry.
+- Replaced the oversized tinted back control with a compact neutral button,
+  balanced 20 px arrow, subtle border, matching light/dark colors, and a safe
+  48 px Material touch target.
+- Updated searchable AppBars to use the same height and title spacing, covering
+  standard, create, detail, list, and report screens through shared components.
+- Important files: app theme, shared back button, and searchable AppBar.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Consistent dashboard actions and invoice cards
 
 - Replaced the dashboard's bulky three-icon quick-create panel with compact

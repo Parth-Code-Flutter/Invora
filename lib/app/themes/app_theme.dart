@@ -48,7 +48,8 @@ abstract final class AppTheme {
         titleTextStyle: AppTextStyles.pageTitle.copyWith(
           color: colorScheme.onSurface,
         ),
-        toolbarHeight: 56,
+        toolbarHeight: 64,
+        leadingWidth: 52,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),

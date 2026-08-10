@@ -21,7 +21,7 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget> actions;
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(64);
 
   @override
   State<AppSearchAppBar> createState() => _AppSearchAppBarState();
@@ -59,7 +59,11 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
       leading: widget.leading,
-      titleSpacing: _searching ? 8 : NavigationToolbar.kMiddleSpacing,
+      titleSpacing: _searching
+          ? 8
+          : widget.leading == null
+          ? 16
+          : 12,
       title: AnimatedSwitcher(
         duration: const Duration(milliseconds: 220),
         switchInCurve: Curves.easeOutCubic,

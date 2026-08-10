@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:creovo_invoice/app/enums/invoice_status.dart';
 import 'package:creovo_invoice/app/constants/app_colors.dart';
 import 'package:creovo_invoice/app/themes/app_theme.dart';
+import 'package:creovo_invoice/app/themes/app_text_styles.dart';
 import 'package:creovo_invoice/app/widgets/app_module_banner.dart';
 import 'package:creovo_invoice/app/widgets/app_search_app_bar.dart';
 import 'package:creovo_invoice/app/utils/app_focus.dart';
@@ -95,6 +96,11 @@ void main() {
     );
 
     expect(find.byTooltip('Back'), findsOneWidget);
+    expect(tester.getSize(find.byType(IconButton).first), const Size(48, 48));
+    expect(
+      AppTheme.light.appBarTheme.titleTextStyle?.fontSize,
+      AppTextStyles.pageTitle.fontSize,
+    );
     expect(find.text('Paid'), findsOneWidget);
     expect(
       tester.getSemantics(find.byType(AppFilterChip)),

@@ -9,26 +9,28 @@ class AppBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Padding(
-      padding: const EdgeInsets.only(left: 8, top: 7, bottom: 7),
+    return Center(
       child: IconButton(
         tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         onPressed: () => AppFocus.maybePop(context),
         style: IconButton.styleFrom(
+          fixedSize: const Size.square(40),
+          minimumSize: const Size.square(40),
+          padding: EdgeInsets.zero,
           backgroundColor: isDark
               ? AppColors.darkSurfaceVariant
-              : AppColors.secondaryLight,
+              : AppColors.surfaceSoft,
           foregroundColor: isDark
               ? AppColors.darkTextPrimary
-              : AppColors.secondary,
+              : AppColors.textPrimary,
           side: BorderSide(
             color: isDark ? AppColors.darkBorder : AppColors.border,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(13),
           ),
         ),
-        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+        icon: const Icon(Icons.arrow_back_rounded, size: 20),
       ),
     );
   }
