@@ -36,6 +36,7 @@ class BusinessSetupController extends GetxController {
 
   final isLoading = true.obs;
   final isSaving = false.obs;
+  final setupStep = 0.obs;
   final gstRegistered = false.obs;
   final currencyCode = 'INR'.obs;
   final logoPath = RxnString();
@@ -50,6 +51,17 @@ class BusinessSetupController extends GetxController {
     'GBP': '£',
     'AED': 'د.إ',
   };
+
+  void continueToDetails() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (requiredBusinessName(businessName.text) != null) {
+      formKey.currentState?.validate();
+      return;
+    }
+    setupStep.value = 1;
+  }
+
+  void returnToIdentity() => setupStep.value = 0;
 
   @override
   void onInit() {

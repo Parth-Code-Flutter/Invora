@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants/app_colors.dart';
-import '../constants/app_spacing.dart';
-import '../themes/app_text_styles.dart';
 
 class AppTextField extends StatelessWidget {
   const AppTextField({
@@ -39,35 +37,41 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.caption.copyWith(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? AppColors.darkTextSecondary
-                : AppColors.textSecondary,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        TextFormField(
-          controller: controller,
-          validator: validator,
-          keyboardType: keyboardType,
-          textInputAction: textInputAction,
-          inputFormatters: inputFormatters,
-          maxLines: maxLines,
-          textCapitalization: textCapitalization,
-          onChanged: onChanged,
-          onFieldSubmitted: onFieldSubmitted,
-          enabled: enabled,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
-          ),
-        ),
-      ],
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      inputFormatters: inputFormatters,
+      maxLines: maxLines,
+      textCapitalization: textCapitalization,
+      onChanged: onChanged,
+      onFieldSubmitted: onFieldSubmitted,
+      enabled: enabled,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        alignLabelWithHint: maxLines > 1,
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        prefixIconConstraints: const BoxConstraints(minWidth: 50),
+        prefixIcon: prefixIcon == null
+            ? null
+            : Padding(
+                padding: const EdgeInsets.only(left: 9, right: 7),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.darkSurfaceVariant
+                        : AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(prefixIcon, color: AppColors.primary, size: 17),
+                ),
+              ),
+      ),
     );
   }
 }

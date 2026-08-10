@@ -34,6 +34,6 @@ void main() {
     await tester.tap(find.text('Skip for now'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Build your invoice identity'), findsOneWidget);
+    expect(find.text('Let’s make it yours'), findsOneWidget);
   });
 }

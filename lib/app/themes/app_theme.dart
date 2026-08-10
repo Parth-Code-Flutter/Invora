@@ -115,10 +115,12 @@ abstract final class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isDark ? AppColors.darkSurfaceVariant : AppColors.surface,
+        fillColor: isDark
+            ? AppColors.darkSurfaceVariant
+            : AppColors.surfaceSoft,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 13,
+          vertical: 15,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
@@ -130,11 +132,35 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
           borderSide: BorderSide(
             color: isDark ? AppColors.darkBorder : AppColors.border,
+            width: 1.2,
+          ),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
+          borderSide: BorderSide(
+            color: isDark
+                ? AppColors.darkBorder.withValues(alpha: .6)
+                : AppColors.border.withValues(alpha: .7),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
+          borderSide: const BorderSide(color: AppColors.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
+        ),
+        floatingLabelStyle: const TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w700,
+        ),
+        hintStyle: TextStyle(
+          color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
         ),
       ),
       chipTheme: base.chipTheme.copyWith(
