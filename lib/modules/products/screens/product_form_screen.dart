@@ -260,6 +260,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                             child: AppTextField(
                                               controller: controller.taxRate,
                                               label: 'Custom tax percentage *',
+                                              hint: 'e.g. 18',
                                               validator: controller.validateTax,
                                               keyboardType:
                                                   const TextInputType.numberWithOptions(

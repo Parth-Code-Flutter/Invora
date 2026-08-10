@@ -523,7 +523,10 @@ class _InvoiceForm extends StatelessWidget {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    decoration: const InputDecoration(labelText: 'Amount paid'),
+                    decoration: const InputDecoration(
+                      labelText: 'Amount paid',
+                      hintText: '0.00',
+                    ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
@@ -1213,21 +1216,23 @@ class _ItemSheetState extends State<_ItemSheet> {
     final item = widget.item;
     name = TextEditingController(text: item?.name ?? '');
     quantity = TextEditingController(
-      text: QuantityUtils.toInputValue(item?.quantityScaled ?? 1000),
+      text: item == null ? '' : QuantityUtils.toInputValue(item.quantityScaled),
     );
     unit = item?.unit ?? 'pcs';
     rate = TextEditingController(
-      text: CurrencyUtils.toInputValue(item?.rateMinor ?? 0),
+      text: item == null ? '' : CurrencyUtils.toInputValue(item.rateMinor),
     );
     hsn = TextEditingController(text: item?.hsnSac ?? '');
     tax = TextEditingController(
-      text: TaxUtils.toInputValue(item?.taxRateBasisPoints ?? 0),
+      text: item == null ? '' : TaxUtils.toInputValue(item.taxRateBasisPoints),
     );
     discountType = item?.discount.type ?? DiscountType.none;
     discount = TextEditingController(
-      text: discountType == DiscountType.fixed
-          ? CurrencyUtils.toInputValue(item!.discount.fixedMinor)
-          : TaxUtils.toInputValue(item?.discount.percentageBasisPoints ?? 0),
+      text: item == null
+          ? ''
+          : discountType == DiscountType.fixed
+          ? CurrencyUtils.toInputValue(item.discount.fixedMinor)
+          : TaxUtils.toInputValue(item.discount.percentageBasisPoints),
     );
   }
 
@@ -1273,7 +1278,10 @@ class _ItemSheetState extends State<_ItemSheet> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    decoration: const InputDecoration(labelText: 'Quantity *'),
+                    decoration: const InputDecoration(
+                      labelText: 'Quantity *',
+                      hintText: '1',
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1292,7 +1300,10 @@ class _ItemSheetState extends State<_ItemSheet> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(labelText: 'Rate *'),
+              decoration: const InputDecoration(
+                labelText: 'Rate *',
+                hintText: '0.00',
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -1310,7 +1321,10 @@ class _ItemSheetState extends State<_ItemSheet> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    decoration: const InputDecoration(labelText: 'GST %'),
+                    decoration: const InputDecoration(
+                      labelText: 'GST %',
+                      hintText: '0',
+                    ),
                   ),
                 ),
               ],
@@ -1348,6 +1362,7 @@ class _ItemSheetState extends State<_ItemSheet> {
                   labelText: discountType == DiscountType.fixed
                       ? 'Discount amount'
                       : 'Discount %',
+                  hintText: '0',
                 ),
               ),
             ],
@@ -1387,9 +1402,13 @@ class _ItemSheetState extends State<_ItemSheet> {
   }
 
   void _submit() {
-    final quantityValue = QuantityUtils.parseScaled(quantity.text);
+    final quantityValue = quantity.text.trim().isEmpty
+        ? 1000
+        : QuantityUtils.parseScaled(quantity.text);
     final rateValue = CurrencyUtils.parseMinor(rate.text);
-    final taxValue = TaxUtils.parseBasisPoints(tax.text);
+    final taxValue = tax.text.trim().isEmpty
+        ? 0
+        : TaxUtils.parseBasisPoints(tax.text);
     if (name.text.trim().isEmpty ||
         unit.trim().isEmpty ||
         quantityValue == null ||

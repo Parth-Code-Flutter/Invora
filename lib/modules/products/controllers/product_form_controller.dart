@@ -26,7 +26,7 @@ class ProductFormController extends GetxController {
   final description = TextEditingController();
   final salePrice = TextEditingController();
   final hsnSac = TextEditingController();
-  final taxRate = TextEditingController(text: '0');
+  final taxRate = TextEditingController();
   final type = ItemType.product.obs;
   final selectedUnit = 'pcs'.obs;
   final selectedTaxBasisPoints = 0.obs;
@@ -57,6 +57,7 @@ class ProductFormController extends GetxController {
   void selectTax(int? basisPoints) {
     if (basisPoints == null) {
       isCustomTax.value = true;
+      if (!isEditing) taxRate.clear();
       return;
     }
     isCustomTax.value = false;

@@ -53,7 +53,7 @@ class InvoiceCreateController extends GetxController {
   final currencySymbol = '₹'.obs;
   final notesController = TextEditingController();
   final termsController = TextEditingController();
-  final paidController = TextEditingController(text: '0.00');
+  final paidController = TextEditingController();
   int? _id;
   DateTime _createdAt = DateTime.now();
   InvoiceStatus _originalStatus = InvoiceStatus.draft;

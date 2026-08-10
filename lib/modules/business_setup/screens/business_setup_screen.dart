@@ -230,6 +230,7 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                                         AppTextField(
                                           controller: controller.invoicePrefix,
                                           label: 'Invoice prefix',
+                                          hint: 'INV',
                                           validator:
                                               controller.validateInvoicePrefix,
                                           textCapitalization:
@@ -247,6 +248,7 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                                           controller:
                                               controller.startingInvoiceNumber,
                                           label: 'Starting invoice number',
+                                          hint: '1',
                                           keyboardType: TextInputType.number,
                                           validator: controller
                                               .validateStartingInvoiceNumber,

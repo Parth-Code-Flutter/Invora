@@ -28,8 +28,8 @@ class BusinessSetupController extends GetxController {
   final pinCode = TextEditingController();
   final gstin = TextEditingController();
   final pan = TextEditingController();
-  final invoicePrefix = TextEditingController(text: 'INV');
-  final startingInvoiceNumber = TextEditingController(text: '1');
+  final invoicePrefix = TextEditingController();
+  final startingInvoiceNumber = TextEditingController();
   final bankName = TextEditingController();
   final accountHolderName = TextEditingController();
   final accountNumber = TextEditingController();
@@ -132,7 +132,7 @@ class BusinessSetupController extends GetxController {
 
   String? validateInvoicePrefix(String? value) {
     final prefix = value?.trim() ?? '';
-    if (prefix.isEmpty) return 'Invoice prefix is required.';
+    if (prefix.isEmpty) return null;
     if (!RegExp(r'^[A-Za-z0-9-]{1,10}$').hasMatch(prefix)) {
       return 'Use 1–10 letters, numbers, or hyphens.';
     }
@@ -140,7 +140,8 @@ class BusinessSetupController extends GetxController {
   }
 
   String? validateStartingInvoiceNumber(String? value) {
-    final number = int.tryParse(value?.trim() ?? '');
+    if (value == null || value.trim().isEmpty) return null;
+    final number = int.tryParse(value.trim());
     if (number == null || number < 1) {
       return 'Enter an invoice number greater than 0.';
     }

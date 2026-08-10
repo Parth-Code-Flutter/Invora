@@ -1,6 +1,6 @@
 # Creovo Invoice — Project Handoff
 
-Last updated: 2026-08-10  
+Last updated: 2026-08-11
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 
@@ -33,6 +33,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   stable when changing appearance while a dialog, sheet, or route is open
 - Shared `AppFocus` coordination settles keyboard/caret work before focused
   fields are removed by dialogs, sheets, back actions, saves, or tab navigation
+- Create-mode forms use non-destructive hints for example/default text; edit
+  mode continues to load actual persisted values
 - Reusable fields, dropdown sheets, navigation, and modern notifications
 - Reusable gradient module banners give catalog, customer, invoice, and
   quotation workspaces distinct task-focused identities
@@ -188,6 +190,21 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Non-destructive create-form defaults
+
+- Replaced prefilled create-time values with hints so users can type without
+  first deleting `0`, `0.00`, `1`, `INV`, or other placeholder content.
+- Updated custom invoice items, amount paid, product custom GST, and first-time
+  business invoice numbering while preserving real values in edit/restore mode.
+- Empty custom-item quantity and GST fields still safely resolve to the hinted
+  defaults of 1 and 0; empty business prefix/starting number still save as INV
+  and 1.
+- Important files: invoice create screen/controller, product form
+  screen/controller, and business setup screen/controller.
+- No database, storage, backup, or migration changes.
+- Verified with formatting, clean analysis, all 32 automated tests, and an
+  Android debug APK build.
 
 ### 2026-08-10 — App-wide focused-field lifecycle hardening
 
