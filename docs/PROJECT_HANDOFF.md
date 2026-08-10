@@ -32,6 +32,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Reusable fields, dropdown sheets, navigation, and modern notifications
 - Reusable gradient module banners give catalog, customer, invoice, and
   quotation workspaces distinct task-focused identities
+- Shared icon-led filter pills, expressive segmented options, and branded
+  rounded back controls across nested routes
 - Offline backup/restore with validation and database rollback
 
 ### Customers
@@ -159,7 +161,7 @@ transfer automatically.
 As of 2026-08-10:
 
 - Flutter analysis: no issues
-- Automated suite: all 29 tests passing
+- Automated suite: all 30 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -178,6 +180,24 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-10 — Expressive filters and back navigation
+
+- Added a reusable filter pill with icons, a strong plum selected state, clear
+  accessibility semantics, and dark-mode styling.
+- Applied the filter system to product/service lists, invoice/quotation status
+  filters, and PDF template selection; product filters now scroll safely on
+  narrow phones.
+- Upgraded global choice chips and segmented controls so GST and product/service
+  options share the same clear selected-state language.
+- Added a rounded plum-tinted back control to customer/product forms and
+  details, invoice creation/details/preview, quotations, reports, settings, and
+  backup while leaving root tab screens unchanged.
+- Important files: `app_filter_chip.dart`, `app_back_button.dart`,
+  `app_theme.dart`, relevant list/form screens, and `design_system_test.dart`.
+- No database, storage, backup, or migration changes.
+- Verified with formatting, clean analysis, all 30 automated tests, and an
+  Android debug APK build.
 
 ### 2026-08-10 — Module-specific UI and catalog redesign
 

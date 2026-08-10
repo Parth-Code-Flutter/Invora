@@ -8,8 +8,10 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
+import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_module_banner.dart';
 import '../../../app/widgets/app_search_field.dart';
 import '../../../data/models/product_service_model.dart';
@@ -21,7 +23,10 @@ class ProductListScreen extends GetView<ProductListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Products & services')),
+      appBar: AppBar(
+        leading: const AppBackButton(),
+        title: const Text('Products & services'),
+      ),
       body: Column(
         children: [
           Padding(
@@ -48,30 +53,37 @@ class ProductListScreen extends GetView<ProductListController> {
                 ),
                 ResponsiveUtils.verticalGap(context, 10),
                 Obx(
-                  () => Row(
-                    children: [
-                      _FilterChip(
-                        label: 'All',
-                        selected: controller.selectedType.value == null,
-                        onSelected: () => controller.selectType(null),
-                      ),
-                      ResponsiveUtils.horizontalGap(context, 8),
-                      _FilterChip(
-                        label: 'Products',
-                        selected:
-                            controller.selectedType.value == ItemType.product,
-                        onSelected: () =>
-                            controller.selectType(ItemType.product),
-                      ),
-                      ResponsiveUtils.horizontalGap(context, 8),
-                      _FilterChip(
-                        label: 'Services',
-                        selected:
-                            controller.selectedType.value == ItemType.service,
-                        onSelected: () =>
-                            controller.selectType(ItemType.service),
-                      ),
-                    ],
+                  () => SizedBox(
+                    height: 48,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        AppFilterChip(
+                          label: 'All',
+                          icon: Icons.grid_view_rounded,
+                          selected: controller.selectedType.value == null,
+                          onSelected: (_) => controller.selectType(null),
+                        ),
+                        ResponsiveUtils.horizontalGap(context, 8),
+                        AppFilterChip(
+                          label: 'Products',
+                          icon: Icons.inventory_2_outlined,
+                          selected:
+                              controller.selectedType.value == ItemType.product,
+                          onSelected: (_) =>
+                              controller.selectType(ItemType.product),
+                        ),
+                        ResponsiveUtils.horizontalGap(context, 8),
+                        AppFilterChip(
+                          label: 'Services',
+                          icon: Icons.design_services_outlined,
+                          selected:
+                              controller.selectedType.value == ItemType.service,
+                          onSelected: (_) =>
+                              controller.selectType(ItemType.service),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -173,26 +185,6 @@ class ProductListScreen extends GetView<ProductListController> {
       ),
     );
     if (confirmed ?? false) await controller.deleteItem(item);
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onSelected,
-  });
-  final String label;
-  final bool selected;
-  final VoidCallback onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (_) => onSelected(),
-    );
   }
 }
 

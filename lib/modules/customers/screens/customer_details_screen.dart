@@ -6,6 +6,7 @@ import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/currency_utils.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_entity_header.dart';
 import '../../../app/widgets/app_status_chip.dart';
@@ -19,6 +20,7 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: const Text('Customer details'),
         actions: [
           IconButton(

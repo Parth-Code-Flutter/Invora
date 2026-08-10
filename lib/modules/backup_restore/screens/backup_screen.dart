@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_notification.dart';
 import '../../../app/widgets/responsive_content.dart';
@@ -12,7 +13,10 @@ class BackupScreen extends GetView<BackupController> {
   const BackupScreen({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Backup & restore')),
+    appBar: AppBar(
+      leading: const AppBackButton(),
+      title: const Text('Backup & restore'),
+    ),
     body: ResponsiveContent(
       child: ListView(
         children: [

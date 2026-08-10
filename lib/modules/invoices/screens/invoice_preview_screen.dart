@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:printing/printing.dart';
 
+import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_filter_chip.dart';
 import '../../../data/services/invoice_pdf_service.dart';
 import '../controllers/invoice_preview_controller.dart';
 
@@ -12,6 +14,7 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: const Text('Invoice preview'),
         actions: [
           IconButton(
@@ -57,8 +60,9 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
                     .map(
                       (template) => Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: ChoiceChip(
-                          label: Text(template.label),
+                        child: AppFilterChip(
+                          label: template.label,
+                          icon: Icons.description_outlined,
                           selected: selected == template,
                           onSelected: (_) =>
                               controller.selectTemplate(template),

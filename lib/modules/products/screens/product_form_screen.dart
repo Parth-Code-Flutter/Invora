@@ -7,6 +7,7 @@ import '../../../app/enums/item_type.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_text_field.dart';
@@ -20,6 +21,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Text(Get.arguments == null ? 'Add item' : 'Edit item'),
       ),
       body: Obx(

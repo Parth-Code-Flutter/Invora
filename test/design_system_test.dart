@@ -4,6 +4,8 @@ import 'package:creovo_invoice/app/enums/invoice_status.dart';
 import 'package:creovo_invoice/app/constants/app_colors.dart';
 import 'package:creovo_invoice/app/themes/app_theme.dart';
 import 'package:creovo_invoice/app/widgets/app_module_banner.dart';
+import 'package:creovo_invoice/app/widgets/app_back_button.dart';
+import 'package:creovo_invoice/app/widgets/app_filter_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_search_field.dart';
 import 'package:creovo_invoice/app/widgets/app_status_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_text_field.dart';
@@ -67,5 +69,39 @@ void main() {
     expect(find.text('Your money timeline'), findsOneWidget);
     expect(find.byTooltip('New invoice'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('filter and back controls expose clear interaction states', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          appBar: AppBar(
+            leading: const AppBackButton(),
+            title: const Text('Filtered list'),
+          ),
+          body: AppFilterChip(
+            label: 'Paid',
+            icon: Icons.check_circle_outline,
+            selected: true,
+            onSelected: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('Back'), findsOneWidget);
+    expect(find.text('Paid'), findsOneWidget);
+    expect(
+      tester.getSemantics(find.byType(AppFilterChip)),
+      matchesSemantics(
+        label: 'Paid filter',
+        isButton: true,
+        hasSelectedState: true,
+        isSelected: true,
+      ),
+    );
   });
 }

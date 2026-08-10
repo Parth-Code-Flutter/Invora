@@ -10,6 +10,7 @@ import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_notification.dart';
@@ -37,6 +38,7 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Text(controller.isQuotation ? 'New estimate' : 'New invoice'),
         actions: [
           Obx(

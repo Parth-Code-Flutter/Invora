@@ -167,18 +167,44 @@ abstract final class AppTheme {
         backgroundColor: isDark
             ? AppColors.darkSurfaceVariant
             : AppColors.surfaceMuted,
-        selectedColor: AppColors.primaryLight,
+        selectedColor: AppColors.secondary,
         side: BorderSide(
           color: isDark ? AppColors.darkBorder : AppColors.border,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(99)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         labelStyle: AppTextStyles.caption.copyWith(
           color: colorScheme.onSurface,
         ),
         secondaryLabelStyle: AppTextStyles.caption.copyWith(
-          color: AppColors.primaryDark,
+          color: Colors.white,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 4),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? AppColors.secondary
+                : isDark
+                ? AppColors.darkSurfaceVariant
+                : AppColors.surfaceSoft,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? Colors.white
+                : colorScheme.onSurface,
+          ),
+          side: WidgetStatePropertyAll(
+            BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border),
+          ),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          ),
+          textStyle: WidgetStatePropertyAll(AppTextStyles.button),
+        ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: colorScheme.surface,

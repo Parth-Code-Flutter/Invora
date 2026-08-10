@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../controllers/settings_controller.dart';
@@ -12,7 +13,10 @@ class SettingsScreen extends GetView<SettingsController> {
   const SettingsScreen({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Settings')),
+    appBar: AppBar(
+      leading: const AppBackButton(),
+      title: const Text('Settings'),
+    ),
     body: ResponsiveContent(
       child: ListView(
         children: [

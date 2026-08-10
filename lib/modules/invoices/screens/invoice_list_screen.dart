@@ -7,8 +7,10 @@ import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
+import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_search_field.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../app/widgets/app_main_navigation.dart';
@@ -27,6 +29,7 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
         current: quotation ? MainDestination.more : MainDestination.invoices,
       ),
       appBar: AppBar(
+        leading: quotation ? const AppBackButton() : null,
         title: Text(quotation ? 'Quotations' : 'Invoices'),
         actions: [
           Obx(
@@ -134,8 +137,9 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
                               .map(
                                 (filter) => Padding(
                                   padding: const EdgeInsets.only(right: 8),
-                                  child: ChoiceChip(
-                                    label: Text(_filterLabel(filter)),
+                                  child: AppFilterChip(
+                                    label: _filterLabel(filter),
+                                    icon: _filterIcon(filter),
                                     selected:
                                         controller.selectedFilter.value ==
                                         filter,
@@ -357,6 +361,18 @@ String _filterLabel(InvoiceListFilter filter) => switch (filter) {
   InvoiceListFilter.accepted => 'Accepted',
   InvoiceListFilter.rejected => 'Rejected',
   InvoiceListFilter.expired => 'Expired',
+};
+
+IconData _filterIcon(InvoiceListFilter filter) => switch (filter) {
+  InvoiceListFilter.all => Icons.grid_view_rounded,
+  InvoiceListFilter.draft => Icons.edit_note_rounded,
+  InvoiceListFilter.unpaid => Icons.schedule_rounded,
+  InvoiceListFilter.paid => Icons.check_circle_outline_rounded,
+  InvoiceListFilter.overdue => Icons.notification_important_outlined,
+  InvoiceListFilter.sent => Icons.send_outlined,
+  InvoiceListFilter.accepted => Icons.thumb_up_alt_outlined,
+  InvoiceListFilter.rejected => Icons.close_rounded,
+  InvoiceListFilter.expired => Icons.timer_off_outlined,
 };
 
 String _sortLabel(InvoiceSort sort) => switch (sort) {

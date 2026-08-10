@@ -5,6 +5,7 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../data/models/report_summary_model.dart';
 import '../controllers/report_controller.dart';
@@ -13,7 +14,10 @@ class ReportScreen extends GetView<ReportController> {
   const ReportScreen({super.key});
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Reports')),
+    appBar: AppBar(
+      leading: const AppBackButton(),
+      title: const Text('Reports'),
+    ),
     body: Obx(() {
       final value = controller.report.value;
       final symbol = controller.currencySymbol.value;

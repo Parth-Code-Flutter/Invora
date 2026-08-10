@@ -7,6 +7,7 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
@@ -19,6 +20,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: Obx(
           () => Text(
             controller.invoice.value?.documentType == DocumentType.quotation
