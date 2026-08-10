@@ -117,6 +117,18 @@ class InvoiceCreateController extends GetxController {
   }
 
   void addProduct(ProductServiceModel product) {
+    final existingIndex = items.indexWhere(
+      (item) => product.id != null && item.productId != null
+          ? item.productId == product.id
+          : item.name.trim().toLowerCase() ==
+                    product.name.trim().toLowerCase() &&
+                item.unit == product.unit &&
+                item.rateMinor == product.salePriceMinor,
+    );
+    if (existingIndex >= 0) {
+      incrementQuantity(existingIndex);
+      return;
+    }
     items.add(
       InvoiceItemModel(
         localId: 'new-${_counter++}',
@@ -140,6 +152,19 @@ class InvoiceCreateController extends GetxController {
 
   void replaceItem(int index, InvoiceItemModel item) {
     items[index] = item;
+    recalculate();
+  }
+
+  void incrementQuantity(int index) {
+    final item = items[index];
+    items[index] = _withQuantity(item, item.quantityScaled + 1000);
+    recalculate();
+  }
+
+  void decrementQuantity(int index) {
+    final item = items[index];
+    if (item.quantityScaled <= 1000) return;
+    items[index] = _withQuantity(item, item.quantityScaled - 1000);
     recalculate();
   }
 
@@ -167,6 +192,21 @@ class InvoiceCreateController extends GetxController {
     items.removeAt(index);
     recalculate();
   }
+
+  InvoiceItemModel _withQuantity(InvoiceItemModel item, int quantityScaled) =>
+      InvoiceItemModel(
+        id: item.id,
+        localId: item.localId,
+        productId: item.productId,
+        name: item.name,
+        description: item.description,
+        quantityScaled: quantityScaled,
+        unit: item.unit,
+        rateMinor: item.rateMinor,
+        hsnSac: item.hsnSac,
+        taxRateBasisPoints: item.taxRateBasisPoints,
+        discount: item.discount,
+      );
 
   void addCharge(InvoiceChargeModel charge) {
     charges.add(charge);

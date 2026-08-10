@@ -366,87 +366,117 @@ class _InvoiceForm extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: AppCard(
-                  onTap: () => _editItem(context, index: entry.key, item: item),
-                  child: Row(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
                     children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${entry.key + 1}',
-                          style: AppTextStyles.small.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w700,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLight,
+                              borderRadius: BorderRadius.circular(13),
+                            ),
+                            child: const Icon(
+                              Icons.inventory_2_outlined,
+                              size: 20,
+                              color: AppColors.primary,
+                            ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item.name, style: AppTextStyles.cardTitle),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${QuantityUtils.toInputValue(item.quantityScaled)} ${item.unit} × ${CurrencyUtils.formatMinor(item.rateMinor, symbol: controller.currencySymbol.value)} • GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}',
-                              style: AppTextStyles.small.copyWith(
-                                color: AppColors.textSecondary,
+                          const SizedBox(width: 11),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.cardTitle,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${CurrencyUtils.formatMinor(item.rateMinor, symbol: controller.currencySymbol.value)} / ${item.unit}${item.taxRateBasisPoints > 0 ? ' • GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}' : ''}',
+                                  style: AppTextStyles.small.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          PopupMenuButton<String>(
+                            tooltip: 'Item actions',
+                            onSelected: (action) {
+                              if (action == 'edit') {
+                                _editItem(
+                                  context,
+                                  index: entry.key,
+                                  item: item,
+                                );
+                              } else if (action == 'delete') {
+                                controller.removeItem(entry.key);
+                              }
+                            },
+                            itemBuilder: (_) => const [
+                              PopupMenuItem(
+                                value: 'edit',
+                                child: ListTile(
+                                  leading: Icon(Icons.edit_outlined),
+                                  title: Text('Edit details'),
+                                  dense: true,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (result != null)
-                        Text(
-                          CurrencyUtils.formatMinor(
-                            result.totalMinor,
-                            symbol: controller.currencySymbol.value,
-                          ),
-                          style: AppTextStyles.cardTitle,
-                        ),
-                      PopupMenuButton<String>(
-                        tooltip: 'Item actions',
-                        onSelected: (action) {
-                          if (action == 'edit') {
-                            _editItem(context, index: entry.key, item: item);
-                          } else if (action == 'duplicate') {
-                            controller.duplicateItem(entry.key);
-                          } else if (action == 'delete') {
-                            controller.removeItem(entry.key);
-                          }
-                        },
-                        itemBuilder: (_) => const [
-                          PopupMenuItem(
-                            value: 'edit',
-                            child: ListTile(
-                              leading: Icon(Icons.edit_outlined),
-                              title: Text('Edit'),
-                              dense: true,
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'duplicate',
-                            child: ListTile(
-                              leading: Icon(Icons.copy_outlined),
-                              title: Text('Duplicate'),
-                              dense: true,
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: ListTile(
-                              leading: Icon(
-                                Icons.delete_outline,
-                                color: AppColors.error,
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: ListTile(
+                                  leading: Icon(
+                                    Icons.delete_outline,
+                                    color: AppColors.error,
+                                  ),
+                                  title: Text('Remove item'),
+                                  dense: true,
+                                ),
                               ),
-                              title: Text('Remove'),
-                              dense: true,
+                            ],
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 22),
+                      Row(
+                        children: [
+                          _QuantityStepper(
+                            value: QuantityUtils.toInputValue(
+                              item.quantityScaled,
                             ),
+                            unit: item.unit,
+                            canDecrease: item.quantityScaled > 1000,
+                            onDecrease: () =>
+                                controller.decrementQuantity(entry.key),
+                            onIncrease: () =>
+                                controller.incrementQuantity(entry.key),
+                          ),
+                          const Spacer(),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                'LINE TOTAL',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                CurrencyUtils.formatMinor(
+                                  result?.totalMinor ?? 0,
+                                  symbol: controller.currencySymbol.value,
+                                ),
+                                style: AppTextStyles.cardTitle,
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -1105,6 +1135,60 @@ class _SectionEyebrow extends StatelessWidget {
       const SizedBox(width: 9),
       Text(label, style: AppTextStyles.sectionTitle),
     ],
+  );
+}
+
+class _QuantityStepper extends StatelessWidget {
+  const _QuantityStepper({
+    required this.value,
+    required this.unit,
+    required this.canDecrease,
+    required this.onDecrease,
+    required this.onIncrease,
+  });
+
+  final String value;
+  final String unit;
+  final bool canDecrease;
+  final VoidCallback onDecrease;
+  final VoidCallback onIncrease;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    height: 40,
+    decoration: BoxDecoration(
+      color: AppColors.surfaceSoft,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: AppColors.border),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          tooltip: 'Decrease quantity',
+          onPressed: canDecrease ? onDecrease : null,
+          constraints: const BoxConstraints.tightFor(width: 38, height: 38),
+          padding: EdgeInsets.zero,
+          icon: const Icon(Icons.remove_rounded, size: 18),
+        ),
+        Container(width: 1, height: 22, color: AppColors.border),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(
+            '$value $unit',
+            style: AppTextStyles.small.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ),
+        Container(width: 1, height: 22, color: AppColors.border),
+        IconButton(
+          tooltip: 'Increase quantity',
+          onPressed: onIncrease,
+          constraints: const BoxConstraints.tightFor(width: 38, height: 38),
+          padding: EdgeInsets.zero,
+          icon: const Icon(Icons.add_rounded, size: 18),
+        ),
+      ],
+    ),
   );
 }
 

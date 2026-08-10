@@ -78,6 +78,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Historical customer and line-item snapshots
 - Saved catalog items and one-time custom items
 - Line-item edit, duplicate, and remove actions
+- Re-selecting the same saved catalog item increases its existing quantity;
+  selected-item cards expose direct minus/plus quantity controls and line total
 - Decimal quantity, rate, unit, HSN/SAC, GST, item/invoice discounts,
   additional charges, round-off, notes, and terms
 - CGST/SGST, IGST, and non-tax modes
@@ -213,6 +215,20 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Cart-like invoice item behavior
+
+- Changed saved catalog selection so choosing the same product/service again
+  increments its existing invoice-line quantity instead of appending duplicate
+  rows. Identity uses the saved product ID with a safe name/unit/rate fallback.
+- Redesigned populated item cards with a product anchor, clearer per-unit price
+  and tax metadata, direct minus/plus quantity controls, and a dedicated line
+  total. Edit and remove remain in a compact contextual menu.
+- Quantity decrement stops at one to avoid accidental deletion; removal remains
+  an explicit action. Custom one-time lines remain independent.
+- Important files: invoice create controller/screen; added controller regression
+  coverage for merge, quantity, totals, and decrement behavior.
+- No schema/storage changes. Verification includes analysis and full tests.
 
 ### 2026-08-11 — Immediate invoice-details refresh
 

@@ -1,0 +1,48 @@
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:creovo_invoice/app/enums/item_type.dart';
+import 'package:creovo_invoice/data/models/product_service_model.dart';
+import 'package:creovo_invoice/data/repositories/business_repository.dart';
+import 'package:creovo_invoice/data/repositories/customer_repository.dart';
+import 'package:creovo_invoice/data/repositories/invoice_repository.dart';
+import 'package:creovo_invoice/data/repositories/product_repository.dart';
+import 'package:creovo_invoice/data/services/app_database.dart';
+import 'package:creovo_invoice/data/services/invoice_calculation_service.dart';
+import 'package:creovo_invoice/modules/invoices/controllers/invoice_create_controller.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  test('selecting the same saved item increases its quantity', () async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final controller = InvoiceCreateController(
+      InvoiceRepository(database),
+      BusinessRepository(database),
+      CustomerRepository(database),
+      ProductRepository(database),
+      const InvoiceCalculationService(),
+    );
+    final product = ProductServiceModel(
+      id: 7,
+      name: 'MDF Circle',
+      type: ItemType.product,
+      unit: 'pcs',
+      salePriceMinor: 18200,
+      createdAt: DateTime(2026, 8, 11),
+      updatedAt: DateTime(2026, 8, 11),
+    );
+
+    controller.addProduct(product);
+    controller.addProduct(product);
+
+    expect(controller.items, hasLength(1));
+    expect(controller.items.single.quantityScaled, 2000);
+    expect(controller.calculation.value?.grandTotalMinor, 36400);
+
+    controller.decrementQuantity(0);
+    expect(controller.items.single.quantityScaled, 1000);
+    controller.onClose();
+    await database.close();
+  });
+}
