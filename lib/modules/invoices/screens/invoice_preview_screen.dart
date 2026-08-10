@@ -39,6 +39,9 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
             controller.business.value == null) {
           return const Center(child: Text('Invoice preview is unavailable.'));
         }
+        if (controller.validationError.value != null) {
+          return _IncompleteInvoice(message: controller.validationError.value!);
+        }
         final selected = controller.template.value;
         return Column(
           children: [
@@ -86,7 +89,9 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             child: FilledButton.icon(
-              onPressed: controller.isSavingDocument.value
+              onPressed:
+                  controller.isSavingDocument.value ||
+                      controller.validationError.value != null
                   ? null
                   : controller.saveDocument,
               icon: controller.isSavingDocument.value
@@ -102,4 +107,33 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
       }),
     );
   }
+}
+
+class _IncompleteInvoice extends StatelessWidget {
+  const _IncompleteInvoice({required this.message});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            size: 52,
+            color: Theme.of(context).colorScheme.error,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Invoice is incomplete',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(message, textAlign: TextAlign.center),
+        ],
+      ),
+    ),
+  );
 }

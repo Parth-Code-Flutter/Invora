@@ -7,10 +7,13 @@ import '../models/invoice_calculation_models.dart';
 import '../models/invoice_model.dart';
 import '../models/report_summary_model.dart';
 import '../services/app_database.dart';
+import '../services/invoice_validation_service.dart';
 import 'base_repository.dart';
 
 class InvoiceRepository extends BaseRepository {
   const InvoiceRepository(super.database);
+
+  static const _validator = InvoiceValidationService();
 
   Stream<ReportSummaryModel> watchCurrentMonthReport() {
     return database.select(database.invoices).watch().map((rows) {
@@ -356,6 +359,10 @@ class InvoiceRepository extends BaseRepository {
   }
 
   Future<InvoiceModel> save(InvoiceModel model) async {
+    if (_validator.requiresCompleteDocument(model)) {
+      final validation = _validator.validateRequired(model);
+      if (validation != null) throw ArgumentError(validation);
+    }
     return database.transaction(() async {
       final invoice = InvoicesCompanion(
         id: model.id == null ? const Value.absent() : Value(model.id!),

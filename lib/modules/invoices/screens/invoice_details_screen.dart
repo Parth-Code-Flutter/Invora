@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/enums/invoice_status.dart';
-import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/quantity_utils.dart';
@@ -30,18 +29,16 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         actions: [
           IconButton(
             tooltip: 'Preview PDF',
-            onPressed: () => Get.toNamed<void>(
-              AppRoutes.invoicePreview,
-              arguments: controller.invoice.value?.id,
-            ),
+            onPressed: controller.openPreview,
             icon: const Icon(Icons.picture_as_pdf_outlined),
           ),
-          Obx(
-            () => PopupMenuButton<String>(
+          Obx(() {
+            final isQuotation =
+                controller.invoice.value?.documentType ==
+                DocumentType.quotation;
+            return PopupMenuButton<String>(
               onSelected: (action) => _handleAction(context, action),
-              itemBuilder: (_) =>
-                  controller.invoice.value?.documentType ==
-                      DocumentType.quotation
+              itemBuilder: (_) => isQuotation
                   ? const [
                       PopupMenuItem(
                         value: 'duplicate',
@@ -84,8 +81,8 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                         child: Text('Delete invoice'),
                       ),
                     ],
-            ),
-          ),
+            );
+          }),
         ],
       ),
       body: Obx(() {
@@ -145,10 +142,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
             children: [
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: () => Get.toNamed<void>(
-                    AppRoutes.invoicePreview,
-                    arguments: invoice.id,
-                  ),
+                  onPressed: controller.openPreview,
                   icon: const Icon(Icons.share_outlined),
                   label: const Text('Share / print'),
                 ),

@@ -8,8 +8,10 @@ import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
 import '../../../data/services/invoice_pdf_service.dart';
 import '../../../data/services/app_storage.dart';
+import '../../../data/services/invoice_validation_service.dart';
 import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
+import '../../../app/widgets/app_notification.dart';
 
 class InvoicePreviewController extends GetxController {
   InvoicePreviewController(
@@ -22,11 +24,13 @@ class InvoicePreviewController extends GetxController {
   final BusinessRepository _business;
   final InvoicePdfService _pdf;
   final AppStorage _storage;
+  static const _validator = InvoiceValidationService();
   final invoice = Rxn<InvoiceModel>();
   final business = Rxn<BusinessProfileModel>();
   final template = InvoiceTemplate.professional.obs;
   final isLoading = true.obs;
   final isSavingDocument = false.obs;
+  final validationError = RxnString();
 
   @override
   void onInit() {
@@ -51,6 +55,7 @@ class InvoicePreviewController extends GetxController {
       invoice.value = await _invoices.getById(argument);
     }
     business.value = await _business.getProfile();
+    validationError.value = _requiredValidation();
     isLoading.value = false;
   }
 
@@ -62,44 +67,78 @@ class InvoicePreviewController extends GetxController {
     );
   }
 
-  Future<Uint8List> build() => _pdf.build(
-    invoice: invoice.value!,
-    business: business.value!,
-    template: template.value,
-  );
+  Future<Uint8List> build() async {
+    final validation = _requiredValidation();
+    if (validation != null) throw StateError(validation);
+    return _pdf.build(
+      invoice: invoice.value!,
+      business: business.value!,
+      template: template.value,
+    );
+  }
 
-  Future<void> share() => _pdf.shareInvoice(
-    invoice: invoice.value!,
-    business: business.value!,
-    template: template.value,
-  );
+  Future<void> share() async {
+    if (!_canContinue()) return;
+    await _pdf.shareInvoice(
+      invoice: invoice.value!,
+      business: business.value!,
+      template: template.value,
+    );
+  }
 
   Future<void> savePdf() async {
+    if (!_canContinue()) return;
     final path = await _pdf.saveInvoice(
       invoice: invoice.value!,
       business: business.value!,
       template: template.value,
     );
-    if (path != null) Get.snackbar('PDF saved', path);
+    if (path != null) AppNotification.success('PDF saved', path);
   }
 
   Future<void> saveDocument() async {
     final document = invoice.value;
     if (document == null || isSavingDocument.value) return;
+    if (!_canContinue()) return;
     isSavingDocument.value = true;
     try {
       final saved = await _invoices.save(document);
       invoice.value = saved;
-      Get.snackbar('Invoice saved', saved.invoiceNumber);
+      AppNotification.success('Invoice saved', saved.invoiceNumber);
       Get.offAllNamed<void>(AppRoutes.invoices);
     } finally {
       isSavingDocument.value = false;
     }
   }
 
-  Future<void> print() => _pdf.printInvoice(
-    invoice: invoice.value!,
-    business: business.value!,
-    template: template.value,
-  );
+  Future<void> print() async {
+    if (!_canContinue()) return;
+    await _pdf.printInvoice(
+      invoice: invoice.value!,
+      business: business.value!,
+      template: template.value,
+    );
+  }
+
+  String? _requiredValidation() {
+    final document = invoice.value;
+    if (document == null) return 'Invoice is unavailable.';
+    final validation = _validator.validateRequired(document);
+    if (validation != null) return validation;
+    final profile = business.value;
+    if (profile == null || profile.businessName.trim().isEmpty) {
+      return 'Complete business setup before continuing.';
+    }
+    return null;
+  }
+
+  bool _canContinue() {
+    final validation = _requiredValidation();
+    validationError.value = validation;
+    if (validation != null) {
+      AppNotification.warning('Complete required details', validation);
+      return false;
+    }
+    return true;
+  }
 }

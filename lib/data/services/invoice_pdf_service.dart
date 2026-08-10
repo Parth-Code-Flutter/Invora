@@ -13,6 +13,7 @@ import '../../app/utils/currency_utils.dart';
 import '../../app/utils/quantity_utils.dart';
 import '../models/business_profile_model.dart';
 import '../models/invoice_model.dart';
+import 'invoice_validation_service.dart';
 
 enum InvoiceTemplate { minimal, professional, modern, elegant, compact }
 
@@ -25,11 +26,18 @@ extension InvoiceTemplateLabel on InvoiceTemplate {
 class InvoicePdfService {
   const InvoicePdfService();
 
+  static const _validator = InvoiceValidationService();
+
   Future<Uint8List> build({
     required InvoiceModel invoice,
     required BusinessProfileModel business,
     required InvoiceTemplate template,
   }) async {
+    final validation = _validator.validateRequired(invoice);
+    if (validation != null) throw ArgumentError(validation);
+    if (business.businessName.trim().isEmpty) {
+      throw ArgumentError('Complete business setup before generating a PDF.');
+    }
     final document = pw.Document();
     final style = _styleFor(template);
     final logo = await _memoryImage(business.logoPath);

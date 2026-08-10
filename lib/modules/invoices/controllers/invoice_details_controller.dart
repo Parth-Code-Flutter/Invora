@@ -4,13 +4,16 @@ import '../../../app/enums/invoice_status.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
+import '../../../data/services/invoice_validation_service.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/currency_utils.dart';
+import '../../../app/widgets/app_notification.dart';
 
 class InvoiceDetailsController extends GetxController {
   InvoiceDetailsController(this._repository, this._businessRepository);
   final InvoiceRepository _repository;
   final BusinessRepository _businessRepository;
+  static const _validator = InvoiceValidationService();
   final invoice = Rxn<InvoiceModel>();
   final currencySymbol = '₹'.obs;
   final isLoading = true.obs;
@@ -42,6 +45,23 @@ class InvoiceDetailsController extends GetxController {
     await _load();
   }
 
+  Future<void> openPreview() async {
+    final value = invoice.value;
+    if (value?.id == null) {
+      AppNotification.error(
+        'Invoice unavailable',
+        'The invoice could not be loaded.',
+      );
+      return;
+    }
+    final validation = _validator.validateRequired(value!);
+    if (validation != null) {
+      AppNotification.warning('Complete required details', validation);
+      return;
+    }
+    await Get.toNamed<void>(AppRoutes.invoicePreview, arguments: value.id);
+  }
+
   Future<void> duplicate() async {
     final value = invoice.value;
     if (value?.id == null) return;
@@ -56,7 +76,7 @@ class InvoiceDetailsController extends GetxController {
         id: value!.id!,
         newInvoiceNumber: number,
       );
-      Get.snackbar(
+      AppNotification.success(
         'Invoice duplicated',
         '${copy.invoiceNumber} saved as draft.',
       );
@@ -69,8 +89,10 @@ class InvoiceDetailsController extends GetxController {
   Future<String?> updatePayment(String input) async {
     final value = invoice.value;
     if (value?.id == null) return 'Invoice not found.';
+    final validation = _validator.validateRequired(value!);
+    if (validation != null) return validation;
     final amount = CurrencyUtils.parseMinor(input);
-    if (amount == null || amount > value!.calculation.grandTotalMinor) {
+    if (amount == null || amount > value.calculation.grandTotalMinor) {
       return 'Enter an amount up to the grand total.';
     }
     await _repository.updatePayment(value.id!, amount);
@@ -104,7 +126,7 @@ class InvoiceDetailsController extends GetxController {
       quotationId: value!.id!,
       invoiceNumber: number,
     );
-    Get.snackbar('Invoice created', converted.invoiceNumber);
+    AppNotification.success('Invoice created', converted.invoiceNumber);
     Get.toNamed<void>(AppRoutes.invoiceDetails, arguments: converted.id);
   }
 

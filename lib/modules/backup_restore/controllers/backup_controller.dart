@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:get/get.dart';
 
+import '../../../app/widgets/app_notification.dart';
 import '../../../data/services/backup_service.dart';
 
 class BackupController extends GetxController {
@@ -16,7 +17,10 @@ class BackupController extends GetxController {
       final file = await _service.createBackup();
       lastBackup.value = file;
       await _service.shareBackup(file);
-      Get.snackbar('Backup created', 'Keep this ZIP file in a safe location.');
+      AppNotification.success(
+        'Backup created',
+        'Keep this ZIP file in a safe location.',
+      );
     } finally {
       isWorking.value = false;
     }
@@ -34,10 +38,9 @@ class BackupController extends GetxController {
     isWorking.value = true;
     try {
       await _service.restore(File(path));
-      Get.snackbar(
+      AppNotification.success(
         'Restore complete',
         'Close and reopen Creovo Invoice to load the restored records.',
-        duration: const Duration(seconds: 8),
       );
     } finally {
       isWorking.value = false;

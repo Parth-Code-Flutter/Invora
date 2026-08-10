@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/enums/discount_type.dart';
 import '../../../app/enums/tax_type.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/quantity_utils.dart';
@@ -11,6 +12,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
+import '../../../app/widgets/app_notification.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_calculation_models.dart';
 import '../../../data/models/invoice_model.dart';
@@ -462,6 +464,12 @@ class _InvoiceForm extends StatelessWidget {
         future: controller.customers(),
         titleFor: (item) => item.name,
         subtitleFor: (item) => item.companyName ?? item.mobile ?? 'Customer',
+        emptyTitle: 'No customers yet',
+        emptyMessage: 'Create your first customer to add them to this invoice.',
+        actionLabel: 'Create new customer',
+        actionIcon: Icons.person_add_alt_1_rounded,
+        onAction: () async =>
+            await Get.toNamed<CustomerModel>(AppRoutes.customerAdd),
       ),
     );
     if (selected != null) controller.selectCustomer(selected);
@@ -804,11 +812,21 @@ class _SelectionSheet<T> extends StatefulWidget {
     required this.future,
     required this.titleFor,
     required this.subtitleFor,
+    this.emptyTitle = 'Nothing saved yet',
+    this.emptyMessage,
+    this.actionLabel,
+    this.actionIcon,
+    this.onAction,
   });
   final String title;
   final Future<List<T>> future;
   final String Function(T) titleFor;
   final String Function(T) subtitleFor;
+  final String emptyTitle;
+  final String? emptyMessage;
+  final String? actionLabel;
+  final IconData? actionIcon;
+  final Future<T?> Function()? onAction;
 
   @override
   State<_SelectionSheet<T>> createState() => _SelectionSheetState<T>();
@@ -838,6 +856,18 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
                       prefixIcon: Icon(Icons.search_rounded),
                     ),
                   ),
+                  if (widget.actionLabel != null &&
+                      widget.onAction != null) ...[
+                    const SizedBox(height: 12),
+                    FilledButton.tonalIcon(
+                      onPressed: _runAction,
+                      icon: Icon(
+                        widget.actionIcon ?? Icons.add_rounded,
+                        size: 20,
+                      ),
+                      label: Text(widget.actionLabel!),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -865,7 +895,45 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
                       )
                       .toList();
                   if (items.isEmpty) {
-                    return const Center(child: Text('Nothing saved yet.'));
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: const BoxDecoration(
+                                color: AppColors.primaryLight,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                widget.actionIcon ?? Icons.inventory_2_outlined,
+                                color: AppColors.primary,
+                                size: 30,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            Text(
+                              widget.emptyTitle,
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.cardTitle,
+                            ),
+                            if (widget.emptyMessage != null) ...[
+                              const SizedBox(height: 6),
+                              Text(
+                                widget.emptyMessage!,
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    );
                   }
                   return ListView.builder(
                     itemCount: items.length,
@@ -896,6 +964,13 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
         ),
       ),
     );
+  }
+
+  Future<void> _runAction() async {
+    final created = await widget.onAction?.call();
+    if (created != null && mounted) {
+      Navigator.pop(context, created);
+    }
   }
 }
 
@@ -1105,11 +1180,11 @@ class _ItemSheetState extends State<_ItemSheet> {
         quantityValue == null ||
         quantityValue <= 0 ||
         rateValue == null ||
+        rateValue <= 0 ||
         taxValue == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Enter a name, quantity, unit, rate and valid GST.'),
-        ),
+      AppNotification.warning(
+        'Check item details',
+        'Enter a name, unit, valid GST, and quantity/rate above zero.',
       );
       return;
     }

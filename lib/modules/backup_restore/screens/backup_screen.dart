@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_notification.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../controllers/backup_controller.dart';
 
@@ -103,7 +104,7 @@ class BackupScreen extends GetView<BackupController> {
     final result = await controller.selectAndValidate();
     if (result == null) return;
     if (!result.endsWith('.zip')) {
-      Get.snackbar('Invalid backup', result);
+      AppNotification.error('Invalid backup', result);
       return;
     }
     if (!context.mounted) return;

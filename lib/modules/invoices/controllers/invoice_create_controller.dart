@@ -5,6 +5,7 @@ import '../../../app/enums/invoice_status.dart';
 import '../../../app/enums/tax_type.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/currency_utils.dart';
+import '../../../app/widgets/app_notification.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_calculation_models.dart';
 import '../../../data/models/invoice_model.dart';
@@ -14,6 +15,7 @@ import '../../../data/repositories/customer_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
 import '../../../data/repositories/product_repository.dart';
 import '../../../data/services/invoice_calculation_service.dart';
+import '../../../data/services/invoice_validation_service.dart';
 
 class InvoiceCreateController extends GetxController {
   InvoiceCreateController(
@@ -30,6 +32,7 @@ class InvoiceCreateController extends GetxController {
   final CustomerRepository _customers;
   final ProductRepository _products;
   final InvoiceCalculationService _calculator;
+  static const _validator = InvoiceValidationService();
   final DocumentType documentType;
   bool get isQuotation => documentType == DocumentType.quotation;
 
@@ -83,7 +86,7 @@ class InvoiceCreateController extends GetxController {
         : await _invoices.getById(argumentId);
     if (saved != null) {
       _restore(saved);
-      Get.snackbar('Draft restored', saved.invoiceNumber);
+      AppNotification.info('Draft restored', saved.invoiceNumber);
     } else {
       invoiceNumber.value = await _invoices.nextInvoiceNumber(
         prefix: isQuotation ? 'QTN' : profile?.invoicePrefix ?? 'INV',
@@ -198,28 +201,33 @@ class InvoiceCreateController extends GetxController {
 
   Future<void> save({required bool draft}) async {
     if (_originalStatus == InvoiceStatus.cancelled) {
-      Get.snackbar('Invoice cancelled', 'Cancelled invoices cannot be edited.');
-      return;
-    }
-    if (!draft && customer.value == null) {
-      Get.snackbar('Customer required', 'Select a customer before saving.');
-      return;
-    }
-    if (!draft && items.isEmpty) {
-      Get.snackbar('Items required', 'Add at least one invoice item.');
+      AppNotification.warning(
+        'Invoice cancelled',
+        'Cancelled invoices cannot be edited.',
+      );
       return;
     }
     if (await _invoices.numberExists(invoiceNumber.value, excludingId: _id)) {
-      Get.snackbar('Duplicate invoice number', 'Use a unique invoice number.');
+      AppNotification.error(
+        'Duplicate invoice number',
+        'Use a unique invoice number.',
+      );
       return;
     }
     isSaving.value = true;
     try {
       final model = buildDocument(draft: draft);
       if (model == null) return;
+      if (!draft) {
+        final validation = _validator.validateRequired(model);
+        if (validation != null) {
+          AppNotification.warning('Complete required details', validation);
+          return;
+        }
+      }
       final saved = await _invoices.save(model);
       _id = saved.id;
-      Get.snackbar(
+      AppNotification.success(
         draft ? 'Draft saved' : 'Invoice saved',
         saved.invoiceNumber,
       );
@@ -230,7 +238,6 @@ class InvoiceCreateController extends GetxController {
   }
 
   InvoiceModel? buildDocument({required bool draft}) {
-    if (!draft && (customer.value == null || items.isEmpty)) return null;
     recalculate();
     final result = calculation.value!;
     final status = draft
@@ -263,20 +270,20 @@ class InvoiceCreateController extends GetxController {
   }
 
   Future<void> preview() async {
-    if (customer.value == null) {
-      Get.snackbar('Select customer', 'Choose who this invoice is for.');
-      return;
-    }
-    if (items.isEmpty) {
-      Get.snackbar('Add an item', 'Add at least one product or service.');
-      return;
-    }
     if (await _invoices.numberExists(invoiceNumber.value, excludingId: _id)) {
-      Get.snackbar('Invoice number in use', 'Choose another invoice number.');
+      AppNotification.error(
+        'Invoice number in use',
+        'Choose another invoice number.',
+      );
       return;
     }
     final model = buildDocument(draft: false);
     if (model != null) {
+      final validation = _validator.validateRequired(model);
+      if (validation != null) {
+        AppNotification.warning('Complete required details', validation);
+        return;
+      }
       await Get.toNamed<void>(AppRoutes.invoicePreview, arguments: model);
     }
   }
