@@ -660,54 +660,10 @@ class _InvoiceForm extends StatelessWidget {
   }
 
   Future<void> _addCharge(BuildContext context) async {
-    final title = TextEditingController();
-    final amount = TextEditingController();
     final result = await showDialog<InvoiceChargeModel>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Additional charge'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: title,
-              decoration: const InputDecoration(labelText: 'Title'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: amount,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: const InputDecoration(labelText: 'Amount'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final minor = CurrencyUtils.parseMinor(amount.text);
-              if (title.text.trim().isNotEmpty && minor != null) {
-                Navigator.pop(
-                  dialogContext,
-                  InvoiceChargeModel(
-                    title: title.text.trim(),
-                    amountMinor: minor,
-                  ),
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
+      builder: (_) => const _AdditionalChargeDialog(),
     );
-    title.dispose();
-    amount.dispose();
     if (result != null) controller.addCharge(result);
   }
 }
@@ -1483,6 +1439,76 @@ class _DiscountDialog extends StatefulWidget {
   State<_DiscountDialog> createState() => _DiscountDialogState();
 }
 
+class _AdditionalChargeDialog extends StatefulWidget {
+  const _AdditionalChargeDialog();
+
+  @override
+  State<_AdditionalChargeDialog> createState() =>
+      _AdditionalChargeDialogState();
+}
+
+class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
+  final title = TextEditingController();
+  final amount = TextEditingController();
+  String? error;
+
+  @override
+  void dispose() {
+    title.dispose();
+    amount.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final trimmedTitle = title.text.trim();
+    final minor = CurrencyUtils.parseMinor(amount.text);
+    if (trimmedTitle.isEmpty || minor == null || minor <= 0) {
+      setState(() => error = 'Enter a title and an amount above zero.');
+      return;
+    }
+    Navigator.pop(
+      context,
+      InvoiceChargeModel(title: trimmedTitle, amountMinor: minor),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    scrollable: true,
+    title: const Text('Additional charge'),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(
+          controller: title,
+          autofocus: true,
+          textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.next,
+          decoration: const InputDecoration(
+            labelText: 'Charge title',
+            hintText: 'e.g. Delivery',
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: amount,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _submit(),
+          decoration: InputDecoration(labelText: 'Amount', errorText: error),
+        ),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Cancel'),
+      ),
+      FilledButton(onPressed: _submit, child: const Text('Add charge')),
+    ],
+  );
+}
+
 class _DiscountDialogState extends State<_DiscountDialog> {
   late DiscountType type = widget.initial.type;
   late final value = TextEditingController(
@@ -1490,6 +1516,13 @@ class _DiscountDialogState extends State<_DiscountDialog> {
         ? CurrencyUtils.toInputValue(widget.initial.fixedMinor)
         : TaxUtils.toInputValue(widget.initial.percentageBasisPoints),
   );
+
+  @override
+  void dispose() {
+    value.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Invoice discount'),

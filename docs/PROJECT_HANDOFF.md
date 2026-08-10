@@ -187,6 +187,20 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-10 — Additional-charge dialog lifecycle fix
+
+- Fixed `TextEditingController was used after being disposed` when closing the
+  invoice additional-charge dialog; the extreme RenderFlex overflow reported
+  afterward was a secondary effect of the same failure.
+- Moved title/amount controllers into a stateful dialog so Flutter disposes
+  them only after the closing animation and overlay are fully unmounted.
+- Made the dialog keyboard-scrollable, added inline validation, and also added
+  the missing controller disposal to the discount dialog.
+- Important file: `invoice_create_screen.dart`; no database, storage, backup,
+  or migration changes.
+- Verified with formatting, clean analysis, all 31 automated tests, and an
+  Android debug APK build.
+
 ### 2026-08-10 — Stable theme changes with active overlays
 
 - Fixed Flutter's `_dependents.isEmpty` assertion caused by reactively replacing
