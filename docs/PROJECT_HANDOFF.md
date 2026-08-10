@@ -42,6 +42,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   rounded back controls across nested routes
 - Expandable AppBar search on the Customers and Invoices/Quotations lists;
   search stays out of the content area until requested
+- More and App Settings use fully visible grouped destination rows with a
+  shared icon, subtitle, divider, and disclosure treatment; secondary tools no
+  longer require horizontal discovery scrolling
 - Offline backup/restore with validation and database rollback
 
 ### Customers
@@ -190,6 +193,16 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Scannable More and settings navigation
+
+- Replaced the horizontally scrolling More tool carousel with three compact,
+  purpose-based groups: Create & manage, Insights & data, and Preferences.
+- Every destination is now visible in the normal vertical reading path, with a
+  descriptive subtitle and consistent disclosure chevron. App Settings uses
+  the same shared grouped-row component for a coherent child-screen experience.
+- Important files: shared menu group widget, More screen, App Settings screen.
+- No database, storage, backup, or migration changes.
 
 ### 2026-08-11 — Action-focused invoice details
 

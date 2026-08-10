@@ -6,8 +6,8 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
-import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_menu_group.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../controllers/more_controller.dart';
@@ -31,70 +31,69 @@ class MoreScreen extends GetView<MoreController> {
             ),
           ),
           const SizedBox(height: 22),
-          const _SectionLabel('Business tools'),
+          const _SectionLabel('Create & manage'),
           const SizedBox(height: 9),
-          SizedBox(
-            height: 132,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: const [
-                _ToolTile(
-                  icon: Icons.inventory_2_outlined,
-                  label: 'Products',
-                  caption: 'Items & pricing',
-                  route: AppRoutes.products,
-                  color: AppColors.primary,
-                  background: AppColors.primaryLight,
-                ),
-                _ToolTile(
-                  icon: Icons.request_quote_outlined,
-                  label: 'Estimates',
-                  caption: 'Quotes for clients',
-                  route: AppRoutes.quotations,
-                  color: AppColors.secondary,
-                  background: AppColors.secondaryLight,
-                ),
-                _ToolTile(
-                  icon: Icons.insert_chart_outlined_rounded,
-                  label: 'Reports',
-                  caption: 'Sales overview',
-                  route: AppRoutes.reports,
-                  color: AppColors.primary,
-                  background: AppColors.primaryLight,
-                ),
-                _ToolTile(
-                  icon: Icons.settings_backup_restore_rounded,
-                  label: 'Backup',
-                  caption: 'Protect your data',
-                  route: AppRoutes.backup,
-                  color: AppColors.secondary,
-                  background: AppColors.secondaryLight,
-                ),
-              ],
-            ),
+          AppMenuGroup(
+            children: [
+              AppMenuTile(
+                icon: Icons.inventory_2_outlined,
+                title: 'Products & services',
+                subtitle: 'Saved items, pricing, tax and units',
+                color: AppColors.primary,
+                background: AppColors.primaryLight,
+                onTap: () => Get.toNamed<void>(AppRoutes.products),
+              ),
+              AppMenuTile(
+                icon: Icons.request_quote_outlined,
+                title: 'Estimates',
+                subtitle: 'Create and manage client quotations',
+                color: AppColors.secondary,
+                background: AppColors.secondaryLight,
+                onTap: () => Get.toNamed<void>(AppRoutes.quotations),
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
+          const _SectionLabel('Insights & data'),
+          const SizedBox(height: 9),
+          AppMenuGroup(
+            children: [
+              AppMenuTile(
+                icon: Icons.insert_chart_outlined_rounded,
+                title: 'Reports',
+                subtitle: 'Review sales, receipts and outstanding totals',
+                color: AppColors.primary,
+                background: AppColors.primaryLight,
+                onTap: () => Get.toNamed<void>(AppRoutes.reports),
+              ),
+              AppMenuTile(
+                icon: Icons.settings_backup_restore_rounded,
+                title: 'Backup & restore',
+                subtitle: 'Export or restore your offline records',
+                color: AppColors.secondary,
+                background: AppColors.secondaryLight,
+                onTap: () => Get.toNamed<void>(AppRoutes.backup),
+              ),
+            ],
           ),
           const SizedBox(height: 24),
           const _SectionLabel('Preferences'),
           const SizedBox(height: 9),
-          AppCard(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Column(
-              children: [
-                _SettingsTile(
-                  icon: Icons.storefront_outlined,
-                  title: 'Business profile',
-                  subtitle: 'Identity, tax and payment details',
-                  onTap: controller.editBusiness,
-                ),
-                const Divider(height: 1, indent: 52),
-                _SettingsTile(
-                  icon: Icons.tune_rounded,
-                  title: 'App settings',
-                  subtitle: 'Appearance and preferences',
-                  onTap: () => Get.toNamed<void>(AppRoutes.settings),
-                ),
-              ],
-            ),
+          AppMenuGroup(
+            children: [
+              AppMenuTile(
+                icon: Icons.storefront_outlined,
+                title: 'Business profile',
+                subtitle: 'Identity, tax and payment details',
+                onTap: controller.editBusiness,
+              ),
+              AppMenuTile(
+                icon: Icons.tune_rounded,
+                title: 'App settings',
+                subtitle: 'Appearance and preferences',
+                onTap: () => Get.toNamed<void>(AppRoutes.settings),
+              ),
+            ],
           ),
           const SizedBox(height: 18),
           Container(
@@ -227,99 +226,6 @@ class _BusinessLogo extends StatelessWidget {
             ),
     );
   }
-}
-
-class _ToolTile extends StatelessWidget {
-  const _ToolTile({
-    required this.icon,
-    required this.label,
-    required this.caption,
-    required this.route,
-    required this.color,
-    required this.background,
-  });
-  final IconData icon;
-  final String label;
-  final String caption;
-  final String route;
-  final Color color;
-  final Color background;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    width: 154,
-    child: Padding(
-      padding: const EdgeInsets.only(right: 10),
-      child: AppCard(
-        onTap: () => Get.toNamed<void>(route),
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: background,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, color: color, size: 20),
-                ),
-                const Spacer(),
-                const Icon(
-                  Icons.arrow_outward_rounded,
-                  size: 18,
-                  color: AppColors.textTertiary,
-                ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: AppTextStyles.cardTitle),
-                const SizedBox(height: 2),
-                Text(
-                  caption,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-class _SettingsTile extends StatelessWidget {
-  const _SettingsTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => ListTile(
-    contentPadding: EdgeInsets.zero,
-    minTileHeight: 64,
-    leading: Icon(icon, color: AppColors.primary, size: 22),
-    title: Text(title, style: AppTextStyles.cardTitle),
-    subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-    trailing: const Icon(Icons.chevron_right_rounded, size: 20),
-    onTap: onTap,
-  );
 }
 
 class _SectionLabel extends StatelessWidget {
