@@ -583,6 +583,17 @@ class _InvoiceForm extends StatelessWidget {
         titleFor: (item) => item.name,
         subtitleFor: (item) =>
             '${item.unit} • ${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: controller.currencySymbol.value)}',
+        emptyTitle: 'Nothing saved yet',
+        emptyMessage:
+            'Create a reusable product or service, then add it to this invoice.',
+        actionLabel: 'Create product or service',
+        actionIcon: Icons.add_business_rounded,
+        onAction: () async {
+          // Named GetX pages are dynamically typed. Read the route result as
+          // dynamic and validate it before returning it to the typed sheet.
+          final result = await Get.toNamed<dynamic>(AppRoutes.productAdd);
+          return result is ProductServiceModel ? result : null;
+        },
       ),
     );
     if (selected != null) controller.addProduct(selected);

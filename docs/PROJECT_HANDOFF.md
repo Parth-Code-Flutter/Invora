@@ -191,6 +191,16 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Create catalog items from invoice picker
+
+- Added a prominent `Create product or service` action to the saved-item
+  picker used while creating invoices and estimates.
+- The action is available for both empty and populated catalogs. After saving,
+  the newly created product/service returns directly to the invoice and is
+  added as a line item without requiring another search or selection.
+- Important file: invoice create screen and its reusable selection sheet flow.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Non-destructive create-form defaults
 
 - Replaced prefilled create-time values with hints so users can type without
