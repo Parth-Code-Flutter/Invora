@@ -214,6 +214,20 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Immediate invoice-details refresh
+
+- Fixed invoice details occasionally showing stale balance, paid amount,
+  status, or payment activity until back navigation/hot reload.
+- The details controller now pins its invoice ID at initialization instead of
+  repeatedly depending on global `Get.arguments` after nested routes, explicitly
+  notifies invoice/payment Rx observers after each database read, and exposes a
+  shared reload path used by payments, edits, cancellation, and status changes.
+- Payment flow performs a final reload after the modal route is completely
+  removed, ensuring the visible details route paints the committed values.
+- Important files: invoice details controller/screen. No schema changes.
+- Verification covers formatting, static analysis, repository payments, full
+  tests, and whitespace checks.
+
 ### 2026-08-11 — Invoice customer and item picker redesign
 
 - Redesigned the shared create/edit invoice selection sheet for both customers

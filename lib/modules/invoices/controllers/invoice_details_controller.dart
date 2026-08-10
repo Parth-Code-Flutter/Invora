@@ -20,20 +20,29 @@ class InvoiceDetailsController extends GetxController {
   final isLoading = true.obs;
   final isWorking = false.obs;
   final payments = <InvoicePaymentModel>[].obs;
+  int? _invoiceId;
 
   @override
   void onInit() {
     super.onInit();
-    _load();
+    final argument = Get.arguments;
+    _invoiceId = argument is int ? argument : null;
+    reload();
   }
 
-  Future<void> _load() async {
+  Future<void> reload() async {
     currencySymbol.value =
         (await _businessRepository.getProfile())?.currencySymbol ?? '₹';
-    final id = Get.arguments;
-    if (id is int) {
-      invoice.value = await _repository.getById(id);
-      payments.assignAll(await _repository.getPayments(id));
+    final id = _invoiceId ?? invoice.value?.id;
+    if (id != null) {
+      final refreshedInvoice = await _repository.getById(id);
+      final refreshedPayments = await _repository.getPayments(id);
+      invoice.value = refreshedInvoice;
+      // Explicit notifications make the details screen deterministic after a
+      // modal route closes, even when GetX considers the assigned value equal.
+      invoice.refresh();
+      payments.assignAll(refreshedPayments);
+      payments.refresh();
     }
     isLoading.value = false;
   }
@@ -47,7 +56,7 @@ class InvoiceDetailsController extends GetxController {
           : AppRoutes.invoiceCreate,
       arguments: value.id,
     );
-    await _load();
+    await reload();
   }
 
   Future<void> openPreview() async {
@@ -116,7 +125,7 @@ class InvoiceDetailsController extends GetxController {
       reference: reference,
       note: note,
     );
-    await _load();
+    await reload();
     return null;
   }
 
@@ -124,14 +133,14 @@ class InvoiceDetailsController extends GetxController {
     final id = invoice.value?.id;
     if (id == null) return;
     await _repository.cancel(id);
-    await _load();
+    await reload();
   }
 
   Future<void> setQuotationStatus(InvoiceStatus status) async {
     final id = invoice.value?.id;
     if (id == null) return;
     await _repository.updateStatus(id, status);
-    await _load();
+    await reload();
   }
 
   Future<void> convertToInvoice() async {

@@ -465,6 +465,9 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
       useSafeArea: true,
       builder: (_) => _PaymentSheet(invoice: invoice, controller: controller),
     );
+    // Re-read after the modal route is fully removed so the visible route
+    // always paints the latest status, balance, and payment activity.
+    await controller.reload();
   }
 
   Future<bool> _confirm(
