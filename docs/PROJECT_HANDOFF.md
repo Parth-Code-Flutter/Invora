@@ -191,6 +191,18 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Scannable invoice and customer lists
+
+- Redesigned invoice cards with a status accent rail, compact document/status
+  header, stronger customer/amount hierarchy, and issued/due-date context.
+- Refined customer cards with branded gradient avatars and a compact action
+  control. Customers can swipe right to edit or left to delete, while the action
+  sheet keeps both operations visible and accessible without relying on gestures.
+- Customer deletion remains protected by confirmation and historical invoices
+  remain unchanged.
+- Important files: invoice and customer list screens.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Compact list creation actions
 
 - Removed the large promotional/create banners from invoice, quotation,

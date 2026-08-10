@@ -94,8 +94,15 @@ class CustomerListScreen extends GetView<CustomerListController> {
                       separatorBuilder: (_, _) => const SizedBox(height: 10),
                       itemBuilder: (context, index) => _CustomerCard(
                         customer: controller.customers[index],
-                        onDelete: () => _confirmDelete(
+                        onEdit: () => Get.toNamed<void>(
+                          AppRoutes.customerEdit,
+                          arguments: controller.customers[index].id,
+                        ),
+                        onConfirmDelete: () => _confirmDelete(
                           context,
+                          controller.customers[index],
+                        ),
+                        onDelete: () => controller.deleteCustomer(
                           controller.customers[index],
                         ),
                       ),
@@ -117,8 +124,15 @@ class CustomerListScreen extends GetView<CustomerListController> {
                     itemCount: controller.customers.length,
                     itemBuilder: (context, index) => _CustomerCard(
                       customer: controller.customers[index],
-                      onDelete: () =>
+                      onEdit: () => Get.toNamed<void>(
+                        AppRoutes.customerEdit,
+                        arguments: controller.customers[index].id,
+                      ),
+                      onConfirmDelete: () =>
                           _confirmDelete(context, controller.customers[index]),
+                      onDelete: () => controller.deleteCustomer(
+                        controller.customers[index],
+                      ),
                     ),
                   );
                 },
@@ -130,7 +144,7 @@ class CustomerListScreen extends GetView<CustomerListController> {
     );
   }
 
-  Future<void> _confirmDelete(
+  Future<bool> _confirmDelete(
     BuildContext context,
     CustomerModel customer,
   ) async {
@@ -153,17 +167,22 @@ class CustomerListScreen extends GetView<CustomerListController> {
         ],
       ),
     );
-    if (confirmed ?? false) {
-      await controller.deleteCustomer(customer);
-    }
+    return confirmed ?? false;
   }
 }
 
 class _CustomerCard extends StatelessWidget {
-  const _CustomerCard({required this.customer, required this.onDelete});
+  const _CustomerCard({
+    required this.customer,
+    required this.onEdit,
+    required this.onConfirmDelete,
+    required this.onDelete,
+  });
 
   final CustomerModel customer;
-  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+  final Future<bool> Function() onConfirmDelete;
+  final Future<void> Function() onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -171,89 +190,182 @@ class _CustomerCard extends StatelessWidget {
       customer.companyName,
       customer.mobile,
     ].whereType<String>().where((value) => value.isNotEmpty).join(' • ');
-    return AppCard(
-      onTap: () =>
-          Get.toNamed<void>(AppRoutes.customerDetails, arguments: customer.id),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(15),
+    return Dismissible(
+      key: ValueKey('customer-${customer.id}'),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          onEdit();
+          return false;
+        }
+        return onConfirmDelete();
+      },
+      onDismissed: (_) => onDelete(),
+      background: const _SwipeActionBackground(
+        alignment: Alignment.centerLeft,
+        color: AppColors.accent,
+        icon: Icons.edit_rounded,
+        label: 'Edit',
+      ),
+      secondaryBackground: const _SwipeActionBackground(
+        alignment: Alignment.centerRight,
+        color: AppColors.error,
+        icon: Icons.delete_outline_rounded,
+        label: 'Delete',
+      ),
+      child: AppCard(
+        onTap: () => Get.toNamed<void>(
+          AppRoutes.customerDetails,
+          arguments: customer.id,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.primary, AppColors.secondary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(17),
+              ),
+              child: Text(
+                customer.name.characters.first.toUpperCase(),
+                style: AppTextStyles.sectionTitle.copyWith(color: Colors.white),
+              ),
             ),
-            child: Text(
-              customer.name.characters.first.toUpperCase(),
-              style: AppTextStyles.cardTitle.copyWith(color: AppColors.primary),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        customer.name,
-                        style: AppTextStyles.cardTitle,
-                      ),
-                    ),
-                    if (customer.gstin != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondaryLight,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
                         child: Text(
-                          'GST',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.secondary,
+                          customer.name,
+                          style: AppTextStyles.cardTitle,
+                        ),
+                      ),
+                      if (customer.gstin != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.secondaryLight,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'GST',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.secondary,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                ),
-                if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.small.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                    ],
                   ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.small.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-          PopupMenuButton<String>(
-            onSelected: (action) {
-              if (action == 'edit') {
-                Get.toNamed<void>(
-                  AppRoutes.customerEdit,
-                  arguments: customer.id,
-                );
-              } else if (action == 'delete') {
-                onDelete();
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'edit', child: Text('Edit')),
-              PopupMenuItem(value: 'delete', child: Text('Delete')),
-            ],
-          ),
-        ],
+            IconButton.filledTonal(
+              tooltip: 'Customer actions',
+              onPressed: () => _showActions(context),
+              icon: const Icon(Icons.more_horiz_rounded, size: 21),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  Future<void> _showActions(BuildContext context) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(customer.name, style: AppTextStyles.sectionTitle),
+              const SizedBox(height: 12),
+              ListTile(
+                leading: const Icon(Icons.edit_rounded),
+                title: const Text('Edit customer'),
+                subtitle: const Text('Update contact and billing details'),
+                onTap: () => Navigator.pop(context, 'edit'),
+              ),
+              ListTile(
+                textColor: AppColors.error,
+                iconColor: AppColors.error,
+                leading: const Icon(Icons.delete_outline_rounded),
+                title: const Text('Delete customer'),
+                subtitle: const Text('Invoices already created stay unchanged'),
+                onTap: () => Navigator.pop(context, 'delete'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (action == 'edit') {
+      onEdit();
+    } else if (action == 'delete' && await onConfirmDelete()) {
+      await onDelete();
+    }
+  }
+}
+
+class _SwipeActionBackground extends StatelessWidget {
+  const _SwipeActionBackground({
+    required this.alignment,
+    required this.color,
+    required this.icon,
+    required this.label,
+  });
+
+  final Alignment alignment;
+  final Color color;
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    alignment: alignment,
+    padding: const EdgeInsets.symmetric(horizontal: 24),
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (alignment == Alignment.centerRight)
+          Text(label, style: const TextStyle(color: Colors.white)),
+        if (alignment == Alignment.centerRight) const SizedBox(width: 8),
+        Icon(icon, color: Colors.white),
+        if (alignment == Alignment.centerLeft) const SizedBox(width: 8),
+        if (alignment == Alignment.centerLeft)
+          Text(label, style: const TextStyle(color: Colors.white)),
+      ],
+    ),
+  );
 }

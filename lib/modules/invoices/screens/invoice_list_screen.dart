@@ -252,71 +252,93 @@ class _InvoiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = invoice.effectiveStatus(DateTime.now());
+    final statusColor = _statusColor(status);
     return AppCard(
+      padding: EdgeInsets.zero,
       onTap: () =>
           Get.toNamed<void>(AppRoutes.invoiceDetails, arguments: invoice.id),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: _statusColor(status).withValues(alpha: .11),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Icon(
-              Icons.receipt_long_outlined,
-              color: _statusColor(status),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  invoice.customerName.isEmpty
-                      ? 'Customer not selected'
-                      : invoice.customerName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.cardTitle,
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Container(width: 5, decoration: BoxDecoration(color: statusColor)),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            invoice.invoiceNumber,
+                            style: AppTextStyles.caption.copyWith(
+                              color: statusColor,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        AppStatusChip(status: status),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                invoice.customerName.isEmpty
+                                    ? 'Customer not selected'
+                                    : invoice.customerName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.cardTitle,
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                'Issued ${_date(invoice.invoiceDate)}${invoice.dueDate == null ? '' : '  •  Due ${_date(invoice.dueDate!)}'}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.small.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              CurrencyUtils.formatMinor(
+                                invoice.grandTotalMinor,
+                                symbol: symbol,
+                              ),
+                              style: AppTextStyles.sectionTitle,
+                            ),
+                            if (invoice.balanceMinor > 0) ...[
+                              const SizedBox(height: 3),
+                              Text(
+                                '${CurrencyUtils.formatMinor(invoice.balanceMinor, symbol: symbol)} due',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: statusColor,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  '${invoice.invoiceNumber} • ${_date(invoice.invoiceDate)}',
-                  style: AppTextStyles.small.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                CurrencyUtils.formatMinor(
-                  invoice.grandTotalMinor,
-                  symbol: symbol,
-                ),
-                style: AppTextStyles.cardTitle,
               ),
-              const SizedBox(height: 6),
-              AppStatusChip(status: status),
-              if (invoice.balanceMinor > 0) ...[
-                const SizedBox(height: 4),
-                Text(
-                  '${CurrencyUtils.formatMinor(invoice.balanceMinor, symbol: symbol)} due',
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
