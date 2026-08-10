@@ -191,6 +191,20 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Action-focused invoice details
+
+- Reworked invoice details around the next user action: outstanding invoices
+  prioritize `Record payment`, with share/print available alongside it; settled
+  documents prioritize sharing.
+- The summary now highlights balance due (or total), status, issued date, and due
+  date in one glanceable hero. Customer details use identity/contact chips,
+  items use numbered structured rows, and payment totals end in a highlighted
+  due/fully-paid state.
+- Preserved PDF preview, editing, duplication, payment updates, cancellation,
+  deletion, quotation statuses, conversion, notes, and terms.
+- Important file: invoice details screen.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Import customer from phone contacts
 
 - Added a contacts-book action to the required mobile field during customer

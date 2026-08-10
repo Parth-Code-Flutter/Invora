@@ -9,6 +9,7 @@ import '../../../app/utils/app_focus.dart';
 import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
@@ -99,7 +100,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         final symbol = controller.currencySymbol.value;
         final sections = [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [
@@ -122,20 +123,67 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  invoice.invoiceNumber,
-                  style: AppTextStyles.pageTitle.copyWith(color: Colors.white),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        invoice.invoiceNumber,
+                        style: AppTextStyles.pageTitle.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    AppStatusChip(status: invoice.status),
+                  ],
                 ),
-                const SizedBox(height: 6),
-                AppStatusChip(status: invoice.status),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
+                Text(
+                  invoice.calculation.balanceDueMinor > 0
+                      ? 'Balance due'
+                      : 'Invoice total',
+                  style: AppTextStyles.caption.copyWith(color: Colors.white70),
+                ),
+                const SizedBox(height: 3),
                 Text(
                   CurrencyUtils.formatMinor(
-                    invoice.calculation.grandTotalMinor,
+                    invoice.calculation.balanceDueMinor > 0
+                        ? invoice.calculation.balanceDueMinor
+                        : invoice.calculation.grandTotalMinor,
                     symbol: symbol,
                   ),
                   style: AppTextStyles.displayAmount.copyWith(
                     color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _HeroDate(
+                          label: 'ISSUED',
+                          value: _date(invoice.invoiceDate),
+                        ),
+                      ),
+                      Container(width: 1, height: 30, color: Colors.white24),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: _HeroDate(
+                          label: 'DUE',
+                          value: invoice.dueDate == null
+                              ? 'Not set'
+                              : _date(invoice.dueDate!),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -144,21 +192,30 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
           Row(
             children: [
               Expanded(
-                child: FilledButton.icon(
-                  onPressed: controller.openPreview,
-                  icon: const Icon(Icons.share_outlined),
-                  label: const Text('Share / print'),
-                ),
+                child:
+                    invoice.documentType == DocumentType.invoice &&
+                        invoice.status != InvoiceStatus.cancelled &&
+                        invoice.calculation.balanceDueMinor > 0
+                    ? AppButton(
+                        label: 'Record payment',
+                        icon: Icons.payments_outlined,
+                        onPressed: () => _showPaymentDialog(context),
+                      )
+                    : AppButton(
+                        label: 'Share / print',
+                        icon: Icons.ios_share_rounded,
+                        onPressed: controller.openPreview,
+                      ),
               ),
               if (invoice.documentType == DocumentType.invoice &&
                   invoice.status != InvoiceStatus.cancelled &&
                   invoice.calculation.balanceDueMinor > 0) ...[
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _showPaymentDialog(context),
-                    icon: const Icon(Icons.payments_outlined),
-                    label: const Text('Record payment'),
+                    onPressed: controller.openPreview,
+                    icon: const Icon(Icons.ios_share_rounded),
+                    label: const Text('Share'),
                   ),
                 ),
               ],
@@ -168,15 +225,75 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Customer', style: AppTextStyles.sectionTitle),
-                const SizedBox(height: 10),
-                Text(invoice.customer.name, style: AppTextStyles.cardTitle),
-                if (invoice.customer.companyName != null)
-                  Text(invoice.customer.companyName!),
-                if (invoice.customer.mobile != null)
-                  Text(invoice.customer.mobile!),
-                if (invoice.customer.gstin != null)
-                  Text('GSTIN: ${invoice.customer.gstin}'),
+                Row(
+                  children: [
+                    Container(
+                      width: 46,
+                      height: 46,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppColors.primary, AppColors.secondary],
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Text(
+                        invoice.customer.name.trim().isEmpty
+                            ? '?'
+                            : invoice.customer.name.characters.first
+                                  .toUpperCase(),
+                        style: AppTextStyles.cardTitle.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            invoice.customer.name,
+                            style: AppTextStyles.cardTitle,
+                          ),
+                          if (invoice.customer.companyName != null)
+                            Text(
+                              invoice.customer.companyName!,
+                              style: AppTextStyles.small.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.person_outline_rounded,
+                      color: AppColors.textTertiary,
+                    ),
+                  ],
+                ),
+                if (invoice.customer.mobile != null ||
+                    invoice.customer.gstin != null) ...[
+                  const SizedBox(height: 14),
+                  const Divider(height: 1),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      if (invoice.customer.mobile != null)
+                        _InfoPill(
+                          icon: Icons.phone_outlined,
+                          label: invoice.customer.mobile!,
+                        ),
+                      if (invoice.customer.gstin != null)
+                        _InfoPill(
+                          icon: Icons.receipt_long_outlined,
+                          label: invoice.customer.gstin!,
+                        ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -189,14 +306,47 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                 ...invoice.items.asMap().entries.map((entry) {
                   final item = entry.value;
                   final total = invoice.calculation.items[entry.key].totalMinor;
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(item.name),
-                    subtitle: Text(
-                      '${QuantityUtils.toInputValue(item.quantityScaled)} ${item.unit} × ${CurrencyUtils.formatMinor(item.rateMinor, symbol: symbol)}',
-                    ),
-                    trailing: Text(
-                      CurrencyUtils.formatMinor(total, symbol: symbol),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 34,
+                          height: 34,
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primaryLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${entry.key + 1}',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.primaryDark,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 11),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(item.name, style: AppTextStyles.cardTitle),
+                              const SizedBox(height: 3),
+                              Text(
+                                '${QuantityUtils.toInputValue(item.quantityScaled)} ${item.unit} × ${CurrencyUtils.formatMinor(item.rateMinor, symbol: symbol)}',
+                                style: AppTextStyles.small.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          CurrencyUtils.formatMinor(total, symbol: symbol),
+                          style: AppTextStyles.cardTitle,
+                        ),
+                      ],
                     ),
                   );
                 }),
@@ -204,6 +354,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
             ),
           ),
           AppCard(
+            padding: const EdgeInsets.all(18),
             child: Column(
               children: [
                 _row(
@@ -213,10 +364,27 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                 ),
                 _row('Paid', invoice.calculation.paidAmountMinor, symbol),
                 const Divider(),
-                _row(
-                  'Balance due',
-                  invoice.calculation.balanceDueMinor,
-                  symbol,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: invoice.calculation.balanceDueMinor > 0
+                        ? AppColors.warningLight
+                        : AppColors.successLight,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: _row(
+                    invoice.calculation.balanceDueMinor > 0
+                        ? 'Balance due'
+                        : 'Fully paid',
+                    invoice.calculation.balanceDueMinor,
+                    symbol,
+                    color: invoice.calculation.balanceDueMinor > 0
+                        ? AppColors.warning
+                        : AppColors.success,
+                  ),
                 ),
               ],
             ),
@@ -493,18 +661,65 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   }
 }
 
-Widget _row(String label, int value, String symbol) => Padding(
+class _HeroDate extends StatelessWidget {
+  const _HeroDate({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: AppTextStyles.caption.copyWith(color: Colors.white60)),
+      const SizedBox(height: 3),
+      Text(value, style: AppTextStyles.cardTitle.copyWith(color: Colors.white)),
+    ],
+  );
+}
+
+class _InfoPill extends StatelessWidget {
+  const _InfoPill({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+    decoration: BoxDecoration(
+      color: AppColors.surfaceMuted,
+      borderRadius: BorderRadius.circular(99),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: AppColors.secondary),
+        const SizedBox(width: 6),
+        Text(label, style: AppTextStyles.small),
+      ],
+    ),
+  );
+}
+
+Widget _row(String label, int value, String symbol, {Color? color}) => Padding(
   padding: const EdgeInsets.symmetric(vertical: 7),
   child: Row(
     children: [
-      Expanded(child: Text(label)),
+      Expanded(
+        child: Text(
+          label,
+          style: color == null ? null : TextStyle(color: color),
+        ),
+      ),
       Text(
         CurrencyUtils.formatMinor(value, symbol: symbol),
-        style: AppTextStyles.cardTitle,
+        style: AppTextStyles.cardTitle.copyWith(color: color),
       ),
     ],
   ),
 );
+
+String _date(DateTime value) =>
+    '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}';
 
 class _PaymentRow extends StatelessWidget {
   const _PaymentRow({
