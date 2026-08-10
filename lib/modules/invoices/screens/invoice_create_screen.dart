@@ -10,6 +10,7 @@ import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_calculation_models.dart';
 import '../../../data/models/invoice_model.dart';
@@ -26,20 +27,25 @@ class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
         title: Text(controller.isQuotation ? 'New estimate' : 'New invoice'),
         actions: [
           Obx(
-            () => IconButton(
-              tooltip: 'Save draft',
+            () => TextButton.icon(
               onPressed: controller.isSaving.value
                   ? null
                   : () => controller.save(draft: true),
-              icon: const Icon(Icons.bookmark_add_outlined),
+              icon: const Icon(Icons.bookmark_border_rounded, size: 19),
+              label: const Text('Draft'),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
         ],
       ),
       bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            border: const Border(top: BorderSide(color: AppColors.border)),
+          ),
           child: Obx(
             () => Row(
               children: [
@@ -48,13 +54,19 @@ class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Total'),
+                      Text(
+                        'INVOICE TOTAL',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
                       Text(
                         CurrencyUtils.formatMinor(
                           controller.calculation.value?.grandTotalMinor ?? 0,
                           symbol: controller.currencySymbol.value,
                         ),
-                        style: AppTextStyles.cardTitle,
+                        style: AppTextStyles.sectionTitle,
                       ),
                     ],
                   ),
@@ -62,7 +74,7 @@ class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
                 FilledButton.icon(
                   onPressed: controller.preview,
                   icon: const Icon(Icons.visibility_outlined),
-                  label: const Text('Preview'),
+                  label: const Text('Review invoice'),
                 ),
               ],
             ),
@@ -112,11 +124,13 @@ class _InvoiceForm extends StatelessWidget {
       () => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          AppCard(
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text('Invoice details', style: AppTextStyles.sectionTitle),
+                const SizedBox(height: 14),
                 Row(
                   children: [
                     Expanded(
@@ -124,7 +138,7 @@ class _InvoiceForm extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'INVOICE NUMBER',
+                            'NUMBER',
                             style: AppTextStyles.caption.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -139,26 +153,35 @@ class _InvoiceForm extends StatelessWidget {
                         ],
                       ),
                     ),
-                    ActionChip(
-                      avatar: const Icon(
-                        Icons.calendar_today_outlined,
-                        size: 18,
-                      ),
-                      label: Text(_date(controller.invoiceDate.value)),
-                      onPressed: () => _pickDate(context, due: false),
+                    _DateButton(
+                      label: _date(controller.invoiceDate.value),
+                      onTap: () => _pickDate(context, due: false),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: () => _pickDate(context, due: true),
-                    icon: const Icon(Icons.event_outlined, size: 18),
-                    label: Text(
-                      controller.dueDate.value == null
-                          ? 'Add payment due date'
-                          : 'Due ${_date(controller.dueDate.value!)}',
+                const Divider(height: 28),
+                InkWell(
+                  onTap: () => _pickDate(context, due: true),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.event_outlined,
+                          size: 20,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            controller.dueDate.value == null
+                                ? 'Add payment due date'
+                                : 'Payment due ${_date(controller.dueDate.value!)}',
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right_rounded, size: 20),
+                      ],
                     ),
                   ),
                 ),
@@ -166,6 +189,8 @@ class _InvoiceForm extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+          _SectionEyebrow(number: '1', label: 'Bill to'),
+          const SizedBox(height: 8),
           AppCard(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             onTap: () => _selectCustomer(context),
@@ -197,31 +222,42 @@ class _InvoiceForm extends StatelessWidget {
           const SizedBox(height: 18),
           Row(
             children: [
-              Expanded(child: Text('Items', style: AppTextStyles.sectionTitle)),
-              TextButton.icon(
-                onPressed: () => _selectProduct(context),
-                icon: const Icon(Icons.inventory_2_outlined),
-                label: const Text('Saved item'),
+              const Expanded(
+                child: _SectionEyebrow(number: '2', label: 'Items'),
               ),
-              IconButton(
-                tooltip: 'Custom item',
-                onPressed: () => _editItem(context),
-                icon: const Icon(Icons.add_circle_outline),
+              FilledButton.tonalIcon(
+                onPressed: () => _showAddItemOptions(context),
+                icon: const Icon(Icons.add_rounded, size: 19),
+                label: const Text('Add item'),
               ),
             ],
           ),
+          const SizedBox(height: 8),
           if (controller.items.isEmpty)
-            AppCard(
-              onTap: () => _selectProduct(context),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add_circle_outline, color: AppColors.primary),
-                    SizedBox(width: 8),
-                    Text('Add your first item'),
-                  ],
+            Material(
+              color: AppColors.primaryLight.withValues(alpha: .42),
+              borderRadius: BorderRadius.circular(18),
+              child: InkWell(
+                onTap: () => _showAddItemOptions(context),
+                borderRadius: BorderRadius.circular(18),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.add_shopping_cart_rounded,
+                        color: AppColors.primary,
+                      ),
+                      SizedBox(height: 8),
+                      Text('Add a product or service'),
+                      SizedBox(height: 3),
+                      Text(
+                        'Choose a saved item or enter a custom one',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             )
@@ -301,26 +337,29 @@ class _InvoiceForm extends StatelessWidget {
                     style: AppTextStyles.sectionTitle,
                   ),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<TaxType>(
-                    initialValue: controller.taxType.value,
-                    decoration: const InputDecoration(labelText: 'Tax mode'),
-                    items: const [
-                      DropdownMenuItem(
+                  AppDropdownField<TaxType>(
+                    label: 'Tax mode',
+                    sheetTitle: 'Choose tax mode',
+                    prefixIcon: Icons.account_balance_outlined,
+                    value: controller.taxType.value,
+                    options: const [
+                      AppDropdownOption(
                         value: TaxType.none,
-                        child: Text('No tax'),
+                        label: 'No tax',
+                        icon: Icons.money_off_csred_outlined,
                       ),
-                      DropdownMenuItem(
+                      AppDropdownOption(
                         value: TaxType.cgstSgst,
-                        child: Text('CGST + SGST'),
+                        label: 'CGST + SGST',
+                        icon: Icons.call_split_rounded,
                       ),
-                      DropdownMenuItem(
+                      AppDropdownOption(
                         value: TaxType.igst,
-                        child: Text('IGST'),
+                        label: 'IGST',
+                        icon: Icons.arrow_forward_rounded,
                       ),
                     ],
-                    onChanged: (value) {
-                      if (value != null) controller.setTaxType(value);
-                    },
+                    onChanged: controller.setTaxType,
                   ),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
@@ -443,14 +482,63 @@ class _InvoiceForm extends StatelessWidget {
     if (selected != null) controller.addProduct(selected);
   }
 
+  Future<void> _showAddItemOptions(BuildContext context) async {
+    final choice = await showModalBottomSheet<_AddItemChoice>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('Add an item', style: AppTextStyles.sectionTitle),
+              const SizedBox(height: 6),
+              Text(
+                'Choose how you want to add this invoice line.',
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _AddItemOption(
+                icon: Icons.inventory_2_outlined,
+                title: 'Choose saved item',
+                subtitle: 'Use a product or service from your catalog',
+                onTap: () => Navigator.pop(sheetContext, _AddItemChoice.saved),
+              ),
+              const SizedBox(height: 10),
+              _AddItemOption(
+                icon: Icons.edit_note_rounded,
+                title: 'Create custom item',
+                subtitle: 'Enter a one-time item for this invoice',
+                onTap: () => Navigator.pop(sheetContext, _AddItemChoice.custom),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (!context.mounted) return;
+    if (choice == _AddItemChoice.saved) {
+      await _selectProduct(context);
+    } else if (choice == _AddItemChoice.custom) {
+      await _editItem(context);
+    }
+  }
+
   Future<void> _editItem(
     BuildContext context, {
     int? index,
     InvoiceItemModel? item,
   }) async {
-    final result = await showDialog<InvoiceItemModel>(
+    final result = await showModalBottomSheet<InvoiceItemModel>(
       context: context,
-      builder: (_) => _ItemDialog(item: item),
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (_) => _ItemSheet(item: item),
     );
     if (result == null) return;
     if (index == null) {
@@ -598,6 +686,118 @@ class _InvoiceSummary extends StatelessWidget {
   }
 }
 
+class _DateButton extends StatelessWidget {
+  const _DateButton({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: AppColors.surfaceMuted,
+    borderRadius: BorderRadius.circular(14),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.calendar_today_outlined,
+              size: 18,
+              color: AppColors.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(label, style: AppTextStyles.small),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _SectionEyebrow extends StatelessWidget {
+  const _SectionEyebrow({required this.number, required this.label});
+  final String number;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 28,
+        height: 28,
+        alignment: Alignment.center,
+        decoration: const BoxDecoration(
+          color: AppColors.primaryLight,
+          shape: BoxShape.circle,
+        ),
+        child: Text(
+          number,
+          style: AppTextStyles.small.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+      const SizedBox(width: 9),
+      Text(label, style: AppTextStyles.sectionTitle),
+    ],
+  );
+}
+
+enum _AddItemChoice { saved, custom }
+
+class _AddItemOption extends StatelessWidget {
+  const _AddItemOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    onTap: onTap,
+    child: Row(
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: AppColors.primaryLight,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, color: AppColors.primary),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: AppTextStyles.cardTitle),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                style: AppTextStyles.small.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Icon(Icons.chevron_right_rounded),
+      ],
+    ),
+  );
+}
+
 class _SelectionSheet<T> extends StatefulWidget {
   const _SelectionSheet({
     required this.title,
@@ -699,15 +899,15 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
   }
 }
 
-class _ItemDialog extends StatefulWidget {
-  const _ItemDialog({this.item});
+class _ItemSheet extends StatefulWidget {
+  const _ItemSheet({this.item});
   final InvoiceItemModel? item;
 
   @override
-  State<_ItemDialog> createState() => _ItemDialogState();
+  State<_ItemSheet> createState() => _ItemSheetState();
 }
 
-class _ItemDialogState extends State<_ItemDialog> {
+class _ItemSheetState extends State<_ItemSheet> {
   late final TextEditingController name;
   late final TextEditingController quantity;
   late final TextEditingController unit;
@@ -743,114 +943,157 @@ class _ItemDialogState extends State<_ItemDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.item == null ? 'Custom item' : 'Edit item'),
-      content: SizedBox(
-        width: 520,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: name,
-                decoration: const InputDecoration(labelText: 'Name'),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        20,
+        0,
+        20,
+        MediaQuery.viewInsetsOf(context).bottom + 20,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              widget.item == null ? 'Create custom item' : 'Edit item',
+              style: AppTextStyles.sectionTitle,
+            ),
+            const SizedBox(height: 5),
+            Text(
+              'Add the line-item details shown on this invoice.',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
               ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: quantity,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: const InputDecoration(labelText: 'Quantity'),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: unit,
-                      decoration: const InputDecoration(labelText: 'Unit'),
-                    ),
-                  ),
-                ],
+            ),
+            const SizedBox(height: 18),
+            TextField(
+              controller: name,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Item name *',
+                hintText: 'e.g. Website design',
               ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: rate,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: quantity,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(labelText: 'Quantity *'),
+                  ),
                 ),
-                decoration: const InputDecoration(labelText: 'Rate'),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: hsn,
-                      decoration: const InputDecoration(labelText: 'HSN/SAC'),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: tax,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: const InputDecoration(labelText: 'GST %'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<DiscountType>(
-                initialValue: discountType,
-                decoration: const InputDecoration(labelText: 'Discount type'),
-                items: const [
-                  DropdownMenuItem(
-                    value: DiscountType.none,
-                    child: Text('None'),
-                  ),
-                  DropdownMenuItem(
-                    value: DiscountType.percentage,
-                    child: Text('Percentage'),
-                  ),
-                  DropdownMenuItem(
-                    value: DiscountType.fixed,
-                    child: Text('Fixed amount'),
-                  ),
-                ],
-                onChanged: (value) =>
-                    setState(() => discountType = value ?? DiscountType.none),
-              ),
-              if (discountType != DiscountType.none) ...[
-                const SizedBox(height: 10),
-                TextField(
-                  controller: discount,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: discountType == DiscountType.fixed
-                        ? 'Discount amount'
-                        : 'Discount %',
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    controller: unit,
+                    decoration: const InputDecoration(labelText: 'Unit *'),
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: rate,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(labelText: 'Rate *'),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: hsn,
+                    decoration: const InputDecoration(labelText: 'HSN/SAC'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    controller: tax,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(labelText: 'GST %'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            AppDropdownField<DiscountType>(
+              label: 'Discount',
+              sheetTitle: 'Choose item discount',
+              prefixIcon: Icons.discount_outlined,
+              value: discountType,
+              options: const [
+                AppDropdownOption(
+                  value: DiscountType.none,
+                  label: 'No discount',
+                ),
+                AppDropdownOption(
+                  value: DiscountType.percentage,
+                  label: 'Percentage',
+                ),
+                AppDropdownOption(
+                  value: DiscountType.fixed,
+                  label: 'Fixed amount',
+                ),
+              ],
+              onChanged: (value) => setState(() => discountType = value),
+            ),
+            if (discountType != DiscountType.none) ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: discount,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: discountType == DiscountType.fixed
+                      ? 'Discount amount'
+                      : 'Discount %',
+                ),
+              ),
             ],
-          ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _submit,
+                    child: Text(widget.item == null ? 'Add item' : 'Save'),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(onPressed: _submit, child: const Text('Save')),
-      ],
     );
+  }
+
+  @override
+  void dispose() {
+    name.dispose();
+    quantity.dispose();
+    unit.dispose();
+    rate.dispose();
+    hsn.dispose();
+    tax.dispose();
+    discount.dispose();
+    super.dispose();
   }
 
   void _submit() {
@@ -863,6 +1106,11 @@ class _ItemDialogState extends State<_ItemDialog> {
         quantityValue <= 0 ||
         rateValue == null ||
         taxValue == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Enter a name, quantity, unit, rate and valid GST.'),
+        ),
+      );
       return;
     }
     final discountValue = switch (discountType) {
@@ -915,21 +1163,19 @@ class _DiscountDialogState extends State<_DiscountDialog> {
     content: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        DropdownButtonFormField<DiscountType>(
-          initialValue: type,
-          items: const [
-            DropdownMenuItem(value: DiscountType.none, child: Text('None')),
-            DropdownMenuItem(
+        AppDropdownField<DiscountType>(
+          label: 'Discount type',
+          sheetTitle: 'Choose invoice discount',
+          value: type,
+          options: const [
+            AppDropdownOption(value: DiscountType.none, label: 'No discount'),
+            AppDropdownOption(
               value: DiscountType.percentage,
-              child: Text('Percentage'),
+              label: 'Percentage',
             ),
-            DropdownMenuItem(
-              value: DiscountType.fixed,
-              child: Text('Fixed amount'),
-            ),
+            AppDropdownOption(value: DiscountType.fixed, label: 'Fixed amount'),
           ],
-          onChanged: (selected) =>
-              setState(() => type = selected ?? DiscountType.none),
+          onChanged: (selected) => setState(() => type = selected),
         ),
         if (type != DiscountType.none) ...[
           const SizedBox(height: 12),

@@ -8,6 +8,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_text_field.dart';
 import '../controllers/product_form_controller.dart';
 
@@ -132,30 +133,24 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                   _ResponsiveFields(
                                     children: [
                                       Obx(
-                                        () => DropdownButtonFormField<String>(
-                                          initialValue:
-                                              controller.selectedUnit.value,
-                                          decoration: const InputDecoration(
-                                            labelText: 'Unit *',
-                                          ),
-                                          items: ProductFormController.units
+                                        () => AppDropdownField<String>(
+                                          label: 'Unit *',
+                                          sheetTitle: 'Choose item unit',
+                                          prefixIcon: Icons.straighten_rounded,
+                                          value: controller.selectedUnit.value,
+                                          options: ProductFormController.units
                                               .map(
-                                                (unit) => DropdownMenuItem(
+                                                (unit) => AppDropdownOption(
                                                   value: unit,
-                                                  child: Text(
-                                                    unit == 'custom'
-                                                        ? 'Custom unit'
-                                                        : unit,
-                                                  ),
+                                                  label: unit == 'custom'
+                                                      ? 'Custom unit'
+                                                      : unit,
                                                 ),
                                               )
                                               .toList(),
-                                          onChanged: (value) {
-                                            if (value != null) {
+                                          onChanged: (value) =>
                                               controller.selectedUnit.value =
-                                                  value;
-                                            }
-                                          },
+                                                  value,
                                         ),
                                       ),
                                       AppTextField(

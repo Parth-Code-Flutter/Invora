@@ -28,33 +28,55 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
       appBar: AppBar(
         title: Text(quotation ? 'Quotations' : 'Invoices'),
         actions: [
-          IconButton(
-            tooltip: quotation ? 'Create estimate' : 'Create invoice',
-            onPressed: () => Get.toNamed<void>(
+          _HeaderActionButton(
+            tooltip: quotation ? 'Create quotation' : 'Create invoice',
+            icon: Icons.add_rounded,
+            onTap: () => Get.toNamed<void>(
               quotation ? AppRoutes.quotationCreate : AppRoutes.invoiceCreate,
             ),
-            icon: const Icon(Icons.add_rounded),
           ),
+          const SizedBox(width: 8),
           Obx(
             () => PopupMenuButton<InvoiceSort>(
               tooltip: 'Sort invoices',
               initialValue: controller.selectedSort.value,
               onSelected: controller.selectSort,
-              icon: const Icon(Icons.sort_rounded),
-              itemBuilder: (_) => const [
-                PopupMenuItem(value: InvoiceSort.newest, child: Text('Newest')),
-                PopupMenuItem(value: InvoiceSort.oldest, child: Text('Oldest')),
-                PopupMenuItem(
-                  value: InvoiceSort.highestAmount,
-                  child: Text('Highest amount'),
-                ),
-                PopupMenuItem(
-                  value: InvoiceSort.lowestAmount,
-                  child: Text('Lowest amount'),
-                ),
-              ],
+              position: PopupMenuPosition.under,
+              offset: const Offset(0, 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              itemBuilder: (_) => InvoiceSort.values
+                  .map(
+                    (sort) => PopupMenuItem(
+                      value: sort,
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 24,
+                            child: controller.selectedSort.value == sort
+                                ? const Icon(
+                                    Icons.check_rounded,
+                                    size: 19,
+                                    color: AppColors.primary,
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(_sortLabel(sort)),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(),
+              child: _HeaderActionIcon(
+                icon: Icons.swap_vert_rounded,
+                showIndicator:
+                    controller.selectedSort.value != InvoiceSort.newest,
+              ),
             ),
           ),
+          SizedBox(width: ResponsiveUtils.horizontalPadding(context)),
         ],
       ),
       body: Column(
@@ -174,6 +196,81 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
   }
 }
 
+class _HeaderActionButton extends StatelessWidget {
+  const _HeaderActionButton({
+    required this.tooltip,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: _HeaderActionIcon(icon: icon),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderActionIcon extends StatelessWidget {
+  const _HeaderActionIcon({required this.icon, this.showIndicator = false});
+
+  final IconData icon;
+  final bool showIndicator;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.surfaceSoft,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.border,
+        ),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(icon, size: 23, color: Theme.of(context).colorScheme.onSurface),
+          if (showIndicator)
+            Positioned(
+              top: 7,
+              right: 7,
+              child: Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.darkSurface
+                        : AppColors.surfaceSoft,
+                    width: 1.5,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class _InvoiceCard extends StatelessWidget {
   const _InvoiceCard({required this.invoice, required this.symbol});
   final InvoiceSummaryModel invoice;
@@ -273,6 +370,13 @@ String _filterLabel(InvoiceListFilter filter) => switch (filter) {
   InvoiceListFilter.accepted => 'Accepted',
   InvoiceListFilter.rejected => 'Rejected',
   InvoiceListFilter.expired => 'Expired',
+};
+
+String _sortLabel(InvoiceSort sort) => switch (sort) {
+  InvoiceSort.newest => 'Newest first',
+  InvoiceSort.oldest => 'Oldest first',
+  InvoiceSort.highestAmount => 'Highest amount',
+  InvoiceSort.lowestAmount => 'Lowest amount',
 };
 
 String _date(DateTime value) =>

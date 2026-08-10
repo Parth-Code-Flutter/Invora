@@ -9,6 +9,7 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_text_field.dart';
 import '../controllers/business_setup_controller.dart';
 
@@ -255,30 +256,26 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                                             LengthLimitingTextInputFormatter(9),
                                           ],
                                         ),
-                                        DropdownButtonFormField<String>(
-                                          initialValue:
-                                              controller.currencyCode.value,
-                                          decoration: const InputDecoration(
-                                            labelText: 'Currency',
-                                          ),
-                                          items: BusinessSetupController
+                                        AppDropdownField<String>(
+                                          label: 'Currency',
+                                          sheetTitle: 'Choose currency',
+                                          prefixIcon:
+                                              Icons.currency_exchange_rounded,
+                                          value: controller.currencyCode.value,
+                                          options: BusinessSetupController
                                               .currencies
                                               .entries
                                               .map(
-                                                (entry) => DropdownMenuItem(
+                                                (entry) => AppDropdownOption(
                                                   value: entry.key,
-                                                  child: Text(
-                                                    '${entry.key} (${entry.value})',
-                                                  ),
+                                                  label:
+                                                      '${entry.key} (${entry.value})',
                                                 ),
                                               )
                                               .toList(),
-                                          onChanged: (value) {
-                                            if (value != null) {
+                                          onChanged: (value) =>
                                               controller.currencyCode.value =
-                                                  value;
-                                            }
-                                          },
+                                                  value,
                                         ),
                                       ],
                                     ),
