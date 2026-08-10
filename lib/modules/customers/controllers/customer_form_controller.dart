@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
 
 import '../../../app/utils/validation_utils.dart';
 import '../../../app/utils/app_focus.dart';
+import '../../../app/widgets/app_notification.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/repositories/customer_repository.dart';
 
@@ -23,6 +26,7 @@ class CustomerFormController extends GetxController {
   final notes = TextEditingController();
   final isLoading = false.obs;
   final isSaving = false.obs;
+  final isImportingContact = false.obs;
   CustomerModel? _existing;
   bool _returnToInvoice = false;
   bool _isEditing = false;
@@ -68,6 +72,69 @@ class CustomerFormController extends GetxController {
     return RegExp(r'^[0-9A-Z]{15}$').hasMatch(value.trim().toUpperCase())
         ? null
         : 'Enter a valid 15-character GSTIN.';
+  }
+
+  Future<void> importPhoneContact() async {
+    if (isEditing || isImportingContact.value) return;
+    isImportingContact.value = true;
+    try {
+      final permission = await FlutterContacts.permissions.request(
+        PermissionType.read,
+      );
+      if (permission != PermissionStatus.granted &&
+          permission != PermissionStatus.limited) {
+        AppNotification.warning(
+          'Contacts permission needed',
+          'Allow contact access to import a customer from your phone.',
+        );
+        return;
+      }
+      final contact = await FlutterContacts.native.showPicker(
+        properties: const {ContactProperty.phone},
+      );
+      if (contact == null) return;
+      if (contact.phones.isEmpty) {
+        AppNotification.info(
+          'No mobile number',
+          'The selected contact does not have a phone number.',
+        );
+        return;
+      }
+      final importedName = contact.displayName?.trim() ?? '';
+      final importedMobile = normalizeIndianMobile(contact.phones.first.number);
+      if (importedMobile.isEmpty) {
+        AppNotification.warning(
+          'Unsupported number',
+          'Choose a contact with a valid 10-digit Indian mobile number.',
+        );
+        return;
+      }
+      if (importedName.isNotEmpty) name.text = importedName;
+      mobile.text = importedMobile;
+      AppNotification.success(
+        'Contact imported',
+        importedName.isEmpty
+            ? 'Mobile number added. Enter the customer name to continue.'
+            : '$importedName is ready to save.',
+      );
+    } on PlatformException {
+      AppNotification.error(
+        'Could not open contacts',
+        'Check contact permission in device settings and try again.',
+      );
+    } finally {
+      isImportingContact.value = false;
+    }
+  }
+
+  static String normalizeIndianMobile(String value) {
+    var digits = value.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 12 && digits.startsWith('91')) {
+      digits = digits.substring(2);
+    } else if (digits.length == 11 && digits.startsWith('0')) {
+      digits = digits.substring(1);
+    }
+    return RegExp(r'^[6-9]\d{9}$').hasMatch(digits) ? digits : '';
   }
 
   Future<void> save() async {

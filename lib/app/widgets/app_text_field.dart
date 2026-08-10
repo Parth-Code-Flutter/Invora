@@ -14,6 +14,7 @@ class AppTextField extends StatelessWidget {
     this.inputFormatters,
     this.maxLines = 1,
     this.prefixIcon,
+    this.suffixIcon,
     this.textCapitalization = TextCapitalization.none,
     this.onChanged,
     this.onFieldSubmitted,
@@ -30,6 +31,7 @@ class AppTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final int maxLines;
   final IconData? prefixIcon;
+  final Widget? suffixIcon;
   final TextCapitalization textCapitalization;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onFieldSubmitted;
@@ -71,6 +73,7 @@ class AppTextField extends StatelessWidget {
                   child: Icon(prefixIcon, color: AppColors.primary, size: 17),
                 ),
               ),
+        suffixIcon: suffixIcon,
       ),
     );
   }

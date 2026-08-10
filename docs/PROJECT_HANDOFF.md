@@ -191,6 +191,20 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Import customer from phone contacts
+
+- Added a contacts-book action to the required mobile field during customer
+  creation. It opens the native Android/iOS contact picker and fills both the
+  selected display name and mobile number.
+- Imported Indian numbers are normalized from `+91` or leading-zero formats to
+  the required 10 digits. Invalid/missing numbers, cancellation, permission
+  denial, and platform failures leave the form safe and provide clear feedback.
+- Added Android `READ_CONTACTS` and iOS contacts usage descriptions; the import
+  action is intentionally hidden while editing an existing customer.
+- Important files: customer form/controller, shared text field, platform
+  permission files, and `flutter_contacts` dependency.
+- No database, backup, or migration changes.
+
 ### 2026-08-11 — Branded app-wide button system
 
 - Upgraded shared primary actions to a coral-to-plum brand gradient with white

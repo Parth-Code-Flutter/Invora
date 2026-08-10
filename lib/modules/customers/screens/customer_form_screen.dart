@@ -65,16 +65,47 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                                     textCapitalization:
                                         TextCapitalization.words,
                                   ),
-                                  AppTextField(
-                                    controller: controller.mobile,
-                                    label: 'Mobile number *',
-                                    prefixIcon: Icons.phone_outlined,
-                                    keyboardType: TextInputType.phone,
-                                    validator: controller.validateMobile,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly,
-                                      LengthLimitingTextInputFormatter(10),
-                                    ],
+                                  Obx(
+                                    () => AppTextField(
+                                      controller: controller.mobile,
+                                      label: 'Mobile number *',
+                                      prefixIcon: Icons.phone_outlined,
+                                      suffixIcon: controller.isEditing
+                                          ? null
+                                          : IconButton(
+                                              tooltip:
+                                                  'Import from phone contacts',
+                                              onPressed:
+                                                  controller
+                                                      .isImportingContact
+                                                      .value
+                                                  ? null
+                                                  : controller
+                                                        .importPhoneContact,
+                                              icon:
+                                                  controller
+                                                      .isImportingContact
+                                                      .value
+                                                  ? const SizedBox.square(
+                                                      dimension: 18,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                            strokeWidth: 2,
+                                                          ),
+                                                    )
+                                                  : const Icon(
+                                                      Icons.contacts_rounded,
+                                                      color:
+                                                          AppColors.secondary,
+                                                    ),
+                                            ),
+                                      keyboardType: TextInputType.phone,
+                                      validator: controller.validateMobile,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly,
+                                        LengthLimitingTextInputFormatter(10),
+                                      ],
+                                    ),
                                   ),
                                   AppTextField(
                                     controller: controller.email,
