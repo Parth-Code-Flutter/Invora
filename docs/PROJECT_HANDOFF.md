@@ -91,6 +91,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   printing, or payment; incomplete work may be saved as a draft
 - New invoices start with an automatic customer picker, then show customer and
   invoice metadata in one compact header with direct saved/custom item actions
+- Customer and saved-item selection use the same high-capacity bottom sheet
+  with contextual search, result counts, card rows, richer metadata, explicit
+  add affordances, and distinct empty/no-search-match states
 - Invoice creation includes a live Customer → Items → Review progress strip,
   equal-width metadata controls, numbered item rows, a compact totals snapshot,
   and a non-duplicated empty-item flow. The fixed review action is right-aligned
@@ -210,6 +213,21 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Invoice customer and item picker redesign
+
+- Redesigned the shared create/edit invoice selection sheet for both customers
+  and catalog items with a taller safe-area layout, contextual header guidance,
+  search labels, clear-search control, and live result counts.
+- Replaced plain ListTiles with bordered selection cards, strong identity/type
+  icons, two-line metadata, and an explicit add affordance. Customer rows show
+  company and mobile together; catalog rows show product/service type, unit,
+  and formatted price.
+- Reduced the visual dominance of create-new actions by using an outlined
+  secondary action, and separated true empty states from no-search-match states.
+- Important file: invoice create screen. No schema/storage changes.
+- Verification: formatting, analysis, full responsive/widget/unit tests, and
+  whitespace checks.
 
 ### 2026-08-11 — Dashboard first-screen hierarchy refinement
 

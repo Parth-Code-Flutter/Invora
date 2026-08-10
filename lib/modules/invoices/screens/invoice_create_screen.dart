@@ -607,13 +607,20 @@ class _InvoiceForm extends StatelessWidget {
   Future<void> _selectProduct(BuildContext context) async {
     final selected = await showModalBottomSheet<ProductServiceModel>(
       context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
       showDragHandle: true,
       builder: (_) => _SelectionSheet<ProductServiceModel>(
         title: 'Select saved item',
+        description: 'Choose a catalog item to add it instantly.',
+        itemLabel: 'saved items',
         future: controller.products(),
         titleFor: (item) => item.name,
         subtitleFor: (item) =>
-            '${item.unit} • ${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: controller.currencySymbol.value)}',
+            '${item.type.label} • ${item.unit} • ${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: controller.currencySymbol.value)}',
+        iconFor: (item) => item.type.name == 'service'
+            ? Icons.design_services_outlined
+            : Icons.inventory_2_outlined,
         emptyTitle: 'Nothing saved yet',
         emptyMessage:
             'Create a reusable product or service, then add it to this invoice.',
@@ -725,9 +732,14 @@ Future<void> _selectCustomer(
     showDragHandle: true,
     builder: (_) => _SelectionSheet<CustomerModel>(
       title: 'Who is this invoice for?',
+      description: 'Choose saved billing details for this invoice.',
+      itemLabel: 'customers',
       future: controller.customers(),
       titleFor: (item) => item.name,
-      subtitleFor: (item) => item.companyName ?? item.mobile ?? 'Customer',
+      subtitleFor: (item) => [item.companyName, item.mobile]
+          .whereType<String>()
+          .where((value) => value.trim().isNotEmpty)
+          .join(' • '),
       emptyTitle: 'No customers yet',
       emptyMessage: 'Create your first customer to start this invoice.',
       actionLabel: 'Create new customer',
@@ -1149,6 +1161,8 @@ class _AddItemOption extends StatelessWidget {
 class _SelectionSheet<T> extends StatefulWidget {
   const _SelectionSheet({
     required this.title,
+    required this.description,
+    required this.itemLabel,
     required this.future,
     required this.titleFor,
     required this.subtitleFor,
@@ -1157,8 +1171,11 @@ class _SelectionSheet<T> extends StatefulWidget {
     this.actionLabel,
     this.actionIcon,
     this.onAction,
+    this.iconFor,
   });
   final String title;
+  final String description;
+  final String itemLabel;
   final Future<List<T>> future;
   final String Function(T) titleFor;
   final String Function(T) subtitleFor;
@@ -1167,19 +1184,27 @@ class _SelectionSheet<T> extends StatefulWidget {
   final String? actionLabel;
   final IconData? actionIcon;
   final Future<T?> Function()? onAction;
+  final IconData Function(T)? iconFor;
 
   @override
   State<_SelectionSheet<T>> createState() => _SelectionSheetState<T>();
 }
 
 class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
+  final search = TextEditingController();
   String query = '';
+
+  @override
+  void dispose() {
+    search.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: SizedBox(
-        height: MediaQuery.sizeOf(context).height * .65,
+        height: MediaQuery.sizeOf(context).height * .76,
         child: Column(
           children: [
             Padding(
@@ -1187,19 +1212,65 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(widget.title, style: AppTextStyles.sectionTitle),
-                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(
+                          widget.actionIcon ?? Icons.checklist_rounded,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.title,
+                              style: AppTextStyles.sectionTitle,
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              widget.description,
+                              style: AppTextStyles.small.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   TextField(
+                    controller: search,
                     onChanged: (value) => setState(() => query = value),
-                    decoration: const InputDecoration(
-                      hintText: 'Search',
-                      prefixIcon: Icon(Icons.search_rounded),
+                    decoration: InputDecoration(
+                      hintText: 'Search ${widget.itemLabel}',
+                      prefixIcon: const Icon(Icons.search_rounded),
+                      suffixIcon: query.isEmpty
+                          ? null
+                          : IconButton(
+                              tooltip: 'Clear search',
+                              onPressed: () {
+                                search.clear();
+                                setState(() => query = '');
+                              },
+                              icon: const Icon(Icons.close_rounded),
+                            ),
                     ),
                   ),
                   if (widget.actionLabel != null &&
                       widget.onAction != null) ...[
                     const SizedBox(height: 12),
-                    FilledButton.tonalIcon(
+                    OutlinedButton.icon(
                       onPressed: _runAction,
                       icon: Icon(
                         widget.actionIcon ?? Icons.add_rounded,
@@ -1211,7 +1282,7 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Expanded(
               child: FutureBuilder<List<T>>(
                 future: widget.future,
@@ -1256,11 +1327,22 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
                             ),
                             const SizedBox(height: 14),
                             Text(
-                              widget.emptyTitle,
+                              normalized.isEmpty
+                                  ? widget.emptyTitle
+                                  : 'No matching ${widget.itemLabel}',
                               textAlign: TextAlign.center,
                               style: AppTextStyles.cardTitle,
                             ),
-                            if (widget.emptyMessage != null) ...[
+                            if (normalized.isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Text(
+                                'Try a different name, number, or detail.',
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.body.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ] else if (widget.emptyMessage != null) ...[
                               const SizedBox(height: 6),
                               Text(
                                 widget.emptyMessage!,
@@ -1275,24 +1357,34 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
                       ),
                     );
                   }
-                  return ListView.builder(
-                    itemCount: items.length,
+                  return ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
+                    itemCount: items.length + 1,
+                    separatorBuilder: (_, _) => const SizedBox(height: 9),
                     itemBuilder: (_, index) {
-                      final item = items[index];
-                      return ListTile(
-                        leading: CircleAvatar(
+                      if (index == 0) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 2),
                           child: Text(
-                            widget.titleFor(item).trim().isEmpty
-                                ? '?'
-                                : widget
-                                      .titleFor(item)
-                                      .characters
-                                      .first
-                                      .toUpperCase(),
+                            '${items.length} ${widget.itemLabel}',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                        ),
-                        title: Text(widget.titleFor(item)),
-                        subtitle: Text(widget.subtitleFor(item)),
+                        );
+                      }
+                      final item = items[index - 1];
+                      return _SelectionResultTile(
+                        icon: widget.iconFor?.call(item),
+                        fallback: widget.titleFor(item).trim().isEmpty
+                            ? '?'
+                            : widget
+                                  .titleFor(item)
+                                  .characters
+                                  .first
+                                  .toUpperCase(),
+                        title: widget.titleFor(item),
+                        subtitle: widget.subtitleFor(item),
                         onTap: () => AppFocus.pop(context, item),
                       );
                     },
@@ -1312,6 +1404,98 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
       AppFocus.pop(context, created);
     }
   }
+}
+
+class _SelectionResultTile extends StatelessWidget {
+  const _SelectionResultTile({
+    required this.fallback,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.icon,
+  });
+
+  final IconData? icon;
+  final String fallback;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: Theme.of(context).colorScheme.surface,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(17),
+      side: const BorderSide(color: AppColors.border),
+    ),
+    clipBehavior: Clip.antiAlias,
+    child: InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: icon == null
+                  ? Text(
+                      fallback,
+                      style: AppTextStyles.cardTitle.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    )
+                  : Icon(icon, color: AppColors.primary, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.cardTitle,
+                  ),
+                  if (subtitle.trim().isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.small.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceSoft,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.add_rounded,
+                size: 19,
+                color: AppColors.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _ItemSheet extends StatefulWidget {
