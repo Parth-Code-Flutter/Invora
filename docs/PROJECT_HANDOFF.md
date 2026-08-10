@@ -191,6 +191,18 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Streamlined catalog item form
+
+- Removed the large decorative catalog hero and nested essential-details card
+  from product/service creation, bringing required inputs above the fold.
+- Added a compact type selector, explicit `2 required` guidance, non-destructive
+  price hint, shorter optional description, and a quieter progressive section
+  for unit, tax, and HSN/SAC.
+- The sticky action now names the selected item type (`Save product` or
+  `Save service`) while edit mode continues to use `Save changes`.
+- Important file: product form screen.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Instant main-tab switching
 
 - Changed Home, Invoices, Customers, and More to use zero-duration route

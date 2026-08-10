@@ -45,98 +45,117 @@ class ProductFormScreen extends GetView<ProductFormController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const _CatalogIntro(),
+                            Text(
+                              controller.isEditing
+                                  ? 'Update catalog item'
+                                  : 'Create a reusable item',
+                              style: AppTextStyles.pageTitle,
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              'Only a name and price are required. Add invoice details when useful.',
+                              style: AppTextStyles.secondaryBody.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
                             const SizedBox(height: 20),
-                            AppCard(
-                              padding: const EdgeInsets.all(18),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'What are you selling?',
-                                    style: AppTextStyles.sectionTitle,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Choose a type so invoices use the right language.',
-                                    style: AppTextStyles.small.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 14),
-                                  Obx(
-                                    () => SizedBox(
-                                      width: double.infinity,
-                                      child: SegmentedButton<ItemType>(
-                                        segments: const [
-                                          ButtonSegment(
-                                            value: ItemType.product,
-                                            label: Text('Product'),
-                                            icon: Icon(
-                                              Icons.inventory_2_outlined,
-                                            ),
-                                          ),
-                                          ButtonSegment(
-                                            value: ItemType.service,
-                                            label: Text('Service'),
-                                            icon: Icon(
-                                              Icons.design_services_outlined,
-                                            ),
-                                          ),
-                                        ],
-                                        selected: {controller.type.value},
-                                        onSelectionChanged: (selection) =>
-                                            controller.selectType(
-                                              selection.first,
-                                            ),
+                            Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceMuted,
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              child: Obx(
+                                () => SizedBox(
+                                  width: double.infinity,
+                                  child: SegmentedButton<ItemType>(
+                                    segments: const [
+                                      ButtonSegment(
+                                        value: ItemType.product,
+                                        label: Text('Product'),
+                                        icon: Icon(Icons.inventory_2_outlined),
                                       ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _ResponsiveFields(
-                                    children: [
-                                      AppTextField(
-                                        controller: controller.name,
-                                        label: 'Item name *',
-                                        hint: 'e.g. Brand consultation',
-                                        prefixIcon: Icons.sell_outlined,
-                                        validator: controller.validateName,
-                                        textCapitalization:
-                                            TextCapitalization.words,
-                                      ),
-                                      Obx(
-                                        () => AppTextField(
-                                          controller: controller.salePrice,
-                                          label:
-                                              'Sale price (${controller.currencySymbol.value}) *',
-                                          prefixIcon:
-                                              Icons.currency_rupee_rounded,
-                                          validator: controller.validatePrice,
-                                          keyboardType:
-                                              const TextInputType.numberWithOptions(
-                                                decimal: true,
-                                              ),
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter.allow(
-                                              RegExp(r'^\d*\.?\d{0,2}'),
-                                            ),
-                                          ],
+                                      ButtonSegment(
+                                        value: ItemType.service,
+                                        label: Text('Service'),
+                                        icon: Icon(
+                                          Icons.design_services_outlined,
                                         ),
                                       ),
                                     ],
+                                    selected: {controller.type.value},
+                                    onSelectionChanged: (selection) =>
+                                        controller.selectType(selection.first),
                                   ),
-                                  const SizedBox(height: 12),
-                                  AppTextField(
-                                    controller: controller.description,
-                                    label: 'Invoice description',
-                                    hint: 'What is included? (optional)',
-                                    prefixIcon: Icons.notes_rounded,
-                                    maxLines: 3,
-                                    textCapitalization:
-                                        TextCapitalization.sentences,
-                                  ),
-                                ],
+                                ),
                               ),
+                            ),
+                            const SizedBox(height: 24),
+                            Row(
+                              children: [
+                                Text(
+                                  'Essentials',
+                                  style: AppTextStyles.sectionTitle,
+                                ),
+                                const Spacer(),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryLight,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '2 required',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.primaryDark,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            _ResponsiveFields(
+                              children: [
+                                AppTextField(
+                                  controller: controller.name,
+                                  label: 'Item name *',
+                                  hint: 'e.g. Brand consultation',
+                                  prefixIcon: Icons.sell_outlined,
+                                  validator: controller.validateName,
+                                  textCapitalization: TextCapitalization.words,
+                                ),
+                                Obx(
+                                  () => AppTextField(
+                                    controller: controller.salePrice,
+                                    label:
+                                        'Sale price (${controller.currencySymbol.value}) *',
+                                    hint: '0.00',
+                                    prefixIcon: Icons.currency_rupee_rounded,
+                                    validator: controller.validatePrice,
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                          decimal: true,
+                                        ),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            AppTextField(
+                              controller: controller.description,
+                              label: 'Description',
+                              hint: 'Optional text shown on the invoice',
+                              prefixIcon: Icons.notes_rounded,
+                              maxLines: 2,
+                              textCapitalization: TextCapitalization.sentences,
                             ),
                             const SizedBox(height: 16),
                             AppCard(
@@ -168,11 +187,11 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                   ),
                                 ),
                                 title: Text(
-                                  'Unit, tax & classification',
+                                  'Invoice details',
                                   style: AppTextStyles.cardTitle,
                                 ),
                                 subtitle: Text(
-                                  'Optional invoice details',
+                                  'Unit, tax and HSN/SAC · optional',
                                   style: AppTextStyles.small.copyWith(
                                     color: AppColors.textSecondary,
                                   ),
@@ -273,24 +292,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 18),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.bolt_rounded,
-                                  color: AppColors.primary,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  'Reusable on every future invoice',
-                                  style: AppTextStyles.small.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            const SizedBox(height: 12),
                           ],
                         ),
                       ),
@@ -314,7 +316,9 @@ class ProductFormScreen extends GetView<ProductFormController> {
           ),
           child: Obx(
             () => AppButton(
-              label: controller.isEditing ? 'Save changes' : 'Save to catalog',
+              label: controller.isEditing
+                  ? 'Save changes'
+                  : 'Save ${controller.type.value == ItemType.product ? 'product' : 'service'}',
               icon: Icons.check_rounded,
               isLoading: controller.isSaving.value,
               onPressed: controller.save,
@@ -324,67 +328,6 @@ class ProductFormScreen extends GetView<ProductFormController> {
       ),
     );
   }
-}
-
-class _CatalogIntro extends StatelessWidget {
-  const _CatalogIntro();
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      gradient: const LinearGradient(
-        colors: [AppColors.secondary, AppColors.primary],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      borderRadius: BorderRadius.circular(24),
-      boxShadow: [
-        BoxShadow(
-          color: AppColors.primary.withValues(alpha: .18),
-          blurRadius: 24,
-          offset: const Offset(0, 10),
-        ),
-      ],
-    ),
-    child: Row(
-      children: [
-        Container(
-          width: 54,
-          height: 54,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: .17),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: const Icon(
-            Icons.auto_awesome_rounded,
-            color: Colors.white,
-            size: 27,
-          ),
-        ),
-        const SizedBox(width: 15),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Build it once',
-                style: AppTextStyles.sectionTitle.copyWith(color: Colors.white),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Name and price are enough. Add tax details only when you need them.',
-                style: AppTextStyles.small.copyWith(
-                  color: Colors.white.withValues(alpha: .78),
-                  height: 1.35,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
 }
 
 class _ResponsiveFields extends StatelessWidget {
