@@ -208,6 +208,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Immediate default-unit selection feedback
+
+- Changed default-unit selection to update its `Obx` state immediately instead
+  of waiting for SharedPreferences I/O, so tapping a unit moves the checkmark
+  and Default unit label in the same interaction frame.
+- Persistence remains awaited and the previous selection is restored if the
+  write fails. `update()` is intentionally not used because this screen is
+  reactive with Rx/Obx rather than `GetBuilder`.
+- Important file: unit settings controller; added timing regression coverage.
+- No schema or storage-format changes. Verification includes full tests.
+
 ### 2026-08-11 — Unit-editor controller lifecycle fix
 
 - Fixed the Add/Rename unit dialog crash caused by disposing a locally-owned

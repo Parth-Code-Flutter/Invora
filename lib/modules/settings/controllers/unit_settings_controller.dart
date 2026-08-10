@@ -51,8 +51,16 @@ class UnitSettingsController extends GetxController {
   }
 
   Future<void> setDefault(String unit) async {
-    await _service.setDefault(unit);
+    if (selectedDefault.value == unit) return;
+    final previous = selectedDefault.value;
+    // Update the Obx-backed UI before waiting for preferences I/O.
     selectedDefault.value = unit;
+    try {
+      await _service.setDefault(unit);
+    } catch (_) {
+      selectedDefault.value = previous;
+      rethrow;
+    }
   }
 
   String _message(ArgumentError error) =>

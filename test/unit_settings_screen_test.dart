@@ -35,4 +35,18 @@ void main() {
     expect(controller.units, contains('bundle'));
     expect(tester.takeException(), isNull);
   });
+
+  test(
+    'default selection updates before preference persistence completes',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final service = UnitService(await AppStorage.create());
+      final controller = UnitSettingsController(service)..onInit();
+
+      final saving = controller.setDefault('kg');
+      expect(controller.selectedDefault.value, 'kg');
+      await saving;
+      expect(service.defaultUnit, 'kg');
+    },
+  );
 }
