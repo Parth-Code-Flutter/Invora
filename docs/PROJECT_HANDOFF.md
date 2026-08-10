@@ -208,6 +208,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Remaining-balance payment shortcut clarity
+
+- Clarified Record payment so its full-payment shortcut displays and fills the
+  exact outstanding balance, never the invoice grand total or cumulative paid
+  amount. For example, ₹182 total minus ₹100 already paid fills ₹82.
+- The field remains an “Amount received now” entry and repository validation
+  rejects values above the current balance before appending to payment history.
+- Important file: invoice details payment sheet. No schema/storage changes.
+- Verification: formatting, static analysis, full tests, and repository payment
+  coverage for successive partial payments and remaining-balance calculation.
+
 ### 2026-08-11 — Create-invoice review flow refinement
 
 - Anchored Review invoice/estimate to the far-right edge of the fixed bottom

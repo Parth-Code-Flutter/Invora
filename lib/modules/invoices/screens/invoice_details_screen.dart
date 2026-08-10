@@ -843,13 +843,21 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               onPressed: isSaving
                   ? null
                   : () {
-                      input.text = CurrencyUtils.toInputValue(
+                      final remaining = CurrencyUtils.toInputValue(
                         invoice.calculation.balanceDueMinor,
+                      );
+                      input.value = TextEditingValue(
+                        text: remaining,
+                        selection: TextSelection.collapsed(
+                          offset: remaining.length,
+                        ),
                       );
                       setState(() => error = null);
                     },
               icon: const Icon(Icons.check_circle_outline_rounded),
-              label: const Text('Mark as fully paid'),
+              label: Text(
+                'Mark as fully paid • ${CurrencyUtils.formatMinor(invoice.calculation.balanceDueMinor, symbol: symbol)}',
+              ),
             ),
             const SizedBox(height: 12),
             Row(
