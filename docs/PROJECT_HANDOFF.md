@@ -191,6 +191,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Branded app-wide button system
+
+- Upgraded shared primary actions to a coral-to-plum brand gradient with white
+  icon/text treatment, subtle depth, clipped ink feedback, disabled styling,
+  and a high-contrast loading indicator.
+- Harmonized Material filled, tonal, outlined, and text buttons with consistent
+  52 px sizing, rounded geometry, 19 px icons, brand colors, pressed overlays,
+  and accessible disabled states across dialogs and feature screens.
+- Important files: shared app button and global app theme.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Unified AppBar and back navigation
 
 - Standardized all themed AppBars to a 64 px toolbar with consistent title

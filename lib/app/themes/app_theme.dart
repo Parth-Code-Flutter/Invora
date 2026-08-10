@@ -67,21 +67,50 @@ abstract final class AppTheme {
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          minimumSize: const Size(
-            AppSpacing.minTouchTarget,
-            AppSpacing.buttonHeight,
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
+              return isDark
+                  ? AppColors.darkSurfaceVariant
+                  : AppColors.surfaceMuted;
+            }
+            return AppColors.secondary;
+          }),
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
+              return isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.textTertiary;
+            }
+            return Colors.white;
+          }),
+          overlayColor: WidgetStatePropertyAll(
+            Colors.white.withValues(alpha: .12),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
+          minimumSize: const WidgetStatePropertyAll(
+            Size(AppSpacing.minTouchTarget, AppSpacing.buttonHeight),
           ),
-          textStyle: AppTextStyles.button,
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 20),
+          ),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
+            ),
+          ),
+          elevation: const WidgetStatePropertyAll(0),
+          textStyle: const WidgetStatePropertyAll(AppTextStyles.button),
+          iconSize: const WidgetStatePropertyAll(19),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: isDark
+              ? AppColors.darkTextPrimary
+              : AppColors.secondary,
+          backgroundColor: isDark
+              ? AppColors.darkSurfaceVariant
+              : AppColors.surfaceSoft,
           minimumSize: const Size(
             AppSpacing.minTouchTarget,
             AppSpacing.buttonHeight,
@@ -98,7 +127,9 @@ abstract final class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: isDark
+              ? AppColors.darkTextPrimary
+              : AppColors.secondary,
           minimumSize: const Size(
             AppSpacing.minTouchTarget,
             AppSpacing.minTouchTarget,

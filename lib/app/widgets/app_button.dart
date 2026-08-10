@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../constants/app_colors.dart';
 import '../utils/responsive_utils.dart';
 import '../constants/app_spacing.dart';
+import '../themes/app_text_styles.dart';
 
 class AppButton extends StatelessWidget {
   const AppButton({
@@ -21,10 +23,18 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final enabled = onPressed != null && !isLoading;
+    final branded = onPressed != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final child = isLoading
-        ? const SizedBox.square(
-            dimension: 20,
-            child: CircularProgressIndicator(strokeWidth: 2),
+        ? const SizedBox(
+            key: ValueKey('app-button-loader'),
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
           )
         : Row(
             mainAxisSize: MainAxisSize.min,
@@ -34,18 +44,63 @@ class AppButton extends StatelessWidget {
                 Icon(icon, size: 20),
                 const SizedBox(width: 8),
               ],
-              Text(label),
+              Text(label, style: AppTextStyles.button),
             ],
           );
 
     final button = Semantics(
       button: true,
       label: label,
-      child: SizedBox(
+      enabled: enabled,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
         height: ResponsiveUtils.height(context, AppSpacing.buttonHeight),
-        child: FilledButton(
-          onPressed: isLoading ? null : onPressed,
-          child: child,
+        decoration: BoxDecoration(
+          gradient: branded
+              ? const LinearGradient(
+                  colors: [AppColors.primary, AppColors.secondary],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
+              : null,
+          color: branded
+              ? null
+              : isDark
+              ? AppColors.darkSurfaceVariant
+              : AppColors.surfaceMuted,
+          borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
+          boxShadow: branded
+              ? [
+                  BoxShadow(
+                    color: AppColors.secondary.withValues(alpha: .2),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : null,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: enabled ? onPressed : null,
+            overlayColor: WidgetStatePropertyAll(
+              Colors.white.withValues(alpha: .12),
+            ),
+            child: Center(
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  color: branded ? Colors.white : AppColors.textTertiary,
+                ),
+                child: IconTheme(
+                  data: IconThemeData(
+                    color: branded ? Colors.white : AppColors.textTertiary,
+                  ),
+                  child: child,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

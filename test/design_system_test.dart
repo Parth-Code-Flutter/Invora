@@ -8,12 +8,38 @@ import 'package:creovo_invoice/app/widgets/app_module_banner.dart';
 import 'package:creovo_invoice/app/widgets/app_search_app_bar.dart';
 import 'package:creovo_invoice/app/utils/app_focus.dart';
 import 'package:creovo_invoice/app/widgets/app_back_button.dart';
+import 'package:creovo_invoice/app/widgets/app_button.dart';
 import 'package:creovo_invoice/app/widgets/app_filter_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_search_field.dart';
 import 'package:creovo_invoice/app/widgets/app_status_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_text_field.dart';
 
 void main() {
+  testWidgets('primary action uses branded surface and loading semantics', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: AppButton(
+            label: 'Save customer',
+            isLoading: true,
+            onPressed: () {},
+          ),
+        ),
+      ),
+    );
+
+    final decoration =
+        tester
+                .widget<AnimatedContainer>(find.byType(AnimatedContainer).first)
+                .decoration
+            as BoxDecoration;
+    expect(decoration.gradient, isA<LinearGradient>());
+    expect(find.byKey(const ValueKey('app-button-loader')), findsOneWidget);
+  });
+
   testWidgets('shared fields and status chip expose clear semantics', (
     tester,
   ) async {
