@@ -42,19 +42,30 @@ class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           child: Obx(
-            () => FilledButton.icon(
-              onPressed: controller.isSaving.value
-                  ? null
-                  : () => controller.save(draft: false),
-              icon: controller.isSaving.value
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.check_rounded),
-              label: Text(
-                controller.isQuotation ? 'Save quotation' : 'Save invoice',
-              ),
+            () => Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Total'),
+                      Text(
+                        CurrencyUtils.formatMinor(
+                          controller.calculation.value?.grandTotalMinor ?? 0,
+                          symbol: controller.currencySymbol.value,
+                        ),
+                        style: AppTextStyles.cardTitle,
+                      ),
+                    ],
+                  ),
+                ),
+                FilledButton.icon(
+                  onPressed: controller.preview,
+                  icon: const Icon(Icons.visibility_outlined),
+                  label: const Text('Preview'),
+                ),
+              ],
             ),
           ),
         ),
@@ -85,7 +96,7 @@ class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
             horizontal: ResponsiveUtils.horizontalPadding(context),
             vertical: 12,
           ),
-          children: [form, const SizedBox(height: 16), summary],
+          children: [form, const SizedBox(height: 16)],
         );
       }),
     );
@@ -230,94 +241,120 @@ class _InvoiceForm extends StatelessWidget {
               );
             }),
           const SizedBox(height: 8),
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Taxes & adjustments', style: AppTextStyles.sectionTitle),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<TaxType>(
-                  initialValue: controller.taxType.value,
-                  decoration: const InputDecoration(labelText: 'Tax mode'),
-                  items: const [
-                    DropdownMenuItem(
-                      value: TaxType.none,
-                      child: Text('No tax'),
-                    ),
-                    DropdownMenuItem(
-                      value: TaxType.cgstSgst,
-                      child: Text('CGST + SGST'),
-                    ),
-                    DropdownMenuItem(value: TaxType.igst, child: Text('IGST')),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) controller.setTaxType(value);
-                  },
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Invoice discount'),
-                  subtitle: Text(
-                    _discountLabel(
-                      controller.invoiceDiscount.value,
-                      controller.currencySymbol.value,
-                    ),
+          if (!ResponsiveUtils.isTablet(context)) ...[
+            _InvoiceSummary(controller: controller),
+            const SizedBox(height: 12),
+          ],
+          OutlinedButton.icon(
+            onPressed: controller.toggleMoreOptions,
+            icon: Icon(
+              controller.showMoreOptions.value
+                  ? Icons.expand_less_rounded
+                  : Icons.tune_rounded,
+            ),
+            label: Text(
+              controller.showMoreOptions.value
+                  ? 'Hide more options'
+                  : 'Tax, discount & more',
+            ),
+          ),
+          if (controller.showMoreOptions.value) ...[
+            const SizedBox(height: 12),
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Taxes & adjustments',
+                    style: AppTextStyles.sectionTitle,
                   ),
-                  trailing: const Icon(Icons.edit_outlined),
-                  onTap: () => _editDiscount(context),
-                ),
-                ...controller.charges.asMap().entries.map(
-                  (entry) => ListTile(
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<TaxType>(
+                    initialValue: controller.taxType.value,
+                    decoration: const InputDecoration(labelText: 'Tax mode'),
+                    items: const [
+                      DropdownMenuItem(
+                        value: TaxType.none,
+                        child: Text('No tax'),
+                      ),
+                      DropdownMenuItem(
+                        value: TaxType.cgstSgst,
+                        child: Text('CGST + SGST'),
+                      ),
+                      DropdownMenuItem(
+                        value: TaxType.igst,
+                        child: Text('IGST'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) controller.setTaxType(value);
+                    },
+                  ),
+                  ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: Text(entry.value.title),
+                    title: const Text('Invoice discount'),
                     subtitle: Text(
-                      CurrencyUtils.formatMinor(
-                        entry.value.amountMinor,
-                        symbol: controller.currencySymbol.value,
+                      _discountLabel(
+                        controller.invoiceDiscount.value,
+                        controller.currencySymbol.value,
                       ),
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => controller.removeCharge(entry.key),
+                    trailing: const Icon(Icons.edit_outlined),
+                    onTap: () => _editDiscount(context),
+                  ),
+                  ...controller.charges.asMap().entries.map(
+                    (entry) => ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(entry.value.title),
+                      subtitle: Text(
+                        CurrencyUtils.formatMinor(
+                          entry.value.amountMinor,
+                          symbol: controller.currencySymbol.value,
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => controller.removeCharge(entry.key),
+                      ),
                     ),
                   ),
-                ),
-                TextButton.icon(
-                  onPressed: () => _addCharge(context),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Additional charge'),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          AppCard(
-            child: Column(
-              children: [
-                TextField(
-                  controller: controller.paidController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
+                  TextButton.icon(
+                    onPressed: () => _addCharge(context),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Additional charge'),
                   ),
-                  decoration: const InputDecoration(labelText: 'Amount paid'),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: controller.notesController,
-                  maxLines: 2,
-                  decoration: const InputDecoration(labelText: 'Notes'),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: controller.termsController,
-                  maxLines: 2,
-                  decoration: const InputDecoration(
-                    labelText: 'Terms & conditions',
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            const SizedBox(height: 12),
+            AppCard(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: controller.paidController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(labelText: 'Amount paid'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller.notesController,
+                    maxLines: 2,
+                    decoration: const InputDecoration(labelText: 'Notes'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller.termsController,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      labelText: 'Terms & conditions',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -529,7 +566,7 @@ class _InvoiceSummary extends StatelessWidget {
   }
 }
 
-class _SelectionSheet<T> extends StatelessWidget {
+class _SelectionSheet<T> extends StatefulWidget {
   const _SelectionSheet({
     required this.title,
     required this.future,
@@ -542,31 +579,80 @@ class _SelectionSheet<T> extends StatelessWidget {
   final String Function(T) subtitleFor;
 
   @override
+  State<_SelectionSheet<T>> createState() => _SelectionSheetState<T>();
+}
+
+class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
+  String query = '';
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: SizedBox(
         height: MediaQuery.sizeOf(context).height * .65,
         child: Column(
           children: [
-            Text(title, style: AppTextStyles.sectionTitle),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(widget.title, style: AppTextStyles.sectionTitle),
+                  const SizedBox(height: 12),
+                  TextField(
+                    onChanged: (value) => setState(() => query = value),
+                    decoration: const InputDecoration(
+                      hintText: 'Search',
+                      prefixIcon: Icon(Icons.search_rounded),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 8),
             Expanded(
               child: FutureBuilder<List<T>>(
-                future: future,
+                future: widget.future,
                 builder: (_, snapshot) {
                   if (!snapshot.hasData) {
                     return const Center(child: CircularProgressIndicator());
                   }
-                  if (snapshot.data!.isEmpty) {
+                  final normalized = query.trim().toLowerCase();
+                  final items = snapshot.data!
+                      .where(
+                        (item) =>
+                            normalized.isEmpty ||
+                            widget
+                                .titleFor(item)
+                                .toLowerCase()
+                                .contains(normalized) ||
+                            widget
+                                .subtitleFor(item)
+                                .toLowerCase()
+                                .contains(normalized),
+                      )
+                      .toList();
+                  if (items.isEmpty) {
                     return const Center(child: Text('Nothing saved yet.'));
                   }
                   return ListView.builder(
-                    itemCount: snapshot.data!.length,
+                    itemCount: items.length,
                     itemBuilder: (_, index) {
-                      final item = snapshot.data![index];
+                      final item = items[index];
                       return ListTile(
-                        title: Text(titleFor(item)),
-                        subtitle: Text(subtitleFor(item)),
+                        leading: CircleAvatar(
+                          child: Text(
+                            widget.titleFor(item).trim().isEmpty
+                                ? '?'
+                                : widget
+                                      .titleFor(item)
+                                      .characters
+                                      .first
+                                      .toUpperCase(),
+                          ),
+                        ),
+                        title: Text(widget.titleFor(item)),
+                        subtitle: Text(widget.subtitleFor(item)),
                         onTap: () => Navigator.pop(context, item),
                       );
                     },

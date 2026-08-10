@@ -9,6 +9,7 @@ import '../../../data/repositories/invoice_repository.dart';
 import '../../../data/services/invoice_pdf_service.dart';
 import '../../../data/services/app_storage.dart';
 import '../../../app/constants/app_storage_key_const.dart';
+import '../../../app/routes/app_routes.dart';
 
 class InvoicePreviewController extends GetxController {
   InvoicePreviewController(
@@ -25,6 +26,7 @@ class InvoicePreviewController extends GetxController {
   final business = Rxn<BusinessProfileModel>();
   final template = InvoiceTemplate.professional.obs;
   final isLoading = true.obs;
+  final isSavingDocument = false.obs;
 
   @override
   void onInit() {
@@ -42,8 +44,12 @@ class InvoicePreviewController extends GetxController {
         orElse: () => InvoiceTemplate.professional,
       );
     }
-    final id = Get.arguments;
-    if (id is int) invoice.value = await _invoices.getById(id);
+    final argument = Get.arguments;
+    if (argument is InvoiceModel) {
+      invoice.value = argument;
+    } else if (argument is int) {
+      invoice.value = await _invoices.getById(argument);
+    }
     business.value = await _business.getProfile();
     isLoading.value = false;
   }
@@ -68,13 +74,27 @@ class InvoicePreviewController extends GetxController {
     template: template.value,
   );
 
-  Future<void> save() async {
+  Future<void> savePdf() async {
     final path = await _pdf.saveInvoice(
       invoice: invoice.value!,
       business: business.value!,
       template: template.value,
     );
     if (path != null) Get.snackbar('PDF saved', path);
+  }
+
+  Future<void> saveDocument() async {
+    final document = invoice.value;
+    if (document == null || isSavingDocument.value) return;
+    isSavingDocument.value = true;
+    try {
+      final saved = await _invoices.save(document);
+      invoice.value = saved;
+      Get.snackbar('Invoice saved', saved.invoiceNumber);
+      Get.offAllNamed<void>(AppRoutes.invoices);
+    } finally {
+      isSavingDocument.value = false;
+    }
   }
 
   Future<void> print() => _pdf.printInvoice(

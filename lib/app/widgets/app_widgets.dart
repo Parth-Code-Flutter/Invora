@@ -6,6 +6,7 @@ export 'app_bottom_sheet.dart';
 export 'app_confirm_dialog.dart';
 export 'app_amount_text.dart';
 export 'app_list_tile.dart';
+export 'app_main_navigation.dart';
 export 'app_card.dart';
 export 'app_empty_state.dart';
 export 'app_section_header.dart';

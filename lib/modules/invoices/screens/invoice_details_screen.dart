@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../app/constants/app_colors.dart';
 import '../../../app/enums/invoice_status.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
@@ -9,6 +8,7 @@ import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/invoice_details_controller.dart';
 
@@ -34,16 +34,6 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
               arguments: controller.invoice.value?.id,
             ),
             icon: const Icon(Icons.picture_as_pdf_outlined),
-          ),
-          Obx(
-            () => IconButton(
-              tooltip: 'Edit invoice',
-              onPressed:
-                  controller.invoice.value?.status == InvoiceStatus.cancelled
-                  ? null
-                  : controller.edit,
-              icon: const Icon(Icons.edit_outlined),
-            ),
           ),
           Obx(
             () => PopupMenuButton<String>(
@@ -75,6 +65,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                       ),
                     ]
                   : const [
+                      PopupMenuItem(value: 'edit', child: Text('Edit')),
                       PopupMenuItem(
                         value: 'duplicate',
                         child: Text('Duplicate'),
@@ -112,10 +103,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
               children: [
                 Text(invoice.invoiceNumber, style: AppTextStyles.pageTitle),
                 const SizedBox(height: 6),
-                Text(
-                  invoice.status.name.toUpperCase(),
-                  style: AppTextStyles.small.copyWith(color: AppColors.primary),
-                ),
+                AppStatusChip(status: invoice.status),
                 const SizedBox(height: 16),
                 Text(
                   CurrencyUtils.formatMinor(
@@ -126,6 +114,32 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                 ),
               ],
             ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () => Get.toNamed<void>(
+                    AppRoutes.invoicePreview,
+                    arguments: invoice.id,
+                  ),
+                  icon: const Icon(Icons.share_outlined),
+                  label: const Text('Share / print'),
+                ),
+              ),
+              if (invoice.documentType == DocumentType.invoice &&
+                  invoice.status != InvoiceStatus.cancelled &&
+                  invoice.calculation.balanceDueMinor > 0) ...[
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showPaymentDialog(context),
+                    icon: const Icon(Icons.payments_outlined),
+                    label: const Text('Record payment'),
+                  ),
+                ),
+              ],
+            ],
           ),
           AppCard(
             child: Column(
@@ -228,6 +242,9 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
 
   Future<void> _handleAction(BuildContext context, String action) async {
     switch (action) {
+      case 'edit':
+        await controller.edit();
+        return;
       case 'duplicate':
         await controller.duplicate();
         return;
@@ -274,37 +291,76 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
       text: CurrencyUtils.toInputValue(invoice.calculation.paidAmountMinor),
     );
     String? error;
-    await showDialog<void>(
+    await showModalBottomSheet<void>(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (_, setState) => AlertDialog(
-          title: const Text('Update payment'),
-          content: TextField(
-            controller: input,
-            autofocus: true,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: 'Total amount paid',
-              errorText: error,
-            ),
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (_, setState) => Padding(
+          padding: EdgeInsets.fromLTRB(
+            20,
+            4,
+            20,
+            MediaQuery.viewInsetsOf(sheetContext).bottom + 20,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                final validation = await controller.updatePayment(input.text);
-                if (validation == null && dialogContext.mounted) {
-                  Navigator.pop(dialogContext);
-                } else {
-                  setState(() => error = validation);
-                }
-              },
-              child: const Text('Save'),
-            ),
-          ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('Record payment', style: AppTextStyles.sectionTitle),
+              const SizedBox(height: 16),
+              _PaymentRow(
+                label: 'Invoice total',
+                amount: invoice.calculation.grandTotalMinor,
+                symbol: controller.currencySymbol.value,
+              ),
+              _PaymentRow(
+                label: 'Already paid',
+                amount: invoice.calculation.paidAmountMinor,
+                symbol: controller.currencySymbol.value,
+              ),
+              _PaymentRow(
+                label: 'Balance due',
+                amount: invoice.calculation.balanceDueMinor,
+                symbol: controller.currencySymbol.value,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: input,
+                autofocus: true,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Total amount paid',
+                  errorText: error,
+                ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: () => input.text = CurrencyUtils.toInputValue(
+                  invoice.calculation.grandTotalMinor,
+                ),
+                child: const Text('Mark as fully paid'),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => Navigator.pop(sheetContext),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  final validation = await controller.updatePayment(input.text);
+                  if (validation == null && sheetContext.mounted) {
+                    Navigator.pop(sheetContext);
+                  } else {
+                    setState(() => error = validation);
+                  }
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -350,3 +406,28 @@ Widget _row(String label, int value, String symbol) => Padding(
     ],
   ),
 );
+
+class _PaymentRow extends StatelessWidget {
+  const _PaymentRow({
+    required this.label,
+    required this.amount,
+    required this.symbol,
+  });
+  final String label;
+  final int amount;
+  final String symbol;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: Row(
+      children: [
+        Expanded(child: Text(label)),
+        Text(
+          CurrencyUtils.formatMinor(amount, symbol: symbol),
+          style: AppTextStyles.cardTitle,
+        ),
+      ],
+    ),
+  );
+}

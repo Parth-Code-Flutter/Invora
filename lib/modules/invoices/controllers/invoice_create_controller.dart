@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../app/enums/invoice_status.dart';
 import '../../../app/enums/tax_type.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_calculation_models.dart';
@@ -43,6 +44,7 @@ class InvoiceCreateController extends GetxController {
   final calculation = Rxn<InvoiceCalculationResult>();
   final isLoading = true.obs;
   final isSaving = false.obs;
+  final showMoreOptions = false.obs;
   final currencySymbol = '₹'.obs;
   final notesController = TextEditingController();
   final termsController = TextEditingController();
@@ -70,9 +72,14 @@ class InvoiceCreateController extends GetxController {
   Future<void> _initialize() async {
     final profile = await _business.getProfile();
     currencySymbol.value = profile?.currencySymbol ?? '₹';
-    final argumentId = Get.arguments is int ? Get.arguments as int : null;
+    final arguments = Get.arguments;
+    final argumentId = arguments is int
+        ? arguments
+        : arguments is InvoiceEditorArgs
+        ? arguments.invoiceId
+        : null;
     final saved = argumentId == null
-        ? await _invoices.latestDraftOfType(documentType)
+        ? null
         : await _invoices.getById(argumentId);
     if (saved != null) {
       _restore(saved);
@@ -83,6 +90,16 @@ class InvoiceCreateController extends GetxController {
         startingNumber: isQuotation ? 1 : profile?.startingInvoiceNumber ?? 1,
       );
       recalculate();
+      if (arguments is InvoiceEditorArgs) {
+        if (arguments.customerId != null) {
+          final selected = await _customers.getById(arguments.customerId!);
+          if (selected != null) selectCustomer(selected);
+        }
+        if (arguments.productId != null) {
+          final selected = await _products.getById(arguments.productId!);
+          if (selected != null) addProduct(selected);
+        }
+      }
     }
     isLoading.value = false;
   }
@@ -146,6 +163,8 @@ class InvoiceCreateController extends GetxController {
     recalculate();
   }
 
+  void toggleMoreOptions() => showMoreOptions.toggle();
+
   void recalculate() {
     final paid = CurrencyUtils.parseMinor(paidController.text) ?? 0;
     calculation.value = _calculator.calculate(
@@ -182,11 +201,11 @@ class InvoiceCreateController extends GetxController {
       Get.snackbar('Invoice cancelled', 'Cancelled invoices cannot be edited.');
       return;
     }
-    if (customer.value == null) {
+    if (!draft && customer.value == null) {
       Get.snackbar('Customer required', 'Select a customer before saving.');
       return;
     }
-    if (items.isEmpty) {
+    if (!draft && items.isEmpty) {
       Get.snackbar('Items required', 'Add at least one invoice item.');
       return;
     }
@@ -196,38 +215,9 @@ class InvoiceCreateController extends GetxController {
     }
     isSaving.value = true;
     try {
-      recalculate();
-      final result = calculation.value!;
-      final paymentStatus = result.paymentStatus;
-      final status = draft
-          ? InvoiceStatus.draft
-          : isQuotation
-          ? InvoiceStatus.sent
-          : switch (paymentStatus) {
-              InvoicePaymentStatus.unpaid => InvoiceStatus.unpaid,
-              InvoicePaymentStatus.partiallyPaid => InvoiceStatus.partiallyPaid,
-              InvoicePaymentStatus.paid => InvoiceStatus.paid,
-            };
-      final saved = await _invoices.save(
-        InvoiceModel(
-          id: _id,
-          documentType: documentType,
-          invoiceNumber: invoiceNumber.value,
-          customer: customer.value!,
-          invoiceDate: invoiceDate.value,
-          dueDate: dueDate.value,
-          status: status,
-          taxType: taxType.value,
-          invoiceDiscount: invoiceDiscount.value,
-          items: List.of(items),
-          charges: List.of(charges),
-          calculation: result,
-          notes: _optional(notesController.text),
-          terms: _optional(termsController.text),
-          createdAt: _createdAt,
-          updatedAt: DateTime.now(),
-        ),
-      );
+      final model = buildDocument(draft: draft);
+      if (model == null) return;
+      final saved = await _invoices.save(model);
       _id = saved.id;
       Get.snackbar(
         draft ? 'Draft saved' : 'Invoice saved',
@@ -239,12 +229,64 @@ class InvoiceCreateController extends GetxController {
     }
   }
 
+  InvoiceModel? buildDocument({required bool draft}) {
+    if (!draft && (customer.value == null || items.isEmpty)) return null;
+    recalculate();
+    final result = calculation.value!;
+    final status = draft
+        ? InvoiceStatus.draft
+        : isQuotation
+        ? InvoiceStatus.sent
+        : switch (result.paymentStatus) {
+            InvoicePaymentStatus.unpaid => InvoiceStatus.unpaid,
+            InvoicePaymentStatus.partiallyPaid => InvoiceStatus.partiallyPaid,
+            InvoicePaymentStatus.paid => InvoiceStatus.paid,
+          };
+    return InvoiceModel(
+      id: _id,
+      documentType: documentType,
+      invoiceNumber: invoiceNumber.value,
+      customer: customer.value ?? const CustomerSnapshotModel(name: ''),
+      invoiceDate: invoiceDate.value,
+      dueDate: dueDate.value,
+      status: status,
+      taxType: taxType.value,
+      invoiceDiscount: invoiceDiscount.value,
+      items: List.of(items),
+      charges: List.of(charges),
+      calculation: result,
+      notes: _optional(notesController.text),
+      terms: _optional(termsController.text),
+      createdAt: _createdAt,
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  Future<void> preview() async {
+    if (customer.value == null) {
+      Get.snackbar('Select customer', 'Choose who this invoice is for.');
+      return;
+    }
+    if (items.isEmpty) {
+      Get.snackbar('Add an item', 'Add at least one product or service.');
+      return;
+    }
+    if (await _invoices.numberExists(invoiceNumber.value, excludingId: _id)) {
+      Get.snackbar('Invoice number in use', 'Choose another invoice number.');
+      return;
+    }
+    final model = buildDocument(draft: false);
+    if (model != null) {
+      await Get.toNamed<void>(AppRoutes.invoicePreview, arguments: model);
+    }
+  }
+
   void _restore(InvoiceModel model) {
     _id = model.id;
     _createdAt = model.createdAt;
     _originalStatus = model.status;
     invoiceNumber.value = model.invoiceNumber;
-    customer.value = model.customer;
+    customer.value = model.customer.name.isEmpty ? null : model.customer;
     invoiceDate.value = model.invoiceDate;
     dueDate.value = model.dueDate;
     taxType.value = model.taxType;

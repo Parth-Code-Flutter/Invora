@@ -10,6 +10,7 @@ import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_search_field.dart';
 import '../../../app/widgets/app_status_chip.dart';
+import '../../../app/widgets/app_main_navigation.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/invoice_list_controller.dart';
 
@@ -20,9 +21,19 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: AppMainNavigation(
+        current: quotation ? MainDestination.more : MainDestination.invoices,
+      ),
       appBar: AppBar(
         title: Text(quotation ? 'Quotations' : 'Invoices'),
         actions: [
+          IconButton(
+            tooltip: quotation ? 'Create estimate' : 'Create invoice',
+            onPressed: () => Get.toNamed<void>(
+              quotation ? AppRoutes.quotationCreate : AppRoutes.invoiceCreate,
+            ),
+            icon: const Icon(Icons.add_rounded),
+          ),
           Obx(
             () => PopupMenuButton<InvoiceSort>(
               tooltip: 'Sort invoices',
@@ -44,13 +55,6 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Get.toNamed<void>(
-          quotation ? AppRoutes.quotationCreate : AppRoutes.invoiceCreate,
-        ),
-        icon: const Icon(Icons.add_rounded),
-        label: Text(quotation ? 'Create quotation' : 'Create invoice'),
       ),
       body: Column(
         children: [
@@ -140,31 +144,10 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
                 );
               }
               final padding = ResponsiveUtils.horizontalPadding(context);
-              final columns = ResponsiveUtils.gridColumns(
-                context,
-                tablet: 2,
-                largeTablet: 3,
-              );
-              if (columns == 1) {
-                return ListView.separated(
-                  padding: EdgeInsets.fromLTRB(padding, 4, padding, 100),
-                  itemCount: controller.invoices.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
-                  itemBuilder: (_, index) => _InvoiceCard(
-                    invoice: controller.invoices[index],
-                    symbol: controller.currencySymbol.value,
-                  ),
-                );
-              }
-              return GridView.builder(
+              return ListView.separated(
                 padding: EdgeInsets.fromLTRB(padding, 4, padding, 100),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: columns,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  mainAxisExtent: 178,
-                ),
                 itemCount: controller.invoices.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (_, index) => _InvoiceCard(
                   invoice: controller.invoices[index],
                   symbol: controller.currencySymbol.value,
@@ -189,43 +172,39 @@ class _InvoiceCard extends StatelessWidget {
     return AppCard(
       onTap: () =>
           Get.toNamed<void>(AppRoutes.invoiceDetails, arguments: invoice.id),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  invoice.invoiceNumber,
+          CircleAvatar(
+            backgroundColor: AppColors.primary.withValues(alpha: .1),
+            child: const Icon(Icons.receipt_long_outlined),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  invoice.customerName.isEmpty
+                      ? 'Customer not selected'
+                      : invoice.customerName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.cardTitle,
                 ),
-              ),
-              AppStatusChip(status: status),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(invoice.customerName, style: AppTextStyles.body),
-          if (invoice.companyName?.isNotEmpty ?? false)
-            Text(
-              invoice.companyName!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.small.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          const Spacer(),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _date(invoice.invoiceDate),
+                const SizedBox(height: 3),
+                Text(
+                  '${invoice.invoiceNumber} • ${_date(invoice.invoiceDate)}',
                   style: AppTextStyles.small.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
-              ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
               Text(
                 CurrencyUtils.formatMinor(
                   invoice.grandTotalMinor,
@@ -233,6 +212,8 @@ class _InvoiceCard extends StatelessWidget {
                 ),
                 style: AppTextStyles.cardTitle,
               ),
+              const SizedBox(height: 6),
+              AppStatusChip(status: status),
             ],
           ),
         ],

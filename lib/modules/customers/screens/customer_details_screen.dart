@@ -5,7 +5,10 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
+import '../../../app/utils/currency_utils.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_status_chip.dart';
+import '../../../data/models/invoice_model.dart';
 import '../controllers/customer_details_controller.dart';
 
 class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
@@ -76,12 +79,18 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                         Expanded(
                           child: _MetricCard(
                             label: 'Total invoices',
-                            value: '—',
+                            value: '${controller.invoices.length}',
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _MetricCard(label: 'Outstanding', value: '—'),
+                          child: _MetricCard(
+                            label: 'Outstanding',
+                            value: CurrencyUtils.formatMinor(
+                              controller.outstandingMinor,
+                              symbol: controller.currencySymbol.value,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -130,15 +139,79 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    AppCard(
-                      child: ListTile(
-                        leading: const Icon(Icons.history_rounded),
-                        title: const Text('Recent invoices'),
-                        subtitle: const Text(
-                          'Invoice history will appear after the invoice module is added.',
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Recent invoices',
+                            style: AppTextStyles.sectionTitle,
+                          ),
                         ),
-                      ),
+                        TextButton.icon(
+                          onPressed: () => Get.toNamed<void>(
+                            AppRoutes.invoiceCreate,
+                            arguments: InvoiceEditorArgs(
+                              customerId: customer.id,
+                            ),
+                          ),
+                          icon: const Icon(Icons.add_rounded),
+                          label: const Text('Create invoice'),
+                        ),
+                      ],
                     ),
+                    if (controller.invoices.isEmpty)
+                      const AppCard(
+                        child: ListTile(
+                          leading: Icon(Icons.receipt_long_outlined),
+                          title: Text('No invoices yet'),
+                          subtitle: Text(
+                            'Create this customer’s first invoice.',
+                          ),
+                        ),
+                      )
+                    else
+                      ...controller.invoices
+                          .take(5)
+                          .map(
+                            (invoice) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: AppCard(
+                                onTap: () => Get.toNamed<void>(
+                                  AppRoutes.invoiceDetails,
+                                  arguments: invoice.id,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            invoice.invoiceNumber,
+                                            style: AppTextStyles.cardTitle,
+                                          ),
+                                          Text(
+                                            CurrencyUtils.formatMinor(
+                                              invoice.grandTotalMinor,
+                                              symbol: controller
+                                                  .currencySymbol
+                                                  .value,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    AppStatusChip(
+                                      status: invoice.effectiveStatus(
+                                        DateTime.now(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                   ],
                 ),
               ),

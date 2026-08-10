@@ -20,6 +20,13 @@ enum InvoiceSort { newest, oldest, highestAmount, lowestAmount }
 
 enum DocumentType { invoice, quotation }
 
+class InvoiceEditorArgs {
+  const InvoiceEditorArgs({this.invoiceId, this.customerId, this.productId});
+  final int? invoiceId;
+  final int? customerId;
+  final int? productId;
+}
+
 class InvoiceSummaryModel {
   const InvoiceSummaryModel({
     required this.id,

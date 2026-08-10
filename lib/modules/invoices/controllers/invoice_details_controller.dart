@@ -60,7 +60,7 @@ class InvoiceDetailsController extends GetxController {
         'Invoice duplicated',
         '${copy.invoiceNumber} saved as draft.',
       );
-      Get.offNamed<void>(AppRoutes.invoiceDetails, arguments: copy.id);
+      Get.offNamed<void>(AppRoutes.invoiceCreate, arguments: copy.id);
     } finally {
       isWorking.value = false;
     }

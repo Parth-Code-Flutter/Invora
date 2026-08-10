@@ -27,6 +27,7 @@ import '../../modules/backup_restore/bindings/backup_binding.dart';
 import '../../modules/backup_restore/screens/backup_screen.dart';
 import '../../modules/settings/bindings/settings_binding.dart';
 import '../../modules/settings/screens/settings_screen.dart';
+import '../../modules/settings/screens/more_screen.dart';
 import 'app_routes.dart';
 
 abstract final class AppRouter {
@@ -119,6 +120,7 @@ abstract final class AppRouter {
       page: InvoiceDetailsScreen.new,
       binding: InvoiceDetailsBinding(),
     ),
+    GetPage(name: AppRoutes.more, page: MoreScreen.new),
     GetPage(
       name: AppRoutes.settings,
       page: SettingsScreen.new,

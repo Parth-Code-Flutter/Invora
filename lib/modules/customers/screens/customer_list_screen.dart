@@ -8,6 +8,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_search_field.dart';
+import '../../../app/widgets/app_main_navigation.dart';
 import '../../../data/models/customer_model.dart';
 import '../controllers/customer_list_controller.dart';
 
@@ -18,10 +19,12 @@ class CustomerListScreen extends GetView<CustomerListController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Customers')),
-      floatingActionButton: FloatingActionButton.extended(
+      bottomNavigationBar: const AppMainNavigation(
+        current: MainDestination.customers,
+      ),
+      floatingActionButton: FloatingActionButton.small(
         onPressed: () => Get.toNamed<void>(AppRoutes.customerAdd),
-        icon: const Icon(Icons.person_add_alt_1_rounded),
-        label: const Text('Add customer'),
+        child: const Icon(Icons.person_add_alt_1_rounded),
       ),
       body: Column(
         children: [

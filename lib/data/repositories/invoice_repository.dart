@@ -141,6 +141,33 @@ class InvoiceRepository extends BaseRepository {
     });
   }
 
+  Stream<List<InvoiceSummaryModel>> watchCustomerInvoices(int customerId) {
+    final statement = database.select(database.invoices)
+      ..where(
+        (table) =>
+            table.documentType.equals(DocumentType.invoice.name) &
+            table.customerId.equals(customerId),
+      )
+      ..orderBy([(table) => OrderingTerm.desc(table.invoiceDate)]);
+    return statement.watch().map(
+      (rows) => rows
+          .map(
+            (row) => InvoiceSummaryModel(
+              id: row.id,
+              invoiceNumber: row.invoiceNumber,
+              customerName: row.customerName,
+              companyName: row.customerCompany,
+              invoiceDate: row.invoiceDate,
+              dueDate: row.dueDate,
+              status: InvoiceStatus.values.byName(row.status),
+              grandTotalMinor: row.grandTotalMinor,
+              balanceMinor: row.balanceMinor,
+            ),
+          )
+          .toList(),
+    );
+  }
+
   Future<String> nextInvoiceNumber({
     required String prefix,
     required int startingNumber,

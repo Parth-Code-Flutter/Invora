@@ -15,7 +15,7 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
         title: const Text('Invoice preview'),
         actions: [
           IconButton(
-            onPressed: controller.save,
+            onPressed: controller.savePdf,
             icon: const Icon(Icons.download_outlined),
             tooltip: 'Save PDF',
           ),
@@ -77,6 +77,27 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
               ),
             ),
           ],
+        );
+      }),
+      bottomNavigationBar: Obx(() {
+        final invoice = controller.invoice.value;
+        if (invoice == null) return const SizedBox.shrink();
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: FilledButton.icon(
+              onPressed: controller.isSavingDocument.value
+                  ? null
+                  : controller.saveDocument,
+              icon: controller.isSavingDocument.value
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.check_rounded),
+              label: const Text('Save invoice'),
+            ),
+          ),
         );
       }),
     );
