@@ -145,8 +145,13 @@ class _InvoiceForm extends StatelessWidget {
       () => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _WorkflowProgress(
+            hasCustomer: controller.customer.value != null,
+            hasItems: controller.items.isNotEmpty,
+          ),
+          const SizedBox(height: 14),
           AppCard(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: Column(
               children: [
                 InkWell(
@@ -154,19 +159,28 @@ class _InvoiceForm extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 23,
-                        backgroundColor: AppColors.primaryLight,
-                        child: Text(
-                          controller.customer.value?.name.trim().isNotEmpty ==
-                                  true
-                              ? controller.customer.value!.name.characters.first
-                                    .toUpperCase()
-                              : '?',
-                          style: AppTextStyles.cardTitle.copyWith(
-                            color: AppColors.primary,
-                          ),
+                      Container(
+                        width: 46,
+                        height: 46,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: controller.customer.value == null
+                              ? AppColors.primaryLight
+                              : AppColors.successLight,
+                          borderRadius: BorderRadius.circular(15),
                         ),
+                        child: controller.customer.value == null
+                            ? const Icon(
+                                Icons.person_search_outlined,
+                                color: AppColors.primary,
+                              )
+                            : Text(
+                                controller.customer.value!.name.characters.first
+                                    .toUpperCase(),
+                                style: AppTextStyles.cardTitle.copyWith(
+                                  color: AppColors.success,
+                                ),
+                              ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -182,7 +196,7 @@ class _InvoiceForm extends StatelessWidget {
                             Text(
                               controller.customer.value?.companyName ??
                                   controller.customer.value?.mobile ??
-                                  'Required before adding invoice details',
+                                  'Required to create this invoice',
                               style: AppTextStyles.small.copyWith(
                                 color: AppColors.textSecondary,
                               ),
@@ -190,8 +204,12 @@ class _InvoiceForm extends StatelessWidget {
                           ],
                         ),
                       ),
-                      TextButton(
+                      FilledButton.tonal(
                         onPressed: () => _selectCustomer(context, controller),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 42),
+                          padding: const EdgeInsets.symmetric(horizontal: 13),
+                        ),
                         child: Text(
                           controller.customer.value == null
                               ? 'Select'
@@ -201,40 +219,36 @@ class _InvoiceForm extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Divider(height: 26),
+                const Divider(height: 22),
                 Row(
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            controller.invoiceNumber.value,
-                            style: AppTextStyles.cardTitle.copyWith(
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            controller.dueDate.value == null
-                                ? 'No payment due date'
-                                : 'Due ${_date(controller.dueDate.value!)}',
-                            style: AppTextStyles.small.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
+                      child: _InvoiceMetaCell(
+                        icon: Icons.tag_rounded,
+                        label: controller.isQuotation ? 'Estimate' : 'Invoice',
+                        value: controller.invoiceNumber.value,
                       ),
                     ),
-                    _DateButton(
-                      label: _date(controller.invoiceDate.value),
-                      onTap: () => _pickDate(context, due: false),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _InvoiceMetaCell(
+                        icon: Icons.calendar_today_outlined,
+                        label: 'Issued',
+                        value: _shortDate(controller.invoiceDate.value),
+                        onTap: () => _pickDate(context, due: false),
+                      ),
                     ),
-                    const SizedBox(width: 4),
-                    IconButton(
-                      tooltip: 'Payment due date',
-                      onPressed: () => _pickDate(context, due: true),
-                      icon: const Icon(Icons.event_available_outlined),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _InvoiceMetaCell(
+                        icon: Icons.event_available_outlined,
+                        label: 'Due',
+                        value: controller.dueDate.value == null
+                            ? 'Add date'
+                            : _shortDate(controller.dueDate.value!),
+                        muted: controller.dueDate.value == null,
+                        onTap: () => _pickDate(context, due: true),
+                      ),
                     ),
                   ],
                 ),
@@ -247,17 +261,18 @@ class _InvoiceForm extends StatelessWidget {
               const Expanded(
                 child: _SectionEyebrow(number: '2', label: 'Items'),
               ),
-              FilledButton.tonalIcon(
-                onPressed: () => _showAddItemOptions(context),
-                icon: const Icon(Icons.add_rounded, size: 19),
-                label: const Text('Add item'),
-              ),
+              if (controller.items.isNotEmpty)
+                FilledButton.tonalIcon(
+                  onPressed: () => _showAddItemOptions(context),
+                  icon: const Icon(Icons.add_rounded, size: 19),
+                  label: const Text('Add item'),
+                ),
             ],
           ),
           const SizedBox(height: 8),
           if (controller.items.isEmpty)
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.primaryLight.withValues(alpha: .42),
                 borderRadius: BorderRadius.circular(20),
@@ -267,32 +282,42 @@ class _InvoiceForm extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.receipt_long_outlined,
-                      color: AppColors.primary,
-                    ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long_outlined,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'What are you billing for?',
+                              style: AppTextStyles.cardTitle,
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              'Add a saved or one-time item.',
+                              style: AppTextStyles.small.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'What are you billing for?',
-                    style: AppTextStyles.cardTitle,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Choose from your catalog or create a one-time line item.',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.small.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   Row(
                     children: [
                       Expanded(
@@ -310,7 +335,7 @@ class _InvoiceForm extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: () => _editItem(context),
                           icon: const Icon(Icons.add_rounded, size: 18),
-                          label: const Text('Custom item'),
+                          label: const Text('One-time'),
                         ),
                       ),
                     ],
@@ -795,30 +820,162 @@ class _InvoiceSummary extends StatelessWidget {
   }
 }
 
-class _DateButton extends StatelessWidget {
-  const _DateButton({required this.label, required this.onTap});
+class _WorkflowProgress extends StatelessWidget {
+  const _WorkflowProgress({required this.hasCustomer, required this.hasItems});
+
+  final bool hasCustomer;
+  final bool hasItems;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    decoration: BoxDecoration(
+      color: AppColors.surfaceSoft,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: AppColors.border),
+    ),
+    child: Row(
+      children: [
+        _WorkflowStep(
+          number: 1,
+          label: 'Customer',
+          complete: hasCustomer,
+          active: !hasCustomer,
+        ),
+        _WorkflowLine(active: hasCustomer),
+        _WorkflowStep(
+          number: 2,
+          label: 'Items',
+          complete: hasItems,
+          active: hasCustomer && !hasItems,
+        ),
+        _WorkflowLine(active: hasItems),
+        _WorkflowStep(number: 3, label: 'Review', active: hasItems),
+      ],
+    ),
+  );
+}
+
+class _WorkflowStep extends StatelessWidget {
+  const _WorkflowStep({
+    required this.number,
+    required this.label,
+    this.complete = false,
+    this.active = false,
+  });
+
+  final int number;
   final String label;
-  final VoidCallback onTap;
+  final bool complete;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 25,
+        height: 25,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: complete
+              ? AppColors.success
+              : active
+              ? AppColors.primary
+              : AppColors.surfaceMuted,
+          shape: BoxShape.circle,
+        ),
+        child: complete
+            ? const Icon(Icons.check_rounded, color: Colors.white, size: 15)
+            : Text(
+                '$number',
+                style: AppTextStyles.caption.copyWith(
+                  color: active ? Colors.white : AppColors.textSecondary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+      ),
+      const SizedBox(width: 5),
+      Text(
+        label,
+        style: AppTextStyles.caption.copyWith(
+          color: active || complete
+              ? Theme.of(context).colorScheme.onSurface
+              : AppColors.textTertiary,
+          fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+        ),
+      ),
+    ],
+  );
+}
+
+class _WorkflowLine extends StatelessWidget {
+  const _WorkflowLine({required this.active});
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+    child: Container(
+      height: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 7),
+      color: active ? AppColors.success : AppColors.border,
+    ),
+  );
+}
+
+class _InvoiceMetaCell extends StatelessWidget {
+  const _InvoiceMetaCell({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.onTap,
+    this.muted = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final VoidCallback? onTap;
+  final bool muted;
 
   @override
   Widget build(BuildContext context) => Material(
-    color: AppColors.surfaceMuted,
-    borderRadius: BorderRadius.circular(14),
+    color: onTap == null ? Colors.transparent : AppColors.surfaceSoft,
+    borderRadius: BorderRadius.circular(12),
     child: InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
-              Icons.calendar_today_outlined,
-              size: 18,
-              color: AppColors.primary,
+            Row(
+              children: [
+                Icon(icon, size: 13, color: AppColors.primary),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label.toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(fontSize: 9),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            Text(label, style: AppTextStyles.small),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.small.copyWith(
+                color: muted
+                    ? AppColors.textTertiary
+                    : Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ],
         ),
       ),
@@ -1406,8 +1563,8 @@ Widget _amountRow(
   ),
 );
 
-String _date(DateTime value) =>
-    '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}';
+String _shortDate(DateTime value) =>
+    '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}';
 
 String _discountLabel(DiscountInput discount, String symbol) =>
     switch (discount.type) {

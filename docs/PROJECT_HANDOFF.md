@@ -75,6 +75,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   printing, or payment; incomplete work may be saved as a draft
 - New invoices start with an automatic customer picker, then show customer and
   invoice metadata in one compact header with direct saved/custom item actions
+- Invoice creation includes a live Customer → Items → Review progress strip,
+  equal-width metadata controls, and a compact non-duplicated empty-item flow
 
 ### Documents and reporting
 
@@ -182,6 +184,21 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-10 — Space-efficient invoice editor
+
+- Rebuilt the phone invoice editor header around a live Customer → Items →
+  Review progress strip so users always know the next required action.
+- Consolidated customer selection and invoice metadata into a tighter card with
+  equal-width invoice number, issued date, and due date controls.
+- Removed the duplicate Add item action from the empty state and replaced the
+  oversized panel with compact saved-item and one-time-item choices.
+- Kept Add item available once line items exist, preserved all tax/discount,
+  adjustment, draft, tablet summary, and review behavior.
+- Important file: `invoice_create_screen.dart`; no database, storage, backup,
+  or migration changes.
+- Verified with formatting, clean analysis, all 31 automated tests, and an
+  Android debug APK build.
 
 ### 2026-08-10 — Expandable main-tab search
 
