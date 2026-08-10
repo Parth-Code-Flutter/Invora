@@ -61,6 +61,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Quotation-to-invoice conversion
 - Customer and valid items required before final save, preview, PDF, sharing,
   printing, or payment; incomplete work may be saved as a draft
+- New invoices start with an automatic customer picker, then show customer and
+  invoice metadata in one compact header with direct saved/custom item actions
 
 ### Documents and reporting
 
@@ -169,6 +171,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-10 — Customer-first invoice creation
+
+- New invoices now open the existing-customer picker before the editor flow.
+- Combined customer identity, invoice number, invoice date, and due date into a
+  compact header after selection; restored drafts and edits are not interrupted.
+- Replaced the empty item menu with direct saved-item and custom-item actions.
+- Important files: `invoice_create_screen.dart`,
+  `invoice_create_controller.dart`.
+- No database, storage, backup, or migration changes.
+- Verified with formatting, analysis, automated tests, and Android debug build.
+
 ### 2026-08-10 — Saved units and invoice line-item CRUD
 
 - Added common and persistent custom units through `UnitService`.
@@ -202,4 +215,3 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 - Added shared mobile/email validation.
 - Implemented core offline customer, product, invoice, quotation, PDF, reports,
   settings, and backup/restore workflows.
-

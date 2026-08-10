@@ -35,6 +35,7 @@ class InvoiceCreateController extends GetxController {
   static const _validator = InvoiceValidationService();
   final DocumentType documentType;
   bool get isQuotation => documentType == DocumentType.quotation;
+  bool get shouldPromptForCustomer => _id == null && customer.value == null;
 
   final invoiceNumber = ''.obs;
   final customer = Rxn<CustomerSnapshotModel>();

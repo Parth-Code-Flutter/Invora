@@ -21,8 +21,16 @@ import '../../../data/models/product_service_model.dart';
 import '../../../data/services/unit_service.dart';
 import '../controllers/invoice_create_controller.dart';
 
-class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
+class InvoiceCreateScreen extends StatefulWidget {
   const InvoiceCreateScreen({super.key});
+
+  @override
+  State<InvoiceCreateScreen> createState() => _InvoiceCreateScreenState();
+}
+
+class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
+  late final InvoiceCreateController controller = Get.find();
+  bool _customerPromptScheduled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +97,12 @@ class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
+        if (!_customerPromptScheduled && controller.shouldPromptForCustomer) {
+          _customerPromptScheduled = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _selectCustomer(context, controller);
+          });
+        }
         final form = _InvoiceForm(controller: controller);
         final summary = _InvoiceSummary(controller: controller);
         if (ResponsiveUtils.isTablet(context)) {
@@ -131,10 +145,60 @@ class _InvoiceForm extends StatelessWidget {
           AppCard(
             padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Invoice details', style: AppTextStyles.sectionTitle),
-                const SizedBox(height: 14),
+                InkWell(
+                  onTap: () => _selectCustomer(context, controller),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 23,
+                        backgroundColor: AppColors.primaryLight,
+                        child: Text(
+                          controller.customer.value?.name.trim().isNotEmpty ==
+                                  true
+                              ? controller.customer.value!.name.characters.first
+                                    .toUpperCase()
+                              : '?',
+                          style: AppTextStyles.cardTitle.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              controller.customer.value?.name ??
+                                  'Choose a customer',
+                              style: AppTextStyles.cardTitle,
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              controller.customer.value?.companyName ??
+                                  controller.customer.value?.mobile ??
+                                  'Required before adding invoice details',
+                              style: AppTextStyles.small.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => _selectCustomer(context, controller),
+                        child: Text(
+                          controller.customer.value == null
+                              ? 'Select'
+                              : 'Change',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 26),
                 Row(
                   children: [
                     Expanded(
@@ -142,16 +206,18 @@ class _InvoiceForm extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'NUMBER',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
+                            controller.invoiceNumber.value,
+                            style: AppTextStyles.cardTitle.copyWith(
+                              color: AppColors.primary,
                             ),
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            controller.invoiceNumber.value,
-                            style: AppTextStyles.sectionTitle.copyWith(
-                              color: AppColors.primary,
+                            controller.dueDate.value == null
+                                ? 'No payment due date'
+                                : 'Due ${_date(controller.dueDate.value!)}',
+                            style: AppTextStyles.small.copyWith(
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -161,66 +227,15 @@ class _InvoiceForm extends StatelessWidget {
                       label: _date(controller.invoiceDate.value),
                       onTap: () => _pickDate(context, due: false),
                     ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      tooltip: 'Payment due date',
+                      onPressed: () => _pickDate(context, due: true),
+                      icon: const Icon(Icons.event_available_outlined),
+                    ),
                   ],
                 ),
-                const Divider(height: 28),
-                InkWell(
-                  onTap: () => _pickDate(context, due: true),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.event_outlined,
-                          size: 20,
-                          color: AppColors.primary,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            controller.dueDate.value == null
-                                ? 'Add payment due date'
-                                : 'Payment due ${_date(controller.dueDate.value!)}',
-                          ),
-                        ),
-                        const Icon(Icons.chevron_right_rounded, size: 20),
-                      ],
-                    ),
-                  ),
-                ),
               ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          _SectionEyebrow(number: '1', label: 'Bill to'),
-          const SizedBox(height: 8),
-          AppCard(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            onTap: () => _selectCustomer(context),
-            child: ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(13),
-                ),
-                child: const Icon(
-                  Icons.person_outline,
-                  color: AppColors.primary,
-                ),
-              ),
-              title: Text(controller.customer.value?.name ?? 'Select customer'),
-              subtitle: controller.customer.value == null
-                  ? const Text('Tap to choose billing customer')
-                  : Text(
-                      controller.customer.value?.companyName ??
-                          controller.customer.value?.mobile ??
-                          'Billing customer',
-                    ),
-              trailing: const Icon(Icons.chevron_right_rounded),
             ),
           ),
           const SizedBox(height: 18),
@@ -238,31 +253,66 @@ class _InvoiceForm extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           if (controller.items.isEmpty)
-            Material(
-              color: AppColors.primaryLight.withValues(alpha: .42),
-              borderRadius: BorderRadius.circular(18),
-              child: InkWell(
-                onTap: () => _showAddItemOptions(context),
-                borderRadius: BorderRadius.circular(18),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                  child: Column(
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight.withValues(alpha: .42),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: .14),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.receipt_long_outlined,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'What are you billing for?',
+                    style: AppTextStyles.cardTitle,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Choose from your catalog or create a one-time line item.',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.small.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
                     children: [
-                      Icon(
-                        Icons.add_shopping_cart_rounded,
-                        color: AppColors.primary,
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: () => _selectProduct(context),
+                          icon: const Icon(
+                            Icons.inventory_2_outlined,
+                            size: 18,
+                          ),
+                          label: const Text('Saved item'),
+                        ),
                       ),
-                      SizedBox(height: 8),
-                      Text('Add a product or service'),
-                      SizedBox(height: 3),
-                      Text(
-                        'Choose a saved item or enter a custom one',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.textSecondary),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _editItem(context),
+                          icon: const Icon(Icons.add_rounded, size: 18),
+                          label: const Text('Custom item'),
+                        ),
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
             )
           else
@@ -491,26 +541,6 @@ class _InvoiceForm extends StatelessWidget {
     }
   }
 
-  Future<void> _selectCustomer(BuildContext context) async {
-    final selected = await showModalBottomSheet<CustomerModel>(
-      context: context,
-      showDragHandle: true,
-      builder: (_) => _SelectionSheet<CustomerModel>(
-        title: 'Select customer',
-        future: controller.customers(),
-        titleFor: (item) => item.name,
-        subtitleFor: (item) => item.companyName ?? item.mobile ?? 'Customer',
-        emptyTitle: 'No customers yet',
-        emptyMessage: 'Create your first customer to add them to this invoice.',
-        actionLabel: 'Create new customer',
-        actionIcon: Icons.person_add_alt_1_rounded,
-        onAction: () async =>
-            await Get.toNamed<CustomerModel>(AppRoutes.customerAdd),
-      ),
-    );
-    if (selected != null) controller.selectCustomer(selected);
-  }
-
   Future<void> _selectProduct(BuildContext context) async {
     final selected = await showModalBottomSheet<ProductServiceModel>(
       context: context,
@@ -652,6 +682,31 @@ class _InvoiceForm extends StatelessWidget {
     amount.dispose();
     if (result != null) controller.addCharge(result);
   }
+}
+
+Future<void> _selectCustomer(
+  BuildContext context,
+  InvoiceCreateController controller,
+) async {
+  final selected = await showModalBottomSheet<CustomerModel>(
+    context: context,
+    useSafeArea: true,
+    isScrollControlled: true,
+    showDragHandle: true,
+    builder: (_) => _SelectionSheet<CustomerModel>(
+      title: 'Who is this invoice for?',
+      future: controller.customers(),
+      titleFor: (item) => item.name,
+      subtitleFor: (item) => item.companyName ?? item.mobile ?? 'Customer',
+      emptyTitle: 'No customers yet',
+      emptyMessage: 'Create your first customer to start this invoice.',
+      actionLabel: 'Create new customer',
+      actionIcon: Icons.person_add_alt_1_rounded,
+      onAction: () async =>
+          await Get.toNamed<CustomerModel>(AppRoutes.customerAdd),
+    ),
+  );
+  if (selected != null) controller.selectCustomer(selected);
 }
 
 class _InvoiceSummary extends StatelessWidget {
