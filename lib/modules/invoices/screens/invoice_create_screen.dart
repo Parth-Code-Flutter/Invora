@@ -63,17 +63,22 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
             color: Theme.of(context).colorScheme.surface,
             border: const Border(top: BorderSide(color: AppColors.border)),
           ),
-          child: Obx(
-            () => Row(
+          child: Obx(() {
+            final actionWidth = (MediaQuery.sizeOf(context).width * .56)
+                .clamp(210.0, 300.0)
+                .toDouble();
+            return Row(
               children: [
-                Flexible(
-                  flex: 2,
+                Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'INVOICE TOTAL',
+                        controller.calculation.value?.balanceDueMinor == 0 &&
+                                controller.items.isNotEmpty
+                            ? 'READY TO REVIEW'
+                            : 'INVOICE TOTAL',
                         style: AppTextStyles.caption.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -84,25 +89,27 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
                           controller.calculation.value?.grandTotalMinor ?? 0,
                           symbol: controller.currencySymbol.value,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.sectionTitle,
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
-                  flex: 3,
+                SizedBox(
+                  width: actionWidth,
                   child: AppButton(
                     onPressed: controller.preview,
-                    icon: Icons.visibility_outlined,
+                    icon: Icons.arrow_forward_rounded,
                     label: controller.isQuotation
                         ? 'Review estimate'
                         : 'Review invoice',
                   ),
                 ),
               ],
-            ),
-          ),
+            );
+          }),
         ),
       ),
       body: Obx(() {
@@ -362,6 +369,23 @@ class _InvoiceForm extends StatelessWidget {
                   onTap: () => _editItem(context, index: entry.key, item: item),
                   child: Row(
                     children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${entry.key + 1}',
+                          style: AppTextStyles.small.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,18 +398,17 @@ class _InvoiceForm extends StatelessWidget {
                                 color: AppColors.textSecondary,
                               ),
                             ),
-                            if (result != null) ...[
-                              const SizedBox(height: 8),
-                              Text(
-                                CurrencyUtils.formatMinor(
-                                  result.totalMinor,
-                                  symbol: controller.currencySymbol.value,
-                                ),
-                              ),
-                            ],
                           ],
                         ),
                       ),
+                      if (result != null)
+                        Text(
+                          CurrencyUtils.formatMinor(
+                            result.totalMinor,
+                            symbol: controller.currencySymbol.value,
+                          ),
+                          style: AppTextStyles.cardTitle,
+                        ),
                       PopupMenuButton<String>(
                         tooltip: 'Item actions',
                         onSelected: (action) {
@@ -734,11 +757,37 @@ class _InvoiceSummary extends StatelessWidget {
       if (result == null) return const SizedBox.shrink();
       final symbol = controller.currencySymbol.value;
       final card = AppCard(
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Live summary', style: AppTextStyles.sectionTitle),
-            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Invoice summary',
+                    style: AppTextStyles.sectionTitle,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    '${controller.items.length} ${controller.items.length == 1 ? 'item' : 'items'}',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
             _amountRow('Subtotal', result.subtotalMinor, symbol),
             if (result.itemDiscountTotalMinor > 0)
               _amountRow(
@@ -752,7 +801,6 @@ class _InvoiceSummary extends StatelessWidget {
                 -result.invoiceDiscountMinor,
                 symbol,
               ),
-            _amountRow('Taxable value', result.taxableTotalMinor, symbol),
             if (result.cgstMinor > 0)
               _amountRow('CGST', result.cgstMinor, symbol),
             if (result.sgstMinor > 0)
@@ -767,19 +815,41 @@ class _InvoiceSummary extends StatelessWidget {
               ),
             if (result.roundOffMinor != 0)
               _amountRow('Round off', result.roundOffMinor, symbol),
-            const Divider(height: 28),
-            _amountRow(
-              'Grand total',
-              result.grandTotalMinor,
-              symbol,
-              prominent: true,
-            ),
-            _amountRow('Paid', result.paidAmountMinor, symbol),
-            _amountRow(
-              'Balance due',
-              result.balanceDueMinor,
-              symbol,
-              prominent: true,
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceSoft,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _SummaryMetric(
+                      label: 'Total',
+                      amount: result.grandTotalMinor,
+                      symbol: symbol,
+                    ),
+                  ),
+                  Container(width: 1, height: 34, color: AppColors.border),
+                  Expanded(
+                    child: _SummaryMetric(
+                      label: 'Paid',
+                      amount: result.paidAmountMinor,
+                      symbol: symbol,
+                    ),
+                  ),
+                  Container(width: 1, height: 34, color: AppColors.border),
+                  Expanded(
+                    child: _SummaryMetric(
+                      label: 'Due',
+                      amount: result.balanceDueMinor,
+                      symbol: symbol,
+                      emphasized: true,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -797,6 +867,39 @@ class _InvoiceSummary extends StatelessWidget {
       );
     });
   }
+}
+
+class _SummaryMetric extends StatelessWidget {
+  const _SummaryMetric({
+    required this.label,
+    required this.amount,
+    required this.symbol,
+    this.emphasized = false,
+  });
+
+  final String label;
+  final int amount;
+  final String symbol;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      Text(
+        label.toUpperCase(),
+        style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+      ),
+      const SizedBox(height: 3),
+      Text(
+        CurrencyUtils.formatMinor(amount, symbol: symbol),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.cardTitle.copyWith(
+          color: emphasized ? AppColors.primary : null,
+        ),
+      ),
+    ],
+  );
 }
 
 class _WorkflowProgress extends StatelessWidget {

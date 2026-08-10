@@ -92,7 +92,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - New invoices start with an automatic customer picker, then show customer and
   invoice metadata in one compact header with direct saved/custom item actions
 - Invoice creation includes a live Customer → Items → Review progress strip,
-  equal-width metadata controls, and a compact non-duplicated empty-item flow
+  equal-width metadata controls, numbered item rows, a compact totals snapshot,
+  and a non-duplicated empty-item flow. The fixed review action is right-aligned
+  with a bounded responsive width on phones and tablets.
 
 ### Documents and reporting
 
@@ -205,6 +207,20 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Create-invoice review flow refinement
+
+- Anchored Review invoice/estimate to the far-right edge of the fixed bottom
+  action bar with a responsive bounded width, leaving a stable total summary on
+  the left and preventing centering or clipping on narrow screens.
+- Simplified the long live-summary card into a compact financial snapshot with
+  Total, Paid, and Due emphasized together; detailed non-zero discounts, taxes,
+  charges, and round-off remain visible above it.
+- Refined populated item rows with numbered visual anchors and right-aligned
+  line totals, keeping edit/duplicate/remove in the existing contextual menu.
+- Important file: invoice create screen. No schema or storage changes.
+- Verification: formatting, static analysis, full widget/unit suite, and diff
+  whitespace checks.
 
 ### 2026-08-11 — Custom units and app-wide default
 
