@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../app/utils/validation_utils.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/repositories/customer_repository.dart';
 
@@ -42,13 +43,11 @@ class CustomerFormController extends GetxController {
   }
 
   String? validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return null;
-    }
-    return GetUtils.isEmail(value.trim())
-        ? null
-        : 'Enter a valid email address.';
+    return ValidationUtils.optionalEmail(value);
   }
+
+  String? validateMobile(String? value) =>
+      ValidationUtils.optionalIndianMobile(value);
 
   String? validateGstin(String? value) {
     if (value == null || value.trim().isEmpty) {

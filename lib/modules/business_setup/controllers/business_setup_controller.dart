@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
+import '../../../app/utils/validation_utils.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/services/app_storage.dart';
@@ -88,11 +89,18 @@ class BusinessSetupController extends GetxController {
   }
 
   String? validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return null;
-    }
-    if (!GetUtils.isEmail(value.trim())) {
-      return 'Enter a valid email address.';
+    return ValidationUtils.optionalEmail(value);
+  }
+
+  String? validateMobile(String? value) {
+    return ValidationUtils.optionalIndianMobile(value);
+  }
+
+  String? validatePinCode(String? value) {
+    final pin = value?.trim() ?? '';
+    if (pin.isEmpty) return null;
+    if (!RegExp(r'^\d{6}$').hasMatch(pin)) {
+      return 'Enter a valid 6 digit PIN code.';
     }
     return null;
   }
@@ -104,8 +112,63 @@ class BusinessSetupController extends GetxController {
     if (value == null || value.trim().isEmpty) {
       return 'GSTIN is required.';
     }
-    if (!RegExp(r'^[0-9A-Z]{15}$').hasMatch(value.trim().toUpperCase())) {
-      return 'Enter a valid 15-character GSTIN.';
+    if (!RegExp(
+      r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$',
+    ).hasMatch(value.trim().toUpperCase())) {
+      return 'Enter a valid GSTIN (for example, 24ABCDE1234F1Z5).';
+    }
+    return null;
+  }
+
+  String? validatePan(String? value) {
+    final panNumber = value?.trim().toUpperCase() ?? '';
+    if (panNumber.isEmpty) return null;
+    if (!RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]$').hasMatch(panNumber)) {
+      return 'Enter a valid PAN (for example, ABCDE1234F).';
+    }
+    return null;
+  }
+
+  String? validateInvoicePrefix(String? value) {
+    final prefix = value?.trim() ?? '';
+    if (prefix.isEmpty) return 'Invoice prefix is required.';
+    if (!RegExp(r'^[A-Za-z0-9-]{1,10}$').hasMatch(prefix)) {
+      return 'Use 1–10 letters, numbers, or hyphens.';
+    }
+    return null;
+  }
+
+  String? validateStartingInvoiceNumber(String? value) {
+    final number = int.tryParse(value?.trim() ?? '');
+    if (number == null || number < 1) {
+      return 'Enter an invoice number greater than 0.';
+    }
+    return null;
+  }
+
+  String? validateAccountNumber(String? value) {
+    final number = value?.trim() ?? '';
+    if (number.isEmpty) return null;
+    if (!RegExp(r'^\d{6,18}$').hasMatch(number)) {
+      return 'Enter a valid 6 to 18 digit account number.';
+    }
+    return null;
+  }
+
+  String? validateIfsc(String? value) {
+    final code = value?.trim().toUpperCase() ?? '';
+    if (code.isEmpty) return null;
+    if (!RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$').hasMatch(code)) {
+      return 'Enter a valid 11-character IFSC.';
+    }
+    return null;
+  }
+
+  String? validateUpiId(String? value) {
+    final upi = value?.trim() ?? '';
+    if (upi.isEmpty) return null;
+    if (!RegExp(r'^[A-Za-z0-9._-]{2,256}@[A-Za-z]{2,64}$').hasMatch(upi)) {
+      return 'Enter a valid UPI ID (for example, name@bank).';
     }
     return null;
   }

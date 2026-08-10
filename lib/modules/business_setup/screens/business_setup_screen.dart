@@ -92,8 +92,10 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                               label: 'Mobile number',
                               prefixIcon: Icons.phone_outlined,
                               keyboardType: TextInputType.phone,
+                              validator: controller.validateMobile,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(10),
                               ],
                             ),
                             AppTextField(
@@ -102,6 +104,10 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                               prefixIcon: Icons.alternate_email_rounded,
                               keyboardType: TextInputType.emailAddress,
                               validator: controller.validateEmail,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(254),
+                                FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                              ],
                             ),
                           ],
                         ),
@@ -156,9 +162,11 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                                         controller: controller.pinCode,
                                         label: 'PIN code',
                                         keyboardType: TextInputType.number,
+                                        validator: controller.validatePinCode,
                                         inputFormatters: [
                                           FilteringTextInputFormatter
                                               .digitsOnly,
+                                          LengthLimitingTextInputFormatter(6),
                                         ],
                                       ),
                                     ],
@@ -206,19 +214,45 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                                         AppTextField(
                                           controller: controller.pan,
                                           label: 'PAN',
+                                          validator: controller.validatePan,
+                                          textCapitalization:
+                                              TextCapitalization.characters,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(
+                                              10,
+                                            ),
+                                            FilteringTextInputFormatter.allow(
+                                              RegExp('[0-9a-zA-Z]'),
+                                            ),
+                                          ],
                                         ),
                                         AppTextField(
                                           controller: controller.invoicePrefix,
                                           label: 'Invoice prefix',
+                                          validator:
+                                              controller.validateInvoicePrefix,
+                                          textCapitalization:
+                                              TextCapitalization.characters,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(
+                                              10,
+                                            ),
+                                            FilteringTextInputFormatter.allow(
+                                              RegExp('[0-9a-zA-Z-]'),
+                                            ),
+                                          ],
                                         ),
                                         AppTextField(
                                           controller:
                                               controller.startingInvoiceNumber,
                                           label: 'Starting invoice number',
                                           keyboardType: TextInputType.number,
+                                          validator: controller
+                                              .validateStartingInvoiceNumber,
                                           inputFormatters: [
                                             FilteringTextInputFormatter
                                                 .digitsOnly,
+                                            LengthLimitingTextInputFormatter(9),
                                           ],
                                         ),
                                         DropdownButtonFormField<String>(
@@ -274,14 +308,39 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                                         controller: controller.accountNumber,
                                         label: 'Account number',
                                         keyboardType: TextInputType.number,
+                                        validator:
+                                            controller.validateAccountNumber,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter
+                                              .digitsOnly,
+                                          LengthLimitingTextInputFormatter(18),
+                                        ],
                                       ),
                                       AppTextField(
                                         controller: controller.ifsc,
                                         label: 'IFSC',
+                                        validator: controller.validateIfsc,
+                                        textCapitalization:
+                                            TextCapitalization.characters,
+                                        inputFormatters: [
+                                          LengthLimitingTextInputFormatter(11),
+                                          FilteringTextInputFormatter.allow(
+                                            RegExp('[0-9a-zA-Z]'),
+                                          ),
+                                        ],
                                       ),
                                       AppTextField(
                                         controller: controller.upiId,
                                         label: 'UPI ID',
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        validator: controller.validateUpiId,
+                                        inputFormatters: [
+                                          LengthLimitingTextInputFormatter(321),
+                                          FilteringTextInputFormatter.deny(
+                                            RegExp(r'\s'),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),

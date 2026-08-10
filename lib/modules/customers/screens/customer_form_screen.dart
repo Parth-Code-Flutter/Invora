@@ -68,9 +68,11 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                                         controller: controller.mobile,
                                         label: 'Mobile',
                                         keyboardType: TextInputType.phone,
+                                        validator: controller.validateMobile,
                                         inputFormatters: [
                                           FilteringTextInputFormatter
                                               .digitsOnly,
+                                          LengthLimitingTextInputFormatter(10),
                                         ],
                                       ),
                                       AppTextField(
@@ -79,6 +81,12 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                                         keyboardType:
                                             TextInputType.emailAddress,
                                         validator: controller.validateEmail,
+                                        inputFormatters: [
+                                          LengthLimitingTextInputFormatter(254),
+                                          FilteringTextInputFormatter.deny(
+                                            RegExp(r'\s'),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
