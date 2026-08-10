@@ -5,6 +5,7 @@ import '../../app/enums/invoice_status.dart';
 import '../../app/enums/tax_type.dart';
 import '../models/invoice_calculation_models.dart';
 import '../models/invoice_model.dart';
+import '../models/invoice_payment_model.dart';
 import '../models/report_summary_model.dart';
 import '../services/app_database.dart';
 import '../services/invoice_validation_service.dart';
@@ -225,6 +226,66 @@ class InvoiceRepository extends BaseRepository {
     return row == null ? null : _load(row);
   }
 
+  Future<List<InvoicePaymentModel>> getPayments(int invoiceId) async {
+    final rows =
+        await (database.select(database.invoicePayments)
+              ..where((table) => table.invoiceId.equals(invoiceId))
+              ..orderBy([(table) => OrderingTerm.desc(table.paidAt)]))
+            .get();
+    return rows
+        .map(
+          (row) => InvoicePaymentModel(
+            id: row.id,
+            invoiceId: row.invoiceId,
+            amountMinor: row.amountMinor,
+            paidAt: row.paidAt,
+            method: row.method,
+            reference: row.reference,
+            note: row.note,
+          ),
+        )
+        .toList();
+  }
+
+  Future<void> recordPayment({
+    required int invoiceId,
+    required int amountMinor,
+    required DateTime paidAt,
+    String? method,
+    String? reference,
+    String? note,
+  }) async {
+    if (amountMinor <= 0) {
+      throw ArgumentError('Payment amount must be greater than zero.');
+    }
+    await database.transaction(() async {
+      final invoice = await getById(invoiceId);
+      if (invoice == null) throw StateError('Invoice not found.');
+      if (invoice.status == InvoiceStatus.cancelled) {
+        throw StateError('A cancelled invoice cannot receive payments.');
+      }
+      if (amountMinor > invoice.calculation.balanceDueMinor) {
+        throw ArgumentError('Payment cannot exceed the remaining balance.');
+      }
+      await database
+          .into(database.invoicePayments)
+          .insert(
+            InvoicePaymentsCompanion.insert(
+              invoiceId: invoiceId,
+              amountMinor: amountMinor,
+              paidAt: paidAt,
+              method: Value(_optional(method)),
+              reference: Value(_optional(reference)),
+              note: Value(_optional(note)),
+            ),
+          );
+      await _writePaymentTotal(
+        invoice,
+        invoice.calculation.paidAmountMinor + amountMinor,
+      );
+    });
+  }
+
   Future<void> updatePayment(int id, int paidAmountMinor) async {
     final invoice = await getById(id);
     if (invoice == null) throw StateError('Invoice not found.');
@@ -235,6 +296,29 @@ class InvoiceRepository extends BaseRepository {
         paidAmountMinor > invoice.calculation.grandTotalMinor) {
       throw ArgumentError('Payment must be between zero and the grand total.');
     }
+    final difference = paidAmountMinor - invoice.calculation.paidAmountMinor;
+    await database.transaction(() async {
+      if (difference != 0) {
+        await database
+            .into(database.invoicePayments)
+            .insert(
+              InvoicePaymentsCompanion.insert(
+                invoiceId: id,
+                amountMinor: difference,
+                paidAt: DateTime.now(),
+                method: const Value('Adjustment'),
+                note: const Value('Payment total adjusted'),
+              ),
+            );
+      }
+      await _writePaymentTotal(invoice, paidAmountMinor);
+    });
+  }
+
+  Future<void> _writePaymentTotal(
+    InvoiceModel invoice,
+    int paidAmountMinor,
+  ) async {
     final balance = invoice.calculation.grandTotalMinor - paidAmountMinor;
     final status = paidAmountMinor == 0
         ? InvoiceStatus.unpaid
@@ -243,7 +327,7 @@ class InvoiceRepository extends BaseRepository {
         : InvoiceStatus.partiallyPaid;
     await (database.update(
       database.invoices,
-    )..where((table) => table.id.equals(id))).write(
+    )..where((table) => table.id.equals(invoice.id!))).write(
       InvoicesCompanion(
         paidAmountMinor: Value(paidAmountMinor),
         balanceMinor: Value(balance),
@@ -251,6 +335,11 @@ class InvoiceRepository extends BaseRepository {
         updatedAt: Value(DateTime.now()),
       ),
     );
+  }
+
+  String? _optional(String? value) {
+    final normalized = value?.trim();
+    return normalized == null || normalized.isEmpty ? null : normalized;
   }
 
   Future<void> cancel(int id) async {
@@ -413,6 +502,36 @@ class InvoiceRepository extends BaseRepository {
         await (database.update(
           database.invoices,
         )..where((table) => table.id.equals(invoiceId))).write(invoice);
+      }
+
+      // Keep the append-only ledger aligned with older create/edit flows that
+      // still submit a cumulative paid amount as part of the invoice model.
+      final ledgerRows = await (database.select(
+        database.invoicePayments,
+      )..where((table) => table.invoiceId.equals(invoiceId))).get();
+      final ledgerTotal = ledgerRows.fold<int>(
+        0,
+        (total, payment) => total + payment.amountMinor,
+      );
+      final paymentDifference = model.calculation.paidAmountMinor - ledgerTotal;
+      if (paymentDifference != 0) {
+        await database
+            .into(database.invoicePayments)
+            .insert(
+              InvoicePaymentsCompanion.insert(
+                invoiceId: invoiceId,
+                amountMinor: paymentDifference,
+                method: Value(
+                  ledgerRows.isEmpty ? 'Opening payment' : 'Adjustment',
+                ),
+                note: Value(
+                  ledgerRows.isEmpty
+                      ? 'Recorded when the invoice was created'
+                      : 'Reconciled when the invoice was updated',
+                ),
+                paidAt: model.updatedAt,
+              ),
+            );
       }
 
       await (database.delete(

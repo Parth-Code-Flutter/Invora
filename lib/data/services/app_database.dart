@@ -160,6 +160,19 @@ class InvoiceCharges extends Table {
   IntColumn get sortOrder => integer()();
 }
 
+@TableIndex(name: 'invoice_payments_invoice', columns: {#invoiceId})
+class InvoicePayments extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get invoiceId =>
+      integer().references(Invoices, #id, onDelete: KeyAction.cascade)();
+  IntColumn get amountMinor => integer()();
+  TextColumn get method => text().nullable()();
+  TextColumn get reference => text().nullable()();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get paidAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 @DriftDatabase(
   tables: [
     DatabaseMetadata,
@@ -169,6 +182,7 @@ class InvoiceCharges extends Table {
     Invoices,
     InvoiceItems,
     InvoiceCharges,
+    InvoicePayments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -199,6 +213,19 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 6) {
         await migrator.addColumn(invoices, invoices.documentType);
+      }
+      if (from < 7) {
+        await migrator.createTable(invoicePayments);
+        // Older versions only stored a cumulative amount. Preserve it as one
+        // opening ledger entry so existing partial payments remain auditable.
+        await customStatement('''
+          INSERT INTO invoice_payments
+            (invoice_id, amount_minor, method, note, paid_at, created_at)
+          SELECT id, paid_amount_minor, 'Previous payment',
+                 'Imported during payment-history upgrade', updated_at, updated_at
+          FROM invoices
+          WHERE paid_amount_minor > 0
+        ''');
       }
     },
   );

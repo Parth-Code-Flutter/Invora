@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../../app/enums/invoice_status.dart';
 import '../../../data/models/invoice_model.dart';
+import '../../../data/models/invoice_payment_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
 import '../../../data/services/invoice_validation_service.dart';
@@ -18,6 +19,7 @@ class InvoiceDetailsController extends GetxController {
   final currencySymbol = '₹'.obs;
   final isLoading = true.obs;
   final isWorking = false.obs;
+  final payments = <InvoicePaymentModel>[].obs;
 
   @override
   void onInit() {
@@ -29,7 +31,10 @@ class InvoiceDetailsController extends GetxController {
     currencySymbol.value =
         (await _businessRepository.getProfile())?.currencySymbol ?? '₹';
     final id = Get.arguments;
-    if (id is int) invoice.value = await _repository.getById(id);
+    if (id is int) {
+      invoice.value = await _repository.getById(id);
+      payments.assignAll(await _repository.getPayments(id));
+    }
     isLoading.value = false;
   }
 
@@ -86,16 +91,31 @@ class InvoiceDetailsController extends GetxController {
     }
   }
 
-  Future<String?> updatePayment(String input) async {
+  Future<String?> recordPayment(
+    String input, {
+    String? method,
+    String? reference,
+    String? note,
+  }) async {
     final value = invoice.value;
     if (value?.id == null) return 'Invoice not found.';
     final validation = _validator.validateRequired(value!);
     if (validation != null) return validation;
     final amount = CurrencyUtils.parseMinor(input);
-    if (amount == null || amount > value.calculation.grandTotalMinor) {
-      return 'Enter an amount up to the grand total.';
+    if (amount == null || amount <= 0) {
+      return 'Enter a payment greater than zero.';
     }
-    await _repository.updatePayment(value.id!, amount);
+    if (amount > value.calculation.balanceDueMinor) {
+      return 'Payment cannot exceed the remaining balance.';
+    }
+    await _repository.recordPayment(
+      invoiceId: value.id!,
+      amountMinor: amount,
+      paidAt: DateTime.now(),
+      method: method,
+      reference: reference,
+      note: note,
+    );
     await _load();
     return null;
   }

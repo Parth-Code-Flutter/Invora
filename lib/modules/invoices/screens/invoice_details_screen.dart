@@ -13,6 +13,7 @@ import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
+import '../../../data/models/invoice_payment_model.dart';
 import '../controllers/invoice_details_controller.dart';
 
 class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
@@ -282,6 +283,16 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
               ],
             ),
           ),
+          if (invoice.documentType == DocumentType.invoice &&
+              (controller.payments.isNotEmpty ||
+                  invoice.calculation.paidAmountMinor > 0))
+            _PaymentHistoryCard(
+              payments: controller.payments,
+              paidMinor: invoice.calculation.paidAmountMinor,
+              balanceMinor: invoice.calculation.balanceDueMinor,
+              totalMinor: invoice.calculation.grandTotalMinor,
+              symbol: symbol,
+            ),
           AppCard(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -493,24 +504,238 @@ class _PaymentSheet extends StatefulWidget {
   State<_PaymentSheet> createState() => _PaymentSheetState();
 }
 
+class _PaymentHistoryCard extends StatelessWidget {
+  const _PaymentHistoryCard({
+    required this.payments,
+    required this.paidMinor,
+    required this.balanceMinor,
+    required this.totalMinor,
+    required this.symbol,
+  });
+
+  final List<InvoicePaymentModel> payments;
+  final int paidMinor;
+  final int balanceMinor;
+  final int totalMinor;
+  final String symbol;
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = totalMinor <= 0
+        ? 0.0
+        : (paidMinor / totalMinor).clamp(0.0, 1.0);
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Payment activity',
+                  style: AppTextStyles.sectionTitle,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.successLight,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Text(
+                  '${payments.length} ${payments.length == 1 ? 'payment' : 'payments'}',
+                  style: AppTextStyles.small.copyWith(
+                    color: AppColors.success,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _PaymentMetric(
+                  label: 'Paid',
+                  value: CurrencyUtils.formatMinor(paidMinor, symbol: symbol),
+                  color: AppColors.success,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _PaymentMetric(
+                  label: 'Remaining',
+                  value: CurrencyUtils.formatMinor(
+                    balanceMinor,
+                    symbol: symbol,
+                  ),
+                  color: balanceMinor > 0
+                      ? AppColors.warning
+                      : AppColors.success,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 7,
+              backgroundColor: AppColors.surfaceMuted,
+              color: AppColors.success,
+            ),
+          ),
+          if (payments.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Divider(height: 1),
+            ...payments.map(
+              (payment) => _PaymentHistoryRow(payment: payment, symbol: symbol),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentMetric extends StatelessWidget {
+  const _PaymentMetric({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: .1),
+      borderRadius: BorderRadius.circular(14),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.cardTitle.copyWith(color: color),
+        ),
+      ],
+    ),
+  );
+}
+
+class _PaymentHistoryRow extends StatelessWidget {
+  const _PaymentHistoryRow({required this.payment, required this.symbol});
+
+  final InvoicePaymentModel payment;
+  final String symbol;
+
+  @override
+  Widget build(BuildContext context) {
+    final detail = [
+      if (payment.reference?.isNotEmpty ?? false) 'Ref ${payment.reference}',
+      if (payment.note?.isNotEmpty ?? false) payment.note!,
+    ].join(' • ');
+    final isCorrection = payment.amountMinor < 0;
+    return Padding(
+      padding: const EdgeInsets.only(top: 13),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: isCorrection
+                  ? AppColors.errorLight
+                  : AppColors.successLight,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isCorrection ? Icons.undo_rounded : Icons.payments_outlined,
+              size: 17,
+              color: isCorrection ? AppColors.error : AppColors.success,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  payment.method ?? 'Payment',
+                  style: AppTextStyles.cardTitle.copyWith(fontSize: 14),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _dateTime(payment.paidAt),
+                  style: AppTextStyles.small.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                if (detail.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    detail,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.small.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            CurrencyUtils.formatMinor(payment.amountMinor, symbol: symbol),
+            style: AppTextStyles.cardTitle.copyWith(
+              fontSize: 14,
+              color: isCorrection ? AppColors.error : AppColors.success,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _PaymentSheetState extends State<_PaymentSheet> {
   late final TextEditingController input;
+  late final TextEditingController reference;
+  late final TextEditingController note;
+  String method = 'UPI';
   String? error;
   bool isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    input = TextEditingController(
-      text: CurrencyUtils.toInputValue(
-        widget.invoice.calculation.paidAmountMinor,
-      ),
-    );
+    input = TextEditingController();
+    reference = TextEditingController();
+    note = TextEditingController();
   }
 
   @override
   void dispose() {
     input.dispose();
+    reference.dispose();
+    note.dispose();
     super.dispose();
   }
 
@@ -531,7 +756,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             Text('Record payment', style: AppTextStyles.sectionTitle),
             const SizedBox(height: 6),
             Text(
-              'Update the total amount received for this invoice.',
+              'Add the payment received now. Previous entries stay in history.',
               style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
               ),
@@ -562,10 +787,54 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               ),
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
-                labelText: 'Total amount paid',
+                labelText: 'Amount received now',
                 prefixText: '$symbol ',
-                helperText: 'Enter the total received so far.',
+                helperText:
+                    'Remaining: ${CurrencyUtils.formatMinor(invoice.calculation.balanceDueMinor, symbol: symbol)}',
                 errorText: error,
+              ),
+              onSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: method,
+              decoration: const InputDecoration(
+                labelText: 'Payment method',
+                prefixIcon: Icon(Icons.account_balance_wallet_outlined),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'UPI', child: Text('UPI')),
+                DropdownMenuItem(value: 'Cash', child: Text('Cash')),
+                DropdownMenuItem(
+                  value: 'Bank transfer',
+                  child: Text('Bank transfer'),
+                ),
+                DropdownMenuItem(value: 'Card', child: Text('Card')),
+                DropdownMenuItem(value: 'Cheque', child: Text('Cheque')),
+                DropdownMenuItem(value: 'Other', child: Text('Other')),
+              ],
+              onChanged: isSaving
+                  ? null
+                  : (value) => setState(() => method = value ?? 'Other'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reference,
+              enabled: !isSaving,
+              textInputAction: TextInputAction.next,
+              decoration: const InputDecoration(
+                labelText: 'Reference number (optional)',
+                prefixIcon: Icon(Icons.tag_rounded),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: note,
+              enabled: !isSaving,
+              textInputAction: TextInputAction.done,
+              decoration: const InputDecoration(
+                labelText: 'Note (optional)',
+                prefixIcon: Icon(Icons.notes_rounded),
               ),
               onSubmitted: (_) => _save(),
             ),
@@ -575,7 +844,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                   ? null
                   : () {
                       input.text = CurrencyUtils.toInputValue(
-                        invoice.calculation.grandTotalMinor,
+                        invoice.calculation.balanceDueMinor,
                       );
                       setState(() => error = null);
                     },
@@ -613,7 +882,12 @@ class _PaymentSheetState extends State<_PaymentSheet> {
       isSaving = true;
       error = null;
     });
-    final validation = await widget.controller.updatePayment(input.text);
+    final validation = await widget.controller.recordPayment(
+      input.text,
+      method: method,
+      reference: reference.text,
+      note: note.text,
+    );
     if (!mounted) return;
     if (validation == null) {
       await AppFocus.pop(context);
@@ -676,6 +950,13 @@ class _HeroDate extends StatelessWidget {
 
 String _date(DateTime value) =>
     '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}';
+
+String _dateTime(DateTime value) {
+  final hour = value.hour % 12 == 0 ? 12 : value.hour % 12;
+  final minute = value.minute.toString().padLeft(2, '0');
+  final period = value.hour >= 12 ? 'PM' : 'AM';
+  return '${_date(value)} • $hour:$minute $period';
+}
 
 class _PaymentRow extends StatelessWidget {
   const _PaymentRow({

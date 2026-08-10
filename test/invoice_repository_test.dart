@@ -86,6 +86,28 @@ void main() {
     final updated = await repository.getById(invoice.id!);
     expect(updated?.status, InvoiceStatus.partiallyPaid);
     expect(updated?.calculation.balanceDueMinor, 15000);
+    var payments = await repository.getPayments(invoice.id!);
+    expect(payments.single.amountMinor, 10000);
+    expect(payments.single.method, 'Adjustment');
+
+    await repository.recordPayment(
+      invoiceId: invoice.id!,
+      amountMinor: 5000,
+      paidAt: now,
+      method: 'UPI',
+      reference: 'UPI-123',
+      note: 'Second instalment',
+    );
+    payments = await repository.getPayments(invoice.id!);
+    expect(payments, hasLength(2));
+    final upiPayment = payments.singleWhere(
+      (payment) => payment.method == 'UPI',
+    );
+    expect(upiPayment.reference, 'UPI-123');
+    expect(
+      (await repository.getById(invoice.id!))?.calculation.balanceDueMinor,
+      10000,
+    );
 
     final quotation = await repository.save(
       _invoice(
@@ -124,6 +146,29 @@ void main() {
       'Invoice_INV-0101_Mira-Studio.pdf',
     );
   });
+
+  test(
+    'creates an opening ledger entry for an initially paid amount',
+    () async {
+      final invoice = await repository.save(
+        _invoice(
+          number: 'INV-OPENING',
+          customer: 'Opening Client',
+          company: 'Opening Studio',
+          totalMinor: 20000,
+          paidMinor: 7500,
+          status: InvoiceStatus.partiallyPaid,
+          date: DateTime(2026, 8, 11),
+        ),
+      );
+
+      final payments = await repository.getPayments(invoice.id!);
+      expect(payments, hasLength(1));
+      expect(payments.single.amountMinor, 7500);
+      expect(payments.single.method, 'Opening payment');
+      expect(invoice.calculation.balanceDueMinor, 12500);
+    },
+  );
 
   test('builds reports for a selected historical month', () async {
     await repository.save(
@@ -202,6 +247,7 @@ InvoiceModel _invoice({
   required String customer,
   required String company,
   required int totalMinor,
+  int paidMinor = 0,
   required InvoiceStatus status,
   required DateTime date,
   DateTime? dueDate,
@@ -216,6 +262,7 @@ InvoiceModel _invoice({
   );
   final calculation = const InvoiceCalculationService().calculate(
     InvoiceCalculationInput(
+      paidAmountMinor: paidMinor,
       items: [
         InvoiceCalculationItemInput(
           id: 'item',

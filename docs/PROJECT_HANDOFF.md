@@ -82,6 +82,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - CGST/SGST, IGST, and non-tax modes
 - Exact integer minor-unit money and basis-point tax calculations
 - Payment recording and balance/status recalculation
+- Append-only per-invoice payment activity with amount, date/time, method,
+  reference, note, paid progress, and remaining balance; schema-v7 migration
+  preserves legacy cumulative payments as opening ledger entries
 - Quotation-to-invoice conversion
 - Customer and valid items required before final save, preview, PDF, sharing,
   printing, or payment; incomplete work may be saved as a draft
@@ -102,7 +105,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 
 ## Persisted data notes
 
-- Check `DbConstants.schemaVersion` before adding a database migration.
+- Database schema version 7 adds `invoice_payments`; migration preserves every
+  pre-v7 non-zero cumulative payment as a dated `Previous payment` entry.
 - Invoice numbers have a unique database index.
 - Historical documents use snapshots so later catalog edits do not alter them.
 - Custom units use `AppStorageKeyConst.customUnits` and are included in backup
@@ -199,6 +203,27 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Partial-payment ledger and history
+
+- Added an invoice payment ledger containing amount, paid date/time, method,
+  optional reference, and optional note. Recording a payment now appends an
+  entry and recalculates cumulative paid, remaining balance, and invoice status.
+- Invoice Details now shows payment progress, paid and remaining amounts, and a
+  newest-first activity history. The payment sheet captures the amount received
+  now rather than asking users to overwrite a cumulative total.
+- Migrated schema from 6 to 7 with a safe backfill: existing invoices with a
+  paid balance receive one `Previous payment` ledger entry dated at their last
+  update. Ledger rows cascade when an invoice is deleted and are naturally
+  included in full SQLite backups.
+- Create/edit flows that supply an initial cumulative paid amount are reconciled
+  into an `Opening payment` or `Adjustment` entry so the displayed balance and
+  payment activity cannot silently diverge.
+- Important files: Drift database/generated schema, payment model, invoice
+  repository/controller/details UI, repository tests, and handoff.
+- Verification includes cumulative/status calculations and persisted payment
+  method/reference history. Backup format remains unchanged; schema metadata is
+  now 7.
 
 ### 2026-08-11 — Complete PDF party details
 
