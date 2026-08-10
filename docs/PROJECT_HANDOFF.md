@@ -104,6 +104,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   predictably without overlapping
 - Offline PDF preview, save, share, and print
 - Dashboard totals and basic reports
+- Dashboard prioritizes current-month cash flow and collection progress, an
+  actionable outstanding-payment reminder, quick creation, and shared recent
+  invoice cards
 - Customer and product detail history links
 
 ## Persisted data notes
@@ -207,6 +210,21 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Dashboard first-screen hierarchy refinement
+
+- Refined the dashboard around cash awareness and frequent actions: the monthly
+  overview is more compact, adds received-vs-invoiced collection progress, and
+  retains clear received/outstanding values.
+- Added an actionable outstanding-payment prompt that shows the exact amount
+  waiting to be collected and opens invoices for follow-up.
+- Reorganized creation actions under a clear Create quickly heading, promoted
+  invoice creation to the single primary action, moved Reports to a lightweight
+  header action, and improved secondary action touch targets with icon tiles.
+- Preserved the shared invoice summary component for consistent recent-invoice
+  behavior and added bottom scroll breathing room above navigation.
+- Important file: dashboard screen. No schema/storage changes. Verification:
+  formatting, analysis, responsive/widget tests, full suite, and diff checks.
 
 ### 2026-08-11 — Immediate default-unit selection feedback
 

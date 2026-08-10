@@ -54,9 +54,34 @@ class DashboardScreen extends GetView<DashboardController> {
               paddingTop: AppSpacing.xs,
               child: Obx(() {
                 return ListView(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xl),
                   children: [
                     _businessOverview(context),
-                    const SizedBox(height: AppSpacing.md),
+                    if (controller.report.value.outstandingMinor > 0) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      _OutstandingPrompt(
+                        amount: controller.report.value.outstandingMinor,
+                        symbol: _symbol,
+                        onTap: () => Get.toNamed<void>(AppRoutes.invoices),
+                      ),
+                    ],
+                    const SizedBox(height: AppSpacing.lg),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Create quickly',
+                            style: AppTextStyles.sectionTitle,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () => Get.toNamed<void>(AppRoutes.reports),
+                          icon: const Icon(Icons.insights_rounded, size: 18),
+                          label: const Text('Reports'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
                     Row(
                       children: [
                         Expanded(
@@ -67,18 +92,9 @@ class DashboardScreen extends GetView<DashboardController> {
                                 Get.toNamed<void>(AppRoutes.invoiceCreate),
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: FilledButton.tonalIcon(
-                            onPressed: () =>
-                                Get.toNamed<void>(AppRoutes.reports),
-                            icon: const Icon(Icons.insights_rounded, size: 19),
-                            label: const Text('Insights'),
-                          ),
-                        ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: AppSpacing.sm),
                     Row(
                       children: [
                         _QuickAction(
@@ -99,7 +115,7 @@ class DashboardScreen extends GetView<DashboardController> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.xl),
                     Row(
                       children: [
                         Expanded(
@@ -184,7 +200,7 @@ class DashboardScreen extends GetView<DashboardController> {
     return Stack(
       children: [
         Container(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 19),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [AppColors.secondary, AppColors.primaryDark],
@@ -236,7 +252,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               Text(
                 'Invoiced this month',
                 style: AppTextStyles.secondaryBody.copyWith(
@@ -255,7 +271,20 @@ class DashboardScreen extends GetView<DashboardController> {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(99),
+                child: LinearProgressIndicator(
+                  value: report.totalSalesMinor <= 0
+                      ? 0
+                      : (report.totalReceivedMinor / report.totalSalesMinor)
+                            .clamp(0.0, 1.0),
+                  minHeight: 6,
+                  backgroundColor: Colors.white.withValues(alpha: .13),
+                  valueColor: const AlwaysStoppedAnimation(Color(0xFF61D7B4)),
+                ),
+              ),
+              const SizedBox(height: 13),
               Row(
                 children: [
                   Expanded(
@@ -380,25 +409,99 @@ class _QuickAction extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Material(
-        color: AppColors.surfaceSoft,
+        color: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(17),
           side: const BorderSide(color: AppColors.border),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 13),
-            child: Row(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: AppColors.primary, size: 20),
-                const SizedBox(width: 7),
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: AppColors.primary, size: 20),
+                ),
+                const SizedBox(height: 7),
                 Text(label, style: AppTextStyles.caption),
               ],
             ),
           ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _OutstandingPrompt extends StatelessWidget {
+  const _OutstandingPrompt({
+    required this.amount,
+    required this.symbol,
+    required this.onTap,
+  });
+
+  final int amount;
+  final String symbol;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: const Color(0xFFFFF4E4),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(17),
+      side: BorderSide(color: AppColors.warning.withValues(alpha: .22)),
+    ),
+    clipBehavior: Clip.antiAlias,
+    child: InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .78),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: const Icon(
+                Icons.schedule_send_outlined,
+                color: AppColors.warning,
+                size: 21,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Follow up on payments', style: AppTextStyles.cardTitle),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${CurrencyUtils.formatMinor(amount, symbol: symbol)} is still waiting to be collected',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.small.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward_rounded, color: AppColors.warning),
+          ],
         ),
       ),
     ),
