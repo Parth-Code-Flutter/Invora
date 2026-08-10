@@ -14,7 +14,6 @@ import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../app/widgets/app_main_navigation.dart';
-import '../../../app/widgets/app_module_banner.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/invoice_list_controller.dart';
 
@@ -25,6 +24,13 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        tooltip: quotation ? 'Create quotation' : 'Create invoice',
+        onPressed: () => Get.toNamed<void>(
+          quotation ? AppRoutes.quotationCreate : AppRoutes.invoiceCreate,
+        ),
+        child: const Icon(Icons.add_rounded),
+      ),
       bottomNavigationBar: AppMainNavigation(
         current: quotation ? MainDestination.more : MainDestination.invoices,
       ),
@@ -88,27 +94,6 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
             ),
             child: Column(
               children: [
-                AppModuleBanner(
-                  title: quotation
-                      ? 'Plan the next win'
-                      : 'Your money timeline',
-                  subtitle: quotation
-                      ? 'Create, send and turn accepted work into an invoice.'
-                      : 'Create quickly and see what is paid or still due.',
-                  icon: quotation
-                      ? Icons.request_quote_outlined
-                      : Icons.receipt_long_outlined,
-                  colors: quotation
-                      ? const [AppColors.accent, AppColors.secondary]
-                      : const [AppColors.secondary, AppColors.primary],
-                  actionLabel: quotation ? 'New quote' : 'New invoice',
-                  onAction: () => Get.toNamed<void>(
-                    quotation
-                        ? AppRoutes.quotationCreate
-                        : AppRoutes.invoiceCreate,
-                  ),
-                ),
-                const SizedBox(height: 18),
                 SizedBox(
                   height: 42,
                   child: Obx(

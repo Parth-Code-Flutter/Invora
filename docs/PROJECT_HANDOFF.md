@@ -191,6 +191,16 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Compact list creation actions
+
+- Removed the large promotional/create banners from invoice, quotation,
+  customer, and product/service lists to dedicate more screen space to filters
+  and saved records.
+- Added compact, accessible floating `+` actions to each list, with a
+  module-specific tooltip and destination.
+- Important files: invoice, customer, and product list screens.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Create catalog items from invoice picker
 
 - Added a prominent `Create product or service` action to the saved-item

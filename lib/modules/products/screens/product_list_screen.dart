@@ -12,7 +12,6 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
-import '../../../app/widgets/app_module_banner.dart';
 import '../../../app/widgets/app_search_field.dart';
 import '../../../data/models/product_service_model.dart';
 import '../controllers/product_list_controller.dart';
@@ -23,6 +22,11 @@ class ProductListScreen extends GetView<ProductListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Add product or service',
+        onPressed: () => Get.toNamed<void>(AppRoutes.productAdd),
+        child: const Icon(Icons.add_rounded),
+      ),
       appBar: AppBar(
         leading: const AppBackButton(),
         title: const Text('Products & services'),
@@ -38,15 +42,6 @@ class ProductListScreen extends GetView<ProductListController> {
             ),
             child: Column(
               children: [
-                AppModuleBanner(
-                  title: 'Your reusable catalog',
-                  subtitle: 'Save it once. Add it to any invoice in one tap.',
-                  icon: Icons.auto_awesome_mosaic_outlined,
-                  colors: const [AppColors.secondary, AppColors.primary],
-                  actionLabel: 'New item',
-                  onAction: () => Get.toNamed<void>(AppRoutes.productAdd),
-                ),
-                const SizedBox(height: 18),
                 AppSearchField(
                   onChanged: controller.updateSearch,
                   hint: 'Search name, description or HSN/SAC',
