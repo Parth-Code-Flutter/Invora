@@ -33,49 +33,45 @@ class MoreScreen extends GetView<MoreController> {
           const SizedBox(height: 22),
           const _SectionLabel('Business tools'),
           const SizedBox(height: 9),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: MediaQuery.sizeOf(context).width >= 600
-                ? 1.8
-                : 1.28,
-            children: const [
-              _ToolTile(
-                icon: Icons.inventory_2_outlined,
-                label: 'Products',
-                caption: 'Items & pricing',
-                route: AppRoutes.products,
-                color: AppColors.primary,
-                background: AppColors.primaryLight,
-              ),
-              _ToolTile(
-                icon: Icons.request_quote_outlined,
-                label: 'Estimates',
-                caption: 'Quotes for clients',
-                route: AppRoutes.quotations,
-                color: AppColors.secondary,
-                background: AppColors.secondaryLight,
-              ),
-              _ToolTile(
-                icon: Icons.insert_chart_outlined_rounded,
-                label: 'Reports',
-                caption: 'Sales overview',
-                route: AppRoutes.reports,
-                color: AppColors.primary,
-                background: AppColors.primaryLight,
-              ),
-              _ToolTile(
-                icon: Icons.settings_backup_restore_rounded,
-                label: 'Backup',
-                caption: 'Protect your data',
-                route: AppRoutes.backup,
-                color: AppColors.secondary,
-                background: AppColors.secondaryLight,
-              ),
-            ],
+          SizedBox(
+            height: 132,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: const [
+                _ToolTile(
+                  icon: Icons.inventory_2_outlined,
+                  label: 'Products',
+                  caption: 'Items & pricing',
+                  route: AppRoutes.products,
+                  color: AppColors.primary,
+                  background: AppColors.primaryLight,
+                ),
+                _ToolTile(
+                  icon: Icons.request_quote_outlined,
+                  label: 'Estimates',
+                  caption: 'Quotes for clients',
+                  route: AppRoutes.quotations,
+                  color: AppColors.secondary,
+                  background: AppColors.secondaryLight,
+                ),
+                _ToolTile(
+                  icon: Icons.insert_chart_outlined_rounded,
+                  label: 'Reports',
+                  caption: 'Sales overview',
+                  route: AppRoutes.reports,
+                  color: AppColors.primary,
+                  background: AppColors.primaryLight,
+                ),
+                _ToolTile(
+                  icon: Icons.settings_backup_restore_rounded,
+                  label: 'Backup',
+                  caption: 'Protect your data',
+                  route: AppRoutes.backup,
+                  color: AppColors.secondary,
+                  background: AppColors.secondaryLight,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 24),
           const _SectionLabel('Preferences'),
@@ -147,7 +143,11 @@ class _BusinessHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A0623),
+        gradient: const LinearGradient(
+          colors: [AppColors.secondary, AppColors.primaryDark],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(22),
         boxShadow: const [
           BoxShadow(
@@ -246,42 +246,54 @@ class _ToolTile extends StatelessWidget {
   final Color background;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    onTap: () => Get.toNamed<void>(route),
-    padding: const EdgeInsets.all(14),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Row(
+  Widget build(BuildContext context) => SizedBox(
+    width: 154,
+    child: Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: AppCard(
+        onTap: () => Get.toNamed<void>(route),
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: background,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: color, size: 20),
+            Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: background,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 20),
+                ),
+                const Spacer(),
+                const Icon(
+                  Icons.arrow_outward_rounded,
+                  size: 18,
+                  color: AppColors.textTertiary,
+                ),
+              ],
             ),
-            const Spacer(),
-            const Icon(
-              Icons.arrow_outward_rounded,
-              size: 18,
-              color: AppColors.textTertiary,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: AppTextStyles.cardTitle),
+                const SizedBox(height: 2),
+                Text(
+                  caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        const SizedBox(height: 11),
-        Text(label, style: AppTextStyles.cardTitle),
-        const SizedBox(height: 2),
-        Text(
-          caption,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-        ),
-      ],
+      ),
     ),
   );
 }

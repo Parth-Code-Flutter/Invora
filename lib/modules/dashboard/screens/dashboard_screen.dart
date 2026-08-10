@@ -60,9 +60,8 @@ class DashboardScreen extends GetView<DashboardController> {
                     Row(
                       children: [
                         Expanded(
-                          flex: 2,
                           child: AppButton(
-                            label: 'New invoice',
+                            label: 'Create invoice',
                             icon: Icons.add_rounded,
                             onPressed: () =>
                                 Get.toNamed<void>(AppRoutes.invoiceCreate),
@@ -70,40 +69,45 @@ class DashboardScreen extends GetView<DashboardController> {
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
-                          child: OutlinedButton(
+                          child: FilledButton.tonalIcon(
                             onPressed: () =>
                                 Get.toNamed<void>(AppRoutes.reports),
-                            child: const Text('Reports'),
+                            icon: const Icon(Icons.insights_rounded, size: 19),
+                            label: const Text('Insights'),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    Row(
-                      children: [
-                        _QuickAction(
-                          label: 'Invoice',
-                          icon: Icons.receipt_long_outlined,
-                          onTap: () =>
-                              Get.toNamed<void>(AppRoutes.invoiceCreate),
-                        ),
-                        _QuickAction(
-                          label: 'Estimate',
-                          icon: Icons.request_quote_outlined,
-                          onTap: () =>
-                              Get.toNamed<void>(AppRoutes.quotationCreate),
-                        ),
-                        _QuickAction(
-                          label: 'Customer',
-                          icon: Icons.person_add_alt_1_outlined,
-                          onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
-                        ),
-                        _QuickAction(
-                          label: 'Product',
-                          icon: Icons.add_box_outlined,
-                          onTap: () => Get.toNamed<void>(AppRoutes.productAdd),
-                        ),
-                      ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceSoft,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Row(
+                        children: [
+                          _QuickAction(
+                            label: 'Estimate',
+                            icon: Icons.request_quote_outlined,
+                            onTap: () =>
+                                Get.toNamed<void>(AppRoutes.quotationCreate),
+                          ),
+                          _QuickAction(
+                            label: 'Customer',
+                            icon: Icons.person_add_alt_1_outlined,
+                            onTap: () =>
+                                Get.toNamed<void>(AppRoutes.customerAdd),
+                          ),
+                          _QuickAction(
+                            label: 'Product',
+                            icon: Icons.add_box_outlined,
+                            onTap: () =>
+                                Get.toNamed<void>(AppRoutes.productAdd),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
                     Row(
@@ -161,14 +165,17 @@ class DashboardScreen extends GetView<DashboardController> {
                         ),
                       ),
                     ...controller.recentInvoices.map(
-                      (invoice) => InkWell(
-                        onTap: () => Get.toNamed<void>(
-                          AppRoutes.invoiceDetails,
-                          arguments: invoice.id,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
+                      (invoice) => Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: AppCard(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          onTap: () => Get.toNamed<void>(
+                            AppRoutes.invoiceDetails,
+                            arguments: invoice.id,
+                          ),
                           child: Row(
                             children: [
                               Expanded(
@@ -226,83 +233,123 @@ class DashboardScreen extends GetView<DashboardController> {
 
   Widget _businessOverview(BuildContext context) {
     final report = controller.report.value;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A0623),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x24151827),
-            blurRadius: 22,
-            offset: Offset(0, 9),
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColors.secondary, AppColors.primaryDark],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x24151827),
+                blurRadius: 22,
+                offset: Offset(0, 9),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.auto_graph_rounded, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Text(
+                        'CASH FLOW · THIS MONTH',
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white54,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 9,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: .08),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${report.invoiceCount} invoices',
+                      style: AppTextStyles.caption.copyWith(
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
               Text(
-                'THIS MONTH',
-                style: AppTextStyles.caption.copyWith(color: Colors.white54),
+                'Invoiced this month',
+                style: AppTextStyles.secondaryBody.copyWith(
+                  color: Colors.white60,
+                ),
               ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: .08),
-                  borderRadius: BorderRadius.circular(20),
+              const SizedBox(height: 3),
+              Text(
+                CurrencyUtils.formatMinor(
+                  report.totalSalesMinor,
+                  symbol: _symbol,
                 ),
-                child: Text(
-                  '${report.invoiceCount} invoices',
-                  style: AppTextStyles.caption.copyWith(color: Colors.white70),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.displayAmount.copyWith(
+                  color: Colors.white,
                 ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: _OverviewValue(
+                      label: 'Received',
+                      value: CurrencyUtils.formatMinor(
+                        report.totalReceivedMinor,
+                        symbol: _symbol,
+                      ),
+                      color: const Color(0xFF61D7B4),
+                    ),
+                  ),
+                  Container(width: 1, height: 38, color: Colors.white12),
+                  const SizedBox(width: 18),
+                  Expanded(
+                    child: _OverviewValue(
+                      label: 'Outstanding',
+                      value: CurrencyUtils.formatMinor(
+                        report.outstandingMinor,
+                        symbol: _symbol,
+                      ),
+                      color: const Color(0xFFFFC878),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            'Total sales',
-            style: AppTextStyles.secondaryBody.copyWith(color: Colors.white60),
+        ),
+        Positioned(
+          right: -34,
+          top: -42,
+          child: Container(
+            width: 140,
+            height: 140,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: .06),
+            ),
           ),
-          const SizedBox(height: 3),
-          Text(
-            CurrencyUtils.formatMinor(report.totalSalesMinor, symbol: _symbol),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.displayAmount.copyWith(color: Colors.white),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _OverviewValue(
-                  label: 'Received',
-                  value: CurrencyUtils.formatMinor(
-                    report.totalReceivedMinor,
-                    symbol: _symbol,
-                  ),
-                  color: const Color(0xFF61D7B4),
-                ),
-              ),
-              Container(width: 1, height: 38, color: Colors.white12),
-              const SizedBox(width: 18),
-              Expanded(
-                child: _OverviewValue(
-                  label: 'Outstanding',
-                  value: CurrencyUtils.formatMinor(
-                    report.outstandingMinor,
-                    symbol: _symbol,
-                  ),
-                  color: const Color(0xFFFFC878),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

@@ -191,6 +191,18 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Modern dashboard and tool hub
+
+- Refreshed the dashboard around a branded cash-flow hero, clearer invoice and
+  insights actions, a compact quick-create surface, and card-based recent
+  invoice activity.
+- Reworked More into a lighter horizontally scrollable business-tool launchpad
+  and upgraded the business identity header with the app palette gradient.
+- Preserved all existing destinations, data behavior, responsive constraints,
+  and tablet navigation.
+- Important files: dashboard and More screens.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Scannable invoice and customer lists
 
 - Redesigned invoice cards with a status accent rail, compact document/status
