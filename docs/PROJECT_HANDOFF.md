@@ -200,6 +200,15 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Customer edit GetX scope fix
+
+- Removed an invalid reactive wrapper from the edit-only mobile field branch.
+  The contact-import progress remains reactive during creation, while editing
+  now renders a normal field because contact import is intentionally absent.
+- Updated the sticky form action surface to follow light/dark theme colors.
+- Important file: customer form screen.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Focused invoice details hierarchy
 
 - Compressed the invoice hero while keeping number, status, balance, total,

@@ -65,48 +65,7 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                                     textCapitalization:
                                         TextCapitalization.words,
                                   ),
-                                  Obx(
-                                    () => AppTextField(
-                                      controller: controller.mobile,
-                                      label: 'Mobile number *',
-                                      prefixIcon: Icons.phone_outlined,
-                                      suffixIcon: controller.isEditing
-                                          ? null
-                                          : IconButton(
-                                              tooltip:
-                                                  'Import from phone contacts',
-                                              onPressed:
-                                                  controller
-                                                      .isImportingContact
-                                                      .value
-                                                  ? null
-                                                  : controller
-                                                        .importPhoneContact,
-                                              icon:
-                                                  controller
-                                                      .isImportingContact
-                                                      .value
-                                                  ? const SizedBox.square(
-                                                      dimension: 18,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                            strokeWidth: 2,
-                                                          ),
-                                                    )
-                                                  : const Icon(
-                                                      Icons.contacts_rounded,
-                                                      color:
-                                                          AppColors.secondary,
-                                                    ),
-                                            ),
-                                      keyboardType: TextInputType.phone,
-                                      validator: controller.validateMobile,
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.digitsOnly,
-                                        LengthLimitingTextInputFormatter(10),
-                                      ],
-                                    ),
-                                  ),
+                                  _MobileField(controller: controller),
                                   AppTextField(
                                     controller: controller.email,
                                     label: 'Email address',
@@ -247,9 +206,9 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
             ResponsiveUtils.horizontalPadding(context),
             12,
           ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: AppColors.border)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            border: const Border(top: BorderSide(color: AppColors.border)),
           ),
           child: Obx(
             () => AppButton(
@@ -265,6 +224,48 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
               onPressed: controller.save,
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MobileField extends StatelessWidget {
+  const _MobileField({required this.controller});
+
+  final CustomerFormController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget field({Widget? suffixIcon}) => AppTextField(
+      controller: controller.mobile,
+      label: 'Mobile number *',
+      prefixIcon: Icons.phone_outlined,
+      suffixIcon: suffixIcon,
+      keyboardType: TextInputType.phone,
+      validator: controller.validateMobile,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(10),
+      ],
+    );
+
+    // Contact import is create-only. Avoid an Obx in edit mode because that
+    // branch has no observable dependency and GetX correctly rejects it.
+    if (controller.isEditing) return field();
+    return Obx(
+      () => field(
+        suffixIcon: IconButton(
+          tooltip: 'Import from phone contacts',
+          onPressed: controller.isImportingContact.value
+              ? null
+              : controller.importPhoneContact,
+          icon: controller.isImportingContact.value
+              ? const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.contacts_rounded, color: AppColors.secondary),
         ),
       ),
     );
