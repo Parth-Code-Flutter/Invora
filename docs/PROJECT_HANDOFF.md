@@ -208,6 +208,19 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Unit-editor controller lifecycle fix
+
+- Fixed the Add/Rename unit dialog crash caused by disposing a locally-owned
+  `TextEditingController` before Flutter completed the route exit animation.
+- The editor is now a dedicated stateful dialog that owns and disposes its
+  controller with the widget lifecycle, prevents duplicate async submissions,
+  and keeps validation errors inside the open dialog.
+- The subsequent Overlay `_dependents.isEmpty` assertion was cascading from the
+  controller failure and is resolved by the same ownership correction.
+- Important file: unit settings screen; added a widget regression test that
+  creates a unit, completes the dialog animation, and asserts no exception.
+- No schema or storage changes. Verification includes analysis and full tests.
+
 ### 2026-08-11 — Remaining-balance payment shortcut clarity
 
 - Clarified Record payment so its full-payment shortcut displays and fills the

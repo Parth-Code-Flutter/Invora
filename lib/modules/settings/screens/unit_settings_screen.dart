@@ -90,65 +90,10 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
   );
 
   Future<void> _showEditor(BuildContext context, {String? unit}) async {
-    final input = TextEditingController(text: unit ?? '');
-    String? error;
     await showDialog<void>(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Text(unit == null ? 'Add a unit' : 'Rename unit'),
-          content: TextField(
-            controller: input,
-            autofocus: true,
-            textCapitalization: TextCapitalization.none,
-            decoration: InputDecoration(
-              labelText: 'Unit name',
-              hintText: 'e.g. bundle',
-              errorText: error,
-            ),
-            onSubmitted: (_) => _saveUnit(
-              dialogContext,
-              unit,
-              input.text,
-              (value) => setState(() => error = value),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => _saveUnit(
-                dialogContext,
-                unit,
-                input.text,
-                (value) => setState(() => error = value),
-              ),
-              child: Text(unit == null ? 'Add unit' : 'Save'),
-            ),
-          ],
-        ),
-      ),
+      builder: (_) => _UnitEditorDialog(current: unit, controller: controller),
     );
-    input.dispose();
-  }
-
-  Future<void> _saveUnit(
-    BuildContext context,
-    String? current,
-    String value,
-    ValueChanged<String?> showError,
-  ) async {
-    final result = current == null
-        ? await controller.create(value)
-        : await controller.rename(current, value);
-    if (result != null) {
-      showError(result);
-      return;
-    }
-    if (!context.mounted) return;
-    Navigator.pop(context);
   }
 
   Future<void> _confirmDelete(BuildContext context, String unit) async {
@@ -175,6 +120,83 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
     final error = await controller.delete(unit);
     if (error != null) Get.snackbar('Cannot delete unit', error);
   }
+}
+
+class _UnitEditorDialog extends StatefulWidget {
+  const _UnitEditorDialog({required this.controller, this.current});
+
+  final UnitSettingsController controller;
+  final String? current;
+
+  @override
+  State<_UnitEditorDialog> createState() => _UnitEditorDialogState();
+}
+
+class _UnitEditorDialogState extends State<_UnitEditorDialog> {
+  late final TextEditingController input = TextEditingController(
+    text: widget.current ?? '',
+  );
+  String? error;
+  bool saving = false;
+
+  @override
+  void dispose() {
+    input.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (saving) return;
+    setState(() {
+      saving = true;
+      error = null;
+    });
+    final result = widget.current == null
+        ? await widget.controller.create(input.text)
+        : await widget.controller.rename(widget.current!, input.text);
+    if (!mounted) return;
+    if (result != null) {
+      setState(() {
+        saving = false;
+        error = result;
+      });
+      return;
+    }
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: Text(widget.current == null ? 'Add a unit' : 'Rename unit'),
+    content: TextField(
+      controller: input,
+      autofocus: true,
+      enabled: !saving,
+      textCapitalization: TextCapitalization.none,
+      textInputAction: TextInputAction.done,
+      decoration: InputDecoration(
+        labelText: 'Unit name',
+        hintText: 'e.g. bundle',
+        errorText: error,
+      ),
+      onSubmitted: (_) => _save(),
+    ),
+    actions: [
+      TextButton(
+        onPressed: saving ? null : () => Navigator.pop(context),
+        child: const Text('Cancel'),
+      ),
+      FilledButton(
+        onPressed: saving ? null : _save,
+        child: saving
+            ? const SizedBox.square(
+                dimension: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(widget.current == null ? 'Add unit' : 'Save'),
+      ),
+    ],
+  );
 }
 
 class _UnitTile extends StatelessWidget {
