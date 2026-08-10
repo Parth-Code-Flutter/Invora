@@ -69,6 +69,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   app-wide default selection; new items prefill the selected default
 - Catalog-first add/edit flow keeps type, name, price, and description in the
   main path while progressively disclosing unit, tax, and HSN/SAC details
+- Product/service forms use an expressive compact type picker, cohesive
+  essentials card, and live invoice-line preview for name, price, and unit
 
 ### Invoices and quotations
 
@@ -193,10 +195,10 @@ transfer automatically.
 
 ## Verification baseline
 
-As of 2026-08-10:
+As of 2026-08-11:
 
 - Flutter analysis: no issues
-- Automated suite: all 32 tests passing
+- Automated suite: all 41 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -215,6 +217,20 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Modern catalog item composer
+
+- Redesigned product/service creation and editing as a compact task-focused
+  composer with a branded purpose panel and clearer product/service choices.
+- Grouped the required name and price with the optional description in one
+  cohesive essentials card, reducing visual fragmentation and unused space.
+- Added a live invoice-line preview that reflects the entered name, price,
+  selected unit, currency, and item type before saving.
+- Kept unit, GST, and HSN/SAC details progressively disclosed and retained the
+  responsive two-column tablet layout and existing persistence behavior.
+- Important file: `product_form_screen.dart`; no schema or storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
 
 ### 2026-08-11 — Cart-like invoice item behavior
 

@@ -45,52 +45,15 @@ class ProductFormScreen extends GetView<ProductFormController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Text(
-                              controller.isEditing
-                                  ? 'Update catalog item'
-                                  : 'Create a reusable item',
-                              style: AppTextStyles.pageTitle,
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              'Only a name and price are required. Add invoice details when useful.',
-                              style: AppTextStyles.secondaryBody.copyWith(
-                                color: AppColors.textSecondary,
+                            _IntroPanel(isEditing: controller.isEditing),
+                            const SizedBox(height: 18),
+                            Obx(
+                              () => _TypeSelector(
+                                value: controller.type.value,
+                                onChanged: controller.selectType,
                               ),
                             ),
-                            const SizedBox(height: 20),
-                            Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceMuted,
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                              child: Obx(
-                                () => SizedBox(
-                                  width: double.infinity,
-                                  child: SegmentedButton<ItemType>(
-                                    segments: const [
-                                      ButtonSegment(
-                                        value: ItemType.product,
-                                        label: Text('Product'),
-                                        icon: Icon(Icons.inventory_2_outlined),
-                                      ),
-                                      ButtonSegment(
-                                        value: ItemType.service,
-                                        label: Text('Service'),
-                                        icon: Icon(
-                                          Icons.design_services_outlined,
-                                        ),
-                                      ),
-                                    ],
-                                    selected: {controller.type.value},
-                                    onSelectionChanged: (selection) =>
-                                        controller.selectType(selection.first),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 22),
                             Row(
                               children: [
                                 Text(
@@ -117,45 +80,70 @@ class ProductFormScreen extends GetView<ProductFormController> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            _ResponsiveFields(
-                              children: [
-                                AppTextField(
-                                  controller: controller.name,
-                                  label: 'Item name *',
-                                  hint: 'e.g. Brand consultation',
-                                  prefixIcon: Icons.sell_outlined,
-                                  validator: controller.validateName,
-                                  textCapitalization: TextCapitalization.words,
-                                ),
-                                Obx(
-                                  () => AppTextField(
-                                    controller: controller.salePrice,
-                                    label:
-                                        'Sale price (${controller.currencySymbol.value}) *',
-                                    hint: '0.00',
-                                    prefixIcon: Icons.currency_rupee_rounded,
-                                    validator: controller.validatePrice,
-                                    keyboardType:
-                                        const TextInputType.numberWithOptions(
-                                          decimal: true,
+                            AppCard(
+                              child: Column(
+                                children: [
+                                  _ResponsiveFields(
+                                    children: [
+                                      AppTextField(
+                                        controller: controller.name,
+                                        label: 'Item name *',
+                                        hint: 'e.g. Brand consultation',
+                                        prefixIcon: Icons.sell_outlined,
+                                        validator: controller.validateName,
+                                        textCapitalization:
+                                            TextCapitalization.words,
+                                      ),
+                                      Obx(
+                                        () => AppTextField(
+                                          controller: controller.salePrice,
+                                          label:
+                                              'Sale price (${controller.currencySymbol.value}) *',
+                                          hint: '0.00',
+                                          prefixIcon:
+                                              Icons.currency_rupee_rounded,
+                                          validator: controller.validatePrice,
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                decimal: true,
+                                              ),
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter.allow(
+                                              RegExp(r'^\d*\.?\d{0,2}'),
+                                            ),
+                                          ],
                                         ),
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}'),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 12),
+                                  AppTextField(
+                                    controller: controller.description,
+                                    label: 'Invoice description',
+                                    hint: 'What should the customer know?',
+                                    prefixIcon: Icons.notes_rounded,
+                                    maxLines: 2,
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 12),
-                            AppTextField(
-                              controller: controller.description,
-                              label: 'Description',
-                              hint: 'Optional text shown on the invoice',
-                              prefixIcon: Icons.notes_rounded,
-                              maxLines: 2,
-                              textCapitalization: TextCapitalization.sentences,
+                            const SizedBox(height: 14),
+                            ListenableBuilder(
+                              listenable: Listenable.merge([
+                                controller.name,
+                                controller.salePrice,
+                              ]),
+                              builder: (context, _) => Obx(
+                                () => _InvoiceLinePreview(
+                                  name: controller.name.text.trim(),
+                                  price: controller.salePrice.text.trim(),
+                                  currency: controller.currencySymbol.value,
+                                  unit: controller.selectedUnit.value,
+                                  type: controller.type.value,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 16),
                             AppCard(
@@ -187,11 +175,11 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                   ),
                                 ),
                                 title: Text(
-                                  'Invoice details',
+                                  'More invoice details',
                                   style: AppTextStyles.cardTitle,
                                 ),
                                 subtitle: Text(
-                                  'Unit, tax and HSN/SAC · optional',
+                                  'Unit, GST and HSN/SAC · optional',
                                   style: AppTextStyles.small.copyWith(
                                     color: AppColors.textSecondary,
                                   ),
@@ -325,6 +313,278 @@ class ProductFormScreen extends GetView<ProductFormController> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _IntroPanel extends StatelessWidget {
+  const _IntroPanel({required this.isEditing});
+
+  final bool isEditing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary.withValues(alpha: .12),
+            AppColors.secondary.withValues(alpha: .08),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.primary.withValues(alpha: .12)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.primary, AppColors.secondary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Icon(
+              Icons.auto_awesome_rounded,
+              color: Colors.white,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isEditing ? 'Refine this catalog item' : 'Build it once',
+                  style: AppTextStyles.cardTitle,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  isEditing
+                      ? 'Changes apply when you use this item on future invoices.'
+                      : 'Save the essentials now and reuse them on every invoice.',
+                  style: AppTextStyles.small.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TypeSelector extends StatelessWidget {
+  const _TypeSelector({required this.value, required this.onChanged});
+
+  final ItemType value;
+  final ValueChanged<ItemType> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _TypeOption(
+            label: 'Product',
+            detail: 'A physical item',
+            icon: Icons.inventory_2_outlined,
+            selected: value == ItemType.product,
+            onTap: () => onChanged(ItemType.product),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _TypeOption(
+            label: 'Service',
+            detail: 'Time or expertise',
+            icon: Icons.design_services_outlined,
+            selected: value == ItemType.service,
+            onTap: () => onChanged(ItemType.service),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TypeOption extends StatelessWidget {
+  const _TypeOption({
+    required this.label,
+    required this.detail,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final String detail;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        decoration: BoxDecoration(
+          color: selected
+              ? (isDark
+                    ? AppColors.primary.withValues(alpha: .16)
+                    : AppColors.primaryLight)
+              : (isDark ? AppColors.darkSurface : Colors.white),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.border,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? AppColors.primary
+                          : AppColors.surfaceMuted,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      selected ? Icons.check_rounded : icon,
+                      size: 19,
+                      color: selected ? Colors.white : AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(label, style: AppTextStyles.cardTitle),
+                        const SizedBox(height: 2),
+                        Text(
+                          detail,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InvoiceLinePreview extends StatelessWidget {
+  const _InvoiceLinePreview({
+    required this.name,
+    required this.price,
+    required this.currency,
+    required this.unit,
+    required this.type,
+  });
+
+  final String name;
+  final String price;
+  final String currency;
+  final String unit;
+  final ItemType type;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final displayName = name.isEmpty
+        ? (type == ItemType.product ? 'Your product' : 'Your service')
+        : name;
+    final displayPrice = price.isEmpty ? '0.00' : price;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkSurface : Colors.white,
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: Icon(
+              type == ItemType.product
+                  ? Icons.inventory_2_outlined
+                  : Icons.design_services_outlined,
+              color: AppColors.primary,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Invoice preview',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.cardTitle,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 150),
+            child: Text(
+              '$currency$displayPrice / $unit',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.cardTitle.copyWith(
+                color: isDark ? AppColors.primary : AppColors.primaryDark,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
