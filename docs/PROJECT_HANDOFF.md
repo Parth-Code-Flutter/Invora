@@ -81,7 +81,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Saved catalog items and one-time custom items
 - Line-item edit, duplicate, and remove actions
 - Re-selecting the same saved catalog item increases its existing quantity;
-  selected-item cards expose direct minus/plus quantity controls and line total
+  selected-item cards expose direct minus/plus quantity controls and line
+  total; the stepper displays quantity only while unit stays with the rate
 - Decimal quantity, rate, unit, HSN/SAC, GST, item/invoice discounts,
   additional charges, round-off, notes, and terms
 - CGST/SGST, IGST, and non-tax modes
@@ -217,6 +218,16 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Unambiguous invoice quantity stepper
+
+- Corrected selected invoice item cards so the minus/plus stepper displays
+  only the numeric quantity instead of incorrectly joining quantity and unit.
+- Kept unit context with the per-unit rate (`price / unit`), preventing values
+  such as `2 6 mm` from implying that the unit is part of the quantity.
+- Important file: `invoice_create_screen.dart`; no schema or storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
 
 ### 2026-08-11 — Modern catalog item composer
 

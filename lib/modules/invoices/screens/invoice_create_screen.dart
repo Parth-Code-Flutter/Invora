@@ -451,7 +451,6 @@ class _InvoiceForm extends StatelessWidget {
                             value: QuantityUtils.toInputValue(
                               item.quantityScaled,
                             ),
-                            unit: item.unit,
                             canDecrease: item.quantityScaled > 1000,
                             onDecrease: () =>
                                 controller.decrementQuantity(entry.key),
@@ -1141,14 +1140,12 @@ class _SectionEyebrow extends StatelessWidget {
 class _QuantityStepper extends StatelessWidget {
   const _QuantityStepper({
     required this.value,
-    required this.unit,
     required this.canDecrease,
     required this.onDecrease,
     required this.onIncrease,
   });
 
   final String value;
-  final String unit;
   final bool canDecrease;
   final VoidCallback onDecrease;
   final VoidCallback onIncrease;
@@ -1175,7 +1172,7 @@ class _QuantityStepper extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(
-            '$value $unit',
+            value,
             style: AppTextStyles.small.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
