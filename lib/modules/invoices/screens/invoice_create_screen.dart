@@ -19,6 +19,7 @@ import '../../../data/models/invoice_calculation_models.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/services/unit_service.dart';
+import '../../customers/controllers/customer_form_controller.dart';
 import '../controllers/invoice_create_controller.dart';
 
 class InvoiceCreateScreen extends StatefulWidget {
@@ -705,7 +706,10 @@ Future<void> _selectCustomer(
       onAction: () async {
         // GetX registers named pages as dynamic routes. Asking Navigator for a
         // typed route result causes a runtime cast before the page can open.
-        final result = await Get.toNamed<dynamic>(AppRoutes.customerAdd);
+        final result = await Get.toNamed<dynamic>(
+          AppRoutes.customerAdd,
+          arguments: const CustomerFormArgs(returnToInvoice: true),
+        );
         return result is CustomerModel ? result : null;
       },
     ),

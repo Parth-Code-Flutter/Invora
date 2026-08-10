@@ -37,7 +37,10 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Create, search, edit, view, and soft-delete customers
 - Mobile length/format and email regex validation
 - GSTIN, address, company, and optional notes support
-- Create-customer action directly inside invoice customer selection
+- Essentials-first customer form keeps name/contact visible and progressively
+  discloses company/tax, billing address, and private notes
+- Create-customer action directly inside invoice customer selection; customers
+  saved there are immediately returned to and selected for the invoice
 
 ### Products and services
 
@@ -170,6 +173,22 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-10 — Faster customer capture
+
+- Reworked customer add/edit into an essentials-first flow: only the customer
+  name is required, with mobile and email kept close at hand.
+- Moved company/GSTIN, billing address, and private notes into clearly labelled
+  optional sections without removing any customer capability.
+- Added invoice-aware customer creation with a `Save & use customer` action
+  that returns the saved customer directly to the invoice picker.
+- Added a sticky save action, responsive form columns, smaller field icons, and
+  clearer on-device privacy guidance.
+- Important files: `customer_form_screen.dart`,
+  `customer_form_controller.dart`, `invoice_create_screen.dart`.
+- No database, storage, backup, or migration changes.
+- Verified with formatting, clean analysis, all 27 automated tests, and an
+  Android debug APK build.
 
 ### 2026-08-10 — Customer-first invoice creation
 

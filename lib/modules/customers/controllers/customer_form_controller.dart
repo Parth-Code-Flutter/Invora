@@ -23,13 +23,24 @@ class CustomerFormController extends GetxController {
   final isLoading = false.obs;
   final isSaving = false.obs;
   CustomerModel? _existing;
+  bool _returnToInvoice = false;
+  bool _isEditing = false;
 
-  bool get isEditing => _existing != null;
+  bool get isEditing => _isEditing;
+  bool get isInvoiceFlow => _returnToInvoice;
 
   @override
   void onInit() {
     super.onInit();
-    final id = Get.arguments as int?;
+    final arguments = Get.arguments;
+    final id = arguments is int
+        ? arguments
+        : arguments is CustomerFormArgs
+        ? arguments.customerId
+        : null;
+    _returnToInvoice =
+        arguments is CustomerFormArgs && arguments.returnToInvoice;
+    _isEditing = id != null;
     if (id != null) {
       _load(id);
     }
@@ -81,9 +92,8 @@ class CustomerFormController extends GetxController {
           updatedAt: now,
         ),
       );
-      // Named GetX pages use dynamic routes; return the model without forcing
-      // a generic route cast so callers can validate the runtime result.
-      Get.back(result: saved);
+      // Only the invoice flow needs the saved model as a route result.
+      Get.back(result: isInvoiceFlow ? saved : null);
     } finally {
       isSaving.value = false;
     }
@@ -131,4 +141,11 @@ class CustomerFormController extends GetxController {
     }
     super.onClose();
   }
+}
+
+class CustomerFormArgs {
+  const CustomerFormArgs({this.customerId, this.returnToInvoice = false});
+
+  final int? customerId;
+  final bool returnToInvoice;
 }
