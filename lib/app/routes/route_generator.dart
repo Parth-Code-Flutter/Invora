@@ -54,11 +54,15 @@ abstract final class AppRouter {
       name: AppRoutes.dashboard,
       page: DashboardScreen.new,
       binding: DashboardBinding(),
+      transition: Transition.noTransition,
+      transitionDuration: Duration.zero,
     ),
     GetPage(
       name: AppRoutes.customers,
       page: CustomerListScreen.new,
       binding: CustomerListBinding(),
+      transition: Transition.noTransition,
+      transitionDuration: Duration.zero,
     ),
     GetPage(
       name: AppRoutes.customerAdd,
@@ -99,6 +103,8 @@ abstract final class AppRouter {
       name: AppRoutes.invoices,
       page: InvoiceListScreen.new,
       binding: InvoiceListBinding(),
+      transition: Transition.noTransition,
+      transitionDuration: Duration.zero,
     ),
     GetPage(
       name: AppRoutes.quotations,
@@ -120,7 +126,13 @@ abstract final class AppRouter {
       page: InvoiceDetailsScreen.new,
       binding: InvoiceDetailsBinding(),
     ),
-    GetPage(name: AppRoutes.more, page: MoreScreen.new, binding: MoreBinding()),
+    GetPage(
+      name: AppRoutes.more,
+      page: MoreScreen.new,
+      binding: MoreBinding(),
+      transition: Transition.noTransition,
+      transitionDuration: Duration.zero,
+    ),
     GetPage(
       name: AppRoutes.settings,
       page: SettingsScreen.new,

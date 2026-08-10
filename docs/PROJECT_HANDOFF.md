@@ -191,6 +191,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Instant main-tab switching
+
+- Changed Home, Invoices, Customers, and More to use zero-duration route
+  transitions, removing the pushed-screen animation when using bottom
+  navigation.
+- Main-tab changes still replace the root navigation stack, so repeated tab
+  use cannot accumulate duplicate pages; feature/detail routes keep their
+  normal transitions.
+- Important files: route generator and main navigation widget.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Modern dashboard and tool hub
 
 - Refreshed the dashboard around a branded cash-flow hero, clearer invoice and

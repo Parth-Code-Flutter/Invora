@@ -142,6 +142,8 @@ class AppMainNavigation extends StatelessWidget {
 
   Future<void> _openDestination(String route) async {
     await AppFocus.dismissKeyboard();
+    // Main destinations replace the root route and are configured without a
+    // page transition, so they behave like tabs rather than pushed screens.
     Get.offAllNamed<void>(route);
   }
 
