@@ -1,9 +1,9 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:invora/app/enums/item_type.dart';
-import 'package:invora/data/models/product_service_model.dart';
-import 'package:invora/data/repositories/product_repository.dart';
-import 'package:invora/data/services/app_database.dart';
+import 'package:creovo_invoice/app/enums/item_type.dart';
+import 'package:creovo_invoice/data/models/product_service_model.dart';
+import 'package:creovo_invoice/data/repositories/product_repository.dart';
+import 'package:creovo_invoice/data/services/app_database.dart';
 
 void main() {
   late AppDatabase database;

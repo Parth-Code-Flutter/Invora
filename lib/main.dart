@@ -15,11 +15,13 @@ Future<void> main() async {
   final appStorage = await AppStorage.create();
   final databaseService = LocalDatabaseService(AppDatabase());
   await databaseService.initialize();
-  runApp(InvoraApp(appStorage: appStorage, databaseService: databaseService));
+  runApp(
+    CreovoInvoiceApp(appStorage: appStorage, databaseService: databaseService),
+  );
 }
 
-class InvoraApp extends StatelessWidget {
-  const InvoraApp({
+class CreovoInvoiceApp extends StatelessWidget {
+  const CreovoInvoiceApp({
     required this.appStorage,
     required this.databaseService,
     super.key,

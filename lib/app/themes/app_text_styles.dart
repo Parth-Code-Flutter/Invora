@@ -10,12 +10,13 @@ abstract final class AppTextStyles {
   );
   static const pageTitle = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: FontWeight.w700,
+    letterSpacing: -0.35,
   );
   static const sectionTitle = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: FontWeight.w600,
   );
   static const cardTitle = TextStyle(
@@ -25,7 +26,7 @@ abstract final class AppTextStyles {
   );
   static const body = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: FontWeight.w400,
   );
   static const secondaryBody = TextStyle(

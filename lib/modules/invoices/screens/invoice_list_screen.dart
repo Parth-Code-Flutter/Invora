@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/enums/invoice_status.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
@@ -111,6 +112,18 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 8),
+                Obx(
+                  () => Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '${controller.invoices.length} ${quotation ? 'estimates' : 'invoices'}',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -174,9 +187,17 @@ class _InvoiceCard extends StatelessWidget {
           Get.toNamed<void>(AppRoutes.invoiceDetails, arguments: invoice.id),
       child: Row(
         children: [
-          CircleAvatar(
-            backgroundColor: AppColors.primary.withValues(alpha: .1),
-            child: const Icon(Icons.receipt_long_outlined),
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: _statusColor(status).withValues(alpha: .11),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Icon(
+              Icons.receipt_long_outlined,
+              color: _statusColor(status),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -214,6 +235,15 @@ class _InvoiceCard extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               AppStatusChip(status: status),
+              if (invoice.balanceMinor > 0) ...[
+                const SizedBox(height: 4),
+                Text(
+                  '${CurrencyUtils.formatMinor(invoice.balanceMinor, symbol: symbol)} due',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ],
           ),
         ],
@@ -221,6 +251,17 @@ class _InvoiceCard extends StatelessWidget {
     );
   }
 }
+
+Color _statusColor(InvoiceStatus status) => switch (status) {
+  InvoiceStatus.paid || InvoiceStatus.accepted => AppColors.success,
+  InvoiceStatus.overdue ||
+  InvoiceStatus.cancelled ||
+  InvoiceStatus.rejected => AppColors.error,
+  InvoiceStatus.partiallyPaid ||
+  InvoiceStatus.unpaid ||
+  InvoiceStatus.expired => AppColors.warning,
+  _ => AppColors.primary,
+};
 
 String _filterLabel(InvoiceListFilter filter) => switch (filter) {
   InvoiceListFilter.all => 'All',

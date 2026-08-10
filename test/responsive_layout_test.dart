@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:invora/app/utils/responsive_utils.dart';
-import 'package:invora/data/services/app_storage.dart';
-import 'package:invora/modules/onboarding/controllers/onboarding_controller.dart';
-import 'package:invora/modules/onboarding/screens/onboarding_screen.dart';
+import 'package:creovo_invoice/app/utils/responsive_utils.dart';
+import 'package:creovo_invoice/data/services/app_storage.dart';
+import 'package:creovo_invoice/modules/onboarding/controllers/onboarding_controller.dart';
+import 'package:creovo_invoice/modules/onboarding/screens/onboarding_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -62,7 +62,7 @@ void main() {
     await tester.pumpWidget(const GetMaterialApp(home: OnboardingScreen()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Invoices in seconds'), findsOneWidget);
+    expect(find.text('Your invoice, ready in minutes'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

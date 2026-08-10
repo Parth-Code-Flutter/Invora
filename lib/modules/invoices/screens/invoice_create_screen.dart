@@ -23,16 +23,15 @@ class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          controller.isQuotation ? 'Create quotation' : 'Create invoice',
-        ),
+        title: Text(controller.isQuotation ? 'New estimate' : 'New invoice'),
         actions: [
           Obx(
-            () => TextButton(
+            () => IconButton(
+              tooltip: 'Save draft',
               onPressed: controller.isSaving.value
                   ? null
                   : () => controller.save(draft: true),
-              child: const Text('Save draft'),
+              icon: const Icon(Icons.bookmark_add_outlined),
             ),
           ),
           const SizedBox(width: 8),
@@ -113,56 +112,80 @@ class _InvoiceForm extends StatelessWidget {
       () => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AppCard(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Invoice details', style: AppTextStyles.sectionTitle),
-                const SizedBox(height: 12),
-                Text(
-                  controller.invoiceNumber.value,
-                  style: AppTextStyles.cardTitle.copyWith(
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
+                Row(
                   children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'INVOICE NUMBER',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            controller.invoiceNumber.value,
+                            style: AppTextStyles.sectionTitle.copyWith(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     ActionChip(
                       avatar: const Icon(
                         Icons.calendar_today_outlined,
                         size: 18,
                       ),
-                      label: Text(
-                        'Date: ${_date(controller.invoiceDate.value)}',
-                      ),
+                      label: Text(_date(controller.invoiceDate.value)),
                       onPressed: () => _pickDate(context, due: false),
                     ),
-                    ActionChip(
-                      avatar: const Icon(Icons.event_outlined, size: 18),
-                      label: Text(
-                        controller.dueDate.value == null
-                            ? 'Add due date'
-                            : 'Due: ${_date(controller.dueDate.value!)}',
-                      ),
-                      onPressed: () => _pickDate(context, due: true),
-                    ),
                   ],
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: () => _pickDate(context, due: true),
+                    icon: const Icon(Icons.event_outlined, size: 18),
+                    label: Text(
+                      controller.dueDate.value == null
+                          ? 'Add payment due date'
+                          : 'Due ${_date(controller.dueDate.value!)}',
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 12),
           AppCard(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             onTap: () => _selectCustomer(context),
             child: ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const CircleAvatar(child: Icon(Icons.person_outline)),
+              leading: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: const Icon(
+                  Icons.person_outline,
+                  color: AppColors.primary,
+                ),
+              ),
               title: Text(controller.customer.value?.name ?? 'Select customer'),
               subtitle: controller.customer.value == null
-                  ? const Text('Customer billing details are snapshotted')
+                  ? const Text('Tap to choose billing customer')
                   : Text(
                       controller.customer.value?.companyName ??
                           controller.customer.value?.mobile ??
@@ -188,10 +211,18 @@ class _InvoiceForm extends StatelessWidget {
             ],
           ),
           if (controller.items.isEmpty)
-            const AppCard(
-              child: Padding(
-                padding: EdgeInsets.all(8),
-                child: Text('No items yet. Add a saved or custom item.'),
+            AppCard(
+              onTap: () => _selectProduct(context),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add_circle_outline, color: AppColors.primary),
+                    SizedBox(width: 8),
+                    Text('Add your first item'),
+                  ],
+                ),
               ),
             )
           else
@@ -241,7 +272,8 @@ class _InvoiceForm extends StatelessWidget {
               );
             }),
           const SizedBox(height: 8),
-          if (!ResponsiveUtils.isTablet(context)) ...[
+          if (!ResponsiveUtils.isTablet(context) &&
+              controller.items.isNotEmpty) ...[
             _InvoiceSummary(controller: controller),
             const SizedBox(height: 12),
           ],

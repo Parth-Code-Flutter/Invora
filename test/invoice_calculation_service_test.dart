@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:invora/app/enums/invoice_status.dart';
-import 'package:invora/app/enums/tax_type.dart';
-import 'package:invora/app/utils/quantity_utils.dart';
-import 'package:invora/data/models/invoice_calculation_models.dart';
-import 'package:invora/data/services/invoice_calculation_service.dart';
+import 'package:creovo_invoice/app/enums/invoice_status.dart';
+import 'package:creovo_invoice/app/enums/tax_type.dart';
+import 'package:creovo_invoice/app/utils/quantity_utils.dart';
+import 'package:creovo_invoice/data/models/invoice_calculation_models.dart';
+import 'package:creovo_invoice/data/services/invoice_calculation_service.dart';
 
 void main() {
   const service = InvoiceCalculationService();

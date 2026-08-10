@@ -19,11 +19,6 @@ class ReportScreen extends GetView<ReportController> {
       final symbol = controller.currencySymbol.value;
       final entries = [
         (
-          'Total sales',
-          CurrencyUtils.formatMinor(value.totalSalesMinor, symbol: symbol),
-          Icons.trending_up,
-        ),
-        (
           'Total received',
           CurrencyUtils.formatMinor(value.totalReceivedMinor, symbol: symbol),
           Icons.payments_outlined,
@@ -48,6 +43,65 @@ class ReportScreen extends GetView<ReportController> {
       return ListView(
         padding: EdgeInsets.all(ResponsiveUtils.horizontalPadding(context)),
         children: [
+          Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  AppColors.secondary,
+                  AppColors.primary,
+                  AppColors.accent,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x285B5CE2),
+                  blurRadius: 22,
+                  offset: Offset(0, 9),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'TOTAL SALES • THIS MONTH',
+                  style: AppTextStyles.caption.copyWith(color: Colors.white70),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  CurrencyUtils.formatMinor(
+                    value.totalSalesMinor,
+                    symbol: symbol,
+                  ),
+                  style: AppTextStyles.displayAmount.copyWith(
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.receipt_long_outlined,
+                      color: Colors.white70,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 7),
+                    Text(
+                      '${value.invoiceCount} invoices created',
+                      style: AppTextStyles.secondaryBody.copyWith(
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -59,7 +113,7 @@ class ReportScreen extends GetView<ReportController> {
               ),
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              mainAxisExtent: 145,
+              mainAxisExtent: 122,
             ),
             itemCount: entries.length,
             itemBuilder: (_, index) => AppCard(

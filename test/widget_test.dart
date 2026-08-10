@@ -1,9 +1,9 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:invora/data/services/app_storage.dart';
-import 'package:invora/data/services/app_database.dart';
-import 'package:invora/data/services/local_database_service.dart';
-import 'package:invora/main.dart';
+import 'package:creovo_invoice/data/services/app_storage.dart';
+import 'package:creovo_invoice/data/services/app_database.dart';
+import 'package:creovo_invoice/data/services/local_database_service.dart';
+import 'package:creovo_invoice/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -24,15 +24,16 @@ void main() {
     addTearDown(databaseService.database.close);
 
     await tester.pumpWidget(
-      InvoraApp(appStorage: storage, databaseService: databaseService),
+      CreovoInvoiceApp(appStorage: storage, databaseService: databaseService),
     );
+    await tester.pump(const Duration(milliseconds: 1700));
     await tester.pumpAndSettle();
 
-    expect(find.text('Invoices in seconds'), findsOneWidget);
+    expect(find.text('Your invoice, ready in minutes'), findsOneWidget);
 
-    await tester.tap(find.text('Skip'));
+    await tester.tap(find.text('Skip for now'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Set up your business'), findsOneWidget);
+    expect(find.text('Build your invoice identity'), findsOneWidget);
   });
 }

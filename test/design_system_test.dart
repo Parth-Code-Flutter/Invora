@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:invora/app/enums/invoice_status.dart';
-import 'package:invora/app/themes/app_theme.dart';
-import 'package:invora/app/widgets/app_search_field.dart';
-import 'package:invora/app/widgets/app_status_chip.dart';
-import 'package:invora/app/widgets/app_text_field.dart';
+import 'package:creovo_invoice/app/enums/invoice_status.dart';
+import 'package:creovo_invoice/app/themes/app_theme.dart';
+import 'package:creovo_invoice/app/widgets/app_search_field.dart';
+import 'package:creovo_invoice/app/widgets/app_status_chip.dart';
+import 'package:creovo_invoice/app/widgets/app_text_field.dart';
 
 void main() {
   testWidgets('shared fields and status chip expose clear semantics', (

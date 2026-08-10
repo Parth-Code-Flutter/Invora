@@ -1,4 +1,4 @@
-package com.invora.invora
+package com.creovo.invoice
 
 import io.flutter.embedding.android.FlutterActivity
 

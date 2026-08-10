@@ -44,7 +44,7 @@ class InvoicePdfService {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
             pw.Text(
-              'Generated offline with Invora',
+              'Generated offline with Creovo Invoice',
               style: const pw.TextStyle(fontSize: 8),
             ),
             pw.Text(
@@ -383,8 +383,8 @@ class InvoicePdfService {
       false,
     ),
     InvoiceTemplate.professional => const _PdfStyle(
-      PdfColor.fromInt(0xFF4F46E5),
-      PdfColor.fromInt(0xFF4F46E5),
+      PdfColor.fromInt(0xFF7138E8),
+      PdfColor.fromInt(0xFF7138E8),
       PdfColors.white,
       26,
       14,
@@ -413,7 +413,7 @@ class InvoicePdfService {
       false,
     ),
     InvoiceTemplate.compact => const _PdfStyle(
-      PdfColor.fromInt(0xFF4F46E5),
+      PdfColor.fromInt(0xFF7138E8),
       PdfColor.fromInt(0xFFF1F5F9),
       PdfColors.black,
       20,

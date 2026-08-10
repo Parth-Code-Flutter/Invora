@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../app/constants/app_colors.dart';
 import '../../../app/enums/invoice_status.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
@@ -97,11 +98,34 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         }
         final symbol = controller.currencySymbol.value;
         final sections = [
-          AppCard(
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  AppColors.secondary,
+                  AppColors.primary,
+                  AppColors.accent,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x285B5CE2),
+                  blurRadius: 22,
+                  offset: Offset(0, 9),
+                ),
+              ],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(invoice.invoiceNumber, style: AppTextStyles.pageTitle),
+                Text(
+                  invoice.invoiceNumber,
+                  style: AppTextStyles.pageTitle.copyWith(color: Colors.white),
+                ),
                 const SizedBox(height: 6),
                 AppStatusChip(status: invoice.status),
                 const SizedBox(height: 16),
@@ -110,7 +134,9 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                     invoice.calculation.grandTotalMinor,
                     symbol: symbol,
                   ),
-                  style: AppTextStyles.displayAmount,
+                  style: AppTextStyles.displayAmount.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),

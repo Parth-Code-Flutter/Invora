@@ -15,23 +15,37 @@ class BackupScreen extends GetView<BackupController> {
     body: ResponsiveContent(
       child: ListView(
         children: [
-          AppCard(
+          Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  AppColors.secondary,
+                  AppColors.primary,
+                  AppColors.accent,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(22),
+            ),
             child: Column(
               children: [
                 const Icon(
-                  Icons.cloud_off_outlined,
+                  Icons.shield_outlined,
                   size: 42,
-                  color: AppColors.warning,
+                  color: Colors.white,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'Your data lives on this device',
-                  style: AppTextStyles.sectionTitle,
+                  style: AppTextStyles.sectionTitle.copyWith(
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
                   'Create backups regularly to protect your invoices if this device is lost, reset, or the app is uninstalled.',
                   textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white70),
                 ),
               ],
             ),
@@ -98,7 +112,7 @@ class BackupScreen extends GetView<BackupController> {
       builder: (dialogContext) => AlertDialog(
         title: const Text('Replace local data?'),
         content: const Text(
-          'Current records will be replaced. Invora must be restarted after restore.',
+          'Current records will be replaced. Creovo Invoice must be restarted after restore.',
         ),
         actions: [
           TextButton(

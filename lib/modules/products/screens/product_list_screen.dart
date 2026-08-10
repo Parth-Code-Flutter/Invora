@@ -20,11 +20,15 @@ class ProductListScreen extends GetView<ProductListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Products & services')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Get.toNamed<void>(AppRoutes.productAdd),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Add item'),
+      appBar: AppBar(
+        title: const Text('Products & services'),
+        actions: [
+          IconButton(
+            tooltip: 'Add item',
+            onPressed: () => Get.toNamed<void>(AppRoutes.productAdd),
+            icon: const Icon(Icons.add_rounded),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -67,6 +71,18 @@ class ProductListScreen extends GetView<ProductListController> {
                             controller.selectType(ItemType.service),
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Obx(
+                  () => Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '${controller.items.length} saved items',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -196,11 +212,15 @@ class _ItemCard extends StatelessWidget {
           Get.toNamed<void>(AppRoutes.productDetails, arguments: item.id),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: ResponsiveUtils.width(context, 24),
-            backgroundColor: item.type == ItemType.product
-                ? AppColors.primaryLight
-                : AppColors.secondaryLight,
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: item.type == ItemType.product
+                  ? AppColors.primaryLight
+                  : AppColors.secondaryLight,
+              borderRadius: BorderRadius.circular(15),
+            ),
             child: Icon(
               item.type == ItemType.product
                   ? Icons.inventory_2_outlined
@@ -216,10 +236,36 @@ class _ItemCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name, style: AppTextStyles.cardTitle),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(item.name, style: AppTextStyles.cardTitle),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: item.type == ItemType.product
+                            ? AppColors.primaryLight
+                            : AppColors.secondaryLight,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        item.type.label,
+                        style: AppTextStyles.caption.copyWith(
+                          color: item.type == ItemType.product
+                              ? AppColors.primary
+                              : AppColors.secondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 3),
                 Text(
-                  '${item.type.label} • ${item.unit}',
+                  '${item.unit} • GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}',
                   style: AppTextStyles.small.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -231,11 +277,6 @@ class _ItemCard extends StatelessWidget {
                     symbol: currencySymbol,
                   ),
                   style: AppTextStyles.cardTitle,
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  'GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}',
-                  style: AppTextStyles.small,
                 ),
               ],
             ),

@@ -120,7 +120,7 @@ abstract final class AppRouter {
       page: InvoiceDetailsScreen.new,
       binding: InvoiceDetailsBinding(),
     ),
-    GetPage(name: AppRoutes.more, page: MoreScreen.new),
+    GetPage(name: AppRoutes.more, page: MoreScreen.new, binding: MoreBinding()),
     GetPage(
       name: AppRoutes.settings,
       page: SettingsScreen.new,

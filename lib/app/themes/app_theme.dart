@@ -15,7 +15,7 @@ abstract final class AppTheme {
       primary: AppColors.primary,
       onPrimary: Colors.white,
       secondary: AppColors.secondary,
-      onSecondary: AppColors.textPrimary,
+      onSecondary: Colors.white,
       error: AppColors.error,
       onError: Colors.white,
       surface: isDark ? AppColors.darkSurface : AppColors.surface,
@@ -39,26 +39,29 @@ abstract final class AppTheme {
         fontFamily: AppTextStyles.fontFamily,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDark
+            ? AppColors.darkBackground
+            : AppColors.background,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
         centerTitle: false,
         titleTextStyle: AppTextStyles.pageTitle.copyWith(
           color: colorScheme.onSurface,
         ),
-        toolbarHeight: 60,
+        toolbarHeight: 56,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
       ),
       cardTheme: CardThemeData(
         color: colorScheme.surface,
-        elevation: 0,
+        elevation: isDark ? 0 : 1,
+        shadowColor: const Color(0x160F172A),
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
           side: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.border,
+            color: isDark ? AppColors.darkBorder : const Color(0x99E5E8F1),
           ),
         ),
       ),
@@ -115,7 +118,7 @@ abstract final class AppTheme {
         fillColor: isDark ? AppColors.darkSurfaceVariant : AppColors.surface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 14,
+          vertical: 13,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
@@ -191,6 +194,12 @@ abstract final class AppTheme {
         shape: StadiumBorder(),
       ),
       dividerColor: isDark ? AppColors.darkBorder : AppColors.border,
+      navigationBarTheme: NavigationBarThemeData(
+        height: 66,
+        backgroundColor: colorScheme.surface,
+        indicatorColor: AppColors.primaryLight,
+        labelTextStyle: WidgetStatePropertyAll(AppTextStyles.caption),
+      ),
     );
   }
 }

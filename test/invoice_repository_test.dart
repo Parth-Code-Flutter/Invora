@@ -1,13 +1,13 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:invora/app/enums/invoice_status.dart';
-import 'package:invora/app/enums/tax_type.dart';
-import 'package:invora/data/models/invoice_calculation_models.dart';
-import 'package:invora/data/models/invoice_model.dart';
-import 'package:invora/data/repositories/invoice_repository.dart';
-import 'package:invora/data/services/app_database.dart';
-import 'package:invora/data/services/invoice_calculation_service.dart';
-import 'package:invora/data/services/invoice_pdf_service.dart';
+import 'package:creovo_invoice/app/enums/invoice_status.dart';
+import 'package:creovo_invoice/app/enums/tax_type.dart';
+import 'package:creovo_invoice/data/models/invoice_calculation_models.dart';
+import 'package:creovo_invoice/data/models/invoice_model.dart';
+import 'package:creovo_invoice/data/repositories/invoice_repository.dart';
+import 'package:creovo_invoice/data/services/app_database.dart';
+import 'package:creovo_invoice/data/services/invoice_calculation_service.dart';
+import 'package:creovo_invoice/data/services/invoice_pdf_service.dart';
 
 void main() {
   late AppDatabase database;

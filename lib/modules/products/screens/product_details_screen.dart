@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../app/constants/app_colors.dart';
 import '../../../app/enums/item_type.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
@@ -9,6 +8,8 @@ import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_entity_header.dart';
+import '../../../data/models/invoice_model.dart';
 import '../controllers/product_details_controller.dart';
 
 class ProductDetailsScreen extends GetView<ProductDetailsController> {
@@ -52,31 +53,16 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
                 ),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: ResponsiveUtils.width(context, 38),
-                      backgroundColor: item.type == ItemType.product
-                          ? AppColors.primaryLight
-                          : AppColors.secondaryLight,
-                      child: Icon(
+                    AppEntityHeader(
+                      icon: Icon(
                         item.type == ItemType.product
                             ? Icons.inventory_2_outlined
                             : Icons.design_services_outlined,
-                        size: ResponsiveUtils.width(context, 34),
-                        color: item.type == ItemType.product
-                            ? AppColors.primary
-                            : AppColors.secondary,
                       ),
+                      title: item.name,
+                      subtitle: '${item.type.label} • ${item.unit}',
                     ),
-                    const SizedBox(height: 12),
-                    Text(item.name, style: AppTextStyles.pageTitle),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${item.type.label} • ${item.unit}',
-                      style: AppTextStyles.body.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
@@ -121,14 +107,13 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    AppCard(
-                      child: const ListTile(
-                        leading: Icon(Icons.receipt_long_outlined),
-                        title: Text('Invoice usage'),
-                        subtitle: Text(
-                          'Usage history will appear after the invoice module is added.',
-                        ),
+                    FilledButton.icon(
+                      onPressed: () => Get.toNamed<void>(
+                        AppRoutes.invoiceCreate,
+                        arguments: InvoiceEditorArgs(productId: item.id),
                       ),
+                      icon: const Icon(Icons.receipt_long_outlined),
+                      label: const Text('Create invoice with this item'),
                     ),
                   ],
                 ),

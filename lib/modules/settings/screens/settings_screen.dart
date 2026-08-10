@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
+import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/responsive_content.dart';
@@ -18,7 +19,7 @@ class SettingsScreen extends GetView<SettingsController> {
           _heading('Business'),
           AppCard(
             child: ListTile(
-              leading: const Icon(Icons.storefront_outlined),
+              leading: const _SettingsIcon(Icons.storefront_outlined),
               title: const Text('Business profile'),
               subtitle: const Text('Identity, GST, bank details and branding'),
               trailing: const Icon(Icons.chevron_right),
@@ -31,7 +32,7 @@ class SettingsScreen extends GetView<SettingsController> {
             child: Obx(
               () => SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.dark_mode_outlined),
+                secondary: const _SettingsIcon(Icons.dark_mode_outlined),
                 title: const Text('Dark mode'),
                 value: controller.appController.isDarkMode,
                 onChanged: controller.appController.setDarkMode,
@@ -42,7 +43,7 @@ class SettingsScreen extends GetView<SettingsController> {
           _heading('Data'),
           AppCard(
             child: ListTile(
-              leading: const Icon(Icons.settings_backup_restore),
+              leading: const _SettingsIcon(Icons.settings_backup_restore),
               title: const Text('Backup & restore'),
               subtitle: const Text('Protect your offline records'),
               trailing: const Icon(Icons.chevron_right),
@@ -54,8 +55,8 @@ class SettingsScreen extends GetView<SettingsController> {
           AppCard(
             child: Obx(
               () => ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: const Text('Invora'),
+                leading: const _SettingsIcon(Icons.info_outline),
+                title: const Text('Creovo Invoice'),
                 subtitle: Text(
                   controller.appVersion.value.isEmpty
                       ? 'Privacy-first offline invoicing'
@@ -72,5 +73,20 @@ class SettingsScreen extends GetView<SettingsController> {
   Widget _heading(String value) => Padding(
     padding: const EdgeInsets.only(left: 4, bottom: 8),
     child: Text(value.toUpperCase(), style: AppTextStyles.small),
+  );
+}
+
+class _SettingsIcon extends StatelessWidget {
+  const _SettingsIcon(this.icon);
+  final IconData icon;
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 40,
+    height: 40,
+    decoration: BoxDecoration(
+      color: AppColors.primaryLight,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Icon(icon, color: AppColors.primary, size: 21),
   );
 }

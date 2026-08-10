@@ -36,7 +36,7 @@ class BackupController extends GetxController {
       await _service.restore(File(path));
       Get.snackbar(
         'Restore complete',
-        'Close and reopen Invora to load the restored records.',
+        'Close and reopen Creovo Invoice to load the restored records.',
         duration: const Duration(seconds: 8),
       );
     } finally {

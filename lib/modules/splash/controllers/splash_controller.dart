@@ -18,9 +18,15 @@ class SplashController extends GetxController {
   }
 
   Future<void> resolveInitialRoute() async {
+    // Keep the illustrated brand moment visible long enough to register while
+    // startup work runs. This also prevents a one-frame flash on fast devices.
+    final minimumSplashTime = Future<void>.delayed(
+      const Duration(milliseconds: 1600),
+    );
     final onboardingCompleted =
         _storage.getBool(AppStorageKeyConst.onboardingCompleted) ?? false;
     if (!onboardingCompleted) {
+      await minimumSplashTime;
       Get.offAllNamed<void>(AppRoutes.onboarding);
       return;
     }
@@ -29,9 +35,11 @@ class SplashController extends GetxController {
         _storage.getBool(AppStorageKeyConst.businessSetupCompleted) ?? false;
     final profile = await _businessRepository.getProfile();
     if (!setupCompleted || profile == null) {
+      await minimumSplashTime;
       Get.offAllNamed<void>(AppRoutes.businessSetup);
       return;
     }
+    await minimumSplashTime;
     Get.offAllNamed<void>(AppRoutes.dashboard);
   }
 }

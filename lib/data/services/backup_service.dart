@@ -25,7 +25,9 @@ class BackupService {
     final databaseFile = await appDatabaseFile();
     final archive = Archive();
     final dbBytes = await databaseFile.readAsBytes();
-    archive.addFile(ArchiveFile('data/invora.sqlite', dbBytes.length, dbBytes));
+    archive.addFile(
+      ArchiveFile('data/creovo_invoice.sqlite', dbBytes.length, dbBytes),
+    );
 
     final profile = await _business.getProfile();
     final media = <String, String?>{
@@ -48,7 +50,7 @@ class BackupService {
       );
     }
     final metadata = jsonEncode({
-      'format': 'invora-backup',
+      'format': 'creovo-invoice-backup',
       'version': 1,
       'schemaVersion': DbConstants.schemaVersion,
       'createdAt': DateTime.now().toUtc().toIso8601String(),
@@ -72,7 +74,7 @@ class BackupService {
     final bytes = ZipEncoder().encode(archive);
     final now = DateTime.now();
     final name =
-        'invora_backup_${now.year}_${now.month.toString().padLeft(2, '0')}_${now.day.toString().padLeft(2, '0')}.zip';
+        'creovo_invoice_backup_${now.year}_${now.month.toString().padLeft(2, '0')}_${now.day.toString().padLeft(2, '0')}.zip';
     final directory = await getTemporaryDirectory();
     final output = File(p.join(directory.path, name));
     await output.writeAsBytes(bytes, flush: true);
@@ -81,7 +83,10 @@ class BackupService {
 
   Future<void> shareBackup(File backup) async {
     await SharePlus.instance.share(
-      ShareParams(files: [XFile(backup.path)], subject: 'Invora backup'),
+      ShareParams(
+        files: [XFile(backup.path)],
+        subject: 'Creovo Invoice backup',
+      ),
     );
   }
 
@@ -98,7 +103,9 @@ class BackupService {
     try {
       final archive = ZipDecoder().decodeBytes(await file.readAsBytes());
       final metadataFile = archive.findFile('metadata.json');
-      final databaseFile = archive.findFile('data/invora.sqlite');
+      final databaseFile =
+          archive.findFile('data/creovo_invoice.sqlite') ??
+          archive.findFile('data/invora.sqlite');
       if (metadataFile == null || databaseFile == null) {
         return const BackupValidation.invalid(
           'Required backup files are missing.',
@@ -107,13 +114,16 @@ class BackupService {
       final metadata =
           jsonDecode(utf8.decode(metadataFile.content as List<int>))
               as Map<String, dynamic>;
-      if (metadata['format'] != 'invora-backup' || metadata['version'] != 1) {
+      final format = metadata['format'];
+      final supportedFormat =
+          format == 'creovo-invoice-backup' || format == 'invora-backup';
+      if (!supportedFormat || metadata['version'] != 1) {
         return const BackupValidation.invalid('Unsupported backup format.');
       }
       final schema = metadata['schemaVersion'] as int? ?? 0;
       if (schema > DbConstants.schemaVersion) {
         return const BackupValidation.invalid(
-          'This backup was created by a newer Invora version.',
+          'This backup was created by a newer Creovo Invoice version.',
         );
       }
       return BackupValidation.valid(archive);
@@ -128,7 +138,9 @@ class BackupService {
     final validation = await validate(file);
     if (!validation.isValid) throw StateError(validation.message);
     final archive = validation.archive!;
-    final databaseEntry = archive.findFile('data/invora.sqlite')!;
+    final databaseEntry =
+        archive.findFile('data/creovo_invoice.sqlite') ??
+        archive.findFile('data/invora.sqlite')!;
     final target = await appDatabaseFile();
     final rollback = File('${target.path}.before_restore');
     if (await target.exists()) await target.copy(rollback.path);

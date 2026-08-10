@@ -18,13 +18,18 @@ class CustomerListScreen extends GetView<CustomerListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Customers')),
+      appBar: AppBar(
+        title: const Text('Customers'),
+        actions: [
+          IconButton(
+            tooltip: 'Add customer',
+            onPressed: () => Get.toNamed<void>(AppRoutes.customerAdd),
+            icon: const Icon(Icons.person_add_alt_1_rounded),
+          ),
+        ],
+      ),
       bottomNavigationBar: const AppMainNavigation(
         current: MainDestination.customers,
-      ),
-      floatingActionButton: FloatingActionButton.small(
-        onPressed: () => Get.toNamed<void>(AppRoutes.customerAdd),
-        child: const Icon(Icons.person_add_alt_1_rounded),
       ),
       body: Column(
         children: [
@@ -35,9 +40,25 @@ class CustomerListScreen extends GetView<CustomerListController> {
               ResponsiveUtils.horizontalPadding(context),
               ResponsiveUtils.height(context, 12),
             ),
-            child: AppSearchField(
-              onChanged: controller.updateSearch,
-              hint: 'Search name, company, mobile or GSTIN',
+            child: Column(
+              children: [
+                AppSearchField(
+                  onChanged: controller.updateSearch,
+                  hint: 'Search name, company, mobile or GSTIN',
+                ),
+                const SizedBox(height: 8),
+                Obx(
+                  () => Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '${controller.customers.length} customers',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -160,9 +181,14 @@ class _CustomerCard extends StatelessWidget {
           Get.toNamed<void>(AppRoutes.customerDetails, arguments: customer.id),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: AppColors.primaryLight,
+          Container(
+            width: 48,
+            height: 48,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight,
+              borderRadius: BorderRadius.circular(15),
+            ),
             child: Text(
               customer.name.characters.first.toUpperCase(),
               style: AppTextStyles.cardTitle.copyWith(color: AppColors.primary),
@@ -174,7 +200,33 @@ class _CustomerCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(customer.name, style: AppTextStyles.cardTitle),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        customer.name,
+                        style: AppTextStyles.cardTitle,
+                      ),
+                    ),
+                    if (customer.gstin != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondaryLight,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'GST',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.secondary,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
                 if (subtitle.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
@@ -185,10 +237,6 @@ class _CustomerCard extends StatelessWidget {
                       color: AppColors.textSecondary,
                     ),
                   ),
-                ],
-                if (customer.gstin != null) ...[
-                  const SizedBox(height: 6),
-                  Text('GSTIN ${customer.gstin}', style: AppTextStyles.small),
                 ],
               ],
             ),

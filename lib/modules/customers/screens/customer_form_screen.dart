@@ -41,34 +41,46 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                           children: [
                             AppCard(
                               padding: const EdgeInsets.all(18),
-                              child: _ResponsiveFields(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AppTextField(
-                                    controller: controller.name,
-                                    label: 'Customer name *',
-                                    validator: controller.validateName,
-                                    textCapitalization:
-                                        TextCapitalization.words,
+                                  Text(
+                                    'Customer basics',
+                                    style: AppTextStyles.sectionTitle,
                                   ),
-                                  AppTextField(
-                                    controller: controller.companyName,
-                                    label: 'Company name',
-                                    textCapitalization:
-                                        TextCapitalization.words,
-                                  ),
-                                  AppTextField(
-                                    controller: controller.mobile,
-                                    label: 'Mobile',
-                                    keyboardType: TextInputType.phone,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly,
+                                  const SizedBox(height: 16),
+                                  _ResponsiveFields(
+                                    children: [
+                                      AppTextField(
+                                        controller: controller.name,
+                                        label: 'Customer name *',
+                                        validator: controller.validateName,
+                                        textCapitalization:
+                                            TextCapitalization.words,
+                                      ),
+                                      AppTextField(
+                                        controller: controller.companyName,
+                                        label: 'Company name',
+                                        textCapitalization:
+                                            TextCapitalization.words,
+                                      ),
+                                      AppTextField(
+                                        controller: controller.mobile,
+                                        label: 'Mobile',
+                                        keyboardType: TextInputType.phone,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter
+                                              .digitsOnly,
+                                        ],
+                                      ),
+                                      AppTextField(
+                                        controller: controller.email,
+                                        label: 'Email',
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        validator: controller.validateEmail,
+                                      ),
                                     ],
-                                  ),
-                                  AppTextField(
-                                    controller: controller.email,
-                                    label: 'Email',
-                                    keyboardType: TextInputType.emailAddress,
-                                    validator: controller.validateEmail,
                                   ),
                                 ],
                               ),

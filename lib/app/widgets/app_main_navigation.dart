@@ -21,7 +21,7 @@ class AppMainNavigation extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 72,
+          height: 66,
           child: Row(
             children: [
               _destination(
@@ -49,16 +49,26 @@ class AppMainNavigation extends StatelessWidget {
                       onTap: () => _showCreateSheet(context),
                       radius: 32,
                       child: Container(
-                        width: 54,
-                        height: 54,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppColors.primary, AppColors.secondary],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           shape: BoxShape.circle,
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x335B5CE2),
+                              blurRadius: 14,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
                         ),
                         child: const Icon(
                           Icons.add_rounded,
                           color: Colors.white,
-                          size: 30,
                         ),
                       ),
                     ),
@@ -104,7 +114,19 @@ class AppMainNavigation extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(selected ? selectedIcon : icon, color: color, size: 24),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+              decoration: BoxDecoration(
+                color: selected ? AppColors.primaryLight : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                selected ? selectedIcon : icon,
+                color: color,
+                size: 21,
+              ),
+            ),
             const SizedBox(height: AppSpacing.xxs),
             Text(label, style: AppTextStyles.caption.copyWith(color: color)),
           ],

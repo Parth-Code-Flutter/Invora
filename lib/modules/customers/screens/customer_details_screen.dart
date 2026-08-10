@@ -7,6 +7,7 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_entity_header.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/customer_details_controller.dart';
@@ -54,26 +55,12 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                 ),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: ResponsiveUtils.width(context, 38),
-                      backgroundColor: AppColors.primaryLight,
-                      child: Text(
-                        customer.name.characters.first.toUpperCase(),
-                        style: AppTextStyles.pageTitle.copyWith(
-                          color: AppColors.primary,
-                        ),
-                      ),
+                    AppEntityHeader(
+                      icon: Text(customer.name.characters.first.toUpperCase()),
+                      title: customer.name,
+                      subtitle: customer.companyName ?? customer.mobile,
                     ),
-                    const SizedBox(height: 12),
-                    Text(customer.name, style: AppTextStyles.pageTitle),
-                    if (customer.companyName != null)
-                      Text(
-                        customer.companyName!,
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
