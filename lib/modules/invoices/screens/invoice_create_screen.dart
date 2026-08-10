@@ -66,7 +66,8 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
           child: Obx(
             () => Row(
               children: [
-                Expanded(
+                Flexible(
+                  flex: 2,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,13 +89,16 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
                     ],
                   ),
                 ),
-                AppButton(
-                  onPressed: controller.preview,
-                  icon: Icons.visibility_outlined,
-                  label: controller.isQuotation
-                      ? 'Review estimate'
-                      : 'Review invoice',
-                  expand: false,
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 3,
+                  child: AppButton(
+                    onPressed: controller.preview,
+                    icon: Icons.visibility_outlined,
+                    label: controller.isQuotation
+                        ? 'Review estimate'
+                        : 'Review invoice',
+                  ),
                 ),
               ],
             ),

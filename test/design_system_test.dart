@@ -40,6 +40,32 @@ void main() {
     expect(find.byKey(const ValueKey('app-button-loader')), findsOneWidget);
   });
 
+  testWidgets('primary action keeps a long label inside narrow bounds', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(
+              width: 190,
+              child: AppButton(
+                label: 'Review invoice before saving',
+                icon: Icons.visibility_outlined,
+                onPressed: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(AppButton)).width, 190);
+  });
+
   testWidgets('shared fields and status chip expose clear semantics', (
     tester,
   ) async {

@@ -200,6 +200,15 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Responsive invoice review action
+
+- Rebalanced the create-invoice footer so the total and review action share the
+  available width predictably instead of allowing the CTA to clip at the edge.
+- Hardened the shared gradient button with single-line constrained labels and
+  added a narrow-width widget regression test for long icon/button text.
+- Important files: shared button, invoice create screen, design-system tests.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Accessible invoice hero contrast
 
 - Darkened the invoice summary gradient across plum, coral, and teal stops so
