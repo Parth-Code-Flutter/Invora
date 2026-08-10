@@ -9,8 +9,8 @@ import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_main_navigation.dart';
-import '../../../app/widgets/app_status_chip.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../controllers/dashboard_controller.dart';
 
@@ -78,38 +78,28 @@ class DashboardScreen extends GetView<DashboardController> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceSoft,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Row(
-                        children: [
-                          _QuickAction(
-                            label: 'Estimate',
-                            icon: Icons.request_quote_outlined,
-                            onTap: () =>
-                                Get.toNamed<void>(AppRoutes.quotationCreate),
-                          ),
-                          _QuickAction(
-                            label: 'Customer',
-                            icon: Icons.person_add_alt_1_outlined,
-                            onTap: () =>
-                                Get.toNamed<void>(AppRoutes.customerAdd),
-                          ),
-                          _QuickAction(
-                            label: 'Product',
-                            icon: Icons.add_box_outlined,
-                            onTap: () =>
-                                Get.toNamed<void>(AppRoutes.productAdd),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: AppSpacing.md),
+                    Row(
+                      children: [
+                        _QuickAction(
+                          label: 'Estimate',
+                          icon: Icons.request_quote_outlined,
+                          onTap: () =>
+                              Get.toNamed<void>(AppRoutes.quotationCreate),
+                        ),
+                        _QuickAction(
+                          label: 'Customer',
+                          icon: Icons.person_add_alt_1_outlined,
+                          onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
+                        ),
+                        _QuickAction(
+                          label: 'Product',
+                          icon: Icons.add_box_outlined,
+                          onTap: () => Get.toNamed<void>(AppRoutes.productAdd),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.lg),
                     Row(
                       children: [
                         Expanded(
@@ -167,54 +157,12 @@ class DashboardScreen extends GetView<DashboardController> {
                     ...controller.recentInvoices.map(
                       (invoice) => Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child: AppCard(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
+                        child: AppInvoiceSummaryCard(
+                          invoice: invoice,
+                          currencySymbol: _symbol,
                           onTap: () => Get.toNamed<void>(
                             AppRoutes.invoiceDetails,
                             arguments: invoice.id,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      invoice.invoiceNumber,
-                                      style: AppTextStyles.cardTitle,
-                                    ),
-                                    const SizedBox(height: 3),
-                                    Text(
-                                      invoice.customerName,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: AppTextStyles.secondaryBody,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    CurrencyUtils.formatMinor(
-                                      invoice.grandTotalMinor,
-                                      symbol: _symbol,
-                                    ),
-                                    style: AppTextStyles.cardTitle,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  AppStatusChip(
-                                    status: invoice.effectiveStatus(
-                                      DateTime.now(),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
                           ),
                         ),
                       ),
@@ -429,25 +377,28 @@ class _QuickAction extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => Expanded(
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-        child: Column(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: AppColors.primary),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Material(
+        color: AppColors.surfaceSoft,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: const BorderSide(color: AppColors.border),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 13),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: AppColors.primary, size: 20),
+                const SizedBox(width: 7),
+                Text(label, style: AppTextStyles.caption),
+              ],
             ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(label, style: AppTextStyles.caption),
-          ],
+          ),
         ),
       ),
     ),

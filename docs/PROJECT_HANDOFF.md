@@ -191,6 +191,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Consistent dashboard actions and invoice cards
+
+- Replaced the dashboard's bulky three-icon quick-create panel with compact
+  inline action tiles and normalized spacing between hero, actions, and recent
+  activity.
+- Extracted the invoice summary card into a shared widget now used by both the
+  dashboard and invoice list, keeping status rail, dates, totals, balance, and
+  visual hierarchy identical.
+- Important files: dashboard, invoice list, and shared invoice summary card.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Selectable monthly reports
 
 - Added real month-based reporting with previous/next controls and a 24-month
