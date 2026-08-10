@@ -182,6 +182,16 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 - No database, storage, backup, or migration changes.
 - Verified with formatting, analysis, automated tests, and Android debug build.
 
+### 2026-08-10 — Create-customer navigation result fix
+
+- Fixed the customer picker crash when opening `Create new customer` from a
+  new invoice by avoiding a typed cast on GetX's dynamic named route.
+- Customer creation now returns a dynamic route result which is checked as a
+  `CustomerModel` before the selection sheet closes.
+- Important files: `invoice_create_screen.dart`,
+  `customer_form_controller.dart`; no storage or migration changes.
+- Verified with formatting, analysis, automated tests, and Android debug build.
+
 ### 2026-08-10 — Saved units and invoice line-item CRUD
 
 - Added common and persistent custom units through `UnitService`.

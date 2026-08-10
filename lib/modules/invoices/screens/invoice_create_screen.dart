@@ -702,8 +702,12 @@ Future<void> _selectCustomer(
       emptyMessage: 'Create your first customer to start this invoice.',
       actionLabel: 'Create new customer',
       actionIcon: Icons.person_add_alt_1_rounded,
-      onAction: () async =>
-          await Get.toNamed<CustomerModel>(AppRoutes.customerAdd),
+      onAction: () async {
+        // GetX registers named pages as dynamic routes. Asking Navigator for a
+        // typed route result causes a runtime cast before the page can open.
+        final result = await Get.toNamed<dynamic>(AppRoutes.customerAdd);
+        return result is CustomerModel ? result : null;
+      },
     ),
   );
   if (selected != null) controller.selectCustomer(selected);

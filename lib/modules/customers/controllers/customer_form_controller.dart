@@ -81,7 +81,9 @@ class CustomerFormController extends GetxController {
           updatedAt: now,
         ),
       );
-      Get.back<CustomerModel>(result: saved);
+      // Named GetX pages use dynamic routes; return the model without forcing
+      // a generic route cast so callers can validate the runtime result.
+      Get.back(result: saved);
     } finally {
       isSaving.value = false;
     }
