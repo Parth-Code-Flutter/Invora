@@ -150,6 +150,12 @@ class InvoicePdfService {
     _PdfStyle style,
     pw.MemoryImage? logo,
   ) {
+    final businessAddress = _address([
+      business.address,
+      business.city,
+      business.state,
+      business.pinCode,
+    ]);
     return pw.Container(
       padding: pw.EdgeInsets.all(style.headerPadding),
       color: style.headerColor,
@@ -172,15 +178,22 @@ class InvoicePdfService {
                     color: style.headerText,
                   ),
                 ),
-                if (business.address != null)
-                  pw.Text(
-                    business.address!,
-                    style: pw.TextStyle(color: style.headerText),
+                if (_hasText(business.ownerName))
+                  _headerDetail('Owner: ${business.ownerName}', style),
+                if (_hasText(business.mobile) || _hasText(business.email))
+                  _headerDetail(
+                    _join([business.mobile, business.email], separator: ' • '),
+                    style,
                   ),
-                if (business.gstin != null)
-                  pw.Text(
-                    'GSTIN: ${business.gstin}',
-                    style: pw.TextStyle(color: style.headerText),
+                if (businessAddress.isNotEmpty)
+                  _headerDetail(businessAddress, style),
+                if (_hasText(business.gstin) || _hasText(business.pan))
+                  _headerDetail(
+                    _join([
+                      if (_hasText(business.gstin)) 'GSTIN: ${business.gstin}',
+                      if (_hasText(business.pan)) 'PAN: ${business.pan}',
+                    ], separator: ' • '),
+                    style,
                   ),
               ],
             ),
@@ -218,35 +231,47 @@ class InvoicePdfService {
     );
   }
 
-  pw.Widget _customer(InvoiceModel invoice, _PdfStyle style) => pw.Container(
-    padding: pw.EdgeInsets.all(style.blockPadding),
-    decoration: pw.BoxDecoration(
-      border: pw.Border.all(color: PdfColors.grey300),
-    ),
-    child: pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text(
-          'BILL TO',
-          style: pw.TextStyle(
-            fontWeight: pw.FontWeight.bold,
-            color: style.accent,
+  pw.Widget _customer(InvoiceModel invoice, _PdfStyle style) {
+    final customer = invoice.customer;
+    final customerAddress = _address([
+      customer.address,
+      customer.city,
+      customer.state,
+      customer.pinCode,
+    ]);
+    return pw.Container(
+      width: double.infinity,
+      padding: pw.EdgeInsets.all(style.blockPadding),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.grey100,
+        border: pw.Border.all(color: PdfColors.grey300),
+        borderRadius: pw.BorderRadius.circular(4),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'BILL TO',
+            style: pw.TextStyle(
+              fontSize: 8,
+              fontWeight: pw.FontWeight.bold,
+              color: style.accent,
+            ),
           ),
-        ),
-        pw.SizedBox(height: 4),
-        pw.Text(
-          invoice.customer.name,
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        ),
-        if (invoice.customer.companyName != null)
-          pw.Text(invoice.customer.companyName!),
-        if (invoice.customer.address != null)
-          pw.Text(invoice.customer.address!),
-        if (invoice.customer.gstin != null)
-          pw.Text('GSTIN: ${invoice.customer.gstin}'),
-      ],
-    ),
-  );
+          pw.SizedBox(height: 4),
+          pw.Text(
+            customer.name,
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 11),
+          ),
+          if (_hasText(customer.companyName)) pw.Text(customer.companyName!),
+          if (_hasText(customer.mobile) || _hasText(customer.email))
+            pw.Text(_join([customer.mobile, customer.email], separator: ' • ')),
+          if (customerAddress.isNotEmpty) pw.Text(customerAddress),
+          if (_hasText(customer.gstin)) pw.Text('GSTIN: ${customer.gstin}'),
+        ],
+      ),
+    );
+  }
 
   pw.Widget _items(InvoiceModel invoice, String symbol, _PdfStyle style) {
     final headers = ['Item', 'HSN/SAC', 'Qty', 'Rate', 'Tax', 'Amount'];
@@ -404,6 +429,28 @@ class InvoicePdfService {
     if (!await file.exists()) return null;
     return pw.MemoryImage(await file.readAsBytes());
   }
+
+  pw.Widget _headerDetail(String value, _PdfStyle style) => pw.Padding(
+    padding: const pw.EdgeInsets.only(top: 1.5),
+    child: pw.Text(
+      value,
+      style: pw.TextStyle(
+        color: style.headerText,
+        fontSize: 8.5,
+        lineSpacing: 1,
+      ),
+    ),
+  );
+
+  bool _hasText(String? value) => value?.trim().isNotEmpty ?? false;
+
+  String _join(List<String?> values, {String separator = ', '}) => values
+      .whereType<String>()
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .join(separator);
+
+  String _address(List<String?> values) => _join(values);
 
   /// The built-in PDF fonts don't contain the Indian rupee glyph. Embedding
   /// the app's font also keeps previews, saved files, and printed output

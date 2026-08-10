@@ -200,6 +200,18 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Complete PDF party details
+
+- Expanded generated invoice headers to show available business owner, mobile,
+  email, complete address, GSTIN, and PAN details beneath the business identity.
+- Expanded the full-width Bill To section to conditionally show customer name,
+  company, mobile, email, complete address, and GSTIN; blank fields remain
+  hidden so sparse invoices stay compact.
+- Strengthened the PDF renderer test fixture with full owner/customer details
+  and continued rendering all five templates with INR currency.
+- Important files: invoice PDF service and invoice repository/PDF tests.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Responsive invoice review action
 
 - Rebalanced the create-invoice footer so the total and review action share the
