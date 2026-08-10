@@ -200,6 +200,15 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Accessible invoice hero contrast
+
+- Darkened the invoice summary gradient across plum, coral, and teal stops so
+  white text remains legible throughout the surface.
+- Increased supporting-label weight/opacity and moved issue/due metadata onto
+  darker glass panels with subtle borders and higher-contrast icons.
+- Important file: invoice details screen.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Modern secondary navigation tiles
 
 - Replaced the traditional grouped settings-table appearance with individual

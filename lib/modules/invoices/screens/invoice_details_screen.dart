@@ -105,8 +105,8 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
               gradient: const LinearGradient(
                 colors: [
                   AppColors.secondary,
-                  AppColors.primary,
-                  AppColors.accent,
+                  AppColors.primaryDark,
+                  Color(0xFF176F69),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -141,7 +141,10 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                   invoice.calculation.balanceDueMinor > 0
                       ? 'Balance due'
                       : 'Invoice total',
-                  style: AppTextStyles.caption.copyWith(color: Colors.white70),
+                  style: AppTextStyles.caption.copyWith(
+                    color: Colors.white.withValues(alpha: .84),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 3),
                 Text(
@@ -158,7 +161,10 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                 const SizedBox(height: 6),
                 Text(
                   '${CurrencyUtils.formatMinor(invoice.calculation.grandTotalMinor, symbol: symbol)} total  •  ${CurrencyUtils.formatMinor(invoice.calculation.paidAmountMinor, symbol: symbol)} paid',
-                  style: AppTextStyles.small.copyWith(color: Colors.white70),
+                  style: AppTextStyles.small.copyWith(
+                    color: Colors.white.withValues(alpha: .9),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -634,12 +640,13 @@ class _HeroDate extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
     decoration: BoxDecoration(
-      color: Colors.white.withValues(alpha: .11),
+      color: Colors.black.withValues(alpha: .16),
       borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.white.withValues(alpha: .12)),
     ),
     child: Row(
       children: [
-        Icon(icon, size: 16, color: Colors.white70),
+        Icon(icon, size: 16, color: Colors.white.withValues(alpha: .88)),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
@@ -647,7 +654,10 @@ class _HeroDate extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: AppTextStyles.small.copyWith(color: Colors.white60),
+                style: AppTextStyles.small.copyWith(
+                  color: Colors.white.withValues(alpha: .78),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 1),
               Text(
