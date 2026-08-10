@@ -141,6 +141,26 @@ class InvoiceCreateController extends GetxController {
     recalculate();
   }
 
+  void duplicateItem(int index) {
+    final item = items[index];
+    items.insert(
+      index + 1,
+      InvoiceItemModel(
+        localId: 'copy-${_counter++}',
+        productId: item.productId,
+        name: item.name,
+        description: item.description,
+        quantityScaled: item.quantityScaled,
+        unit: item.unit,
+        rateMinor: item.rateMinor,
+        hsnSac: item.hsnSac,
+        taxRateBasisPoints: item.taxRateBasisPoints,
+        discount: item.discount,
+      ),
+    );
+    recalculate();
+  }
+
   void removeItem(int index) {
     items.removeAt(index);
     recalculate();

@@ -1,5 +1,9 @@
 # Offline Invoice Maker — Codex Implementation Plan
 
+> For current code status, setup, known work, and dated change history, see
+> [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md). This file remains the product scope
+> and design reference.
+
 > **Project Type:** Flutter mobile app  
 > **Core Goal:** Fast, beautiful, privacy-first invoice generation with **100% offline support**  
 > **Platforms:** Android + iOS, with responsive phone and tablet layouts  

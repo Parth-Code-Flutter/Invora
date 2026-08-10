@@ -69,6 +69,9 @@ class BackupService {
       AppStorageKeyConst.selectedInvoiceTemplate: _storage.getString(
         AppStorageKeyConst.selectedInvoiceTemplate,
       ),
+      AppStorageKeyConst.customUnits: _storage.getStringList(
+        AppStorageKeyConst.customUnits,
+      ),
     });
     archive.addFile(ArchiveFile.string('settings.json', settings));
     final bytes = ZipEncoder().encode(archive);
@@ -180,6 +183,12 @@ class BackupService {
       final value = entry.value;
       if (value is bool) await _storage.setBool(entry.key, value);
       if (value is String) await _storage.setString(entry.key, value);
+      if (value is List) {
+        await _storage.setStringList(
+          entry.key,
+          value.whereType<String>().toList(),
+        );
+      }
     }
   }
 }

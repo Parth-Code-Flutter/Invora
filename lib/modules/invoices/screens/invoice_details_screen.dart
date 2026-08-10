@@ -307,84 +307,13 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
   Future<void> _showPaymentDialog(BuildContext context) async {
     final invoice = controller.invoice.value;
     if (invoice == null || invoice.status == InvoiceStatus.cancelled) return;
-    final input = TextEditingController(
-      text: CurrencyUtils.toInputValue(invoice.calculation.paidAmountMinor),
-    );
-    String? error;
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      builder: (sheetContext) => StatefulBuilder(
-        builder: (_, setState) => Padding(
-          padding: EdgeInsets.fromLTRB(
-            20,
-            4,
-            20,
-            MediaQuery.viewInsetsOf(sheetContext).bottom + 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Record payment', style: AppTextStyles.sectionTitle),
-              const SizedBox(height: 16),
-              _PaymentRow(
-                label: 'Invoice total',
-                amount: invoice.calculation.grandTotalMinor,
-                symbol: controller.currencySymbol.value,
-              ),
-              _PaymentRow(
-                label: 'Already paid',
-                amount: invoice.calculation.paidAmountMinor,
-                symbol: controller.currencySymbol.value,
-              ),
-              _PaymentRow(
-                label: 'Balance due',
-                amount: invoice.calculation.balanceDueMinor,
-                symbol: controller.currencySymbol.value,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: input,
-                autofocus: true,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  labelText: 'Total amount paid',
-                  errorText: error,
-                ),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () => input.text = CurrencyUtils.toInputValue(
-                  invoice.calculation.grandTotalMinor,
-                ),
-                child: const Text('Mark as fully paid'),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => Navigator.pop(sheetContext),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () async {
-                  final validation = await controller.updatePayment(input.text);
-                  if (validation == null && sheetContext.mounted) {
-                    Navigator.pop(sheetContext);
-                  } else {
-                    setState(() => error = validation);
-                  }
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          ),
-        ),
-      ),
+      useSafeArea: true,
+      builder: (_) => _PaymentSheet(invoice: invoice, controller: controller),
     );
-    input.dispose();
   }
 
   Future<bool> _confirm(
@@ -411,6 +340,153 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
           ),
         ) ??
         false;
+  }
+}
+
+class _PaymentSheet extends StatefulWidget {
+  const _PaymentSheet({required this.invoice, required this.controller});
+
+  final InvoiceModel invoice;
+  final InvoiceDetailsController controller;
+
+  @override
+  State<_PaymentSheet> createState() => _PaymentSheetState();
+}
+
+class _PaymentSheetState extends State<_PaymentSheet> {
+  late final TextEditingController input;
+  String? error;
+  bool isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    input = TextEditingController(
+      text: CurrencyUtils.toInputValue(
+        widget.invoice.calculation.paidAmountMinor,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    input.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final invoice = widget.invoice;
+    final symbol = widget.controller.currencySymbol.value;
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Record payment', style: AppTextStyles.sectionTitle),
+            const SizedBox(height: 6),
+            Text(
+              'Update the total amount received for this invoice.',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _PaymentRow(
+              label: 'Invoice total',
+              amount: invoice.calculation.grandTotalMinor,
+              symbol: symbol,
+            ),
+            _PaymentRow(
+              label: 'Already paid',
+              amount: invoice.calculation.paidAmountMinor,
+              symbol: symbol,
+            ),
+            _PaymentRow(
+              label: 'Balance due',
+              amount: invoice.calculation.balanceDueMinor,
+              symbol: symbol,
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: input,
+              autofocus: true,
+              enabled: !isSaving,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                labelText: 'Total amount paid',
+                prefixText: '$symbol ',
+                helperText: 'Enter the total received so far.',
+                errorText: error,
+              ),
+              onSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: isSaving
+                  ? null
+                  : () {
+                      input.text = CurrencyUtils.toInputValue(
+                        invoice.calculation.grandTotalMinor,
+                      );
+                      setState(() => error = null);
+                    },
+              icon: const Icon(Icons.check_circle_outline_rounded),
+              label: const Text('Mark as fully paid'),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: isSaving ? null : () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: isSaving ? null : _save,
+                    child: isSaving
+                        ? const SizedBox.square(
+                            dimension: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Save payment'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _save() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() {
+      isSaving = true;
+      error = null;
+    });
+    final validation = await widget.controller.updatePayment(input.text);
+    if (!mounted) return;
+    if (validation == null) {
+      Navigator.pop(context);
+      return;
+    }
+    setState(() {
+      isSaving = false;
+      error = validation;
+    });
   }
 }
 

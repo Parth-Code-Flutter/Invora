@@ -8,8 +8,8 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
-import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_text_field.dart';
+import '../../../app/widgets/app_unit_field.dart';
 import '../controllers/product_form_controller.dart';
 
 class ProductFormScreen extends GetView<ProductFormController> {
@@ -133,21 +133,9 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                   _ResponsiveFields(
                                     children: [
                                       Obx(
-                                        () => AppDropdownField<String>(
-                                          label: 'Unit *',
-                                          sheetTitle: 'Choose item unit',
-                                          prefixIcon: Icons.straighten_rounded,
+                                        () => AppUnitField(
                                           value: controller.selectedUnit.value,
-                                          options: ProductFormController.units
-                                              .map(
-                                                (unit) => AppDropdownOption(
-                                                  value: unit,
-                                                  label: unit == 'custom'
-                                                      ? 'Custom unit'
-                                                      : unit,
-                                                ),
-                                              )
-                                              .toList(),
+                                          unitService: controller.unitService,
                                           onChanged: (value) =>
                                               controller.selectedUnit.value =
                                                   value,
@@ -158,23 +146,6 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                         label: 'HSN/SAC',
                                       ),
                                     ],
-                                  ),
-                                  Obx(
-                                    () =>
-                                        controller.selectedUnit.value ==
-                                            'custom'
-                                        ? Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 12,
-                                            ),
-                                            child: AppTextField(
-                                              controller: controller.customUnit,
-                                              label: 'Custom unit *',
-                                              validator:
-                                                  controller.validateCustomUnit,
-                                            ),
-                                          )
-                                        : const SizedBox.shrink(),
                                   ),
                                   Obx(
                                     () => controller.gstEnabled.value

@@ -13,10 +13,12 @@ import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_notification.dart';
+import '../../../app/widgets/app_unit_field.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_calculation_models.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/product_service_model.dart';
+import '../../../data/services/unit_service.dart';
 import '../controllers/invoice_create_controller.dart';
 
 class InvoiceCreateScreen extends GetView<InvoiceCreateController> {
@@ -297,12 +299,46 @@ class _InvoiceForm extends StatelessWidget {
                           ],
                         ),
                       ),
-                      IconButton(
-                        onPressed: () => controller.removeItem(entry.key),
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: AppColors.error,
-                        ),
+                      PopupMenuButton<String>(
+                        tooltip: 'Item actions',
+                        onSelected: (action) {
+                          if (action == 'edit') {
+                            _editItem(context, index: entry.key, item: item);
+                          } else if (action == 'duplicate') {
+                            controller.duplicateItem(entry.key);
+                          } else if (action == 'delete') {
+                            controller.removeItem(entry.key);
+                          }
+                        },
+                        itemBuilder: (_) => const [
+                          PopupMenuItem(
+                            value: 'edit',
+                            child: ListTile(
+                              leading: Icon(Icons.edit_outlined),
+                              title: Text('Edit'),
+                              dense: true,
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'duplicate',
+                            child: ListTile(
+                              leading: Icon(Icons.copy_outlined),
+                              title: Text('Duplicate'),
+                              dense: true,
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.delete_outline,
+                                color: AppColors.error,
+                              ),
+                              title: Text('Remove'),
+                              dense: true,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -985,7 +1021,7 @@ class _ItemSheet extends StatefulWidget {
 class _ItemSheetState extends State<_ItemSheet> {
   late final TextEditingController name;
   late final TextEditingController quantity;
-  late final TextEditingController unit;
+  late String unit;
   late final TextEditingController rate;
   late final TextEditingController hsn;
   late final TextEditingController tax;
@@ -1000,7 +1036,7 @@ class _ItemSheetState extends State<_ItemSheet> {
     quantity = TextEditingController(
       text: QuantityUtils.toInputValue(item?.quantityScaled ?? 1000),
     );
-    unit = TextEditingController(text: item?.unit ?? 'pcs');
+    unit = item?.unit ?? 'pcs';
     rate = TextEditingController(
       text: CurrencyUtils.toInputValue(item?.rateMinor ?? 0),
     );
@@ -1063,9 +1099,10 @@ class _ItemSheetState extends State<_ItemSheet> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: TextField(
-                    controller: unit,
-                    decoration: const InputDecoration(labelText: 'Unit *'),
+                  child: AppUnitField(
+                    value: unit,
+                    unitService: Get.find<UnitService>(),
+                    onChanged: (value) => setState(() => unit = value),
                   ),
                 ),
               ],
@@ -1163,7 +1200,6 @@ class _ItemSheetState extends State<_ItemSheet> {
   void dispose() {
     name.dispose();
     quantity.dispose();
-    unit.dispose();
     rate.dispose();
     hsn.dispose();
     tax.dispose();
@@ -1176,7 +1212,7 @@ class _ItemSheetState extends State<_ItemSheet> {
     final rateValue = CurrencyUtils.parseMinor(rate.text);
     final taxValue = TaxUtils.parseBasisPoints(tax.text);
     if (name.text.trim().isEmpty ||
-        unit.text.trim().isEmpty ||
+        unit.trim().isEmpty ||
         quantityValue == null ||
         quantityValue <= 0 ||
         rateValue == null ||
@@ -1208,7 +1244,7 @@ class _ItemSheetState extends State<_ItemSheet> {
         name: name.text.trim(),
         description: widget.item?.description,
         quantityScaled: quantityValue,
-        unit: unit.text.trim(),
+        unit: unit.trim(),
         rateMinor: rateValue,
         hsnSac: hsn.text.trim().isEmpty ? null : hsn.text.trim(),
         taxRateBasisPoints: taxValue,

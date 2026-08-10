@@ -1,17 +1,23 @@
 # Creovo Invoice
 
-A new Flutter project.
+A privacy-first, offline Flutter invoice maker for Android and iOS.
 
-## Getting Started
+## Project documentation
 
-This project is a starting point for a Flutter application.
+- [Current implementation and cross-system handoff](docs/PROJECT_HANDOFF.md)
+- [Product scope and implementation plan](docs/CODEX_IMPLEMENTATION_PLAN.md)
 
-A few resources to get you started if this is your first Flutter project:
+Read the handoff document before continuing development. It contains the live
+feature status, architecture notes, validation rules, setup instructions,
+verification baseline, known work, and dated implementation log.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Quick start
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+git switch parth-dev
+git pull --rebase origin parth-dev
+flutter pub get
+flutter analyze
+flutter test
+flutter run
+```

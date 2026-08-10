@@ -7,34 +7,24 @@ import '../../../app/utils/tax_utils.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
+import '../../../data/services/unit_service.dart';
 
 class ProductFormController extends GetxController {
-  ProductFormController(this._repository, this._businessRepository);
-
-  static const units = [
-    'pcs',
-    'box',
-    'kg',
-    'g',
-    'ltr',
-    'ml',
-    'hour',
-    'day',
-    'service',
-    'set',
-    'pair',
-    'custom',
-  ];
+  ProductFormController(
+    this._repository,
+    this._businessRepository,
+    this.unitService,
+  );
   static const taxRates = [0, 500, 1200, 1800, 2800];
 
   final ProductRepository _repository;
   final BusinessRepository _businessRepository;
+  final UnitService unitService;
   final formKey = GlobalKey<FormState>();
   final name = TextEditingController();
   final description = TextEditingController();
   final salePrice = TextEditingController();
   final hsnSac = TextEditingController();
-  final customUnit = TextEditingController();
   final taxRate = TextEditingController(text: '0');
   final type = ItemType.product.obs;
   final selectedUnit = 'pcs'.obs;
@@ -91,14 +81,6 @@ class ProductFormController extends GetxController {
         : null;
   }
 
-  String? validateCustomUnit(String? value) {
-    if (selectedUnit.value == 'custom' &&
-        (value == null || value.trim().isEmpty)) {
-      return 'Custom unit is required.';
-    }
-    return null;
-  }
-
   Future<void> save() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (!(formKey.currentState?.validate() ?? false)) return;
@@ -111,9 +93,7 @@ class ProductFormController extends GetxController {
           name: name.text.trim(),
           type: type.value,
           description: _optional(description.text),
-          unit: selectedUnit.value == 'custom'
-              ? customUnit.text.trim()
-              : selectedUnit.value,
+          unit: selectedUnit.value,
           salePriceMinor: CurrencyUtils.parseMinor(salePrice.text)!,
           hsnSac: _optional(hsnSac.text.toUpperCase()),
           taxRateBasisPoints: gstEnabled.value
@@ -145,12 +125,7 @@ class ProductFormController extends GetxController {
       salePrice.text = CurrencyUtils.toInputValue(item.salePriceMinor);
       hsnSac.text = item.hsnSac ?? '';
       type.value = item.type;
-      if (units.contains(item.unit) && item.unit != 'custom') {
-        selectedUnit.value = item.unit;
-      } else {
-        selectedUnit.value = 'custom';
-        customUnit.text = item.unit;
-      }
+      selectedUnit.value = await unitService.create(item.unit);
       taxRate.text = TaxUtils.toInputValue(item.taxRateBasisPoints);
       selectedTaxBasisPoints.value = item.taxRateBasisPoints;
       isCustomTax.value = !taxRates.contains(item.taxRateBasisPoints);
@@ -169,7 +144,6 @@ class ProductFormController extends GetxController {
     description.dispose();
     salePrice.dispose();
     hsnSac.dispose();
-    customUnit.dispose();
     taxRate.dispose();
     super.onClose();
   }
