@@ -200,6 +200,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Modern secondary navigation tiles
+
+- Replaced the traditional grouped settings-table appearance with individual
+  tactile destination tiles: soft icon blocks, compact typography, circular
+  forward affordances, subtle card depth, and spacing instead of heavy dividers.
+- The shared `AppMenuGroup`/`AppMenuTile` implementation updates both More and
+  App Settings consistently, including dark mode and tablet layouts. Tightened
+  the More business header and strengthened section-label hierarchy.
+- Important files: shared menu group and More screen.
+- No database, storage, backup, or migration changes.
+
 ### 2026-08-11 — Customer edit GetX scope fix
 
 - Removed an invalid reactive wrapper from the edit-only mobile field branch.

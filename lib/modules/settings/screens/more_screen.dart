@@ -30,7 +30,7 @@ class MoreScreen extends GetView<MoreController> {
               profile: controller.profile.value,
             ),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
           const _SectionLabel('Create & manage'),
           const SizedBox(height: 9),
           AppMenuGroup(
@@ -53,7 +53,7 @@ class MoreScreen extends GetView<MoreController> {
               ),
             ],
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
           const _SectionLabel('Insights & data'),
           const SizedBox(height: 9),
           AppMenuGroup(
@@ -76,7 +76,7 @@ class MoreScreen extends GetView<MoreController> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           const _SectionLabel('Preferences'),
           const SizedBox(height: 9),
           AppMenuGroup(
@@ -140,7 +140,7 @@ class _BusinessHeader extends StatelessWidget {
         profile?.mobile ??
         'Complete your business profile';
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.secondary, AppColors.primaryDark],
@@ -151,15 +151,15 @@ class _BusinessHeader extends StatelessWidget {
         boxShadow: const [
           BoxShadow(
             color: Color(0x2517172B),
-            blurRadius: 22,
-            offset: Offset(0, 9),
+            blurRadius: 18,
+            offset: Offset(0, 7),
           ),
         ],
       ),
       child: Row(
         children: [
           _BusinessLogo(path: profile?.logoPath, name: name),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,8 +208,8 @@ class _BusinessLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final validPath = path != null && File(path!).existsSync();
     return Container(
-      width: 54,
-      height: 54,
+      width: 50,
+      height: 50,
       clipBehavior: Clip.antiAlias,
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -217,7 +217,7 @@ class _BusinessLogo extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: validPath
-          ? Image.file(File(path!), fit: BoxFit.cover, width: 54, height: 54)
+          ? Image.file(File(path!), fit: BoxFit.cover, width: 50, height: 50)
           : Text(
               name.trim().isEmpty
                   ? 'I'
@@ -236,8 +236,9 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) => Text(
     value,
     style: AppTextStyles.caption.copyWith(
-      color: AppColors.textSecondary,
-      letterSpacing: .3,
+      color: Theme.of(context).colorScheme.onSurface,
+      fontWeight: FontWeight.w700,
+      letterSpacing: .1,
     ),
   );
 }
