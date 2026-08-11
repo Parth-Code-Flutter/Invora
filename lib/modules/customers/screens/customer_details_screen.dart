@@ -45,6 +45,31 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
           return const Center(child: Text('Customer not found.'));
         }
         final symbol = controller.currencySymbol.value;
+        final infoRows = <({IconData icon, String label, String? value})>[
+          (icon: Icons.phone_outlined, label: 'Mobile', value: customer.mobile),
+          (icon: Icons.email_outlined, label: 'Email', value: customer.email),
+          (
+            icon: Icons.location_on_outlined,
+            label: 'Billing address',
+            value: [
+              customer.address,
+              customer.city,
+              customer.state,
+              customer.pinCode,
+            ].whereType<String>().join(', '),
+          ),
+          (
+            icon: Icons.business_outlined,
+            label: 'Company',
+            value: customer.companyName,
+          ),
+          (
+            icon: Icons.receipt_long_outlined,
+            label: 'GSTIN',
+            value: customer.gstin,
+          ),
+          (icon: Icons.notes_rounded, label: 'Notes', value: customer.notes),
+        ].where((row) => row.value?.trim().isNotEmpty ?? false).toList();
         return Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -64,50 +89,19 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                       customer.companyName ??
                       customer.mobile ??
                       'No contact details',
-                ),
-                const SizedBox(height: 12),
-                AppCard(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 14,
+                  billed: CurrencyUtils.formatMinor(
+                    controller.billedMinor,
+                    symbol: symbol,
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _Metric(
-                          label: 'Billed',
-                          value: CurrencyUtils.formatMinor(
-                            controller.billedMinor,
-                            symbol: symbol,
-                          ),
-                        ),
-                      ),
-                      const _MetricDivider(),
-                      Expanded(
-                        child: _Metric(
-                          label: 'Paid',
-                          value: CurrencyUtils.formatMinor(
-                            controller.paidMinor,
-                            symbol: symbol,
-                          ),
-                          color: AppColors.success,
-                        ),
-                      ),
-                      const _MetricDivider(),
-                      Expanded(
-                        child: _Metric(
-                          label: 'Due',
-                          value: CurrencyUtils.formatMinor(
-                            controller.outstandingMinor,
-                            symbol: symbol,
-                          ),
-                          color: controller.outstandingMinor > 0
-                              ? AppColors.warning
-                              : AppColors.success,
-                        ),
-                      ),
-                    ],
+                  paid: CurrencyUtils.formatMinor(
+                    controller.paidMinor,
+                    symbol: symbol,
                   ),
+                  due: CurrencyUtils.formatMinor(
+                    controller.outstandingMinor,
+                    symbol: symbol,
+                  ),
+                  hasDue: controller.outstandingMinor > 0,
                 ),
                 const SizedBox(height: 20),
                 Text('Contact & billing', style: AppTextStyles.sectionTitle),
@@ -119,42 +113,15 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                   ),
                   child: Column(
                     children: [
-                      _InfoTile(
-                        icon: Icons.phone_outlined,
-                        label: 'Mobile',
-                        value: customer.mobile,
-                      ),
-                      _InfoTile(
-                        icon: Icons.email_outlined,
-                        label: 'Email',
-                        value: customer.email,
-                      ),
-                      _InfoTile(
-                        icon: Icons.location_on_outlined,
-                        label: 'Billing address',
-                        value: [
-                          customer.address,
-                          customer.city,
-                          customer.state,
-                          customer.pinCode,
-                        ].whereType<String>().join(', '),
-                      ),
-                      _InfoTile(
-                        icon: Icons.business_outlined,
-                        label: 'Company',
-                        value: customer.companyName,
-                      ),
-                      _InfoTile(
-                        icon: Icons.receipt_long_outlined,
-                        label: 'GSTIN',
-                        value: customer.gstin,
-                      ),
-                      _InfoTile(
-                        icon: Icons.notes_rounded,
-                        label: 'Notes',
-                        value: customer.notes,
-                        isLast: true,
-                      ),
+                      for (final (index, row) in infoRows.indexed) ...[
+                        _InfoTile(
+                          icon: row.icon,
+                          label: row.label,
+                          value: row.value!,
+                        ),
+                        if (index != infoRows.length - 1)
+                          const Divider(height: 1, indent: 47),
+                      ],
                     ],
                   ),
                 ),
@@ -185,7 +152,11 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                         arguments: InvoiceEditorArgs(customerId: customer.id),
                       ),
                       icon: const Icon(Icons.add_rounded, size: 18),
-                      label: const Text('New'),
+                      label: const Text('New invoice'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(0, 42),
+                        padding: const EdgeInsets.symmetric(horizontal: 13),
+                      ),
                     ),
                   ],
                 ),
@@ -237,10 +208,21 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
 }
 
 class _CustomerHero extends StatelessWidget {
-  const _CustomerHero({required this.name, required this.subtitle});
+  const _CustomerHero({
+    required this.name,
+    required this.subtitle,
+    required this.billed,
+    required this.paid,
+    required this.due,
+    required this.hasDue,
+  });
 
   final String name;
   final String subtitle;
+  final String billed;
+  final String paid;
+  final String due;
+  final bool hasDue;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -260,64 +242,102 @@ class _CustomerHero extends StatelessWidget {
         ),
       ],
     ),
-    child: Row(
+    child: Column(
       children: [
-        Container(
-          width: 58,
-          height: 58,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: .16),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white.withValues(alpha: .18)),
-          ),
-          child: Text(
-            name.trim().isEmpty ? '?' : name.characters.first.toUpperCase(),
-            style: AppTextStyles.pageTitle.copyWith(color: Colors.white),
-          ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'CUSTOMER ACCOUNT',
-                style: AppTextStyles.caption.copyWith(
-                  color: Colors.white.withValues(alpha: .76),
-                  fontWeight: FontWeight.w700,
-                ),
+        Row(
+          children: [
+            Container(
+              width: 54,
+              height: 54,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .16),
+                borderRadius: BorderRadius.circular(17),
+                border: Border.all(color: Colors.white.withValues(alpha: .2)),
               ),
-              const SizedBox(height: 3),
-              Text(
-                name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: Text(
+                name.trim().isEmpty ? '?' : name.characters.first.toUpperCase(),
                 style: AppTextStyles.pageTitle.copyWith(color: Colors.white),
               ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.body.copyWith(
-                  color: Colors.white.withValues(alpha: .84),
-                ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'CUSTOMER ACCOUNT',
+                    style: AppTextStyles.caption.copyWith(
+                      color: Colors.white.withValues(alpha: .76),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.pageTitle.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.small.copyWith(
+                      color: Colors.white.withValues(alpha: .84),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(height: 1, color: Colors.white.withValues(alpha: .18)),
+        const SizedBox(height: 13),
+        Row(
+          children: [
+            Expanded(
+              child: _HeroMetric(label: 'Billed', value: billed),
+            ),
+            const _HeroMetricDivider(),
+            Expanded(
+              child: _HeroMetric(
+                label: 'Paid',
+                value: paid,
+                valueColor: const Color(0xFFA8F3D5),
+              ),
+            ),
+            const _HeroMetricDivider(),
+            Expanded(
+              child: _HeroMetric(
+                label: 'Due',
+                value: due,
+                valueColor: hasDue
+                    ? const Color(0xFFFFD99A)
+                    : const Color(0xFFA8F3D5),
+              ),
+            ),
+          ],
         ),
       ],
     ),
   );
 }
 
-class _Metric extends StatelessWidget {
-  const _Metric({required this.label, required this.value, this.color});
+class _HeroMetric extends StatelessWidget {
+  const _HeroMetric({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
 
   final String label;
   final String value;
-  final Color? color;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -326,24 +346,32 @@ class _Metric extends StatelessWidget {
         value,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.cardTitle.copyWith(color: color),
+        textAlign: TextAlign.center,
+        style: AppTextStyles.cardTitle.copyWith(
+          color: valueColor ?? Colors.white,
+        ),
       ),
       const SizedBox(height: 3),
       Text(
         label,
         maxLines: 1,
-        style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+        style: AppTextStyles.caption.copyWith(
+          color: Colors.white.withValues(alpha: .72),
+        ),
       ),
     ],
   );
 }
 
-class _MetricDivider extends StatelessWidget {
-  const _MetricDivider();
+class _HeroMetricDivider extends StatelessWidget {
+  const _HeroMetricDivider();
 
   @override
-  Widget build(BuildContext context) =>
-      Container(width: 1, height: 34, color: AppColors.border);
+  Widget build(BuildContext context) => Container(
+    width: 1,
+    height: 32,
+    color: Colors.white.withValues(alpha: .18),
+  );
 }
 
 class _InfoTile extends StatelessWidget {
@@ -351,24 +379,16 @@ class _InfoTile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
-    this.isLast = false,
   });
 
   final IconData icon;
   final String label;
-  final String? value;
-  final bool isLast;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
-    if (value == null || value!.trim().isEmpty) return const SizedBox.shrink();
-    return Container(
+    return Padding(
       padding: const EdgeInsets.symmetric(vertical: 11),
-      decoration: isLast
-          ? null
-          : const BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.border)),
-            ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -393,7 +413,7 @@ class _InfoTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(value!, style: AppTextStyles.body),
+                Text(value, style: AppTextStyles.body),
               ],
             ),
           ),
@@ -419,82 +439,73 @@ class _InvoiceHistoryTile extends StatelessWidget {
     final status = invoice.effectiveStatus(DateTime.now());
     return AppCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(14),
-      child: Column(
+      padding: const EdgeInsets.fromLTRB(13, 13, 10, 13),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.receipt_long_outlined,
-                  size: 20,
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(width: 11),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(invoice.invoiceNumber, style: AppTextStyles.cardTitle),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Issued ${_date(invoice.invoiceDate)}',
-                      style: AppTextStyles.small.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              AppStatusChip(status: status),
-            ],
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight,
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: const Icon(
+              Icons.receipt_long_outlined,
+              size: 20,
+              color: AppColors.primary,
+            ),
           ),
-          const SizedBox(height: 11),
-          Row(
-            children: [
-              Text(
-                CurrencyUtils.formatMinor(
-                  invoice.grandTotalMinor,
-                  symbol: symbol,
-                ),
-                style: AppTextStyles.cardTitle,
-              ),
-              if (invoice.balanceMinor > 0) ...[
-                const SizedBox(width: 8),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(invoice.invoiceNumber, style: AppTextStyles.cardTitle),
+                const SizedBox(height: 2),
                 Text(
-                  '${CurrencyUtils.formatMinor(invoice.balanceMinor, symbol: symbol)} due',
+                  'Issued ${_date(invoice.invoiceDate)}',
                   style: AppTextStyles.small.copyWith(
-                    color: AppColors.warning,
-                    fontWeight: FontWeight.w700,
+                    color: AppColors.textSecondary,
                   ),
                 ),
+                if (invoice.balanceMinor > 0) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '${CurrencyUtils.formatMinor(invoice.balanceMinor, symbol: symbol)} remaining',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.warning,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ],
-              const Spacer(),
-              const Icon(
-                Icons.manage_search_rounded,
-                size: 18,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(width: 5),
-              Text(
-                'View & manage',
-                style: AppTextStyles.small.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 3),
-              const Icon(
-                Icons.chevron_right_rounded,
-                size: 19,
-                color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              AppStatusChip(status: status),
+              const SizedBox(height: 7),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    CurrencyUtils.formatMinor(
+                      invoice.grandTotalMinor,
+                      symbol: symbol,
+                    ),
+                    style: AppTextStyles.cardTitle,
+                  ),
+                  const SizedBox(width: 3),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    size: 20,
+                    color: AppColors.textTertiary,
+                  ),
+                ],
               ),
             ],
           ),

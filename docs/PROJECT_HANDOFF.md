@@ -233,6 +233,22 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-12 — Customer account layout consolidation
+
+- Consolidated customer identity and lifetime billed/paid/due metrics into one
+  aligned account card, reducing stacked-card noise and keeping related context
+  together.
+- Rebuilt contact/billing rendering from the visible data set so optional fields
+  remain consistently aligned and separators appear only between actual rows.
+- Redesigned invoice history as compact ledger rows with a stable left identity
+  column and right-aligned status/total column; removed the competing secondary
+  `View & manage` action row because the complete card is already tappable.
+- Refined the history header and `New invoice` action sizing for a clearer
+  section hierarchy on phones and tablets.
+- Important file: `customer_details_screen.dart`; no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-12 — Unified modern dropdown controls
 
 - Audited all dropdown-style controls and replaced the final native form
