@@ -20,7 +20,6 @@ import '../../../app/widgets/app_unit_field.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_calculation_models.dart';
 import '../../../data/models/invoice_model.dart';
-import '../../../data/models/product_service_model.dart';
 import '../../../data/services/unit_service.dart';
 import '../../customers/controllers/customer_form_controller.dart';
 import '../controllers/invoice_create_controller.dart';
@@ -690,8 +689,11 @@ class _InvoiceForm extends StatelessWidget {
             .toSet(),
       ),
     );
-    if (!context.mounted || selected is! List<ProductServiceModel>) return;
-    controller.addProducts(selected);
+    if (!context.mounted || selected is! InvoiceItemPickerResult) return;
+    controller.applyCatalogSelection(
+      added: selected.added,
+      removedProductIds: selected.removedIds,
+    );
   }
 
   Future<void> _showAddItemOptions(BuildContext context) async {

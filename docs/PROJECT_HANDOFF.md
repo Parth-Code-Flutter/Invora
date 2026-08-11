@@ -102,8 +102,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Customer selection uses a focused searchable bottom sheet. Saved catalog
   selection uses a dedicated full-screen workspace designed for 100+ records,
   with debounced search, Product/Service filters, persistent checkboxes,
-  select-visible, clear, already-added states, create-item access, result and
-  selection counts, and one bulk add action
+  select-visible, clear, editable on-invoice states, create-item access, result
+  and selection counts, and one apply-changes action
 - Invoice creation uses a focused composer hierarchy: compact customer/invoice
   header, equal-width metadata controls, count-labelled line items, secondary
   tax/discount disclosure, and a non-duplicated empty-item flow. Phone layouts
@@ -229,6 +229,24 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Catalog picker adds and removes invoice lines
+
+- Changed the full-screen catalog picker from append-only selection into an
+  invoice membership editor: saved items already on the invoice start checked
+  and can be unchecked for removal, while unchecked catalog items can be added.
+- Replaced the disabled Added badge with an interactive checkbox plus On invoice
+  or Will remove context. Apply item changes returns additions and removals in
+  one result; leaving an item selected preserves its existing invoice quantity.
+- Added a controller batch-sync path that removes deselected product-backed
+  lines, adds new selections, and recalculates once. One-time custom lines are
+  unaffected because they are not catalog membership records.
+- Updated controller regression coverage for simultaneous removal/addition and
+  existing-quantity preservation.
+- Important files: invoice item picker, invoice create screen/controller, and
+  controller test; no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-11 — Compact catalog select-all control
 
 - Replaced the text-heavy Select/Deselect visible action in the invoice item
@@ -248,10 +266,10 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
   persistent multi-select checkboxes, result and selection counts,
   select/deselect visible, clear selection, distinct empty/no-match states,
   and a sticky bulk-add action.
-- Catalog items already on the invoice show a disabled Added state so users do
-  not create accidental duplicate lines; quantity remains controlled from the
-  invoice. Users can create a new product/service from the picker and it is
-  selected immediately on return.
+- Catalog items already on the invoice are recognized by ID so selection can
+  be synchronized without duplicate lines; quantity remains controlled from
+  the invoice. Users can create a new product/service from the picker and it is
+  selected immediately on return. (A later entry adds removal from this view.)
 - Added a controller bulk-add path that merges the selected catalog records and
   recalculates the invoice once, avoiding one recalculation per item at scale.
 - Important files: invoice item picker screen, invoice create screen/controller,

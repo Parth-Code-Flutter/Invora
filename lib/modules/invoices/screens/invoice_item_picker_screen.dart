@@ -21,6 +21,16 @@ class InvoiceItemPickerArgs {
   final Set<int> alreadyAddedIds;
 }
 
+class InvoiceItemPickerResult {
+  const InvoiceItemPickerResult({
+    required this.added,
+    required this.removedIds,
+  });
+
+  final List<ProductServiceModel> added;
+  final Set<int> removedIds;
+}
+
 class InvoiceItemPickerScreen extends StatefulWidget {
   const InvoiceItemPickerScreen({super.key});
 
@@ -33,7 +43,8 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
   final _repository = Get.find<ProductRepository>();
   final _businessRepository = Get.find<BusinessRepository>();
   final _search = TextEditingController();
-  final Map<int, ProductServiceModel> _selected = {};
+  final Set<int> _selectedIds = {};
+  final Map<int, ProductServiceModel> _knownItems = {};
   late final Set<int> _alreadyAdded;
   late Stream<List<ProductServiceModel>> _itemsStream;
   Timer? _searchDebounce;
@@ -47,6 +58,7 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
     _alreadyAdded = args is InvoiceItemPickerArgs
         ? Set<int>.from(args.alreadyAddedIds)
         : <int>{};
+    _selectedIds.addAll(_alreadyAdded);
     _itemsStream = _repository.watchItems();
     _loadCurrency();
   }
@@ -93,14 +105,24 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
             border: const Border(top: BorderSide(color: AppColors.border)),
           ),
           child: AppButton(
-            label: _selected.isEmpty
-                ? 'Select items to add'
-                : 'Add ${_selected.length} ${_selected.length == 1 ? 'item' : 'items'}',
+            label: !_hasChanges
+                ? (_alreadyAdded.isEmpty
+                      ? 'Select items to add'
+                      : 'No item changes')
+                : _alreadyAdded.isEmpty
+                ? 'Add ${_addedIds.length} ${_addedIds.length == 1 ? 'item' : 'items'}'
+                : 'Apply item changes',
             icon: Icons.add_shopping_cart_rounded,
-            onPressed: _selected.isEmpty
+            onPressed: !_hasChanges
                 ? null
-                : () => Get.back<List<ProductServiceModel>>(
-                    result: _selected.values.toList(growable: false),
+                : () => Get.back<InvoiceItemPickerResult>(
+                    result: InvoiceItemPickerResult(
+                      added: _addedIds
+                          .map((id) => _knownItems[id])
+                          .whereType<ProductServiceModel>()
+                          .toList(growable: false),
+                      removedIds: _alreadyAdded.difference(_selectedIds),
+                    ),
                   ),
           ),
         ),
@@ -179,10 +201,10 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                             ),
                           ),
                         ),
-                        if (_selected.isNotEmpty) ...[
+                        if (_selectedIds.isNotEmpty) ...[
                           const SizedBox(width: 8),
                           TextButton(
-                            onPressed: () => setState(_selected.clear),
+                            onPressed: () => setState(_selectedIds.clear),
                             child: const Text('Clear'),
                           ),
                         ],
@@ -200,21 +222,20 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     final items = snapshot.data!;
+                    for (final item in items) {
+                      if (item.id != null) _knownItems[item.id!] = item;
+                    }
                     if (items.isEmpty) return _emptyState();
                     final selectable = items
-                        .where(
-                          (item) =>
-                              item.id != null &&
-                              !_alreadyAdded.contains(item.id),
-                        )
+                        .where((item) => item.id != null)
                         .toList(growable: false);
                     final allVisibleSelected =
                         selectable.isNotEmpty &&
                         selectable.every(
-                          (item) => _selected.containsKey(item.id),
+                          (item) => _selectedIds.contains(item.id),
                         );
                     final selectedVisibleCount = selectable
-                        .where((item) => _selected.containsKey(item.id))
+                        .where((item) => _selectedIds.contains(item.id))
                         .length;
                     return Column(
                       children: [
@@ -229,7 +250,7 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                             children: [
                               Expanded(
                                 child: Text(
-                                  '${items.length} ${items.length == 1 ? 'result' : 'results'}${_selected.isEmpty ? '' : ' · ${_selected.length} selected'}',
+                                  '${items.length} ${items.length == 1 ? 'result' : 'results'}${_selectedIds.isEmpty ? '' : ' · ${_selectedIds.length} selected'}',
                                   style: AppTextStyles.small.copyWith(
                                     color: AppColors.textSecondary,
                                   ),
@@ -250,11 +271,11 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                                     onChanged: (_) => setState(() {
                                       if (allVisibleSelected) {
                                         for (final item in selectable) {
-                                          _selected.remove(item.id);
+                                          _selectedIds.remove(item.id);
                                         }
                                       } else {
                                         for (final item in selectable) {
-                                          _selected[item.id!] = item;
+                                          _selectedIds.add(item.id!);
                                         }
                                       }
                                     }),
@@ -293,9 +314,9 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
   Widget _itemTile(ProductServiceModel item) {
     final id = item.id;
     final alreadyAdded = id != null && _alreadyAdded.contains(id);
-    final selected = id != null && _selected.containsKey(id);
+    final selected = id != null && _selectedIds.contains(id);
     return Semantics(
-      button: !alreadyAdded,
+      button: id != null,
       selected: selected,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 160),
@@ -311,13 +332,13 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(18),
-            onTap: alreadyAdded || id == null
+            onTap: id == null
                 ? null
                 : () => setState(() {
                     if (selected) {
-                      _selected.remove(id);
+                      _selectedIds.remove(id);
                     } else {
-                      _selected[id] = item;
+                      _selectedIds.add(id);
                     }
                   }),
             child: Padding(
@@ -356,7 +377,7 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '${item.type.label} · ${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: _currency)} / ${item.unit}${item.taxRateBasisPoints > 0 ? ' · GST ${item.taxRateBasisPoints / 100}%' : ''}',
+                          '${item.type.label} · ${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: _currency)} / ${item.unit}${item.taxRateBasisPoints > 0 ? ' · GST ${item.taxRateBasisPoints / 100}%' : ''}${alreadyAdded ? (selected ? ' · On invoice' : ' · Will remove') : ''}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.small.copyWith(
@@ -367,37 +388,18 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  if (alreadyAdded)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.successLight,
-                        borderRadius: BorderRadius.circular(99),
-                      ),
-                      child: Text(
-                        'Added',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.success,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    )
-                  else
-                    Checkbox(
-                      value: selected,
-                      onChanged: id == null
-                          ? null
-                          : (_) => setState(() {
-                              if (selected) {
-                                _selected.remove(id);
-                              } else {
-                                _selected[id] = item;
-                              }
-                            }),
-                    ),
+                  Checkbox(
+                    value: selected,
+                    onChanged: id == null
+                        ? null
+                        : (_) => setState(() {
+                            if (selected) {
+                              _selectedIds.remove(id);
+                            } else {
+                              _selectedIds.add(id);
+                            }
+                          }),
+                  ),
                 ],
               ),
             ),
@@ -447,8 +449,16 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
   Future<void> _createItem() async {
     final result = await Get.toNamed<dynamic>(AppRoutes.productAdd);
     if (!mounted || result is! ProductServiceModel || result.id == null) return;
-    setState(() => _selected[result.id!] = result);
+    setState(() {
+      _knownItems[result.id!] = result;
+      _selectedIds.add(result.id!);
+    });
   }
+
+  Set<int> get _addedIds => _selectedIds.difference(_alreadyAdded);
+
+  bool get _hasChanges =>
+      _addedIds.isNotEmpty || _alreadyAdded.difference(_selectedIds).isNotEmpty;
 
   void _setFilter(ItemType? value) {
     _filter = value;

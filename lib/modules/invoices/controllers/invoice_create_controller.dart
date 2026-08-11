@@ -127,6 +127,23 @@ class InvoiceCreateController extends GetxController {
     recalculate();
   }
 
+  void applyCatalogSelection({
+    required Iterable<ProductServiceModel> added,
+    required Set<int> removedProductIds,
+  }) {
+    if (removedProductIds.isNotEmpty) {
+      items.removeWhere(
+        (item) =>
+            item.productId != null &&
+            removedProductIds.contains(item.productId),
+      );
+    }
+    for (final product in added) {
+      _addOrIncrementProduct(product);
+    }
+    recalculate();
+  }
+
   void _addOrIncrementProduct(ProductServiceModel product) {
     final existingIndex = items.indexWhere(
       (item) => product.id != null && item.productId != null

@@ -80,6 +80,26 @@ void main() {
 
     expect(controller.items, hasLength(2));
     expect(controller.calculation.value?.grandTotalMinor, 68200);
+
+    controller.incrementQuantity(1);
+    controller.applyCatalogSelection(
+      removedProductIds: {1},
+      added: [
+        ProductServiceModel(
+          id: 3,
+          name: 'Delivery',
+          type: ItemType.service,
+          unit: 'service',
+          salePriceMinor: 10000,
+          createdAt: now,
+          updatedAt: now,
+        ),
+      ],
+    );
+
+    expect(controller.items.map((item) => item.productId), [2, 3]);
+    expect(controller.items.first.quantityScaled, 2000);
+    expect(controller.calculation.value?.grandTotalMinor, 110000);
     controller.onClose();
     await database.close();
   });
