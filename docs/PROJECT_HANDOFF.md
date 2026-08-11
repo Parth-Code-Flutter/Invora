@@ -229,6 +229,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Non-redundant picker clear action
+
+- Hid the catalog picker's Clear shortcut whenever the top checkbox confirms
+  that every currently visible result is selected, avoiding two controls for
+  the same deselect-all outcome.
+- Clear remains available for partial selections, while the tri-state checkbox
+  continues to own visible select/deselect behavior across search and filters.
+- Important file: `invoice_item_picker_screen.dart`; no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-11 — Catalog picker adds and removes invoice lines
 
 - Changed the full-screen catalog picker from append-only selection into an
