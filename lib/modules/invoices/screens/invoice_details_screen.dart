@@ -37,57 +37,58 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
             onPressed: controller.openPreview,
             icon: const Icon(Icons.picture_as_pdf_outlined),
           ),
-          Obx(() {
-            final isQuotation =
-                controller.invoice.value?.documentType ==
-                DocumentType.quotation;
-            return PopupMenuButton<String>(
-              onSelected: (action) => _handleAction(context, action),
-              itemBuilder: (_) => isQuotation
-                  ? const [
-                      PopupMenuItem(
-                        value: 'duplicate',
-                        child: Text('Duplicate'),
-                      ),
-                      PopupMenuItem(value: 'sent', child: Text('Mark sent')),
-                      PopupMenuItem(
-                        value: 'accepted',
-                        child: Text('Mark accepted'),
-                      ),
-                      PopupMenuItem(
-                        value: 'rejected',
-                        child: Text('Mark rejected'),
-                      ),
-                      PopupMenuItem(
-                        value: 'convert',
-                        child: Text('Convert to invoice'),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Delete quotation'),
-                      ),
-                    ]
-                  : const [
-                      PopupMenuItem(value: 'edit', child: Text('Edit')),
-                      PopupMenuItem(
-                        value: 'duplicate',
-                        child: Text('Duplicate'),
-                      ),
-                      PopupMenuItem(
-                        value: 'payment',
-                        child: Text('Update payment'),
-                      ),
-                      PopupMenuItem(
-                        value: 'cancel',
-                        child: Text('Cancel invoice'),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Delete invoice'),
-                      ),
-                    ],
-            );
-          }),
+          if (!controller.readOnly)
+            Obx(() {
+              final isQuotation =
+                  controller.invoice.value?.documentType ==
+                  DocumentType.quotation;
+              return PopupMenuButton<String>(
+                onSelected: (action) => _handleAction(context, action),
+                itemBuilder: (_) => isQuotation
+                    ? const [
+                        PopupMenuItem(
+                          value: 'duplicate',
+                          child: Text('Duplicate'),
+                        ),
+                        PopupMenuItem(value: 'sent', child: Text('Mark sent')),
+                        PopupMenuItem(
+                          value: 'accepted',
+                          child: Text('Mark accepted'),
+                        ),
+                        PopupMenuItem(
+                          value: 'rejected',
+                          child: Text('Mark rejected'),
+                        ),
+                        PopupMenuItem(
+                          value: 'convert',
+                          child: Text('Convert to invoice'),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete quotation'),
+                        ),
+                      ]
+                    : const [
+                        PopupMenuItem(value: 'edit', child: Text('Edit')),
+                        PopupMenuItem(
+                          value: 'duplicate',
+                          child: Text('Duplicate'),
+                        ),
+                        PopupMenuItem(
+                          value: 'payment',
+                          child: Text('Update payment'),
+                        ),
+                        PopupMenuItem(
+                          value: 'cancel',
+                          child: Text('Cancel invoice'),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete invoice'),
+                        ),
+                      ],
+              );
+            }),
         ],
       ),
       body: Obx(() {
@@ -196,7 +197,8 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
             children: [
               Expanded(
                 child:
-                    invoice.documentType == DocumentType.invoice &&
+                    !controller.readOnly &&
+                        invoice.documentType == DocumentType.invoice &&
                         invoice.status != InvoiceStatus.cancelled &&
                         invoice.calculation.balanceDueMinor > 0
                     ? AppButton(
@@ -210,7 +212,8 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                         onPressed: controller.openPreview,
                       ),
               ),
-              if (invoice.documentType == DocumentType.invoice &&
+              if (!controller.readOnly &&
+                  invoice.documentType == DocumentType.invoice &&
                   invoice.status != InvoiceStatus.cancelled &&
                   invoice.calculation.balanceDueMinor > 0) ...[
                 const SizedBox(width: 10),

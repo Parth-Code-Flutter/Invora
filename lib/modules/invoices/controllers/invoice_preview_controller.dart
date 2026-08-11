@@ -12,6 +12,7 @@ import '../../../data/services/invoice_validation_service.dart';
 import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/widgets/app_notification.dart';
+import '../models/invoice_navigation_args.dart';
 
 class InvoicePreviewController extends GetxController {
   InvoicePreviewController(
@@ -31,6 +32,7 @@ class InvoicePreviewController extends GetxController {
   final isLoading = true.obs;
   final isSavingDocument = false.obs;
   final validationError = RxnString();
+  bool readOnly = false;
 
   @override
   void onInit() {
@@ -49,7 +51,14 @@ class InvoicePreviewController extends GetxController {
       );
     }
     final argument = Get.arguments;
-    if (argument is InvoiceModel) {
+    if (argument is InvoicePreviewArgs) {
+      readOnly = argument.readOnly;
+      invoice.value =
+          argument.invoice ??
+          (argument.invoiceId == null
+              ? null
+              : await _invoices.getById(argument.invoiceId!));
+    } else if (argument is InvoiceModel) {
       invoice.value = argument;
     } else if (argument is int) {
       invoice.value = await _invoices.getById(argument);

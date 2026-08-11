@@ -104,6 +104,10 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   with debounced search, Product/Service filters, persistent checkboxes,
   tri-state visible selection, editable on-invoice states, create-item access,
   result and selection counts, and one apply-changes action
+- Customer details is an account-style workspace with lifetime billed, paid,
+  and due metrics, structured contact/billing information, and complete invoice
+  history. History opens invoices in strict read-only mode with full details,
+  payment activity, and PDF preview/download/share/print access.
 - Invoice creation uses a focused composer hierarchy: compact customer/invoice
   header, equal-width metadata controls, count-labelled line items, secondary
   tax/discount disclosure, and a non-duplicated empty-item flow. Phone layouts
@@ -228,6 +232,27 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-12 — Modern customer account and read-only invoice history
+
+- Rebuilt customer details as a modern account workspace with a branded
+  identity hero, lifetime billed/paid/due metrics, and structured contact and
+  billing tiles that omit empty values.
+- Replaced the five-record recent-invoice preview with the customer's complete
+  invoice history, including issue date, status, total, remaining due amount,
+  and a clear `View & export` affordance.
+- Added typed invoice navigation arguments and strict read-only invoice-detail
+  mode. History records expose full invoice/payment details and PDF preview,
+  download, sharing, and printing while hiding and guarding every mutation.
+- Added read-only PDF preview mode so history exports never show the document
+  save action or alter the stored invoice.
+- Important files: `customer_details_screen.dart`,
+  `customer_details_controller.dart`, `invoice_navigation_args.dart`,
+  `invoice_details_controller.dart`, `invoice_details_screen.dart`,
+  `invoice_preview_controller.dart`, and `invoice_preview_screen.dart`; no
+  schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
 
 ### 2026-08-12 — Review action uses forward-reading order
 

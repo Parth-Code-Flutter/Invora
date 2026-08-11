@@ -20,6 +20,9 @@ class CustomerDetailsController extends GetxController {
   int get customerId => Get.arguments as int;
   int get outstandingMinor =>
       invoices.fold(0, (sum, item) => sum + item.balanceMinor);
+  int get billedMinor =>
+      invoices.fold(0, (sum, item) => sum + item.grandTotalMinor);
+  int get paidMinor => billedMinor - outstandingMinor;
 
   @override
   void onInit() {
