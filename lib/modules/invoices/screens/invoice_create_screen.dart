@@ -24,6 +24,7 @@ import '../../../data/models/product_service_model.dart';
 import '../../../data/services/unit_service.dart';
 import '../../customers/controllers/customer_form_controller.dart';
 import '../controllers/invoice_create_controller.dart';
+import 'invoice_item_picker_screen.dart';
 
 class InvoiceCreateScreen extends StatefulWidget {
   const InvoiceCreateScreen({super.key});
@@ -680,36 +681,17 @@ class _InvoiceForm extends StatelessWidget {
   }
 
   Future<void> _selectProduct(BuildContext context) async {
-    final selected = await showModalBottomSheet<ProductServiceModel>(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (_) => _SelectionSheet<ProductServiceModel>(
-        title: 'Select saved item',
-        description: 'Choose a catalog item to add it instantly.',
-        itemLabel: 'saved items',
-        future: controller.products(),
-        titleFor: (item) => item.name,
-        subtitleFor: (item) =>
-            '${item.type.label} • ${item.unit} • ${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: controller.currencySymbol.value)}',
-        iconFor: (item) => item.type.name == 'service'
-            ? Icons.design_services_outlined
-            : Icons.inventory_2_outlined,
-        emptyTitle: 'Nothing saved yet',
-        emptyMessage:
-            'Create a reusable product or service, then add it to this invoice.',
-        actionLabel: 'Create product or service',
-        actionIcon: Icons.add_business_rounded,
-        onAction: () async {
-          // Named GetX pages are dynamically typed. Read the route result as
-          // dynamic and validate it before returning it to the typed sheet.
-          final result = await Get.toNamed<dynamic>(AppRoutes.productAdd);
-          return result is ProductServiceModel ? result : null;
-        },
+    final selected = await Get.toNamed<dynamic>(
+      AppRoutes.invoiceItemPicker,
+      arguments: InvoiceItemPickerArgs(
+        alreadyAddedIds: controller.items
+            .map((item) => item.productId)
+            .whereType<int>()
+            .toSet(),
       ),
     );
-    if (selected != null) controller.addProduct(selected);
+    if (!context.mounted || selected is! List<ProductServiceModel>) return;
+    controller.addProducts(selected);
   }
 
   Future<void> _showAddItemOptions(BuildContext context) async {

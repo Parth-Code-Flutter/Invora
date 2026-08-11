@@ -45,4 +45,42 @@ void main() {
     controller.onClose();
     await database.close();
   });
+
+  test('adds a multi-selected catalog batch in one invoice update', () async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final controller = InvoiceCreateController(
+      InvoiceRepository(database),
+      BusinessRepository(database),
+      CustomerRepository(database),
+      ProductRepository(database),
+      const InvoiceCalculationService(),
+    );
+    final now = DateTime(2026, 8, 11);
+
+    controller.addProducts([
+      ProductServiceModel(
+        id: 1,
+        name: 'MDF Circle',
+        type: ItemType.product,
+        unit: 'pcs',
+        salePriceMinor: 18200,
+        createdAt: now,
+        updatedAt: now,
+      ),
+      ProductServiceModel(
+        id: 2,
+        name: 'Design service',
+        type: ItemType.service,
+        unit: 'hour',
+        salePriceMinor: 50000,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    ]);
+
+    expect(controller.items, hasLength(2));
+    expect(controller.calculation.value?.grandTotalMinor, 68200);
+    controller.onClose();
+    await database.close();
+  });
 }

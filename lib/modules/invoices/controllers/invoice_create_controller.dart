@@ -110,13 +110,24 @@ class InvoiceCreateController extends GetxController {
   }
 
   Future<List<CustomerModel>> customers() => _customers.watchCustomers().first;
-  Future<List<ProductServiceModel>> products() => _products.watchItems().first;
 
   void selectCustomer(CustomerModel value) {
     customer.value = CustomerSnapshotModel.fromCustomer(value);
   }
 
   void addProduct(ProductServiceModel product) {
+    _addOrIncrementProduct(product);
+    recalculate();
+  }
+
+  void addProducts(Iterable<ProductServiceModel> products) {
+    for (final product in products) {
+      _addOrIncrementProduct(product);
+    }
+    recalculate();
+  }
+
+  void _addOrIncrementProduct(ProductServiceModel product) {
     final existingIndex = items.indexWhere(
       (item) => product.id != null && item.productId != null
           ? item.productId == product.id
@@ -126,7 +137,8 @@ class InvoiceCreateController extends GetxController {
                 item.rateMinor == product.salePriceMinor,
     );
     if (existingIndex >= 0) {
-      incrementQuantity(existingIndex);
+      final item = items[existingIndex];
+      items[existingIndex] = _withQuantity(item, item.quantityScaled + 1000);
       return;
     }
     items.add(
@@ -142,7 +154,6 @@ class InvoiceCreateController extends GetxController {
         taxRateBasisPoints: product.taxRateBasisPoints,
       ),
     );
-    recalculate();
   }
 
   void addItem(InvoiceItemModel item) {

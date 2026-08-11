@@ -99,9 +99,11 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   printing, or payment; incomplete work may be saved as a draft
 - New invoices start with an automatic customer picker, then show customer and
   invoice metadata in one compact header with direct saved/custom item actions
-- Customer and saved-item selection use the same high-capacity bottom sheet
-  with contextual search, result counts, card rows, richer metadata, explicit
-  add affordances, and distinct empty/no-search-match states
+- Customer selection uses a focused searchable bottom sheet. Saved catalog
+  selection uses a dedicated full-screen workspace designed for 100+ records,
+  with debounced search, Product/Service filters, persistent checkboxes,
+  select-visible, clear, already-added states, create-item access, result and
+  selection counts, and one bulk add action
 - Invoice creation uses a focused composer hierarchy: compact customer/invoice
   header, equal-width metadata controls, count-labelled line items, secondary
   tax/discount disclosure, and a non-duplicated empty-item flow. Phone layouts
@@ -226,6 +228,25 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Scalable multi-item invoice picker
+
+- Replaced the single-select saved-item bottom sheet with a dedicated
+  full-screen catalog route suitable for 100+ products and services.
+- Added debounced name/description/HSN search, All/Product/Service filters,
+  persistent multi-select checkboxes, result and selection counts,
+  select/deselect visible, clear selection, distinct empty/no-match states,
+  and a sticky bulk-add action.
+- Catalog items already on the invoice show a disabled Added state so users do
+  not create accidental duplicate lines; quantity remains controlled from the
+  invoice. Users can create a new product/service from the picker and it is
+  selected immediately on return.
+- Added a controller bulk-add path that merges the selected catalog records and
+  recalculates the invoice once, avoiding one recalculation per item at scale.
+- Important files: invoice item picker screen, invoice create screen/controller,
+  app routes/router, and invoice create controller test.
+- No schema or storage changes. Verified with formatting, static analysis, full
+  automated tests, and whitespace checks.
 
 ### 2026-08-11 — Final focused invoice composer
 

@@ -18,6 +18,7 @@ import '../../modules/products/screens/product_form_screen.dart';
 import '../../modules/products/screens/product_list_screen.dart';
 import '../../modules/invoices/bindings/invoice_binding.dart';
 import '../../modules/invoices/screens/invoice_create_screen.dart';
+import '../../modules/invoices/screens/invoice_item_picker_screen.dart';
 import '../../modules/invoices/screens/invoice_details_screen.dart';
 import '../../modules/invoices/screens/invoice_list_screen.dart';
 import '../../modules/invoices/screens/invoice_preview_screen.dart';
@@ -116,6 +117,10 @@ abstract final class AppRouter {
       name: AppRoutes.invoiceCreate,
       page: InvoiceCreateScreen.new,
       binding: InvoiceCreateBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.invoiceItemPicker,
+      page: InvoiceItemPickerScreen.new,
     ),
     GetPage(
       name: AppRoutes.quotationCreate,
