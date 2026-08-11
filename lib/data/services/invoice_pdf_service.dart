@@ -46,7 +46,9 @@ class InvoicePdfService {
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: pw.EdgeInsets.all(style.margin),
-        header: (_) => _header(business, invoice, style, logo),
+        header: (_) => template == InvoiceTemplate.professional
+            ? _professionalHeader(business, invoice, style, logo)
+            : _header(business, invoice, style, logo),
         footer: (context) => pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
@@ -60,20 +62,22 @@ class InvoicePdfService {
             ),
           ],
         ),
-        build: (_) => [
-          pw.SizedBox(height: style.spacing),
-          _customer(invoice, style),
-          pw.SizedBox(height: style.spacing),
-          _items(invoice, business.currencySymbol, style),
-          pw.SizedBox(height: style.spacing),
-          _totals(invoice, business.currencySymbol, style),
-          if (invoice.notes != null || invoice.terms != null) ...[
-            pw.SizedBox(height: style.spacing),
-            _notes(invoice),
-          ],
-          pw.SizedBox(height: style.spacing),
-          _paymentDetails(business, paymentQr, signature),
-        ],
+        build: (_) => template == InvoiceTemplate.professional
+            ? _professionalBody(business, invoice, style, paymentQr, signature)
+            : [
+                pw.SizedBox(height: style.spacing),
+                _customer(invoice, style),
+                pw.SizedBox(height: style.spacing),
+                _items(invoice, business.currencySymbol, style),
+                pw.SizedBox(height: style.spacing),
+                _totals(invoice, business.currencySymbol, style),
+                if (invoice.notes != null || invoice.terms != null) ...[
+                  pw.SizedBox(height: style.spacing),
+                  _notes(invoice),
+                ],
+                pw.SizedBox(height: style.spacing),
+                _paymentDetails(business, paymentQr, signature),
+              ],
       ),
     );
     return document.save();
@@ -143,6 +147,575 @@ class InvoicePdfService {
         : 'Invoice';
     return '${type}_${safe(invoice.invoiceNumber)}_${safe(customer)}.pdf';
   }
+
+  pw.Widget _professionalHeader(
+    BusinessProfileModel business,
+    InvoiceModel invoice,
+    _PdfStyle style,
+    pw.MemoryImage? logo,
+  ) {
+    final businessAddress = _address([
+      business.address,
+      business.city,
+      business.state,
+      business.pinCode,
+    ]);
+    return pw.Container(
+      padding: const pw.EdgeInsets.only(bottom: 14),
+      decoration: const pw.BoxDecoration(
+        border: pw.Border(
+          bottom: pw.BorderSide(color: PdfColors.grey300, width: 1.2),
+        ),
+      ),
+      child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Container(
+            width: 70,
+            height: 70,
+            alignment: pw.Alignment.center,
+            decoration: pw.BoxDecoration(
+              color: PdfColors.grey100,
+              borderRadius: pw.BorderRadius.circular(8),
+            ),
+            child: logo != null
+                ? pw.Padding(
+                    padding: const pw.EdgeInsets.all(7),
+                    child: pw.Image(logo, fit: pw.BoxFit.contain),
+                  )
+                : pw.Text(
+                    business.businessName.trim().substring(0, 1).toUpperCase(),
+                    style: pw.TextStyle(
+                      color: style.accent,
+                      fontSize: 30,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+          ),
+          pw.SizedBox(width: 14),
+          pw.Expanded(
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  business.businessName,
+                  style: pw.TextStyle(
+                    fontSize: 17,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                if (_hasText(business.ownerName))
+                  pw.Text(
+                    business.ownerName!,
+                    style: const pw.TextStyle(
+                      fontSize: 8.5,
+                      color: PdfColors.grey700,
+                    ),
+                  ),
+                if (businessAddress.isNotEmpty)
+                  pw.Text(
+                    businessAddress,
+                    style: const pw.TextStyle(
+                      fontSize: 8.5,
+                      color: PdfColors.grey700,
+                    ),
+                  ),
+                if (_hasText(business.mobile) || _hasText(business.email))
+                  pw.Text(
+                    _join([business.mobile, business.email], separator: ' | '),
+                    style: const pw.TextStyle(
+                      fontSize: 8.5,
+                      color: PdfColors.grey700,
+                    ),
+                  ),
+                if (_hasText(business.gstin))
+                  pw.Text(
+                    'GSTIN: ${business.gstin}',
+                    style: const pw.TextStyle(fontSize: 8.5),
+                  ),
+              ],
+            ),
+          ),
+          pw.SizedBox(width: 18),
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.end,
+            children: [
+              pw.Text(
+                invoice.documentType == DocumentType.quotation
+                    ? 'QUOTATION'
+                    : 'INVOICE',
+                style: pw.TextStyle(
+                  fontSize: 25,
+                  fontWeight: pw.FontWeight.bold,
+                  color: style.accent,
+                ),
+              ),
+              pw.SizedBox(height: 3),
+              pw.Text(
+                invoice.invoiceNumber,
+                style: pw.TextStyle(
+                  fontSize: 10,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<pw.Widget> _professionalBody(
+    BusinessProfileModel business,
+    InvoiceModel invoice,
+    _PdfStyle style,
+    pw.MemoryImage? paymentQr,
+    pw.MemoryImage? signature,
+  ) => [
+    pw.SizedBox(height: 16),
+    _professionalParties(invoice, style),
+    pw.SizedBox(height: 16),
+    _professionalItems(invoice, business.currencySymbol, style),
+    pw.SizedBox(height: 14),
+    _professionalSettlement(
+      business,
+      invoice,
+      business.currencySymbol,
+      style,
+      paymentQr,
+    ),
+    if (invoice.notes != null || invoice.terms != null) ...[
+      pw.SizedBox(height: 14),
+      _professionalNotes(invoice, style),
+    ],
+    pw.SizedBox(height: 20),
+    _professionalAuthorization(business, signature, style),
+  ];
+
+  pw.Widget _professionalParties(InvoiceModel invoice, _PdfStyle style) {
+    final customer = invoice.customer;
+    final customerAddress = _address([
+      customer.address,
+      customer.city,
+      customer.state,
+      customer.pinCode,
+    ]);
+    pw.Widget detail(String label, String value) => pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 5),
+      child: pw.Row(
+        children: [
+          pw.SizedBox(
+            width: 54,
+            child: pw.Text(
+              label,
+              style: pw.TextStyle(
+                fontSize: 8.5,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ),
+          pw.Expanded(
+            child: pw.Text(
+              value,
+              textAlign: pw.TextAlign.right,
+              style: const pw.TextStyle(fontSize: 8.5),
+            ),
+          ),
+        ],
+      ),
+    );
+    return pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Expanded(
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              _professionalLabel('BILL TO', style),
+              pw.SizedBox(height: 5),
+              pw.Text(
+                customer.name,
+                style: pw.TextStyle(
+                  fontSize: 11,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              if (_hasText(customer.companyName))
+                pw.Text(customer.companyName!),
+              if (_hasText(customer.mobile)) pw.Text(customer.mobile!),
+              if (_hasText(customer.email)) pw.Text(customer.email!),
+              if (customerAddress.isNotEmpty) pw.Text(customerAddress),
+              if (_hasText(customer.gstin)) pw.Text('GSTIN: ${customer.gstin}'),
+            ],
+          ),
+        ),
+        pw.SizedBox(width: 24),
+        pw.SizedBox(
+          width: 185,
+          child: pw.Column(
+            children: [
+              detail('Invoice #', invoice.invoiceNumber),
+              detail('Issue date', _date(invoice.invoiceDate)),
+              detail(
+                'Due date',
+                invoice.dueDate == null
+                    ? 'On receipt'
+                    : _date(invoice.dueDate!),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  pw.Widget _professionalItems(
+    InvoiceModel invoice,
+    String symbol,
+    _PdfStyle style,
+  ) {
+    pw.Widget cell(
+      pw.Widget child, {
+      pw.Alignment alignment = pw.Alignment.centerLeft,
+      PdfColor? color,
+      double vertical = 7,
+    }) => pw.Container(
+      alignment: alignment,
+      color: color,
+      padding: pw.EdgeInsets.symmetric(horizontal: 7, vertical: vertical),
+      child: child,
+    );
+    pw.Widget header(
+      String value, {
+      pw.Alignment alignment = pw.Alignment.centerLeft,
+    }) => cell(
+      pw.Text(
+        value,
+        style: pw.TextStyle(
+          fontSize: 8,
+          fontWeight: pw.FontWeight.bold,
+          color: style.accent,
+        ),
+      ),
+      alignment: alignment,
+      color: const PdfColor.fromInt(0xFFF2F6FA),
+      vertical: 6,
+    );
+    final rows = <pw.TableRow>[
+      pw.TableRow(
+        children: [
+          header('ITEM / DESCRIPTION'),
+          header('QTY', alignment: pw.Alignment.centerRight),
+          header('RATE', alignment: pw.Alignment.centerRight),
+          header('TAX', alignment: pw.Alignment.centerRight),
+          header('AMOUNT', alignment: pw.Alignment.centerRight),
+        ],
+      ),
+      ...invoice.items.asMap().entries.map((entry) {
+        final item = entry.value;
+        final result = invoice.calculation.items[entry.key];
+        final background = entry.key.isOdd
+            ? PdfColors.grey100
+            : PdfColors.white;
+        return pw.TableRow(
+          children: [
+            cell(
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    item.name,
+                    style: pw.TextStyle(
+                      fontSize: 8.7,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                  if (_hasText(item.description))
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(top: 2),
+                      child: pw.Text(
+                        item.description!,
+                        style: const pw.TextStyle(
+                          fontSize: 7.5,
+                          color: PdfColors.grey700,
+                        ),
+                      ),
+                    ),
+                  if (_hasText(item.hsnSac))
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(top: 2),
+                      child: pw.Text(
+                        'HSN/SAC: ${item.hsnSac}',
+                        style: const pw.TextStyle(
+                          fontSize: 7,
+                          color: PdfColors.grey600,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              color: background,
+            ),
+            cell(
+              pw.Text(
+                '${QuantityUtils.toInputValue(item.quantityScaled)} ${item.unit}',
+                style: const pw.TextStyle(fontSize: 8.2),
+              ),
+              alignment: pw.Alignment.centerRight,
+              color: background,
+            ),
+            cell(
+              pw.Text(
+                CurrencyUtils.formatMinor(item.rateMinor, symbol: symbol),
+                style: const pw.TextStyle(fontSize: 8.2),
+              ),
+              alignment: pw.Alignment.centerRight,
+              color: background,
+            ),
+            cell(
+              pw.Text(
+                '${item.taxRateBasisPoints / 100}%',
+                style: const pw.TextStyle(fontSize: 8.2),
+              ),
+              alignment: pw.Alignment.centerRight,
+              color: background,
+            ),
+            cell(
+              pw.Text(
+                CurrencyUtils.formatMinor(result.totalMinor, symbol: symbol),
+                style: pw.TextStyle(
+                  fontSize: 8.2,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              alignment: pw.Alignment.centerRight,
+              color: background,
+            ),
+          ],
+        );
+      }),
+    ];
+    return pw.Table(
+      columnWidths: const {
+        0: pw.FlexColumnWidth(3.8),
+        1: pw.FlexColumnWidth(1.15),
+        2: pw.FlexColumnWidth(1.25),
+        3: pw.FlexColumnWidth(.9),
+        4: pw.FlexColumnWidth(1.45),
+      },
+      border: const pw.TableBorder(
+        horizontalInside: pw.BorderSide(color: PdfColors.grey300, width: .5),
+        bottom: pw.BorderSide(color: PdfColors.grey300, width: .7),
+      ),
+      children: rows,
+    );
+  }
+
+  pw.Widget _professionalSettlement(
+    BusinessProfileModel business,
+    InvoiceModel invoice,
+    String symbol,
+    _PdfStyle style,
+    pw.MemoryImage? paymentQr,
+  ) {
+    final calculation = invoice.calculation;
+    pw.Widget totalRow(String label, int value, {bool emphasized = false}) =>
+        pw.Container(
+          padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          color: emphasized ? const PdfColor.fromInt(0xFFF2F6FA) : null,
+          child: pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                label,
+                style: pw.TextStyle(
+                  fontSize: emphasized ? 9 : 8,
+                  fontWeight: emphasized ? pw.FontWeight.bold : null,
+                ),
+              ),
+              pw.Text(
+                CurrencyUtils.formatMinor(value, symbol: symbol),
+                style: pw.TextStyle(
+                  fontSize: emphasized ? 9 : 8,
+                  fontWeight: emphasized ? pw.FontWeight.bold : null,
+                  color: emphasized ? style.accent : PdfColors.black,
+                ),
+              ),
+            ],
+          ),
+        );
+    final hasPaymentDetails = [
+      business.bankName,
+      business.accountNumber,
+      business.ifsc,
+      business.upiId,
+    ].any(_hasText);
+    return pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Expanded(
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              if (hasPaymentDetails || paymentQr != null) ...[
+                _professionalLabel('PAYMENT INSTRUCTIONS', style),
+                pw.SizedBox(height: 6),
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          if (_hasText(business.bankName))
+                            pw.Text('Bank: ${business.bankName}'),
+                          if (_hasText(business.accountNumber))
+                            pw.Text('Account: ${business.accountNumber}'),
+                          if (_hasText(business.ifsc))
+                            pw.Text('IFSC: ${business.ifsc}'),
+                          if (_hasText(business.upiId))
+                            pw.Text('UPI: ${business.upiId}'),
+                        ],
+                      ),
+                    ),
+                    if (paymentQr != null) ...[
+                      pw.SizedBox(width: 10),
+                      pw.Image(paymentQr, width: 54, height: 54),
+                    ],
+                  ],
+                ),
+              ] else
+                pw.Text(
+                  'Thank you for your business.',
+                  style: const pw.TextStyle(
+                    fontSize: 9,
+                    color: PdfColors.grey700,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        pw.SizedBox(width: 26),
+        pw.SizedBox(
+          width: 220,
+          child: pw.Column(
+            children: [
+              totalRow('Subtotal', calculation.subtotalMinor),
+              if (calculation.itemDiscountTotalMinor > 0)
+                totalRow('Item discount', -calculation.itemDiscountTotalMinor),
+              if (calculation.invoiceDiscountMinor > 0)
+                totalRow('Invoice discount', -calculation.invoiceDiscountMinor),
+              if (calculation.cgstMinor > 0)
+                totalRow('CGST', calculation.cgstMinor),
+              if (calculation.sgstMinor > 0)
+                totalRow('SGST', calculation.sgstMinor),
+              if (calculation.igstMinor > 0)
+                totalRow('IGST', calculation.igstMinor),
+              if (calculation.additionalChargeTotalMinor > 0)
+                totalRow(
+                  'Additional charges',
+                  calculation.additionalChargeTotalMinor,
+                ),
+              pw.Divider(color: PdfColors.grey400, height: 8),
+              totalRow('Grand total', calculation.grandTotalMinor),
+              totalRow('Paid', calculation.paidAmountMinor),
+              pw.SizedBox(height: 3),
+              totalRow(
+                'AMOUNT DUE',
+                calculation.balanceDueMinor,
+                emphasized: true,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  pw.Widget _professionalNotes(InvoiceModel invoice, _PdfStyle style) =>
+      pw.Container(
+        width: double.infinity,
+        padding: const pw.EdgeInsets.symmetric(vertical: 9),
+        decoration: const pw.BoxDecoration(
+          border: pw.Border(
+            top: pw.BorderSide(color: PdfColors.grey300),
+            bottom: pw.BorderSide(color: PdfColors.grey300),
+          ),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            if (_hasText(invoice.notes)) ...[
+              _professionalLabel('NOTES', style),
+              pw.SizedBox(height: 3),
+              pw.Text(invoice.notes!, style: const pw.TextStyle(fontSize: 8)),
+            ],
+            if (_hasText(invoice.terms)) ...[
+              if (_hasText(invoice.notes)) pw.SizedBox(height: 7),
+              _professionalLabel('TERMS & CONDITIONS', style),
+              pw.SizedBox(height: 3),
+              pw.Text(invoice.terms!, style: const pw.TextStyle(fontSize: 8)),
+            ],
+          ],
+        ),
+      );
+
+  pw.Widget _professionalAuthorization(
+    BusinessProfileModel business,
+    pw.MemoryImage? signature,
+    _PdfStyle style,
+  ) => pw.Row(
+    children: [
+      pw.Expanded(
+        child: pw.Text(
+          'This is a computer-generated document. Please retain it for your records.',
+          style: const pw.TextStyle(fontSize: 7.5, color: PdfColors.grey600),
+        ),
+      ),
+      pw.SizedBox(width: 28),
+      pw.SizedBox(
+        width: 175,
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.center,
+          children: [
+            if (signature != null)
+              pw.Image(
+                signature,
+                width: 100,
+                height: 42,
+                fit: pw.BoxFit.contain,
+              )
+            else
+              pw.SizedBox(height: 42),
+            pw.Container(height: .7, color: PdfColors.grey500),
+            pw.SizedBox(height: 4),
+            pw.Text(
+              'Authorized signature',
+              style: pw.TextStyle(
+                fontSize: 8,
+                fontWeight: pw.FontWeight.bold,
+                color: style.accent,
+              ),
+            ),
+            pw.Text(
+              business.businessName,
+              style: const pw.TextStyle(fontSize: 7.5),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+
+  pw.Widget _professionalLabel(String value, _PdfStyle style) => pw.Text(
+    value,
+    style: pw.TextStyle(
+      fontSize: 7.5,
+      fontWeight: pw.FontWeight.bold,
+      color: style.accent,
+      letterSpacing: .7,
+    ),
+  );
 
   pw.Widget _header(
     BusinessProfileModel business,

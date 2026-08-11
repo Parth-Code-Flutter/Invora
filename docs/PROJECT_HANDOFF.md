@@ -107,6 +107,10 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 ### Documents and reporting
 
 - Five selectable invoice PDF styles
+- Professional PDF uses its own editorial A4 layout with a business/logo
+  identity header, full Bill To and invoice metadata, description-friendly
+  item table, payment instructions beside totals, amount-due emphasis, and an
+  authorization/signature finish
 - PDFs embed the bundled Inter TrueType font for Unicode currency glyphs and
   use explicit responsive table columns/alignment so real invoice values wrap
   predictably without overlapping
@@ -218,6 +222,23 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Editorial professional invoice PDF
+
+- Rebuilt the Professional PDF as a distinct document layout instead of a
+  color variation of the shared template, taking direction from modern
+  business invoice hierarchy without copying the supplied reference.
+- Added a logo/business identity header, full customer and invoice metadata,
+  alternating description-friendly item rows, payment instructions/QR beside
+  totals, highlighted amount due, notes/terms, and authorized signature area.
+- Optional business, customer, tax, payment, QR, description, and signature
+  content only renders when available, preserving a clean document with sparse
+  profiles while supporting complete GST invoices.
+- Important file: `invoice_pdf_service.dart`; no schema or storage changes.
+- Verified all templates with the existing Unicode PDF regression, rendered
+  the Professional A4 output to PNG with Poppler, visually inspected spacing,
+  alignment, legibility, footer, and currency glyphs, and ran full project
+  formatting, static analysis, tests, and whitespace checks.
 
 ### 2026-08-11 — Unambiguous invoice quantity stepper
 
