@@ -233,6 +233,21 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-12 — Unified modern dropdown controls
+
+- Audited all dropdown-style controls and replaced the final native form
+  dropdown—the payment-method selector—with the shared `AppDropdownField`.
+- Payment methods now open in the app's rounded, icon-led selection sheet with
+  clear selected-state treatment instead of the platform's dated menu overlay.
+- Extended the common dropdown with a disabled state so asynchronous forms can
+  prevent changes without falling back to a different control.
+- Confirmed remaining `PopupMenuButton` usages are contextual action menus, not
+  form dropdowns, and therefore remain appropriate.
+- Important files: `app_dropdown_field.dart` and
+  `invoice_details_screen.dart`; no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-12 — Full invoice operations from customer history
 
 - Changed customer invoice-history navigation to open the standard invoice

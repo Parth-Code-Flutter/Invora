@@ -9,6 +9,7 @@ import 'package:creovo_invoice/app/widgets/app_search_app_bar.dart';
 import 'package:creovo_invoice/app/utils/app_focus.dart';
 import 'package:creovo_invoice/app/widgets/app_back_button.dart';
 import 'package:creovo_invoice/app/widgets/app_button.dart';
+import 'package:creovo_invoice/app/widgets/app_dropdown_field.dart';
 import 'package:creovo_invoice/app/widgets/app_filter_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_search_field.dart';
 import 'package:creovo_invoice/app/widgets/app_status_chip.dart';
@@ -86,6 +87,44 @@ void main() {
       tester.getCenter(find.text('Review invoice')).dx,
       lessThan(tester.getCenter(find.byIcon(Icons.arrow_forward_rounded)).dx),
     );
+  });
+
+  testWidgets('shared dropdown uses a selectable bottom sheet', (tester) async {
+    String selected = 'UPI';
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: AppDropdownField<String>(
+            label: 'Payment method',
+            sheetTitle: 'Choose payment method',
+            value: selected,
+            options: const [
+              AppDropdownOption(
+                value: 'UPI',
+                label: 'UPI',
+                icon: Icons.qr_code_2_rounded,
+              ),
+              AppDropdownOption(
+                value: 'Cash',
+                label: 'Cash',
+                icon: Icons.payments_outlined,
+              ),
+            ],
+            onChanged: (value) => selected = value,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('UPI'));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose payment method'), findsOneWidget);
+    expect(find.byIcon(Icons.qr_code_2_rounded), findsOneWidget);
+
+    await tester.tap(find.text('Cash'));
+    await tester.pumpAndSettle();
+    expect(selected, 'Cash');
   });
 
   testWidgets('shared fields and status chip expose clear semantics', (

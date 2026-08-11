@@ -23,6 +23,7 @@ class AppDropdownField<T> extends StatelessWidget {
     required this.onChanged,
     this.sheetTitle,
     this.prefixIcon,
+    this.enabled = true,
     super.key,
   });
 
@@ -32,6 +33,7 @@ class AppDropdownField<T> extends StatelessWidget {
   final ValueChanged<T> onChanged;
   final String? sheetTitle;
   final IconData? prefixIcon;
+  final bool enabled;
 
   AppDropdownOption<T> get _selected => options.firstWhere(
     (option) => option.value == value,
@@ -44,17 +46,26 @@ class AppDropdownField<T> extends StatelessWidget {
       button: true,
       label: label,
       value: _selected.label,
+      enabled: enabled,
       child: InkWell(
-        onTap: () => _showOptions(context),
+        onTap: enabled ? () => _showOptions(context) : null,
         borderRadius: BorderRadius.circular(12),
         child: InputDecorator(
+          isFocused: false,
           isEmpty: false,
+          isHovering: false,
           decoration: InputDecoration(
+            enabled: enabled,
             labelText: label,
             prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
             suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
           ),
-          child: Text(_selected.label),
+          child: Text(
+            _selected.label,
+            style: enabled
+                ? null
+                : AppTextStyles.body.copyWith(color: AppColors.textTertiary),
+          ),
         ),
       ),
     );

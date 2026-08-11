@@ -11,6 +11,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/invoice_payment_model.dart';
@@ -799,26 +800,45 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               onSubmitted: (_) => _save(),
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: method,
-              decoration: const InputDecoration(
-                labelText: 'Payment method',
-                prefixIcon: Icon(Icons.account_balance_wallet_outlined),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'UPI', child: Text('UPI')),
-                DropdownMenuItem(value: 'Cash', child: Text('Cash')),
-                DropdownMenuItem(
-                  value: 'Bank transfer',
-                  child: Text('Bank transfer'),
+            AppDropdownField<String>(
+              label: 'Payment method',
+              sheetTitle: 'How was this payment received?',
+              prefixIcon: Icons.account_balance_wallet_outlined,
+              value: method,
+              enabled: !isSaving,
+              options: const [
+                AppDropdownOption(
+                  value: 'UPI',
+                  label: 'UPI',
+                  icon: Icons.qr_code_2_rounded,
                 ),
-                DropdownMenuItem(value: 'Card', child: Text('Card')),
-                DropdownMenuItem(value: 'Cheque', child: Text('Cheque')),
-                DropdownMenuItem(value: 'Other', child: Text('Other')),
+                AppDropdownOption(
+                  value: 'Cash',
+                  label: 'Cash',
+                  icon: Icons.payments_outlined,
+                ),
+                AppDropdownOption(
+                  value: 'Bank transfer',
+                  label: 'Bank transfer',
+                  icon: Icons.account_balance_outlined,
+                ),
+                AppDropdownOption(
+                  value: 'Card',
+                  label: 'Card',
+                  icon: Icons.credit_card_rounded,
+                ),
+                AppDropdownOption(
+                  value: 'Cheque',
+                  label: 'Cheque',
+                  icon: Icons.receipt_long_outlined,
+                ),
+                AppDropdownOption(
+                  value: 'Other',
+                  label: 'Other',
+                  icon: Icons.more_horiz_rounded,
+                ),
               ],
-              onChanged: isSaving
-                  ? null
-                  : (value) => setState(() => method = value ?? 'Other'),
+              onChanged: (value) => setState(() => method = value),
             ),
             const SizedBox(height: 12),
             TextField(
