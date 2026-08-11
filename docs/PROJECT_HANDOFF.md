@@ -229,6 +229,22 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-12 — Invoice-only customer pricing override
+
+- Made each populated invoice line's rate a compact editable price chip that
+  opens a focused price sheet directly from the composer.
+- Added explicit copy explaining that an override changes only the current
+  invoice snapshot and never writes back to the saved product/service catalog.
+- Added controller support for replacing an invoice line rate and immediately
+  recalculating line totals, taxes, discounts, and the invoice total.
+- Added regression coverage proving a customer-specific invoice price leaves
+  the source catalog model unchanged.
+- Important files: `invoice_create_screen.dart`,
+  `invoice_create_controller.dart`, and `invoice_create_controller_test.dart`;
+  no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-11 — Compact invoice line-item composer
 
 - Reworked populated invoice line items into compact two-line rows: item

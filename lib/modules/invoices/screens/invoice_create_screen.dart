@@ -444,13 +444,66 @@ class _InvoiceForm extends StatelessWidget {
                                   style: AppTextStyles.cardTitle,
                                 ),
                                 const SizedBox(height: 3),
-                                Text(
-                                  '${CurrencyUtils.formatMinor(item.rateMinor, symbol: controller.currencySymbol.value)} / ${item.unit}${item.taxRateBasisPoints > 0 ? ' • GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}' : ''}',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTextStyles.small.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                                Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 6,
+                                  runSpacing: 4,
+                                  children: [
+                                    Tooltip(
+                                      message: 'Change price for this invoice',
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(8),
+                                        onTap: () => _editItemRate(
+                                          context,
+                                          index: entry.key,
+                                          item: item,
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 7,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primaryLight,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                CurrencyUtils.formatMinor(
+                                                  item.rateMinor,
+                                                  symbol: controller
+                                                      .currencySymbol
+                                                      .value,
+                                                ),
+                                                style: AppTextStyles.small
+                                                    .copyWith(
+                                                      color: AppColors.primary,
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                    ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              const Icon(
+                                                Icons.edit_outlined,
+                                                size: 13,
+                                                color: AppColors.primary,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      '/ ${item.unit}${item.taxRateBasisPoints > 0 ? ' • GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}' : ''}',
+                                      style: AppTextStyles.small.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -757,6 +810,25 @@ class _InvoiceForm extends StatelessWidget {
     } else {
       controller.replaceItem(index, result);
     }
+  }
+
+  Future<void> _editItemRate(
+    BuildContext context, {
+    required int index,
+    required InvoiceItemModel item,
+  }) async {
+    final result = await showModalBottomSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (_) => _InvoicePriceSheet(
+        itemName: item.name,
+        initialRateMinor: item.rateMinor,
+        currencySymbol: controller.currencySymbol.value,
+      ),
+    );
+    if (result != null) controller.updateItemRate(index, result);
   }
 
   Future<void> _editDiscount(BuildContext context) async {
@@ -1476,6 +1548,116 @@ class _SelectionResultTile extends StatelessWidget {
       ),
     ),
   );
+}
+
+class _InvoicePriceSheet extends StatefulWidget {
+  const _InvoicePriceSheet({
+    required this.itemName,
+    required this.initialRateMinor,
+    required this.currencySymbol,
+  });
+
+  final String itemName;
+  final int initialRateMinor;
+  final String currencySymbol;
+
+  @override
+  State<_InvoicePriceSheet> createState() => _InvoicePriceSheetState();
+}
+
+class _InvoicePriceSheetState extends State<_InvoicePriceSheet> {
+  late final TextEditingController _rate;
+
+  @override
+  void initState() {
+    super.initState();
+    _rate = TextEditingController(
+      text: CurrencyUtils.toInputValue(widget.initialRateMinor),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.fromLTRB(
+      20,
+      0,
+      20,
+      MediaQuery.viewInsetsOf(context).bottom + 20,
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Price for this invoice', style: AppTextStyles.sectionTitle),
+        const SizedBox(height: 5),
+        Text(
+          widget.itemName,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 14),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.primaryLight,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.shield_outlined,
+                color: AppColors.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Only this invoice changes. The saved catalog price stays the same.',
+                  style: AppTextStyles.small.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _rate,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _save(),
+          decoration: InputDecoration(
+            labelText: 'Invoice price *',
+            prefixText: '${widget.currencySymbol} ',
+            hintText: '0.00',
+          ),
+        ),
+        const SizedBox(height: 18),
+        AppButton(onPressed: _save, label: 'Apply invoice price'),
+      ],
+    ),
+  );
+
+  void _save() {
+    final value = CurrencyUtils.parseMinor(_rate.text);
+    if (value == null || value <= 0) {
+      AppNotification.warning(
+        'Enter a valid price',
+        'The invoice price must be greater than zero.',
+      );
+      return;
+    }
+    AppFocus.pop(context, value);
+  }
+
+  @override
+  void dispose() {
+    _rate.dispose();
+    super.dispose();
+  }
 }
 
 class _ItemSheet extends StatefulWidget {

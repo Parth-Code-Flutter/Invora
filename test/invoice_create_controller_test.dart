@@ -103,4 +103,33 @@ void main() {
     controller.onClose();
     await database.close();
   });
+
+  test('invoice price override does not mutate the catalog product', () async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final controller = InvoiceCreateController(
+      InvoiceRepository(database),
+      BusinessRepository(database),
+      CustomerRepository(database),
+      ProductRepository(database),
+      const InvoiceCalculationService(),
+    );
+    final product = ProductServiceModel(
+      id: 11,
+      name: 'Priority design',
+      type: ItemType.service,
+      unit: 'hour',
+      salePriceMinor: 50000,
+      createdAt: DateTime(2026, 8, 12),
+      updatedAt: DateTime(2026, 8, 12),
+    );
+
+    controller.addProduct(product);
+    controller.updateItemRate(0, 42500);
+
+    expect(controller.items.single.rateMinor, 42500);
+    expect(controller.calculation.value?.grandTotalMinor, 42500);
+    expect(product.salePriceMinor, 50000);
+    controller.onClose();
+    await database.close();
+  });
 }

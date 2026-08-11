@@ -183,6 +183,26 @@ class InvoiceCreateController extends GetxController {
     recalculate();
   }
 
+  /// Updates only the invoice snapshot. The linked catalog product is never
+  /// written, so customer-specific pricing stays local to this invoice.
+  void updateItemRate(int index, int rateMinor) {
+    final item = items[index];
+    items[index] = InvoiceItemModel(
+      id: item.id,
+      localId: item.localId,
+      productId: item.productId,
+      name: item.name,
+      description: item.description,
+      quantityScaled: item.quantityScaled,
+      unit: item.unit,
+      rateMinor: rateMinor,
+      hsnSac: item.hsnSac,
+      taxRateBasisPoints: item.taxRateBasisPoints,
+      discount: item.discount,
+    );
+    recalculate();
+  }
+
   void incrementQuantity(int index) {
     final item = items[index];
     items[index] = _withQuantity(item, item.quantityScaled + 1000);
