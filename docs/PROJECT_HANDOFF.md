@@ -229,6 +229,18 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-12 — Review action uses forward-reading order
+
+- Reordered the fixed composer action to show `Review invoice`/`Review
+  estimate` first and the forward arrow on the right.
+- Extended the shared `AppButton` with an optional trailing icon so this
+  reading order is reusable without duplicating button styling.
+- Added widget coverage confirming the trailing icon renders after its label.
+- Important files: `app_button.dart`, `invoice_create_screen.dart`, and
+  `design_system_test.dart`; no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-12 — Invoice-only customer pricing override
 
 - Made each populated invoice line's rate a compact editable price chip that

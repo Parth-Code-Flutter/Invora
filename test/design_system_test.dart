@@ -66,6 +66,28 @@ void main() {
     expect(tester.getSize(find.byType(AppButton)).width, 190);
   });
 
+  testWidgets('primary action supports an icon after its label', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: AppButton(
+            label: 'Review invoice',
+            trailingIcon: Icons.arrow_forward_rounded,
+            onPressed: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.getCenter(find.text('Review invoice')).dx,
+      lessThan(tester.getCenter(find.byIcon(Icons.arrow_forward_rounded)).dx),
+    );
+  });
+
   testWidgets('shared fields and status chip expose clear semantics', (
     tester,
   ) async {

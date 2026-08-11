@@ -10,6 +10,7 @@ class AppButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.icon,
+    this.trailingIcon,
     this.isLoading = false,
     this.expand = true,
     super.key,
@@ -18,6 +19,7 @@ class AppButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
+  final IconData? trailingIcon;
   final bool isLoading;
   final bool expand;
 
@@ -55,6 +57,10 @@ class AppButton extends StatelessWidget {
                   style: AppTextStyles.button,
                 ),
               ),
+              if (trailingIcon != null) ...[
+                const SizedBox(width: 8),
+                Icon(trailingIcon, size: 20),
+              ],
             ],
           );
 

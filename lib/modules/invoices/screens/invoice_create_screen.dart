@@ -101,7 +101,7 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
                   width: actionWidth,
                   child: AppButton(
                     onPressed: controller.preview,
-                    icon: Icons.arrow_forward_rounded,
+                    trailingIcon: Icons.arrow_forward_rounded,
                     label: controller.isQuotation
                         ? 'Review estimate'
                         : 'Review invoice',
