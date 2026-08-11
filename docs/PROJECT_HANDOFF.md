@@ -229,6 +229,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Compact catalog select-all control
+
+- Replaced the text-heavy Select/Deselect visible action in the invoice item
+  picker with one top checkbox aligned to the result count.
+- The checkbox communicates unchecked, partially selected, and fully selected
+  states for the current search/filter results and toggles only those visible
+  selectable records; its tooltip preserves explicit accessibility guidance.
+- Important file: `invoice_item_picker_screen.dart`; no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-11 — Scalable multi-item invoice picker
 
 - Replaced the single-select saved-item bottom sheet with a dedicated

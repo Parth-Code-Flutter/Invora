@@ -213,6 +213,9 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                         selectable.every(
                           (item) => _selected.containsKey(item.id),
                         );
+                    final selectedVisibleCount = selectable
+                        .where((item) => _selected.containsKey(item.id))
+                        .length;
                     return Column(
                       children: [
                         Padding(
@@ -233,28 +236,28 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                                 ),
                               ),
                               if (selectable.isNotEmpty)
-                                TextButton.icon(
-                                  onPressed: () => setState(() {
-                                    if (allVisibleSelected) {
-                                      for (final item in selectable) {
-                                        _selected.remove(item.id);
+                                Tooltip(
+                                  message: allVisibleSelected
+                                      ? 'Deselect visible items'
+                                      : 'Select visible items',
+                                  child: Checkbox(
+                                    tristate: true,
+                                    value: allVisibleSelected
+                                        ? true
+                                        : selectedVisibleCount > 0
+                                        ? null
+                                        : false,
+                                    onChanged: (_) => setState(() {
+                                      if (allVisibleSelected) {
+                                        for (final item in selectable) {
+                                          _selected.remove(item.id);
+                                        }
+                                      } else {
+                                        for (final item in selectable) {
+                                          _selected[item.id!] = item;
+                                        }
                                       }
-                                    } else {
-                                      for (final item in selectable) {
-                                        _selected[item.id!] = item;
-                                      }
-                                    }
-                                  }),
-                                  icon: Icon(
-                                    allVisibleSelected
-                                        ? Icons.deselect_rounded
-                                        : Icons.done_all_rounded,
-                                    size: 18,
-                                  ),
-                                  label: Text(
-                                    allVisibleSelected
-                                        ? 'Deselect visible'
-                                        : 'Select visible',
+                                    }),
                                   ),
                                 ),
                             ],
