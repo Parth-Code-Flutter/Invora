@@ -9,7 +9,6 @@ import '../../../data/services/invoice_validation_service.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/widgets/app_notification.dart';
-import '../models/invoice_navigation_args.dart';
 
 class InvoiceDetailsController extends GetxController {
   InvoiceDetailsController(this._repository, this._businessRepository);
@@ -22,18 +21,12 @@ class InvoiceDetailsController extends GetxController {
   final isWorking = false.obs;
   final payments = <InvoicePaymentModel>[].obs;
   int? _invoiceId;
-  bool readOnly = false;
 
   @override
   void onInit() {
     super.onInit();
     final argument = Get.arguments;
-    if (argument is InvoiceDetailsArgs) {
-      _invoiceId = argument.invoiceId;
-      readOnly = argument.readOnly;
-    } else {
-      _invoiceId = argument is int ? argument : null;
-    }
+    _invoiceId = argument is int ? argument : null;
     reload();
   }
 
@@ -55,7 +48,6 @@ class InvoiceDetailsController extends GetxController {
   }
 
   Future<void> edit() async {
-    if (readOnly) return;
     final value = invoice.value;
     if (value?.id == null || value!.status.name == 'cancelled') return;
     await Get.toNamed<void>(
@@ -81,14 +73,10 @@ class InvoiceDetailsController extends GetxController {
       AppNotification.warning('Complete required details', validation);
       return;
     }
-    await Get.toNamed<void>(
-      AppRoutes.invoicePreview,
-      arguments: InvoicePreviewArgs(invoiceId: value.id, readOnly: readOnly),
-    );
+    await Get.toNamed<void>(AppRoutes.invoicePreview, arguments: value.id);
   }
 
   Future<void> duplicate() async {
-    if (readOnly) return;
     final value = invoice.value;
     if (value?.id == null) return;
     isWorking.value = true;
@@ -118,7 +106,6 @@ class InvoiceDetailsController extends GetxController {
     String? reference,
     String? note,
   }) async {
-    if (readOnly) return 'This invoice is open in read-only mode.';
     final value = invoice.value;
     if (value?.id == null) return 'Invoice not found.';
     final validation = _validator.validateRequired(value!);
@@ -143,7 +130,6 @@ class InvoiceDetailsController extends GetxController {
   }
 
   Future<void> cancel() async {
-    if (readOnly) return;
     final id = invoice.value?.id;
     if (id == null) return;
     await _repository.cancel(id);
@@ -151,7 +137,6 @@ class InvoiceDetailsController extends GetxController {
   }
 
   Future<void> setQuotationStatus(InvoiceStatus status) async {
-    if (readOnly) return;
     final id = invoice.value?.id;
     if (id == null) return;
     await _repository.updateStatus(id, status);
@@ -159,7 +144,6 @@ class InvoiceDetailsController extends GetxController {
   }
 
   Future<void> convertToInvoice() async {
-    if (readOnly) return;
     final value = invoice.value;
     if (value?.id == null) return;
     final profile = await _businessRepository.getProfile();
@@ -176,7 +160,6 @@ class InvoiceDetailsController extends GetxController {
   }
 
   Future<void> delete() async {
-    if (readOnly) return;
     final id = invoice.value?.id;
     if (id == null) return;
     await _repository.delete(id);

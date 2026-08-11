@@ -106,8 +106,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   result and selection counts, and one apply-changes action
 - Customer details is an account-style workspace with lifetime billed, paid,
   and due metrics, structured contact/billing information, and complete invoice
-  history. History opens invoices in strict read-only mode with full details,
-  payment activity, and PDF preview/download/share/print access.
+  history. History opens the standard invoice workspace with status-appropriate
+  edit, payment, duplicate, cancel/delete, and PDF export operations.
 - Invoice creation uses a focused composer hierarchy: compact customer/invoice
   header, equal-width metadata controls, count-labelled line items, secondary
   tax/discount disclosure, and a non-duplicated empty-item flow. Phone layouts
@@ -233,6 +233,23 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-12 — Full invoice operations from customer history
+
+- Changed customer invoice-history navigation to open the standard invoice
+  workspace instead of a restricted read-only variant.
+- Customer-scoped invoices now support every existing status-appropriate
+  operation: full details and payment history, edit, record payment, duplicate,
+  cancel/delete, and PDF preview/download/share/print.
+- Removed the now-unnecessary read-only navigation models, controller guards,
+  hidden action states, and preview restrictions to keep one consistent invoice
+  workflow throughout the app.
+- Important files: `customer_details_screen.dart`,
+  `invoice_details_controller.dart`, `invoice_details_screen.dart`,
+  `invoice_preview_controller.dart`, and `invoice_preview_screen.dart`; no
+  schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-12 — Modern customer account and read-only invoice history
 
 - Rebuilt customer details as a modern account workspace with a branded
@@ -246,6 +263,8 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
   download, sharing, and printing while hiding and guarding every mutation.
 - Added read-only PDF preview mode so history exports never show the document
   save action or alter the stored invoice.
+- This initial restriction was superseded by the later full-operation customer
+  history workflow.
 - Important files: `customer_details_screen.dart`,
   `customer_details_controller.dart`, `invoice_navigation_args.dart`,
   `invoice_details_controller.dart`, `invoice_details_screen.dart`,

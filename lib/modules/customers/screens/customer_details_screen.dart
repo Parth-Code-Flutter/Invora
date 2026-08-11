@@ -10,7 +10,6 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
-import '../../invoices/models/invoice_navigation_args.dart';
 import '../controllers/customer_details_controller.dart';
 
 class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
@@ -172,7 +171,7 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '${controller.invoices.length} ${controller.invoices.length == 1 ? 'invoice' : 'invoices'} • Read-only with PDF access',
+                            '${controller.invoices.length} ${controller.invoices.length == 1 ? 'invoice' : 'invoices'} • Full details and actions',
                             style: AppTextStyles.small.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -223,10 +222,7 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                         symbol: symbol,
                         onTap: () => Get.toNamed<void>(
                           AppRoutes.invoiceDetails,
-                          arguments: InvoiceDetailsArgs(
-                            invoiceId: invoice.id,
-                            readOnly: true,
-                          ),
+                          arguments: invoice.id,
                         ),
                       ),
                     ),
@@ -482,13 +478,13 @@ class _InvoiceHistoryTile extends StatelessWidget {
               ],
               const Spacer(),
               const Icon(
-                Icons.picture_as_pdf_outlined,
+                Icons.manage_search_rounded,
                 size: 18,
                 color: AppColors.textSecondary,
               ),
               const SizedBox(width: 5),
               Text(
-                'View & export',
+                'View & manage',
                 style: AppTextStyles.small.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,

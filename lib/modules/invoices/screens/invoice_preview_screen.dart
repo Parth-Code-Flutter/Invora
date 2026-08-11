@@ -89,9 +89,7 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
       }),
       bottomNavigationBar: Obx(() {
         final invoice = controller.invoice.value;
-        if (invoice == null || controller.readOnly) {
-          return const SizedBox.shrink();
-        }
+        if (invoice == null) return const SizedBox.shrink();
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
