@@ -102,8 +102,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Customer selection uses a focused searchable bottom sheet. Saved catalog
   selection uses a dedicated full-screen workspace designed for 100+ records,
   with debounced search, Product/Service filters, persistent checkboxes,
-  select-visible, clear, editable on-invoice states, create-item access, result
-  and selection counts, and one apply-changes action
+  tri-state visible selection, editable on-invoice states, create-item access,
+  result and selection counts, and one apply-changes action
 - Invoice creation uses a focused composer hierarchy: compact customer/invoice
   header, equal-width metadata controls, count-labelled line items, secondary
   tax/discount disclosure, and a non-duplicated empty-item flow. Phone layouts
@@ -229,6 +229,16 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Removed redundant picker Clear action
+
+- Removed the standalone Clear action from the catalog picker filter row.
+- The top tri-state checkbox remains the single bulk select/deselect control,
+  while each item checkbox supports precise invoice membership changes.
+- Removed the state tracking that existed only to conditionally show Clear.
+- Important file: `invoice_item_picker_screen.dart`; no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-11 — Non-redundant picker clear action
 
 - Hid the catalog picker's Clear shortcut whenever the top checkbox confirms
@@ -236,6 +246,7 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
   the same deselect-all outcome.
 - Clear remains available for partial selections, while the tri-state checkbox
   continues to own visible select/deselect behavior across search and filters.
+- This intermediate behavior was superseded by the later removal of Clear.
 - Important file: `invoice_item_picker_screen.dart`; no schema/storage changes.
 - Verified with formatting, static analysis, full automated tests, and
   whitespace checks.

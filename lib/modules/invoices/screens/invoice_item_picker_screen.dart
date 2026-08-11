@@ -45,7 +45,6 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
   final _search = TextEditingController();
   final Set<int> _selectedIds = {};
   final Map<int, ProductServiceModel> _knownItems = {};
-  Set<int> _visibleSelectableIds = {};
   late final Set<int> _alreadyAdded;
   late Stream<List<ProductServiceModel>> _itemsStream;
   Timer? _searchDebounce;
@@ -202,14 +201,6 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                             ),
                           ),
                         ),
-                        if (_selectedIds.isNotEmpty &&
-                            !_allVisibleItemsSelected) ...[
-                          const SizedBox(width: 8),
-                          TextButton(
-                            onPressed: () => setState(_selectedIds.clear),
-                            child: const Text('Clear'),
-                          ),
-                        ],
                       ],
                     ),
                   ],
@@ -231,9 +222,6 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                     final selectable = items
                         .where((item) => item.id != null)
                         .toList(growable: false);
-                    _visibleSelectableIds = selectable
-                        .map((item) => item.id!)
-                        .toSet();
                     final allVisibleSelected =
                         selectable.isNotEmpty &&
                         selectable.every(
@@ -464,10 +452,6 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
 
   bool get _hasChanges =>
       _addedIds.isNotEmpty || _alreadyAdded.difference(_selectedIds).isNotEmpty;
-
-  bool get _allVisibleItemsSelected =>
-      _visibleSelectableIds.isNotEmpty &&
-      _visibleSelectableIds.every(_selectedIds.contains);
 
   void _setFilter(ItemType? value) {
     _filter = value;
