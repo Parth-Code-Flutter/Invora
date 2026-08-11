@@ -484,6 +484,7 @@ class _InvoiceForm extends StatelessWidget {
                           canDecrease: item.quantityScaled > 1000,
                           onDecrease: () =>
                               controller.decrementQuantity(entry.key),
+                          onRemove: () => controller.removeItem(entry.key),
                           onIncrease: () =>
                               controller.incrementQuantity(entry.key),
                         ),
@@ -1151,12 +1152,14 @@ class _QuantityStepper extends StatelessWidget {
     required this.value,
     required this.canDecrease,
     required this.onDecrease,
+    required this.onRemove,
     required this.onIncrease,
   });
 
   final String value;
   final bool canDecrease;
   final VoidCallback onDecrease;
+  final VoidCallback onRemove;
   final VoidCallback onIncrease;
 
   @override
@@ -1171,11 +1174,15 @@ class _QuantityStepper extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          tooltip: 'Decrease quantity',
-          onPressed: canDecrease ? onDecrease : null,
+          tooltip: canDecrease ? 'Decrease quantity' : 'Remove item',
+          onPressed: canDecrease ? onDecrease : onRemove,
           constraints: const BoxConstraints.tightFor(width: 38, height: 38),
           padding: EdgeInsets.zero,
-          icon: const Icon(Icons.remove_rounded, size: 18),
+          icon: Icon(
+            canDecrease ? Icons.remove_rounded : Icons.delete_outline_rounded,
+            size: 18,
+            color: canDecrease ? null : AppColors.error,
+          ),
         ),
         Container(width: 1, height: 22, color: AppColors.border),
         Padding(

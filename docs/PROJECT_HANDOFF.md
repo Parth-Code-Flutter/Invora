@@ -82,7 +82,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Line-item edit, duplicate, and remove actions
 - Re-selecting the same saved catalog item increases its existing quantity;
   selected-item cards expose direct minus/plus quantity controls and line
-  total; the stepper displays quantity only while unit stays with the rate
+  total; the stepper displays quantity only while unit stays with the rate and
+  changes its decrement action to remove when quantity reaches one
 - Populated invoice items use compact numbered rows with scan-friendly
   name/rate and line-total hierarchy, keeping long 20-item invoices manageable
 - Decimal quantity, rate, unit, HSN/SAC, GST, item/invoice discounts,
@@ -224,6 +225,17 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Quantity-one removal affordance
+
+- Updated invoice item steppers so the decrement icon becomes a clearly
+  colored delete action when quantity reaches one.
+- Tapping that contextual delete action removes the invoice line immediately;
+  quantities above one continue to decrement normally and the item action menu
+  remains available as a secondary edit/remove path.
+- Important file: `invoice_create_screen.dart`; no schema or storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
 
 ### 2026-08-11 — Compact long-invoice item list
 
