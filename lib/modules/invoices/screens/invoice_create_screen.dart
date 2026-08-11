@@ -274,8 +274,13 @@ class _InvoiceForm extends StatelessWidget {
           const SizedBox(height: 18),
           Row(
             children: [
-              const Expanded(
-                child: _SectionEyebrow(number: '2', label: 'Items'),
+              Expanded(
+                child: _SectionEyebrow(
+                  number: '2',
+                  label: controller.items.isEmpty
+                      ? 'Items'
+                      : 'Items · ${controller.items.length}',
+                ),
               ),
               if (controller.items.isNotEmpty)
                 FilledButton.tonalIcon(
@@ -366,27 +371,29 @@ class _InvoiceForm extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: AppCard(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.fromLTRB(13, 12, 9, 12),
                   child: Column(
                     children: [
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            width: 40,
-                            height: 40,
+                            width: 34,
+                            height: 34,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: AppColors.primaryLight,
-                              borderRadius: BorderRadius.circular(13),
+                              borderRadius: BorderRadius.circular(11),
                             ),
-                            child: const Icon(
-                              Icons.inventory_2_outlined,
-                              size: 20,
-                              color: AppColors.primary,
+                            child: Text(
+                              '${entry.key + 1}',
+                              style: AppTextStyles.small.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 11),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,9 +404,11 @@ class _InvoiceForm extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextStyles.cardTitle,
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 3),
                                 Text(
                                   '${CurrencyUtils.formatMinor(item.rateMinor, symbol: controller.currencySymbol.value)} / ${item.unit}${item.taxRateBasisPoints > 0 ? ' • GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}' : ''}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: AppTextStyles.small.copyWith(
                                     color: AppColors.textSecondary,
                                   ),
@@ -407,8 +416,29 @@ class _InvoiceForm extends StatelessWidget {
                               ],
                             ),
                           ),
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                'TOTAL',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 1),
+                              Text(
+                                CurrencyUtils.formatMinor(
+                                  result?.totalMinor ?? 0,
+                                  symbol: controller.currencySymbol.value,
+                                ),
+                                style: AppTextStyles.cardTitle,
+                              ),
+                            ],
+                          ),
                           PopupMenuButton<String>(
                             tooltip: 'Item actions',
+                            padding: EdgeInsets.zero,
                             onSelected: (action) {
                               if (action == 'edit') {
                                 _editItem(
@@ -444,40 +474,19 @@ class _InvoiceForm extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const Divider(height: 22),
-                      Row(
-                        children: [
-                          _QuantityStepper(
-                            value: QuantityUtils.toInputValue(
-                              item.quantityScaled,
-                            ),
-                            canDecrease: item.quantityScaled > 1000,
-                            onDecrease: () =>
-                                controller.decrementQuantity(entry.key),
-                            onIncrease: () =>
-                                controller.incrementQuantity(entry.key),
+                      const SizedBox(height: 9),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: _QuantityStepper(
+                          value: QuantityUtils.toInputValue(
+                            item.quantityScaled,
                           ),
-                          const Spacer(),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                'LINE TOTAL',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                CurrencyUtils.formatMinor(
-                                  result?.totalMinor ?? 0,
-                                  symbol: controller.currencySymbol.value,
-                                ),
-                                style: AppTextStyles.cardTitle,
-                              ),
-                            ],
-                          ),
-                        ],
+                          canDecrease: item.quantityScaled > 1000,
+                          onDecrease: () =>
+                              controller.decrementQuantity(entry.key),
+                          onIncrease: () =>
+                              controller.incrementQuantity(entry.key),
+                        ),
                       ),
                     ],
                   ),

@@ -83,6 +83,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Re-selecting the same saved catalog item increases its existing quantity;
   selected-item cards expose direct minus/plus quantity controls and line
   total; the stepper displays quantity only while unit stays with the rate
+- Populated invoice items use compact numbered rows with scan-friendly
+  name/rate and line-total hierarchy, keeping long 20-item invoices manageable
 - Decimal quantity, rate, unit, HSN/SAC, GST, item/invoice discounts,
   additional charges, round-off, notes, and terms
 - CGST/SGST, IGST, and non-tax modes
@@ -222,6 +224,19 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Compact long-invoice item list
+
+- Redesigned populated invoice item cards into compact numbered rows that keep
+  name, per-unit price, unit, optional GST, line total, actions, and quantity
+  controls visible without the previous divider-heavy vertical footprint.
+- Added the live item count to the section heading so users can understand a
+  long invoice at a glance; the empty-item onboarding remains unchanged.
+- The denser hierarchy substantially reduces scrolling for invoices with 20
+  items while preserving edit, remove, increment, and decrement behavior.
+- Important file: `invoice_create_screen.dart`; no schema or storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
 
 ### 2026-08-11 — Editorial professional invoice PDF
 
