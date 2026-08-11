@@ -229,6 +229,20 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-11 — Compact invoice line-item composer
+
+- Reworked populated invoice line items into compact two-line rows: item
+  identity and actions remain on top, while quantity and the unlabelled line
+  amount share one concise bottom row.
+- Reduced stepper, menu, card, and section-action dimensions so invoices with
+  many items expose more useful content without removing edit, delete, or
+  quantity controls.
+- Renamed the contextual `Add item` action to `Add` because the surrounding
+  `Line items` heading already supplies the object and avoids repeated copy.
+- Important file: `invoice_create_screen.dart`; no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-11 — Removed redundant picker Clear action
 
 - Removed the standalone Clear action from the catalog picker filter row.

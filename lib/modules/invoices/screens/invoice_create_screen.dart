@@ -321,10 +321,10 @@ class _InvoiceForm extends StatelessWidget {
                 FilledButton.tonalIcon(
                   onPressed: () => _showAddItemOptions(context),
                   icon: const Icon(Icons.add_rounded, size: 19),
-                  label: const Text('Add item'),
+                  label: const Text('Add'),
                   style: FilledButton.styleFrom(
-                    minimumSize: const Size(0, 42),
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    minimumSize: const Size(0, 40),
+                    padding: const EdgeInsets.symmetric(horizontal: 13),
                   ),
                 ),
             ],
@@ -410,7 +410,7 @@ class _InvoiceForm extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: AppCard(
-                  padding: const EdgeInsets.fromLTRB(13, 12, 9, 12),
+                  padding: const EdgeInsets.fromLTRB(12, 11, 8, 11),
                   child: Column(
                     children: [
                       Row(
@@ -456,28 +456,14 @@ class _InvoiceForm extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                'TOTAL',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                              const SizedBox(height: 1),
-                              Text(
-                                CurrencyUtils.formatMinor(
-                                  result?.totalMinor ?? 0,
-                                  symbol: controller.currencySymbol.value,
-                                ),
-                                style: AppTextStyles.cardTitle,
-                              ),
-                            ],
-                          ),
                           PopupMenuButton<String>(
                             tooltip: 'Item actions',
                             padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints.tightFor(
+                              width: 36,
+                              height: 36,
+                            ),
+                            iconSize: 20,
                             onSelected: (action) {
                               if (action == 'edit') {
                                 _editItem(
@@ -513,20 +499,31 @@ class _InvoiceForm extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 9),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: _QuantityStepper(
-                          value: QuantityUtils.toInputValue(
-                            item.quantityScaled,
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _QuantityStepper(
+                            value: QuantityUtils.toInputValue(
+                              item.quantityScaled,
+                            ),
+                            canDecrease: item.quantityScaled > 1000,
+                            onDecrease: () =>
+                                controller.decrementQuantity(entry.key),
+                            onRemove: () => controller.removeItem(entry.key),
+                            onIncrease: () =>
+                                controller.incrementQuantity(entry.key),
                           ),
-                          canDecrease: item.quantityScaled > 1000,
-                          onDecrease: () =>
-                              controller.decrementQuantity(entry.key),
-                          onRemove: () => controller.removeItem(entry.key),
-                          onIncrease: () =>
-                              controller.incrementQuantity(entry.key),
-                        ),
+                          const Spacer(),
+                          Text(
+                            CurrencyUtils.formatMinor(
+                              result?.totalMinor ?? 0,
+                              symbol: controller.currencySymbol.value,
+                            ),
+                            style: AppTextStyles.cardTitle.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -1050,7 +1047,7 @@ class _QuantityStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    height: 40,
+    height: 34,
     decoration: BoxDecoration(
       color: AppColors.surfaceSoft,
       borderRadius: BorderRadius.circular(12),
@@ -1062,17 +1059,17 @@ class _QuantityStepper extends StatelessWidget {
         IconButton(
           tooltip: canDecrease ? 'Decrease quantity' : 'Remove item',
           onPressed: canDecrease ? onDecrease : onRemove,
-          constraints: const BoxConstraints.tightFor(width: 38, height: 38),
+          constraints: const BoxConstraints.tightFor(width: 32, height: 32),
           padding: EdgeInsets.zero,
           icon: Icon(
             canDecrease ? Icons.remove_rounded : Icons.delete_outline_rounded,
-            size: 18,
+            size: 17,
             color: canDecrease ? null : AppColors.error,
           ),
         ),
         Container(width: 1, height: 22, color: AppColors.border),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 9),
           child: Text(
             value,
             style: AppTextStyles.small.copyWith(fontWeight: FontWeight.w700),
@@ -1082,9 +1079,9 @@ class _QuantityStepper extends StatelessWidget {
         IconButton(
           tooltip: 'Increase quantity',
           onPressed: onIncrease,
-          constraints: const BoxConstraints.tightFor(width: 38, height: 38),
+          constraints: const BoxConstraints.tightFor(width: 32, height: 32),
           padding: EdgeInsets.zero,
-          icon: const Icon(Icons.add_rounded, size: 18),
+          icon: const Icon(Icons.add_rounded, size: 17),
         ),
       ],
     ),
