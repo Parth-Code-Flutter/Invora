@@ -102,10 +102,11 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Customer and saved-item selection use the same high-capacity bottom sheet
   with contextual search, result counts, card rows, richer metadata, explicit
   add affordances, and distinct empty/no-search-match states
-- Invoice creation includes a live Customer → Items → Review progress strip,
-  equal-width metadata controls, numbered item rows, a compact totals snapshot,
-  and a non-duplicated empty-item flow. The fixed review action is right-aligned
-  with a bounded responsive width on phones and tablets.
+- Invoice creation uses a focused composer hierarchy: compact customer/invoice
+  header, equal-width metadata controls, count-labelled line items, secondary
+  tax/discount disclosure, and a non-duplicated empty-item flow. Phone layouts
+  avoid repeating the full totals card because the fixed footer already keeps
+  total and Review visible; tablets retain the live summary side panel.
 
 ### Documents and reporting
 
@@ -225,6 +226,23 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-11 — Final focused invoice composer
+
+- Removed the redundant Customer/Items/Review wizard strip: customer selection
+  already happens first and the persistent footer already owns Review.
+- Consolidated customer identity and invoice number/dates into one shorter
+  header with a full-row customer affordance and one shared metadata surface.
+- Replaced the numbered section treatment with a direct Line items heading,
+  live count badge, and compact add action so invoice content becomes the
+  primary visual focus.
+- Removed the duplicate full totals card from phone layouts; the persistent
+  footer continues to show the live grand total while tablets retain their
+  dedicated live-summary rail. Tax, discounts, charges, paid amount, notes, and
+  terms remain available through the secondary disclosure.
+- Important file: `invoice_create_screen.dart`; no schema or storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
 
 ### 2026-08-11 — Quantity-one removal affordance
 

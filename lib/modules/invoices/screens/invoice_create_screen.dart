@@ -161,13 +161,8 @@ class _InvoiceForm extends StatelessWidget {
       () => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _WorkflowProgress(
-            hasCustomer: controller.customer.value != null,
-            hasItems: controller.items.isNotEmpty,
-          ),
-          const SizedBox(height: 14),
           AppCard(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.fromLTRB(14, 13, 14, 14),
             child: Column(
               children: [
                 InkWell(
@@ -176,8 +171,8 @@ class _InvoiceForm extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        width: 46,
-                        height: 46,
+                        width: 42,
+                        height: 42,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: controller.customer.value == null
@@ -220,66 +215,106 @@ class _InvoiceForm extends StatelessWidget {
                           ],
                         ),
                       ),
-                      FilledButton.tonal(
-                        onPressed: () => _selectCustomer(context, controller),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(0, 42),
-                          padding: const EdgeInsets.symmetric(horizontal: 13),
+                      const SizedBox(width: 8),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            controller.customer.value == null
+                                ? 'Select'
+                                : 'Change',
+                            style: AppTextStyles.small.copyWith(
+                              color: AppColors.secondary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          const Icon(
+                            Icons.chevron_right_rounded,
+                            size: 19,
+                            color: AppColors.secondary,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceSoft,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _InvoiceMetaCell(
+                          icon: Icons.tag_rounded,
+                          label: controller.isQuotation
+                              ? 'Estimate'
+                              : 'Invoice',
+                          value: controller.invoiceNumber.value,
                         ),
-                        child: Text(
-                          controller.customer.value == null
-                              ? 'Select'
-                              : 'Change',
+                      ),
+                      Container(width: 1, height: 32, color: AppColors.border),
+                      Expanded(
+                        child: _InvoiceMetaCell(
+                          icon: Icons.calendar_today_outlined,
+                          label: 'Issued',
+                          value: _shortDate(controller.invoiceDate.value),
+                          onTap: () => _pickDate(context, due: false),
+                        ),
+                      ),
+                      Container(width: 1, height: 32, color: AppColors.border),
+                      Expanded(
+                        child: _InvoiceMetaCell(
+                          icon: Icons.event_available_outlined,
+                          label: 'Due',
+                          value: controller.dueDate.value == null
+                              ? 'Add date'
+                              : _shortDate(controller.dueDate.value!),
+                          muted: controller.dueDate.value == null,
+                          onTap: () => _pickDate(context, due: true),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Divider(height: 22),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _InvoiceMetaCell(
-                        icon: Icons.tag_rounded,
-                        label: controller.isQuotation ? 'Estimate' : 'Invoice',
-                        value: controller.invoiceNumber.value,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _InvoiceMetaCell(
-                        icon: Icons.calendar_today_outlined,
-                        label: 'Issued',
-                        value: _shortDate(controller.invoiceDate.value),
-                        onTap: () => _pickDate(context, due: false),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _InvoiceMetaCell(
-                        icon: Icons.event_available_outlined,
-                        label: 'Due',
-                        value: controller.dueDate.value == null
-                            ? 'Add date'
-                            : _shortDate(controller.dueDate.value!),
-                        muted: controller.dueDate.value == null,
-                        onTap: () => _pickDate(context, due: true),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
-                child: _SectionEyebrow(
-                  number: '2',
-                  label: controller.items.isEmpty
-                      ? 'Items'
-                      : 'Items · ${controller.items.length}',
+                child: Row(
+                  children: [
+                    Text('Line items', style: AppTextStyles.sectionTitle),
+                    if (controller.items.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                        child: Text(
+                          '${controller.items.length}',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               if (controller.items.isNotEmpty)
@@ -287,6 +322,10 @@ class _InvoiceForm extends StatelessWidget {
                   onPressed: () => _showAddItemOptions(context),
                   icon: const Icon(Icons.add_rounded, size: 19),
                   label: const Text('Add item'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 42),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                  ),
                 ),
             ],
           ),
@@ -495,11 +534,8 @@ class _InvoiceForm extends StatelessWidget {
               );
             }),
           const SizedBox(height: 8),
-          if (!ResponsiveUtils.isTablet(context) &&
-              controller.items.isNotEmpty) ...[
-            _InvoiceSummary(controller: controller),
-            const SizedBox(height: 12),
-          ],
+          if (!ResponsiveUtils.isTablet(context) && controller.items.isNotEmpty)
+            const SizedBox(height: 2),
           OutlinedButton.icon(
             onPressed: controller.toggleMoreOptions,
             icon: Icon(
@@ -953,109 +989,6 @@ class _SummaryMetric extends StatelessWidget {
   );
 }
 
-class _WorkflowProgress extends StatelessWidget {
-  const _WorkflowProgress({required this.hasCustomer, required this.hasItems});
-
-  final bool hasCustomer;
-  final bool hasItems;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-    decoration: BoxDecoration(
-      color: AppColors.surfaceSoft,
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: AppColors.border),
-    ),
-    child: Row(
-      children: [
-        _WorkflowStep(
-          number: 1,
-          label: 'Customer',
-          complete: hasCustomer,
-          active: !hasCustomer,
-        ),
-        _WorkflowLine(active: hasCustomer),
-        _WorkflowStep(
-          number: 2,
-          label: 'Items',
-          complete: hasItems,
-          active: hasCustomer && !hasItems,
-        ),
-        _WorkflowLine(active: hasItems),
-        _WorkflowStep(number: 3, label: 'Review', active: hasItems),
-      ],
-    ),
-  );
-}
-
-class _WorkflowStep extends StatelessWidget {
-  const _WorkflowStep({
-    required this.number,
-    required this.label,
-    this.complete = false,
-    this.active = false,
-  });
-
-  final int number;
-  final String label;
-  final bool complete;
-  final bool active;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(
-        width: 25,
-        height: 25,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: complete
-              ? AppColors.success
-              : active
-              ? AppColors.primary
-              : AppColors.surfaceMuted,
-          shape: BoxShape.circle,
-        ),
-        child: complete
-            ? const Icon(Icons.check_rounded, color: Colors.white, size: 15)
-            : Text(
-                '$number',
-                style: AppTextStyles.caption.copyWith(
-                  color: active ? Colors.white : AppColors.textSecondary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-      ),
-      const SizedBox(width: 5),
-      Text(
-        label,
-        style: AppTextStyles.caption.copyWith(
-          color: active || complete
-              ? Theme.of(context).colorScheme.onSurface
-              : AppColors.textTertiary,
-          fontWeight: active ? FontWeight.w800 : FontWeight.w600,
-        ),
-      ),
-    ],
-  );
-}
-
-class _WorkflowLine extends StatelessWidget {
-  const _WorkflowLine({required this.active});
-  final bool active;
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-    child: Container(
-      height: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 7),
-      color: active ? AppColors.success : AppColors.border,
-    ),
-  );
-}
-
 class _InvoiceMetaCell extends StatelessWidget {
   const _InvoiceMetaCell({
     required this.icon,
@@ -1073,7 +1006,7 @@ class _InvoiceMetaCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    color: onTap == null ? Colors.transparent : AppColors.surfaceSoft,
+    color: Colors.transparent,
     borderRadius: BorderRadius.circular(12),
     child: InkWell(
       onTap: onTap,
@@ -1113,37 +1046,6 @@ class _InvoiceMetaCell extends StatelessWidget {
         ),
       ),
     ),
-  );
-}
-
-class _SectionEyebrow extends StatelessWidget {
-  const _SectionEyebrow({required this.number, required this.label});
-  final String number;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(
-        width: 28,
-        height: 28,
-        alignment: Alignment.center,
-        decoration: const BoxDecoration(
-          color: AppColors.primaryLight,
-          shape: BoxShape.circle,
-        ),
-        child: Text(
-          number,
-          style: AppTextStyles.small.copyWith(
-            color: AppColors.primary,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ),
-      const SizedBox(width: 9),
-      Text(label, style: AppTextStyles.sectionTitle),
-    ],
   );
 }
 
