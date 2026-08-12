@@ -16,84 +16,91 @@ class AppMainNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      elevation: 10,
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 66,
-          child: Row(
-            children: [
-              _destination(
-                context,
-                destination: MainDestination.home,
-                icon: Icons.home_outlined,
-                selectedIcon: Icons.home_rounded,
-                label: 'Home',
-                route: AppRoutes.dashboard,
-              ),
-              _destination(
-                context,
-                destination: MainDestination.invoices,
-                icon: Icons.receipt_long_outlined,
-                selectedIcon: Icons.receipt_long_rounded,
-                label: 'Invoices',
-                route: AppRoutes.invoices,
-              ),
-              Expanded(
-                child: Semantics(
-                  button: true,
-                  label: 'Create new',
-                  child: Center(
-                    child: InkResponse(
-                      onTap: () => _showCreateSheet(context),
-                      radius: 32,
-                      child: Container(
-                        width: 46,
-                        height: 46,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primary, AppColors.secondary],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+      child: Container(
+        height: 68,
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: .96),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.border.withValues(alpha: .8)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x18321D30),
+              blurRadius: 24,
+              offset: Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            _destination(
+              context,
+              destination: MainDestination.home,
+              icon: Icons.home_outlined,
+              selectedIcon: Icons.home_rounded,
+              label: 'Home',
+              route: AppRoutes.dashboard,
+            ),
+            _destination(
+              context,
+              destination: MainDestination.invoices,
+              icon: Icons.receipt_long_outlined,
+              selectedIcon: Icons.receipt_long_rounded,
+              label: 'Invoices',
+              route: AppRoutes.invoices,
+            ),
+            Expanded(
+              child: Semantics(
+                button: true,
+                label: 'Create new',
+                child: Center(
+                  child: InkResponse(
+                    onTap: () => _showCreateSheet(context),
+                    radius: 32,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppColors.primary, AppColors.secondary],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(17),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x335B5CE2),
+                            blurRadius: 14,
+                            offset: Offset(0, 5),
                           ),
-                          shape: BoxShape.circle,
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x335B5CE2),
-                              blurRadius: 14,
-                              offset: Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.add_rounded,
-                          color: Colors.white,
-                        ),
+                        ],
                       ),
+                      child: const Icon(Icons.add_rounded, color: Colors.white),
                     ),
                   ),
                 ),
               ),
-              _destination(
-                context,
-                destination: MainDestination.customers,
-                icon: Icons.people_outline_rounded,
-                selectedIcon: Icons.people_rounded,
-                label: 'Customers',
-                route: AppRoutes.customers,
-              ),
-              _destination(
-                context,
-                destination: MainDestination.more,
-                icon: Icons.grid_view_outlined,
-                selectedIcon: Icons.grid_view_rounded,
-                label: 'More',
-                route: AppRoutes.more,
-              ),
-            ],
-          ),
+            ),
+            _destination(
+              context,
+              destination: MainDestination.customers,
+              icon: Icons.people_outline_rounded,
+              selectedIcon: Icons.people_rounded,
+              label: 'Customers',
+              route: AppRoutes.customers,
+            ),
+            _destination(
+              context,
+              destination: MainDestination.more,
+              icon: Icons.grid_view_outlined,
+              selectedIcon: Icons.grid_view_rounded,
+              label: 'More',
+              route: AppRoutes.more,
+            ),
+          ],
         ),
       ),
     );
@@ -112,25 +119,30 @@ class AppMainNavigation extends StatelessWidget {
     return Expanded(
       child: InkWell(
         onTap: selected ? null : () => _openDestination(route),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
-              decoration: BoxDecoration(
-                color: selected ? AppColors.primaryLight : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.primaryLight : Colors.transparent,
+            borderRadius: BorderRadius.circular(17),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(selected ? selectedIcon : icon, color: color, size: 21),
+              const SizedBox(height: AppSpacing.xxs),
+              Text(
+                label,
+                maxLines: 1,
+                style: AppTextStyles.caption.copyWith(
+                  color: color,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                ),
               ),
-              child: Icon(
-                selected ? selectedIcon : icon,
-                color: color,
-                size: 21,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxs),
-            Text(label, style: AppTextStyles.caption.copyWith(color: color)),
-          ],
+            ],
+          ),
         ),
       ),
     );

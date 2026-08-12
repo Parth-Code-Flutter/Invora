@@ -233,6 +233,23 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-12 — Floating main dock and relationship-first customers
+
+- Rebuilt the phone bottom navigation as a floating rounded dock with a clearer
+  active destination, compact labels, and a raised gradient create control;
+  all main destinations continue to replace the root route without transitions.
+- Removed the Customers tab's duplicate floating add button because creation is
+  now available in the dock and the new branded workspace header.
+- Reframed Customers as a billing-relationship workspace with a compact count
+  summary, explicit add action, denser customer rows, and a one-tap invoice
+  shortcut on every customer.
+- Preserved full-card details navigation plus swipe edit/delete and the existing
+  action sheet, giving frequent and advanced actions distinct affordances.
+- Important files: `app_main_navigation.dart` and
+  `customer_list_screen.dart`; no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-12 — Customer account layout consolidation
 
 - Consolidated customer identity and lifetime billed/paid/due metrics into one

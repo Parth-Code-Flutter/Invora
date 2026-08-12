@@ -10,6 +10,7 @@ import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../data/models/customer_model.dart';
+import '../../../data/models/invoice_model.dart';
 import '../controllers/customer_list_controller.dart';
 
 class CustomerListScreen extends GetView<CustomerListController> {
@@ -18,11 +19,6 @@ class CustomerListScreen extends GetView<CustomerListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Add customer',
-        onPressed: () => Get.toNamed<void>(AppRoutes.customerAdd),
-        child: const Icon(Icons.add_rounded),
-      ),
       appBar: AppSearchAppBar(
         title: 'Customers',
         hint: 'Name, mobile or GSTIN',
@@ -33,27 +29,18 @@ class CustomerListScreen extends GetView<CustomerListController> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              ResponsiveUtils.horizontalPadding(context),
-              ResponsiveUtils.height(context, 8),
-              ResponsiveUtils.horizontalPadding(context),
-              ResponsiveUtils.height(context, 12),
-            ),
-            child: Column(
-              children: [
-                Obx(
-                  () => Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '${controller.customers.length} customers',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+          Obx(
+            () => Padding(
+              padding: EdgeInsets.fromLTRB(
+                ResponsiveUtils.horizontalPadding(context),
+                ResponsiveUtils.height(context, 8),
+                ResponsiveUtils.horizontalPadding(context),
+                ResponsiveUtils.height(context, 12),
+              ),
+              child: _CustomerWorkspaceHeader(
+                count: controller.customers.length,
+                onAdd: () => Get.toNamed<void>(AppRoutes.customerAdd),
+              ),
             ),
           ),
           Expanded(
@@ -94,6 +81,12 @@ class CustomerListScreen extends GetView<CustomerListController> {
                       separatorBuilder: (_, _) => const SizedBox(height: 10),
                       itemBuilder: (context, index) => _CustomerCard(
                         customer: controller.customers[index],
+                        onInvoice: () => Get.toNamed<void>(
+                          AppRoutes.invoiceCreate,
+                          arguments: InvoiceEditorArgs(
+                            customerId: controller.customers[index].id,
+                          ),
+                        ),
                         onEdit: () => Get.toNamed<void>(
                           AppRoutes.customerEdit,
                           arguments: controller.customers[index].id,
@@ -124,6 +117,12 @@ class CustomerListScreen extends GetView<CustomerListController> {
                     itemCount: controller.customers.length,
                     itemBuilder: (context, index) => _CustomerCard(
                       customer: controller.customers[index],
+                      onInvoice: () => Get.toNamed<void>(
+                        AppRoutes.invoiceCreate,
+                        arguments: InvoiceEditorArgs(
+                          customerId: controller.customers[index].id,
+                        ),
+                      ),
                       onEdit: () => Get.toNamed<void>(
                         AppRoutes.customerEdit,
                         arguments: controller.customers[index].id,
@@ -171,15 +170,88 @@ class CustomerListScreen extends GetView<CustomerListController> {
   }
 }
 
+class _CustomerWorkspaceHeader extends StatelessWidget {
+  const _CustomerWorkspaceHeader({required this.count, required this.onAdd});
+
+  final int count;
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.fromLTRB(16, 15, 12, 15),
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        colors: [AppColors.secondary, AppColors.primary, AppColors.accent],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      borderRadius: BorderRadius.circular(22),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.secondary.withValues(alpha: .16),
+          blurRadius: 18,
+          offset: const Offset(0, 7),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: .16),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.white.withValues(alpha: .18)),
+          ),
+          child: const Icon(Icons.people_alt_outlined, color: Colors.white),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$count ${count == 1 ? 'customer' : 'customers'}',
+                style: AppTextStyles.cardTitle.copyWith(color: Colors.white),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Your billing relationships',
+                style: AppTextStyles.small.copyWith(
+                  color: Colors.white.withValues(alpha: .78),
+                ),
+              ),
+            ],
+          ),
+        ),
+        FilledButton.icon(
+          onPressed: onAdd,
+          icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
+          label: const Text('Add'),
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: AppColors.secondary,
+            minimumSize: const Size(0, 42),
+            padding: const EdgeInsets.symmetric(horizontal: 13),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 class _CustomerCard extends StatelessWidget {
   const _CustomerCard({
     required this.customer,
+    required this.onInvoice,
     required this.onEdit,
     required this.onConfirmDelete,
     required this.onDelete,
   });
 
   final CustomerModel customer;
+  final VoidCallback onInvoice;
   final VoidCallback onEdit;
   final Future<bool> Function() onConfirmDelete;
   final Future<void> Function() onDelete;
@@ -213,6 +285,7 @@ class _CustomerCard extends StatelessWidget {
         label: 'Delete',
       ),
       child: AppCard(
+        padding: const EdgeInsets.fromLTRB(13, 12, 10, 12),
         onTap: () => Get.toNamed<void>(
           AppRoutes.customerDetails,
           arguments: customer.id,
@@ -220,8 +293,8 @@ class _CustomerCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: 46,
+              height: 46,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
@@ -229,14 +302,14 @@ class _CustomerCard extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(17),
+                borderRadius: BorderRadius.circular(15),
               ),
               child: Text(
                 customer.name.characters.first.toUpperCase(),
                 style: AppTextStyles.sectionTitle.copyWith(color: Colors.white),
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -283,10 +356,20 @@ class _CustomerCard extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton.filledTonal(
+            IconButton(
+              tooltip: 'Create invoice for ${customer.name}',
+              onPressed: onInvoice,
+              style: IconButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                backgroundColor: AppColors.primaryLight,
+              ),
+              icon: const Icon(Icons.receipt_long_outlined, size: 20),
+            ),
+            const SizedBox(width: 3),
+            IconButton(
               tooltip: 'Customer actions',
               onPressed: () => _showActions(context),
-              icon: const Icon(Icons.more_horiz_rounded, size: 21),
+              icon: const Icon(Icons.more_vert_rounded, size: 20),
             ),
           ],
         ),
