@@ -16,9 +16,12 @@ import 'package:creovo_invoice/app/widgets/app_status_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_text_field.dart';
 
 void main() {
-  test('design system uses the bundled DM Sans family', () {
-    expect(AppTextStyles.fontFamily, 'DM Sans');
-    expect(AppTheme.light.textTheme.bodyMedium?.fontFamily, 'DM Sans');
+  test('design system uses the bundled Plus Jakarta Sans family', () {
+    expect(AppTextStyles.fontFamily, 'Plus Jakarta Sans');
+    expect(
+      AppTheme.light.textTheme.bodyMedium?.fontFamily,
+      'Plus Jakarta Sans',
+    );
   });
 
   testWidgets('primary action uses branded surface and loading semantics', (

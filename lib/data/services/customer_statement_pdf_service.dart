@@ -17,7 +17,9 @@ class CustomerStatementPdfService {
 
   Future<Uint8List> build(CustomerStatementModel statement) async {
     final regular = pw.Font.ttf(
-      await rootBundle.load('assets/fonts/DMSans/DMSans-Regular.ttf'),
+      await rootBundle.load(
+        'assets/fonts/PlusJakartaSans/PlusJakartaSans-Regular.ttf',
+      ),
     );
     final document = pw.Document(
       theme: pw.ThemeData.withFont(base: regular, bold: regular),

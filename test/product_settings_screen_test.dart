@@ -39,4 +39,40 @@ void main() {
       expect(find.text('Add custom field'), findsNothing);
     },
   );
+
+  testWidgets('grouped field workspace stays clean on a narrow phone', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    SharedPreferences.setMockInitialValues({});
+    final service = ProductSettingsService(await AppStorage.create());
+    Get.put(ProductSettingsController(service));
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        theme: AppTheme.light,
+        home: const ProductSettingsScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Configure your catalog'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Invoice essentials'),
+      220,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Invoice essentials'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Identity'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Identity'), findsOneWidget);
+    expect(find.byType(FilterChip), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
 }

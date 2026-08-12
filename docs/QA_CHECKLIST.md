@@ -13,10 +13,12 @@ remain intentionally out of scope until explicitly requested.
 - Business-category pickers use a searchable 75%-height sheet in setup and
   Product Settings, including filtered and empty-result states.
 - Product Settings uses its premium overview/field hierarchy without overflow
-  on narrow phones; locally bundled DM Sans renders consistently offline across
-  the screen, its dialogs/sheets, and the wider app.
-- DM Sans is the only bundled UI/PDF font; invoice, receipt, statement, and
-  report PDFs retain Unicode and Indian-rupee rendering.
+  on narrow phones; locally bundled Plus Jakarta Sans renders consistently
+  offline across the screen, its dialogs/sheets, and the wider app.
+- Product fields are grouped into essentials, identity, specifications, and
+  variant/date chips; selection remains readable without divider-heavy rows.
+- Plus Jakarta Sans is the only bundled UI/PDF font; invoice, receipt,
+  statement, and report PDFs retain Unicode and Indian-rupee rendering.
 - Opening, typing in, cancelling, or saving the custom-field dialog completes
   its close animation without disposed-controller or cascading overflow errors.
 

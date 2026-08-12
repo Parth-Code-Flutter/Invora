@@ -14,7 +14,7 @@ import '../controllers/product_settings_controller.dart';
 class ProductSettingsScreen extends GetView<ProductSettingsController> {
   const ProductSettingsScreen({super.key});
 
-  static const _systemFont = 'DM Sans';
+  static const _systemFont = 'Plus Jakarta Sans';
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +47,31 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
 
   Widget _content(BuildContext context) {
     final enabledCount = controller.enabledFields.length;
+    final fieldsByKey = {
+      for (final field in ProductFieldPresets.fields) field.key: field,
+    };
+    const groups = <(String, String, List<String>)>[
+      (
+        'Invoice essentials',
+        'Common details shown on most invoices',
+        ['description', 'unit', 'tax', 'hsnSac'],
+      ),
+      (
+        'Identity',
+        'Codes and manufacturer references',
+        ['sku', 'brand', 'modelNumber', 'serialNumber', 'batchNumber'],
+      ),
+      (
+        'Product specifications',
+        'Physical details customers use to identify an item',
+        ['color', 'size', 'material', 'shape', 'weight', 'dimensions'],
+      ),
+      (
+        'Variants & dates',
+        'Optional production and selling details',
+        ['variant', 'quantityLabel', 'manufacturingDate', 'expiryDate'],
+      ),
+    ];
     return ListView(
       padding: const EdgeInsets.only(bottom: 32),
       children: [
@@ -108,31 +133,18 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
           ),
         ),
         const SizedBox(height: 10),
-        AppCard(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Column(
-            children: [
-              for (
-                var index = 0;
-                index < ProductFieldPresets.fields.length;
-                index++
-              ) ...[
-                _FieldRow(
-                  field: ProductFieldPresets.fields[index],
-                  enabled: controller.enabledFields.contains(
-                    ProductFieldPresets.fields[index].key,
-                  ),
-                  onChanged: (value) => controller.toggleField(
-                    ProductFieldPresets.fields[index].key,
-                    value,
-                  ),
-                ),
-                if (index != ProductFieldPresets.fields.length - 1)
-                  const Divider(height: 1, indent: 58, endIndent: 16),
-              ],
-            ],
+        for (var index = 0; index < groups.length; index++) ...[
+          _FieldGroup(
+            title: groups[index].$1,
+            subtitle: groups[index].$2,
+            fields: groups[index].$3
+                .map((key) => fieldsByKey[key]!)
+                .toList(growable: false),
+            enabledFields: controller.enabledFields,
+            onChanged: controller.toggleField,
           ),
-        ),
+          if (index != groups.length - 1) const SizedBox(height: 10),
+        ],
         if (controller.customFields.isNotEmpty) ...[
           const SizedBox(height: 22),
           const _SectionHeader(
@@ -295,163 +307,105 @@ class _SettingsHero extends StatelessWidget {
   final VoidCallback onCategoryTap;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(18),
-    decoration: BoxDecoration(
-      gradient: const LinearGradient(
-        colors: [Color(0xFF713267), Color(0xFFB24D69)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      borderRadius: BorderRadius.circular(24),
-      boxShadow: [
-        BoxShadow(
-          color: AppColors.secondary.withValues(alpha: .18),
-          blurRadius: 22,
-          offset: const Offset(0, 9),
-        ),
-      ],
-    ),
-    child: Stack(
+  Widget build(BuildContext context) => AppCard(
+    padding: EdgeInsets.zero,
+    child: Column(
       children: [
-        Positioned(
-          right: -42,
-          top: -55,
-          child: Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: .08),
-            ),
-          ),
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: .16),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: const Icon(
-                    Icons.tune_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 13),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Shape your product form',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -.2,
-                        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(17, 16, 17, 14),
+          child: Row(
+            children: [
+              const _IconTile(
+                icon: Icons.tune_rounded,
+                color: AppColors.secondary,
+                background: AppColors.secondaryLight,
+                size: 44,
+              ),
+              const SizedBox(width: 13),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Configure your catalog',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -.15,
                       ),
-                      SizedBox(height: 3),
-                      Text(
-                        'Keep only the details your business needs.',
-                        style: TextStyle(
-                          color: Color(0xD9FFFFFF),
-                          fontSize: 12.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: .14),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '$enabledCount on',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
                     ),
-                  ),
+                    SizedBox(height: 3),
+                    Text(
+                      'Choose the details you collect for every item.',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 17),
-            Material(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(17),
-              child: InkWell(
-                onTap: onCategoryTap,
-                borderRadius: BorderRadius.circular(17),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 11, 11, 11),
-                  child: Row(
-                    children: [
-                      const _IconTile(
-                        icon: Icons.storefront_outlined,
-                        color: AppColors.secondary,
-                        background: AppColors.secondaryLight,
-                        size: 38,
-                      ),
-                      const SizedBox(width: 11),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'BUSINESS CATEGORY',
-                              style: TextStyle(
-                                color: AppColors.textTertiary,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: .65,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              category,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 14.5,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        'Change',
-                        style: TextStyle(
-                          color: AppColors.secondary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 2),
-                      const Icon(
-                        Icons.chevron_right_rounded,
-                        color: AppColors.secondary,
-                        size: 20,
-                      ),
-                    ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '$enabledCount active',
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onCategoryTap,
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(20),
             ),
-          ],
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(17, 13, 13, 13),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.storefront_outlined,
+                    size: 20,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 11),
+                  const Text(
+                    'Business category',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                  const Spacer(),
+                  Flexible(
+                    child: Text(
+                      category,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.chevron_right_rounded, size: 20),
+                ],
+              ),
+            ),
+          ),
         ),
       ],
     ),
@@ -501,53 +455,78 @@ class _SectionHeader extends StatelessWidget {
   );
 }
 
-class _FieldRow extends StatelessWidget {
-  const _FieldRow({
-    required this.field,
-    required this.enabled,
+class _FieldGroup extends StatelessWidget {
+  const _FieldGroup({
+    required this.title,
+    required this.subtitle,
+    required this.fields,
+    required this.enabledFields,
     required this.onChanged,
   });
 
-  final ProductFieldDefinition field;
-  final bool enabled;
-  final ValueChanged<bool> onChanged;
+  final String title;
+  final String subtitle;
+  final List<ProductFieldDefinition> fields;
+  final Set<String> enabledFields;
+  final Future<void> Function(String key, bool enabled) onChanged;
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    checked: enabled,
-    label: field.label,
-    child: InkWell(
-      onTap: () => onChanged(!enabled),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        child: Row(
-          children: [
-            _SelectionMark(enabled: enabled),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                field.label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: enabled ? FontWeight.w600 : FontWeight.w400,
-                  color: enabled
-                      ? Theme.of(context).colorScheme.onSurface
-                      : AppColors.textSecondary,
-                ),
-              ),
-            ),
-            Text(
-              enabled ? 'Shown' : 'Hidden',
-              style: TextStyle(
-                color: enabled ? AppColors.primary : AppColors.textTertiary,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
+  Widget build(BuildContext context) => AppCard(
+    padding: const EdgeInsets.fromLTRB(15, 14, 15, 15),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
         ),
-      ),
+        const SizedBox(height: 2),
+        Text(
+          subtitle,
+          style: const TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 11.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: fields
+              .map((field) {
+                final enabled = enabledFields.contains(field.key);
+                return FilterChip(
+                  selected: enabled,
+                  showCheckmark: true,
+                  avatar: enabled
+                      ? null
+                      : const Icon(Icons.add_rounded, size: 16),
+                  label: Text(field.label),
+                  onSelected: (value) => onChanged(field.key, value),
+                  labelStyle: TextStyle(
+                    fontSize: 12,
+                    fontWeight: enabled ? FontWeight.w600 : FontWeight.w500,
+                    color: enabled
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
+                  ),
+                  selectedColor: AppColors.primaryLight,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  side: BorderSide(
+                    color: enabled ? AppColors.primary : AppColors.border,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  visualDensity: const VisualDensity(
+                    horizontal: -1,
+                    vertical: -1,
+                  ),
+                );
+              })
+              .toList(growable: false),
+        ),
+      ],
     ),
   );
 }

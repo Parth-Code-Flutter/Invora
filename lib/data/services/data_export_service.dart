@@ -97,7 +97,9 @@ class DataExportService {
     );
     final document = pw.Document();
     final font = pw.Font.ttf(
-      await rootBundle.load('assets/fonts/DMSans/DMSans-Regular.ttf'),
+      await rootBundle.load(
+        'assets/fonts/PlusJakartaSans/PlusJakartaSans-Regular.ttf',
+      ),
     );
     document.addPage(
       pw.MultiPage(

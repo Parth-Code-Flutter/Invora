@@ -251,7 +251,7 @@ class AppColors {
 
 # 5. Typography
 
-Use locally bundled **DM Sans** as the primary font.
+Use locally bundled **Plus Jakarta Sans** as the primary font.
 
 Recommended sizing:
 

@@ -23,7 +23,9 @@ class PaymentReceiptPdfService {
       throw StateError('Only received payments can generate receipts.');
     }
     final regular = pw.Font.ttf(
-      await rootBundle.load('assets/fonts/DMSans/DMSans-Regular.ttf'),
+      await rootBundle.load(
+        'assets/fonts/PlusJakartaSans/PlusJakartaSans-Regular.ttf',
+      ),
     );
     final document = pw.Document(
       theme: pw.ThemeData.withFont(base: regular, bold: regular),

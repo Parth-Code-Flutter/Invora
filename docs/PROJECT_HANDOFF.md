@@ -172,7 +172,7 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   identity header, full Bill To and invoice metadata, description-friendly
   item table, payment instructions beside totals, amount-due emphasis, and an
   authorization/signature finish
-- PDFs embed the bundled DM Sans TrueType font for Unicode currency glyphs and
+- PDFs embed the bundled Plus Jakarta Sans TrueType font for Unicode currency glyphs and
   use explicit responsive table columns/alignment so real invoice values wrap
   predictably without overlapping
 - Offline PDF preview, save, share, and print
@@ -307,6 +307,39 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-13 — Clean grouped Product Settings UX
+
+- Replaced the visually heavy gradient header and long divider checklist with
+  a neutral catalog-configuration card, compact category row, active-field
+  count, and four task-oriented field groups: Invoice essentials, Identity,
+  Product specifications, and Variants & dates.
+- Field selection now uses concise add/check chips, making enabled state
+  immediately visible while reducing scrolling and removing repetitive
+  “Shown/Hidden” labels. Invoice visibility and custom fields remain separate,
+  focused controls.
+- Existing category recommendations, field persistence, custom field behavior,
+  invoice snapshots, and PDF behavior are unchanged.
+- Important files: Product Settings screen, narrow-phone widget coverage, QA
+  checklist, and this handoff.
+- Verification: formatting, static analysis, narrow-phone overflow test,
+  selection/dialog regressions, and responsive design tests.
+
+### 2026-08-13 — Plus Jakarta Sans application typography
+
+- Replaced DM Sans with official Google Fonts Plus Jakarta Sans Regular,
+  Medium, SemiBold, and Bold weights to give the app a friendlier premium
+  finance-product character while keeping dense invoice information readable.
+- Plus Jakarta Sans is now the sole bundled text family across application UI,
+  Product Settings, dialogs, bottom sheets, invoices, payment receipts,
+  customer statements, and report PDFs. The official SIL license is included.
+- Removed all DM Sans assets and active references. No schema, storage, backup,
+  validation, calculation, or document-content behavior changed.
+- Important files: font assets/license, pubspec, application typography,
+  Product Settings, all PDF font loaders, tests, plan, QA checklist, and this
+  handoff.
+- Verification: font-file validation, no stale DM Sans references/assets,
+  static analysis, responsive UI tests, and Unicode PDF generation tests.
 
 ### 2026-08-13 — Single bundled font family
 

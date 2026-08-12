@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppTextStyles {
-  static const fontFamily = 'DM Sans';
+  static const fontFamily = 'Plus Jakarta Sans';
 
   static const displayAmount = TextStyle(
     fontFamily: fontFamily,
