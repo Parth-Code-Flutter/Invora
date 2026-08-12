@@ -308,6 +308,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-13 — Business edit back-action lifecycle fix
+
+- Fixed the missing back arrow when an existing business profile finishes
+  loading after the setup screen's AppBar has already built. The leading action
+  now reacts to loading completion and displays the back control on edit step 1.
+- First-time setup still hides the step-1 back action, while step 2 continues to
+  return to the identity step.
+- Important files: business setup screen, edit-mode regression test, and this
+  handoff.
+- Verification: edit-mode header rendering, formatting, and static analysis.
+
 ### 2026-08-13 — Stable compact overflow menus
 
 - Fixed the invoice line-item overflow menu crash caused by applying a tiny

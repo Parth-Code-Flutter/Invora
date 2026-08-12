@@ -26,16 +26,21 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(''),
-          leading: Obx(
-            () => controller.setupStep.value == 0
-                ? controller.isEditing
-                      ? const AppBackButton()
-                      : const SizedBox.shrink()
-                : IconButton(
-                    onPressed: controller.returnToIdentity,
-                    icon: const Icon(Icons.arrow_back_rounded),
-                  ),
-          ),
+          leading: Obx(() {
+            // isEditing depends on the asynchronously loaded profile. Reading
+            // isLoading keeps this header reactive when that profile arrives.
+            final loading = controller.isLoading.value;
+            if (loading) return const SizedBox.shrink();
+            if (controller.setupStep.value > 0) {
+              return IconButton(
+                onPressed: controller.returnToIdentity,
+                icon: const Icon(Icons.arrow_back_rounded),
+              );
+            }
+            return controller.isEditing
+                ? const AppBackButton()
+                : const SizedBox.shrink();
+          }),
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 20),
