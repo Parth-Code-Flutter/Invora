@@ -19,6 +19,13 @@ class CustomerListScreen extends GetView<CustomerListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        tooltip: 'Add customer',
+        onPressed: () => Get.toNamed<void>(AppRoutes.customerAdd),
+        icon: const Icon(Icons.person_add_alt_1_rounded),
+        label: const Text('Customer'),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppSearchAppBar(
         title: 'Customers',
         hint: 'Name, mobile or GSTIN',
@@ -39,7 +46,6 @@ class CustomerListScreen extends GetView<CustomerListController> {
               ),
               child: _CustomerWorkspaceHeader(
                 count: controller.customers.length,
-                onAdd: () => Get.toNamed<void>(AppRoutes.customerAdd),
               ),
             ),
           ),
@@ -171,10 +177,9 @@ class CustomerListScreen extends GetView<CustomerListController> {
 }
 
 class _CustomerWorkspaceHeader extends StatelessWidget {
-  const _CustomerWorkspaceHeader({required this.count, required this.onAdd});
+  const _CustomerWorkspaceHeader({required this.count});
 
   final int count;
-  final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -225,15 +230,18 @@ class _CustomerWorkspaceHeader extends StatelessWidget {
             ],
           ),
         ),
-        FilledButton.icon(
-          onPressed: onAdd,
-          icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
-          label: const Text('Add'),
-          style: FilledButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: AppColors.secondary,
-            minimumSize: const Size(0, 42),
-            padding: const EdgeInsets.symmetric(horizontal: 13),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: .14),
+            borderRadius: BorderRadius.circular(99),
+          ),
+          child: Text(
+            'READY TO BILL',
+            style: AppTextStyles.caption.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
       ],

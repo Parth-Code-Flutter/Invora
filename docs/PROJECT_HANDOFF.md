@@ -233,6 +233,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-12 — Dedicated customer creation FAB
+
+- Restored a dedicated extended floating action button for customer creation,
+  positioned above the new floating navigation dock.
+- Removed creation from the relationship-summary header so the banner remains
+  informational and the primary add action stays reachable while scrolling.
+- Replaced the header button with a compact `Ready to bill` state marker.
+- Important file: `customer_list_screen.dart`; no schema/storage changes.
+- Verified with formatting, static analysis, full automated tests, and
+  whitespace checks.
+
 ### 2026-08-12 — Floating main dock and relationship-first customers
 
 - Rebuilt the phone bottom navigation as a floating rounded dock with a clearer
