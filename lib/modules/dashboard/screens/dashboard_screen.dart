@@ -25,14 +25,39 @@ class DashboardScreen extends GetView<DashboardController> {
           : const AppMainNavigation(current: MainDestination.home),
       appBar: AppBar(
         title: Obx(
-          () => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          () => Row(
             children: [
-              Text(_greeting(), style: AppTextStyles.caption),
-              Text(
-                controller.profile.value?.businessName ?? 'Creovo Invoice',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              Container(
+                width: 42,
+                height: 42,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, AppColors.secondary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  _businessInitial,
+                  style: AppTextStyles.cardTitle.copyWith(color: Colors.white),
+                ),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_greeting(), style: AppTextStyles.caption),
+                    Text(
+                      controller.profile.value?.businessName ??
+                          'Creovo Invoice',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -66,22 +91,14 @@ class DashboardScreen extends GetView<DashboardController> {
                       ),
                     ],
                     const SizedBox(height: AppSpacing.lg),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Create quickly',
-                            style: AppTextStyles.sectionTitle,
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: () => Get.toNamed<void>(AppRoutes.reports),
-                          icon: const Icon(Icons.insights_rounded, size: 18),
-                          label: const Text('Reports'),
-                        ),
-                      ],
+                    _SectionHeader(
+                      title: 'Quick actions',
+                      subtitle: 'Create and manage your business',
+                      actionLabel: 'Reports',
+                      actionIcon: Icons.insights_rounded,
+                      onAction: () => Get.toNamed<void>(AppRoutes.reports),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: AppSpacing.sm),
                     Row(
                       children: [
                         Expanded(
@@ -103,11 +120,13 @@ class DashboardScreen extends GetView<DashboardController> {
                           onTap: () =>
                               Get.toNamed<void>(AppRoutes.quotationCreate),
                         ),
+                        const SizedBox(width: 10),
                         _QuickAction(
                           label: 'Customer',
                           icon: Icons.person_add_alt_1_outlined,
                           onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
                         ),
+                        const SizedBox(width: 10),
                         _QuickAction(
                           label: 'Product',
                           icon: Icons.add_box_outlined,
@@ -116,21 +135,15 @@ class DashboardScreen extends GetView<DashboardController> {
                       ],
                     ),
                     const SizedBox(height: AppSpacing.xl),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Recent invoices',
-                            style: AppTextStyles.sectionTitle,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () =>
-                              Get.toNamed<void>(AppRoutes.invoices),
-                          child: const Text('View all'),
-                        ),
-                      ],
+                    _SectionHeader(
+                      title: 'Recent invoices',
+                      subtitle: controller.recentInvoices.isEmpty
+                          ? 'Latest billing activity'
+                          : '${controller.recentInvoices.length} most recent',
+                      actionLabel: 'View all',
+                      onAction: () => Get.toNamed<void>(AppRoutes.invoices),
                     ),
+                    const SizedBox(height: AppSpacing.sm),
                     if (controller.recentInvoices.isEmpty)
                       AppCard(
                         padding: const EdgeInsets.symmetric(
@@ -195,12 +208,17 @@ class DashboardScreen extends GetView<DashboardController> {
 
   String get _symbol => controller.profile.value?.currencySymbol ?? '₹';
 
+  String get _businessInitial {
+    final name = controller.profile.value?.businessName.trim() ?? '';
+    return name.isEmpty ? 'C' : name.characters.first.toUpperCase();
+  }
+
   Widget _businessOverview(BuildContext context) {
     final report = controller.report.value;
     return Stack(
       children: [
         Container(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 19),
+          padding: const EdgeInsets.fromLTRB(20, 19, 20, 20),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [AppColors.secondary, AppColors.primaryDark],
@@ -221,13 +239,33 @@ class DashboardScreen extends GetView<DashboardController> {
             children: [
               Row(
                 children: [
-                  Row(
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: .11),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.auto_graph_rounded,
+                      color: Colors.white,
+                      size: 21,
+                    ),
+                  ),
+                  const SizedBox(width: 11),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.auto_graph_rounded, color: Colors.white),
-                      const SizedBox(width: 8),
                       Text(
-                        'CASH FLOW · THIS MONTH',
+                        'BUSINESS OVERVIEW',
                         style: AppTextStyles.caption.copyWith(
+                          color: Colors.white70,
+                          letterSpacing: .8,
+                        ),
+                      ),
+                      Text(
+                        '${_monthName(DateTime.now().month)} cash flow',
+                        style: AppTextStyles.small.copyWith(
                           color: Colors.white54,
                         ),
                       ),
@@ -244,7 +282,7 @@ class DashboardScreen extends GetView<DashboardController> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${report.invoiceCount} invoices',
+                      '${report.invoiceCount} ${report.invoiceCount == 1 ? 'invoice' : 'invoices'}',
                       style: AppTextStyles.caption.copyWith(
                         color: Colors.white70,
                       ),
@@ -252,7 +290,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 18),
               Text(
                 'Invoiced this month',
                 style: AppTextStyles.secondaryBody.copyWith(
@@ -271,7 +309,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 17),
               ClipRRect(
                 borderRadius: BorderRadius.circular(99),
                 child: LinearProgressIndicator(
@@ -284,7 +322,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   valueColor: const AlwaysStoppedAnimation(Color(0xFF61D7B4)),
                 ),
               ),
-              const SizedBox(height: 13),
+              const SizedBox(height: 15),
               Row(
                 children: [
                   Expanded(
@@ -307,6 +345,17 @@ class DashboardScreen extends GetView<DashboardController> {
                         symbol: _symbol,
                       ),
                       color: const Color(0xFFFFC878),
+                    ),
+                  ),
+                  Container(width: 1, height: 38, color: Colors.white12),
+                  const SizedBox(width: 18),
+                  Expanded(
+                    child: _OverviewValue(
+                      label: 'Collected',
+                      value: report.totalSalesMinor <= 0
+                          ? '0%'
+                          : '${((report.totalReceivedMinor / report.totalSalesMinor) * 100).clamp(0, 100).round()}%',
+                      color: Colors.white,
                     ),
                   ),
                 ],
@@ -368,6 +417,61 @@ class DashboardScreen extends GetView<DashboardController> {
     if (hour < 17) return 'Good afternoon';
     return 'Good evening';
   }
+
+  String _monthName(int month) => const [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ][month - 1];
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    required this.subtitle,
+    required this.actionLabel,
+    required this.onAction,
+    this.actionIcon,
+  });
+
+  final String title;
+  final String subtitle;
+  final String actionLabel;
+  final VoidCallback onAction;
+  final IconData? actionIcon;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.end,
+    children: [
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppTextStyles.sectionTitle),
+            const SizedBox(height: 2),
+            Text(subtitle, style: AppTextStyles.small),
+          ],
+        ),
+      ),
+      TextButton.icon(
+        onPressed: onAction,
+        icon: actionIcon == null
+            ? const SizedBox.shrink()
+            : Icon(actionIcon, size: 18),
+        label: Text(actionLabel),
+      ),
+    ],
+  );
 }
 
 class _OverviewValue extends StatelessWidget {
@@ -406,36 +510,33 @@ class _QuickAction extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => Expanded(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Material(
-        color: Theme.of(context).colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(17),
-          side: const BorderSide(color: AppColors.border),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, color: AppColors.primary, size: 20),
+    child: Material(
+      color: Theme.of(context).colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(17),
+        side: const BorderSide(color: AppColors.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 7),
-                Text(label, style: AppTextStyles.caption),
-              ],
-            ),
+                child: Icon(icon, color: AppColors.primary, size: 20),
+              ),
+              const SizedBox(height: 7),
+              Text(label, style: AppTextStyles.caption),
+            ],
           ),
         ),
       ),
@@ -456,10 +557,10 @@ class _OutstandingPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    color: const Color(0xFFFFF4E4),
+    color: Theme.of(context).colorScheme.surface,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(17),
-      side: BorderSide(color: AppColors.warning.withValues(alpha: .22)),
+      side: BorderSide(color: AppColors.warning.withValues(alpha: .30)),
     ),
     clipBehavior: Clip.antiAlias,
     child: InkWell(
@@ -472,7 +573,7 @@ class _OutstandingPrompt extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .78),
+                color: AppColors.warning.withValues(alpha: .10),
                 borderRadius: BorderRadius.circular(13),
               ),
               child: const Icon(

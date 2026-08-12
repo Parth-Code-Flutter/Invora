@@ -4,6 +4,56 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 
 void main() {
+  test('migrates complete v5 invoice data and all payment states', () async {
+    final database = AppDatabase.forTesting(
+      NativeDatabase.memory(setup: _createV5Fixture),
+    );
+
+    final invoices = await database.customSelect('''
+      SELECT id, document_type, paid_amount_minor, balance_minor
+      FROM invoices ORDER BY id
+    ''').get();
+    expect(invoices, hasLength(3));
+    expect(
+      invoices.every((row) => row.read<String>('document_type') == 'invoice'),
+      isTrue,
+    );
+    expect(invoices.map((row) => row.read<int>('paid_amount_minor')), [
+      0,
+      4000,
+      10000,
+    ]);
+    expect(invoices.map((row) => row.read<int>('balance_minor')), [
+      10000,
+      6000,
+      0,
+    ]);
+
+    final payments = await database.customSelect('''
+      SELECT invoice_id, amount_minor, entry_type
+      FROM invoice_payments ORDER BY invoice_id
+    ''').get();
+    expect(payments, hasLength(2));
+    expect(payments.map((row) => row.read<int>('invoice_id')), [2, 3]);
+    expect(payments.map((row) => row.read<int>('amount_minor')), [4000, 10000]);
+    expect(
+      payments.every((row) => row.read<String>('entry_type') == 'imported'),
+      isTrue,
+    );
+
+    expect(
+      (await database.customSelect('SELECT * FROM invoice_items').getSingle())
+          .read<String>('name'),
+      'Legacy service',
+    );
+    expect(
+      (await database.customSelect('SELECT * FROM invoice_charges').getSingle())
+          .read<String>('title'),
+      'Delivery',
+    );
+    await database.close();
+  });
+
   test('migrates a v7 payment table to classified schema v8', () async {
     final database = AppDatabase.forTesting(
       NativeDatabase.memory(
@@ -67,4 +117,148 @@ void main() {
     expect(row.read<String>('entry_type'), 'imported');
     await database.close();
   });
+
+  test('failed v7 migration preserves version and user data', () async {
+    dynamic legacyDatabase;
+    final database = AppDatabase.forTesting(
+      NativeDatabase.memory(
+        setup: (raw) {
+          legacyDatabase = raw;
+          // Deliberately malformed legacy table: migration classification
+          // references `method`, so opening must fail inside Drift's migration
+          // sequence and leave the original row/version available for
+          // diagnosis or recovery.
+          raw.execute('''
+            CREATE TABLE invoice_payments (
+              id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+              invoice_id INTEGER NOT NULL,
+              amount_minor INTEGER NOT NULL
+            )
+          ''');
+          raw.execute(
+            'INSERT INTO invoice_payments (invoice_id, amount_minor) VALUES (7, 9000)',
+          );
+          raw.execute('PRAGMA user_version = 7');
+        },
+      ),
+    );
+
+    await expectLater(
+      database.customSelect('SELECT 1').getSingle(),
+      throwsA(anything),
+    );
+    expect(legacyDatabase.userVersion, 7);
+    expect(
+      legacyDatabase.select(
+        'SELECT invoice_id, amount_minor FROM invoice_payments',
+      ),
+      [containsPair('invoice_id', 7)],
+    );
+    await database.close();
+  });
+}
+
+void _createV5Fixture(dynamic raw) {
+  raw.execute('''
+    CREATE TABLE invoices (
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      invoice_number TEXT NOT NULL,
+      customer_id INTEGER NULL,
+      customer_name TEXT NOT NULL,
+      customer_company TEXT NULL,
+      customer_mobile TEXT NULL,
+      customer_email TEXT NULL,
+      customer_address TEXT NULL,
+      customer_city TEXT NULL,
+      customer_state TEXT NULL,
+      customer_pin_code TEXT NULL,
+      customer_gstin TEXT NULL,
+      invoice_date INTEGER NOT NULL,
+      due_date INTEGER NULL,
+      status TEXT NOT NULL,
+      tax_type TEXT NOT NULL,
+      discount_type TEXT NOT NULL,
+      discount_value INTEGER NOT NULL DEFAULT 0,
+      subtotal_minor INTEGER NOT NULL,
+      item_discount_minor INTEGER NOT NULL,
+      invoice_discount_minor INTEGER NOT NULL,
+      taxable_minor INTEGER NOT NULL,
+      tax_minor INTEGER NOT NULL,
+      cgst_minor INTEGER NOT NULL,
+      sgst_minor INTEGER NOT NULL,
+      igst_minor INTEGER NOT NULL,
+      charges_minor INTEGER NOT NULL,
+      round_off_minor INTEGER NOT NULL,
+      grand_total_minor INTEGER NOT NULL,
+      paid_amount_minor INTEGER NOT NULL,
+      balance_minor INTEGER NOT NULL,
+      notes TEXT NULL,
+      terms TEXT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  ''');
+  for (final values in <List<Object>>[
+    ['INV-V5-1', 'Unpaid Client', 'unpaid', 0, 10000],
+    ['INV-V5-2', 'Partial Client', 'partiallyPaid', 4000, 6000],
+    ['INV-V5-3', 'Paid Client', 'paid', 10000, 0],
+  ]) {
+    raw.execute('''
+      INSERT INTO invoices (
+        invoice_number, customer_name, invoice_date, status, tax_type,
+        discount_type, subtotal_minor, item_discount_minor,
+        invoice_discount_minor, taxable_minor, tax_minor, cgst_minor,
+        sgst_minor, igst_minor, charges_minor, round_off_minor,
+        grand_total_minor, paid_amount_minor, balance_minor, created_at,
+        updated_at
+      ) VALUES (
+        ?, ?, 0, ?, 'none', 'none', 10000, 0, 0, 10000, 0, 0, 0, 0,
+        0, 0, 10000, ?, ?, 0, 0
+      )
+    ''', values);
+  }
+  raw.execute('''
+    CREATE TABLE invoice_items (
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      invoice_id INTEGER NOT NULL,
+      product_id INTEGER NULL,
+      name TEXT NOT NULL,
+      description TEXT NULL,
+      quantity_scaled INTEGER NOT NULL,
+      unit TEXT NOT NULL,
+      rate_minor INTEGER NOT NULL,
+      hsn_sac TEXT NULL,
+      tax_rate_basis_points INTEGER NOT NULL,
+      discount_type TEXT NOT NULL,
+      discount_value INTEGER NOT NULL DEFAULT 0,
+      base_amount_minor INTEGER NOT NULL,
+      discount_amount_minor INTEGER NOT NULL,
+      taxable_amount_minor INTEGER NOT NULL,
+      tax_amount_minor INTEGER NOT NULL,
+      total_minor INTEGER NOT NULL,
+      sort_order INTEGER NOT NULL
+    )
+  ''');
+  raw.execute('''
+    INSERT INTO invoice_items (
+      invoice_id, name, quantity_scaled, unit, rate_minor,
+      tax_rate_basis_points, discount_type, base_amount_minor,
+      discount_amount_minor, taxable_amount_minor, tax_amount_minor,
+      total_minor, sort_order
+    ) VALUES (1, 'Legacy service', 1000, 'service', 10000, 0, 'none',
+              10000, 0, 10000, 0, 10000, 0)
+  ''');
+  raw.execute('''
+    CREATE TABLE invoice_charges (
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      invoice_id INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      amount_minor INTEGER NOT NULL,
+      sort_order INTEGER NOT NULL
+    )
+  ''');
+  raw.execute(
+    "INSERT INTO invoice_charges (invoice_id, title, amount_minor, sort_order) VALUES (1, 'Delivery', 500, 0)",
+  );
+  raw.execute('PRAGMA user_version = 5');
 }

@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/unit_service.dart';
+import 'package:creovo_invoice/app/constants/app_storage_key_const.dart';
 import 'package:creovo_invoice/modules/settings/controllers/unit_settings_controller.dart';
 import 'package:creovo_invoice/modules/settings/screens/unit_settings_screen.dart';
 
@@ -49,4 +50,32 @@ void main() {
       expect(service.defaultUnit, 'kg');
     },
   );
+
+  testWidgets('tapping a unit immediately repaints it as the default', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({
+      AppStorageKeyConst.managedUnits: ['pcs', '6mm'],
+      AppStorageKeyConst.defaultUnit: 'pcs',
+    });
+    final service = UnitService(await AppStorage.create());
+    Get.put(UnitSettingsController(service));
+
+    await tester.pumpWidget(const GetMaterialApp(home: UnitSettingsScreen()));
+    await tester.pumpAndSettle();
+    expect(find.text('Default unit'), findsOneWidget);
+
+    await tester.tap(find.text('6mm'));
+    await tester.pump();
+
+    final selectedTile = find.ancestor(
+      of: find.text('6mm'),
+      matching: find.byType(InkWell),
+    );
+    expect(
+      find.descendant(of: selectedTile, matching: find.text('Default unit')),
+      findsOneWidget,
+    );
+    expect(service.defaultUnit, '6mm');
+  });
 }

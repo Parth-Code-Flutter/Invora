@@ -68,16 +68,18 @@ Follow-up enabled by this work:
 
 #### 1. Payment-ledger integrity
 
-Status: **Implemented; migration fixture coverage remains in P0 testing**  
+Status: **Implemented, including V5/V6/V7 migration fixtures through schema v8**
 Scope: Defined above.
 
 #### 2. Database migration verification
 
-- Add real version-5 and version-6 database fixtures.
-- Test V5 → V7 and V6 → V7 upgrades.
-- Cover unpaid, partially paid, and fully paid invoices.
-- Verify migrated opening payment entries and totals.
-- Test migration failure/recovery behaviour.
+Status: **Implemented for every historical launch schema through v8**
+
+- Realistic V5 plus targeted V6 and V7 fixtures exercise direct upgrades to v8.
+- Unpaid, partially paid, and fully paid totals, imported opening payments,
+  invoice items, and additional charges are verified after migration.
+- A deliberately invalid legacy schema verifies that a migration failure is
+  surfaced while preserving the source version and user row for recovery.
 
 #### 3. Backup safety
 
@@ -85,7 +87,8 @@ Scope: Defined above.
   information.
 - Show last successful backup date.
 - Add periodic local backup reminders.
-- Test damaged, incomplete, old-version, and newer-version backups.
+- Extend the current damaged/old-version validation coverage with full restore
+  rollback and newer-version compatibility tests.
 - Consider optional password-encrypted backup files.
 - Make restore completion/restart behaviour simple and explicit.
 

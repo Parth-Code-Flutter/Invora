@@ -49,7 +49,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - More and App Settings use fully visible grouped destination rows with a
   shared icon, subtitle, divider, and disclosure treatment; secondary tools no
   longer require horizontal discovery scrolling
-- Offline backup/restore with validation and database rollback
+- Offline backup/restore with validation and database rollback; validation
+  rejects missing/invalid schema metadata and embedded files without a valid
+  SQLite signature before replacing application data
 
 ### Customers
 
@@ -214,10 +216,10 @@ transfer automatically.
 
 ## Verification baseline
 
-As of 2026-08-11:
+As of 2026-08-12:
 
 - Flutter analysis: no issues
-- Automated suite: all 50 tests passing
+- Automated suite: all 56 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -226,7 +228,8 @@ As of 2026-08-11:
    signing.
 2. Verify Android AAB and iOS archive release builds.
 3. Add onboarding-to-PDF integration tests.
-4. Add database migration fixtures and backup corruption/restore tests.
+4. Add full backup restore/rollback and newer-version compatibility tests;
+   corrupt-file and historical database migration fixtures are covered.
 5. Complete store privacy declarations and iOS privacy-manifest review.
 6. Test all PDFs with long, multi-page, and Unicode content.
 7. Complete accessibility, tablet, landscape, and physical-device QA.
@@ -236,6 +239,55 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-12 — Professional dashboard hierarchy
+
+- Refined the dashboard into a more professional business overview with a
+  branded business avatar, clearer month context, invoice-count grammar, and a
+  three-part financial summary for received, outstanding, and collection rate.
+- Improved information hierarchy with section subtitles, consistent action
+  alignment, evenly spaced quick-action cards, and a cleaner payment follow-up
+  surface that works with light and dark themes.
+- Recent invoices now show useful activity context while retaining the shared
+  invoice cards and existing navigation behaviour.
+- Important file: `dashboard_screen.dart`; no database, storage, backup, or
+  migration changes.
+- Verified with formatting, the full automated suite, static analysis, and
+  whitespace checks.
+
+### 2026-08-12 — Immediate default-unit selection feedback
+
+- Fixed the Set default unit screen so selecting a unit immediately repaints
+  that row with its checkmark, selected styling, and `Default unit` label; the
+  user no longer needs to leave and reopen the screen to see the saved choice.
+- The cause was the selected observable being read only inside ListView's lazy
+  item builder, outside the dependency capture of the surrounding `Obx`.
+- Added a widget regression test that selects `6mm` and verifies both immediate
+  visual feedback and persisted service state.
+- Important files: `unit_settings_screen.dart` and
+  `unit_settings_screen_test.dart`; no database, backup, migration, or storage
+  format changes.
+- Verified with formatting, focused tests, the full automated suite, static
+  analysis, and whitespace checks.
+
+### 2026-08-12 — Historical migration and corrupt-backup verification
+
+- Added a realistic schema-v5 fixture that upgrades directly to schema v8 and
+  verifies unpaid, partially paid, and paid invoices, imported payment rows,
+  line items, additional charges, totals, balances, and document type.
+- Retained direct schema-v6 and schema-v7 upgrade coverage and added a
+  deliberately malformed v7 fixture proving a failed migration is surfaced
+  while preserving its source version and user data for recovery.
+- Hardened backup validation by checking the embedded database for the SQLite
+  file signature and rejecting missing or invalid schema versions before a
+  restore can replace local data. Older valid backup schemas remain eligible
+  for normal Drift migration after restore.
+- Important files: `app_database_migration_test.dart`, `backup_service.dart`,
+  and `backup_service_test.dart`.
+- No database schema or preference-storage changes; this adds compatibility
+  fixtures and validation around the existing schema-v8/backup formats.
+- Verified with formatting, static analysis, focused migration and backup
+  tests, the full automated suite, and whitespace checks.
 
 ### 2026-08-12 — Auditable payment ledger and explicit reversals
 

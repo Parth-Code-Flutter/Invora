@@ -65,24 +65,29 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
           ),
           const SizedBox(height: 8),
           Expanded(
-            child: Obx(
-              () => ListView.separated(
+            child: Obx(() {
+              // Read both reactive values while Obx is building. Reading
+              // selectedDefault only inside ListView's lazy itemBuilder does
+              // not register it as an Obx dependency, so a tap would persist
+              // correctly without repainting the selected tile.
+              final units = controller.units.toList(growable: false);
+              final selectedDefault = controller.selectedDefault.value;
+              return ListView.separated(
                 padding: const EdgeInsets.only(bottom: 24),
-                itemCount: controller.units.length,
+                itemCount: units.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
-                  final unit = controller.units[index];
-                  final selected = controller.selectedDefault.value == unit;
+                  final unit = units[index];
                   return _UnitTile(
                     unit: unit,
-                    selected: selected,
+                    selected: selectedDefault == unit,
                     onSelect: () => controller.setDefault(unit),
                     onEdit: () => _showEditor(context, unit: unit),
                     onDelete: () => _confirmDelete(context, unit),
                   );
                 },
-              ),
-            ),
+              );
+            }),
           ),
         ],
       ),

@@ -130,6 +130,17 @@ class BackupService {
         return const BackupValidation.invalid('Unsupported backup format.');
       }
       final schema = metadata['schemaVersion'] as int? ?? 0;
+      final databaseBytes = databaseFile.content as List<int>;
+      if (!_looksLikeSqlite(databaseBytes)) {
+        return const BackupValidation.invalid(
+          'The backup database is damaged or unreadable.',
+        );
+      }
+      if (schema <= 0) {
+        return const BackupValidation.invalid(
+          'The backup database version is missing or invalid.',
+        );
+      }
       if (schema > DbConstants.schemaVersion) {
         return const BackupValidation.invalid(
           'This backup was created by a newer Creovo Invoice version.',
@@ -141,6 +152,32 @@ class BackupService {
         'The backup is damaged or unreadable.',
       );
     }
+  }
+
+  bool _looksLikeSqlite(List<int> bytes) {
+    const signature = <int>[
+      0x53,
+      0x51,
+      0x4c,
+      0x69,
+      0x74,
+      0x65,
+      0x20,
+      0x66,
+      0x6f,
+      0x72,
+      0x6d,
+      0x61,
+      0x74,
+      0x20,
+      0x33,
+      0x00,
+    ];
+    if (bytes.length < signature.length) return false;
+    for (var index = 0; index < signature.length; index++) {
+      if (bytes[index] != signature[index]) return false;
+    }
+    return true;
   }
 
   Future<void> restore(File file) async {
