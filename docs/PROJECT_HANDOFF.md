@@ -172,7 +172,7 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   identity header, full Bill To and invoice metadata, description-friendly
   item table, payment instructions beside totals, amount-due emphasis, and an
   authorization/signature finish
-- PDFs embed the bundled Inter TrueType font for Unicode currency glyphs and
+- PDFs embed the bundled DM Sans TrueType font for Unicode currency glyphs and
   use explicit responsive table columns/alignment so real invoice values wrap
   predictably without overlapping
 - Offline PDF preview, save, share, and print
@@ -307,6 +307,82 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-13 — Single bundled font family
+
+- Removed the superseded Inter font declaration, variable font asset, and
+  license after DM Sans became the application type family.
+- Invoice, payment-receipt, customer-statement, and report PDF generators now
+  load DM Sans Regular for offline Unicode output, leaving DM Sans as the only
+  bundled text font family.
+- The official DM Sans SIL Open Font License remains packaged beside its four
+  font weights. No schema, storage, or business behavior changed.
+- Important files: font assets, pubspec, all PDF font loaders, product plan,
+  QA checklist, and this handoff.
+- Verification: no remaining Inter references/assets, static analysis, font
+  registration test, and Unicode PDF-generation tests.
+
+### 2026-08-13 — Custom-field dialog controller lifecycle fix
+
+- Fixed Product Settings throwing “A TextEditingController was used after
+  being disposed” when closing the Add custom field dialog. The dialog future
+  completes as its reverse animation starts, so controller disposal now waits
+  until the TextField route transition has fully unmounted.
+- The accompanying extreme dialog-column overflow was a cascading render error
+  from the disposed controller and is resolved by the same lifecycle fix.
+- No schema, storage, backup-format, validation, or field behavior changed.
+- Important files: Product Settings screen, focused widget regression test,
+  QA checklist, and this handoff.
+- Verification: close/cancel dialog regression, formatting, static analysis,
+  and Product Settings widget tests.
+
+### 2026-08-13 — Premium Product Settings redesign and DM Sans typography
+
+- Rebuilt Product Settings to match the app’s newer premium workspace style:
+  a branded configuration overview, embedded category action, enabled-count
+  badge, clear invoice-display preference, concise section guidance, compact
+  divided field rows, visible Shown/Hidden states, and a separate custom-field
+  section with deletion controls.
+- Bundled the official Google Fonts DM Sans Regular, Medium, SemiBold, and Bold
+  files plus their SIL Open Font License. DM Sans now provides the clean,
+  modern Codex-like sans-serif treatment consistently across Product Settings,
+  shared dialogs/sheets, and the rest of the application while remaining fully
+  offline on Android and iOS.
+- All existing category, toggle, custom-field, search-sheet, persistence, and
+  invoice behavior remains unchanged.
+- Important files: DM Sans assets/license, app typography and theme, pubspec,
+  Product Settings screen, QA checklist, and this handoff.
+- Verification: formatting, static analysis, category/settings widget tests,
+  narrow-screen overflow coverage, and dark-mode visual structure checks.
+
+### 2026-08-13 — Consistent forward-action arrow placement
+
+- Standardized directional arrows in branded actions so forward/proceed arrows
+  always appear after the label. This covers onboarding “Show me more” and
+  “Set up my business”, business-setup Continue/Save, invoice Review, and the
+  invoice-flow “Save & use customer” action.
+- Non-directional action icons such as check, save, add, preview, and document
+  symbols retain their intentional leading position.
+- No schema, storage, backup-format, or behavior changes occurred.
+- Important files: onboarding, business setup, customer form, shared button
+  usage audit, and this handoff.
+- Verification: formatting, static analysis, button/widget tests, and a
+  project-wide directional-arrow usage audit.
+
+### 2026-08-13 — Searchable business-category picker
+
+- Business-category selection now opens at 75% of the available screen height
+  so its 15 choices remain comfortably scrollable without looking like a
+  cramped partial list.
+- Added instant case-insensitive category search, drag-to-dismiss keyboard
+  behavior, an empty-result message, and retained selected-row highlighting.
+- The same picker is used during first business setup and later changes from
+  Product Settings; other shared dropdowns retain their content-sized sheets.
+- No schema, storage, backup-format, or category behavior changes occurred.
+- Important files: shared dropdown field, business setup, Product Settings,
+  design-system tests, and this handoff.
+- Verification: formatting, static analysis, and searchable fixed-height sheet
+  widget coverage.
 
 ### 2026-08-12 — Category-based configurable product details
 
@@ -1181,7 +1257,7 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ### 2026-08-11 — Reliable, template-ready invoice PDFs
 
-- Fixed missing Indian rupee symbols by embedding the bundled Inter font into
+- Fixed missing Indian rupee symbols by embedding a bundled Unicode font into
   every generated PDF instead of relying on the limited built-in PDF fonts.
 - Rebuilt line-item table sizing around explicit flexible columns, right-aligned
   numeric values, smaller document typography, alternating rows, and wrapping

@@ -82,6 +82,8 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                             label: 'Business category',
                             value: controller.businessCategory.value,
                             sheetTitle: 'Choose your business category',
+                            searchable: true,
+                            sheetHeightFactor: .75,
                             prefixIcon: Icons.category_outlined,
                             options: BusinessCategory.values
                                 .map(
@@ -445,7 +447,7 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                 label: controller.setupStep.value == 0
                     ? 'Continue'
                     : 'Save & start invoicing',
-                icon: Icons.arrow_forward_rounded,
+                trailingIcon: Icons.arrow_forward_rounded,
                 isLoading: controller.isSaving.value,
                 onPressed: controller.isLoading.value
                     ? null

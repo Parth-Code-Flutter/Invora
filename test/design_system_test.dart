@@ -16,6 +16,11 @@ import 'package:creovo_invoice/app/widgets/app_status_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_text_field.dart';
 
 void main() {
+  test('design system uses the bundled DM Sans family', () {
+    expect(AppTextStyles.fontFamily, 'DM Sans');
+    expect(AppTheme.light.textTheme.bodyMedium?.fontFamily, 'DM Sans');
+  });
+
   testWidgets('primary action uses branded surface and loading semantics', (
     tester,
   ) async {
@@ -125,6 +130,50 @@ void main() {
     await tester.tap(find.text('Cash'));
     await tester.pumpAndSettle();
     expect(selected, 'Cash');
+  });
+
+  testWidgets('searchable dropdown filters a fixed-height option sheet', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: AppDropdownField<String>(
+            label: 'Business category',
+            sheetTitle: 'Choose your business category',
+            value: 'General Business',
+            searchable: true,
+            sheetHeightFactor: .75,
+            options: const [
+              AppDropdownOption(
+                value: 'General Business',
+                label: 'General Business',
+              ),
+              AppDropdownOption(value: 'Electronics', label: 'Electronics'),
+            ],
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('General Business'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(TextField, 'Search categories'), findsOneWidget);
+    final sheet = find.byType(BottomSheet);
+    expect(tester.getSize(sheet).height, greaterThan(490));
+
+    await tester.enterText(find.byType(TextField), 'elect');
+    await tester.pump();
+    expect(
+      find.descendant(of: sheet, matching: find.text('Electronics')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: sheet, matching: find.text('General Business')),
+      findsNothing,
+    );
   });
 
   testWidgets('shared fields and status chip expose clear semantics', (

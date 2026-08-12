@@ -79,7 +79,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                           ? 'Set up my business'
                           : 'Show me more',
                       onPressed: controller.next,
-                      icon: Icons.arrow_forward_rounded,
+                      trailingIcon: Icons.arrow_forward_rounded,
                     ),
                   ),
                 ),

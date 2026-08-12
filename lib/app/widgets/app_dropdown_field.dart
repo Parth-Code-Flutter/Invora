@@ -24,6 +24,8 @@ class AppDropdownField<T> extends StatelessWidget {
     this.sheetTitle,
     this.prefixIcon,
     this.enabled = true,
+    this.searchable = false,
+    this.sheetHeightFactor,
     super.key,
   });
 
@@ -34,6 +36,8 @@ class AppDropdownField<T> extends StatelessWidget {
   final String? sheetTitle;
   final IconData? prefixIcon;
   final bool enabled;
+  final bool searchable;
+  final double? sheetHeightFactor;
 
   AppDropdownOption<T> get _selected => options.firstWhere(
     (option) => option.value == value,
@@ -73,50 +77,136 @@ class AppDropdownField<T> extends StatelessWidget {
 
   Future<void> _showOptions(BuildContext context) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    final selected = await showModalBottomSheet<T>(
+    final selected = await showAppDropdownSheet<T>(
       context: context,
-      useSafeArea: true,
-      showDragHandle: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (sheetContext) => ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(sheetContext).height * .72,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 2, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                sheetTitle ?? 'Select $label',
-                style: AppTextStyles.sectionTitle,
-              ),
-              const SizedBox(height: 14),
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: options.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (_, index) {
-                    final option = options[index];
-                    return _DropdownOptionTile<T>(
-                      option: option,
-                      selected: option.value == value,
-                      onTap: () => Navigator.pop(sheetContext, option.value),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      title: sheetTitle ?? 'Select $label',
+      value: value,
+      options: options,
+      searchable: searchable,
+      heightFactor: sheetHeightFactor,
     );
     if (selected != null) onChanged(selected);
+  }
+}
+
+Future<T?> showAppDropdownSheet<T>({
+  required BuildContext context,
+  required String title,
+  required T value,
+  required List<AppDropdownOption<T>> options,
+  bool searchable = false,
+  double? heightFactor,
+}) {
+  FocusManager.instance.primaryFocus?.unfocus();
+  final requestedHeight = heightFactor == null
+      ? null
+      : MediaQuery.sizeOf(context).height * heightFactor;
+  return showModalBottomSheet<T>(
+    context: context,
+    useSafeArea: true,
+    showDragHandle: true,
+    isScrollControlled: true,
+    backgroundColor: Theme.of(context).colorScheme.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+    ),
+    builder: (sheetContext) => _DropdownSheet<T>(
+      title: title,
+      value: value,
+      options: options,
+      searchable: searchable,
+      requestedHeight: requestedHeight,
+    ),
+  );
+}
+
+class _DropdownSheet<T> extends StatefulWidget {
+  const _DropdownSheet({
+    required this.title,
+    required this.value,
+    required this.options,
+    required this.searchable,
+    this.requestedHeight,
+  });
+
+  final String title;
+  final T value;
+  final List<AppDropdownOption<T>> options;
+  final bool searchable;
+  final double? requestedHeight;
+
+  @override
+  State<_DropdownSheet<T>> createState() => _DropdownSheetState<T>();
+}
+
+class _DropdownSheetState<T> extends State<_DropdownSheet<T>> {
+  String query = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = widget.options
+        .where(
+          (option) => option.label.toLowerCase().contains(query.toLowerCase()),
+        )
+        .toList(growable: false);
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(20, 2, 20, 20),
+      child: Column(
+        mainAxisSize: widget.requestedHeight == null
+            ? MainAxisSize.min
+            : MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(widget.title, style: AppTextStyles.sectionTitle),
+          if (widget.searchable) ...[
+            const SizedBox(height: 14),
+            TextField(
+              autofocus: false,
+              onChanged: (value) => setState(() => query = value.trim()),
+              decoration: const InputDecoration(
+                hintText: 'Search categories',
+                prefixIcon: Icon(Icons.search_rounded),
+              ),
+            ),
+          ],
+          const SizedBox(height: 14),
+          Flexible(
+            child: filtered.isEmpty
+                ? Center(
+                    child: Text(
+                      'No matching category',
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    itemCount: filtered.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    itemBuilder: (_, index) {
+                      final option = filtered[index];
+                      return _DropdownOptionTile<T>(
+                        option: option,
+                        selected: option.value == widget.value,
+                        onTap: () => Navigator.pop(context, option.value),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+    if (widget.requestedHeight == null) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * .72,
+        ),
+        child: content,
+      );
+    }
+    return SizedBox(height: widget.requestedHeight, child: content);
   }
 }
 

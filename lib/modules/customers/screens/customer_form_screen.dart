@@ -220,9 +220,10 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                     : controller.isInvoiceFlow
                     ? 'Save & use customer'
                     : 'Save customer',
-                icon: controller.isInvoiceFlow
+                icon: controller.isInvoiceFlow ? null : Icons.check_rounded,
+                trailingIcon: controller.isInvoiceFlow
                     ? Icons.arrow_forward_rounded
-                    : Icons.check_rounded,
+                    : null,
                 isLoading: controller.isSaving.value,
                 onPressed: controller.save,
               ),

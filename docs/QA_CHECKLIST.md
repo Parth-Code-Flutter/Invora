@@ -8,6 +8,18 @@ remain intentionally out of scope until explicitly requested.
 
 ## Automated and passing
 
+- Forward/proceed arrows in branded buttons appear after their text; semantic
+  action icons remain before their text.
+- Business-category pickers use a searchable 75%-height sheet in setup and
+  Product Settings, including filtered and empty-result states.
+- Product Settings uses its premium overview/field hierarchy without overflow
+  on narrow phones; locally bundled DM Sans renders consistently offline across
+  the screen, its dialogs/sheets, and the wider app.
+- DM Sans is the only bundled UI/PDF font; invoice, receipt, statement, and
+  report PDFs retain Unicode and Indian-rupee rendering.
+- Opening, typing in, cancelling, or saving the custom-field dialog completes
+  its close animation without disposed-controller or cascading overflow errors.
+
 - First launch reaches onboarding and continues to business setup.
 - Business profile persists with GST identity and invoice defaults.
 - Customer create, search, edit, validation, and soft delete.

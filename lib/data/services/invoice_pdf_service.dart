@@ -1033,7 +1033,9 @@ class InvoicePdfService {
   /// the app's font also keeps previews, saved files, and printed output
   /// visually consistent and ready for user-selectable templates.
   Future<pw.ThemeData> _documentTheme() async {
-    final data = await rootBundle.load('assets/fonts/Inter/InterVariable.ttf');
+    final data = await rootBundle.load(
+      'assets/fonts/DMSans/DMSans-Regular.ttf',
+    );
     final font = pw.Font.ttf(data);
     return pw.ThemeData.withFont(
       base: font,
