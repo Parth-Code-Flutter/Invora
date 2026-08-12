@@ -3,6 +3,7 @@
 Last updated: 2026-08-11
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
+Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
 
 ## Purpose
 
@@ -92,8 +93,10 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Exact integer minor-unit money and basis-point tax calculations
 - Payment recording and balance/status recalculation
 - Append-only per-invoice payment activity with amount, date/time, method,
-  reference, note, paid progress, and remaining balance; schema-v7 migration
-  preserves legacy cumulative payments as opening ledger entries
+  reference, note, paid progress, and remaining balance. Schema v8 classifies
+  payment/opening/imported/reversal entries and links every explicit reversal
+  to its immutable original payment; existing invoice edits cannot rewrite the
+  ledger, while legacy cumulative payments remain preserved.
 - Quotation-to-invoice conversion
 - Customer and valid items required before final save, preview, PDF, sharing,
   printing, or payment; incomplete work may be saved as a draft
@@ -133,8 +136,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 
 ## Persisted data notes
 
-- Database schema version 7 adds `invoice_payments`; migration preserves every
-  pre-v7 non-zero cumulative payment as a dated `Previous payment` entry.
+- Database schema version 8 classifies `invoice_payments` entries and links
+  reversals to original payments. The v7 migration preserves every older
+  non-zero cumulative payment as a dated `Previous payment` entry.
 - Invoice numbers have a unique database index.
 - Historical documents use snapshots so later catalog edits do not alter them.
 - Managed units and the default selection use
@@ -213,7 +217,7 @@ transfer automatically.
 As of 2026-08-11:
 
 - Flutter analysis: no issues
-- Automated suite: all 41 tests passing
+- Automated suite: all 50 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -232,6 +236,67 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-12 — Auditable payment ledger and explicit reversals
+
+- Upgraded the database to schema v8 with payment entry classification and a
+  link from each reversal to its immutable original payment.
+- Removed automatic cumulative-payment adjustment behaviour from existing
+  invoice edits; only a new invoice may establish an opening payment, and all
+  subsequent payments are recorded from Invoice Details.
+- Added explicit payment reversal with confirmation, mandatory reason,
+  duplicate-reversal protection, visible reversal history, and automatic
+  invoice balance/status reconciliation.
+- Prevented payments on quotations, drafts, and cancelled invoices, and
+  prevented edited invoice totals from falling below money already received.
+- Renamed the new-invoice field to `Opening payment`, hid it during edits, and
+  added guidance on paid invoice edits.
+- Important files: `app_database.dart`, generated Drift database code,
+  `invoice_payment_model.dart`, `invoice_repository.dart`, invoice create/detail
+  controllers and screens, and `invoice_repository_test.dart`.
+- Schema/storage change: v8 adds `entry_type` and `reverses_payment_id` to
+  `invoice_payments`; existing rows are classified during migration.
+- Verified with formatting, static analysis, focused financial tests, full
+  automated tests including direct V6→V8 and V7→V8 migration fixtures, and
+  whitespace checks.
+
+### 2026-08-12 — Production feature roadmap
+
+- Added a prioritized public-launch roadmap covering financial/data safety,
+  release compliance, required V1 features, existing-module improvements,
+  UI/accessibility QA, post-launch candidates, and explicit scope exclusions.
+- Selected payment-ledger integrity and explicit payment reversal as the first
+  implementation priority because downstream balances, reports, receipts, and
+  customer statements depend on it.
+- Linked the roadmap from the repository README and project handoff.
+- Important files: `docs/PRODUCTION_ROADMAP.md`, `README.md`, and
+  `docs/PROJECT_HANDOFF.md`; documentation only, with no code/schema changes.
+- Verified with Markdown review and whitespace checks.
+
+### 2026-08-12 — Current Indian GST-rate presets
+
+- Centralized the default GST list as 0%, 0.25%, 3%, 5%, 12%, 18%, and 28%,
+  covering the standard slabs plus commonly notified special goods rates.
+- Replaced free-text GST entry for custom invoice items with a guided picker;
+  uncommon notified rates remain available through `Custom rate`.
+- Saved product/service forms use the same centralized list, preventing the two
+  item flows from drifting apart.
+- Important files: `tax_utils.dart`, `product_form_controller.dart`,
+  `invoice_create_screen.dart`, and `money_tax_utils_test.dart`; no
+  schema/storage changes.
+- Verified with formatting, static analysis, automated tests, and whitespace
+  checks.
+
+### 2026-08-12 — Simplified customer list header
+
+- Removed the decorative customer-count/`Ready to bill` banner from the top of
+  the Customers screen.
+- Customer records now begin directly below the searchable AppBar, reducing
+  duplicated hierarchy while preserving search, invoice shortcuts, customer
+  actions, the add-customer FAB, and the main navigation dock.
+- Important file: `customer_list_screen.dart`; no schema/storage changes.
+- Verified with formatting, static analysis, automated tests, and whitespace
+  checks.
 
 ### 2026-08-12 — Dedicated customer creation FAB
 

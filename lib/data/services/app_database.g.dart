@@ -6554,6 +6554,29 @@ class $InvoicePaymentsTable extends InvoicePayments
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _entryTypeMeta = const VerificationMeta(
+    'entryType',
+  );
+  @override
+  late final GeneratedColumn<String> entryType = GeneratedColumn<String>(
+    'entry_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('payment'),
+  );
+  static const VerificationMeta _reversesPaymentIdMeta = const VerificationMeta(
+    'reversesPaymentId',
+  );
+  @override
+  late final GeneratedColumn<int> reversesPaymentId = GeneratedColumn<int>(
+    'reverses_payment_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _paidAtMeta = const VerificationMeta('paidAt');
   @override
   late final GeneratedColumn<DateTime> paidAt = GeneratedColumn<DateTime>(
@@ -6583,6 +6606,8 @@ class $InvoicePaymentsTable extends InvoicePayments
     method,
     reference,
     note,
+    entryType,
+    reversesPaymentId,
     paidAt,
     createdAt,
   ];
@@ -6638,6 +6663,21 @@ class $InvoicePaymentsTable extends InvoicePayments
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
       );
     }
+    if (data.containsKey('entry_type')) {
+      context.handle(
+        _entryTypeMeta,
+        entryType.isAcceptableOrUnknown(data['entry_type']!, _entryTypeMeta),
+      );
+    }
+    if (data.containsKey('reverses_payment_id')) {
+      context.handle(
+        _reversesPaymentIdMeta,
+        reversesPaymentId.isAcceptableOrUnknown(
+          data['reverses_payment_id']!,
+          _reversesPaymentIdMeta,
+        ),
+      );
+    }
     if (data.containsKey('paid_at')) {
       context.handle(
         _paidAtMeta,
@@ -6685,6 +6725,14 @@ class $InvoicePaymentsTable extends InvoicePayments
         DriftSqlType.string,
         data['${effectivePrefix}note'],
       ),
+      entryType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entry_type'],
+      )!,
+      reversesPaymentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reverses_payment_id'],
+      ),
       paidAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}paid_at'],
@@ -6709,6 +6757,8 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
   final String? method;
   final String? reference;
   final String? note;
+  final String entryType;
+  final int? reversesPaymentId;
   final DateTime paidAt;
   final DateTime createdAt;
   const InvoicePayment({
@@ -6718,6 +6768,8 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
     this.method,
     this.reference,
     this.note,
+    required this.entryType,
+    this.reversesPaymentId,
     required this.paidAt,
     required this.createdAt,
   });
@@ -6736,6 +6788,10 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
+    map['entry_type'] = Variable<String>(entryType);
+    if (!nullToAbsent || reversesPaymentId != null) {
+      map['reverses_payment_id'] = Variable<int>(reversesPaymentId);
+    }
     map['paid_at'] = Variable<DateTime>(paidAt);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
@@ -6753,6 +6809,10 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
           ? const Value.absent()
           : Value(reference),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      entryType: Value(entryType),
+      reversesPaymentId: reversesPaymentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reversesPaymentId),
       paidAt: Value(paidAt),
       createdAt: Value(createdAt),
     );
@@ -6770,6 +6830,8 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
       method: serializer.fromJson<String?>(json['method']),
       reference: serializer.fromJson<String?>(json['reference']),
       note: serializer.fromJson<String?>(json['note']),
+      entryType: serializer.fromJson<String>(json['entryType']),
+      reversesPaymentId: serializer.fromJson<int?>(json['reversesPaymentId']),
       paidAt: serializer.fromJson<DateTime>(json['paidAt']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -6784,6 +6846,8 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
       'method': serializer.toJson<String?>(method),
       'reference': serializer.toJson<String?>(reference),
       'note': serializer.toJson<String?>(note),
+      'entryType': serializer.toJson<String>(entryType),
+      'reversesPaymentId': serializer.toJson<int?>(reversesPaymentId),
       'paidAt': serializer.toJson<DateTime>(paidAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -6796,6 +6860,8 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
     Value<String?> method = const Value.absent(),
     Value<String?> reference = const Value.absent(),
     Value<String?> note = const Value.absent(),
+    String? entryType,
+    Value<int?> reversesPaymentId = const Value.absent(),
     DateTime? paidAt,
     DateTime? createdAt,
   }) => InvoicePayment(
@@ -6805,6 +6871,10 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
     method: method.present ? method.value : this.method,
     reference: reference.present ? reference.value : this.reference,
     note: note.present ? note.value : this.note,
+    entryType: entryType ?? this.entryType,
+    reversesPaymentId: reversesPaymentId.present
+        ? reversesPaymentId.value
+        : this.reversesPaymentId,
     paidAt: paidAt ?? this.paidAt,
     createdAt: createdAt ?? this.createdAt,
   );
@@ -6818,6 +6888,10 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
       method: data.method.present ? data.method.value : this.method,
       reference: data.reference.present ? data.reference.value : this.reference,
       note: data.note.present ? data.note.value : this.note,
+      entryType: data.entryType.present ? data.entryType.value : this.entryType,
+      reversesPaymentId: data.reversesPaymentId.present
+          ? data.reversesPaymentId.value
+          : this.reversesPaymentId,
       paidAt: data.paidAt.present ? data.paidAt.value : this.paidAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -6832,6 +6906,8 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
           ..write('method: $method, ')
           ..write('reference: $reference, ')
           ..write('note: $note, ')
+          ..write('entryType: $entryType, ')
+          ..write('reversesPaymentId: $reversesPaymentId, ')
           ..write('paidAt: $paidAt, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -6846,6 +6922,8 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
     method,
     reference,
     note,
+    entryType,
+    reversesPaymentId,
     paidAt,
     createdAt,
   );
@@ -6859,6 +6937,8 @@ class InvoicePayment extends DataClass implements Insertable<InvoicePayment> {
           other.method == this.method &&
           other.reference == this.reference &&
           other.note == this.note &&
+          other.entryType == this.entryType &&
+          other.reversesPaymentId == this.reversesPaymentId &&
           other.paidAt == this.paidAt &&
           other.createdAt == this.createdAt);
 }
@@ -6870,6 +6950,8 @@ class InvoicePaymentsCompanion extends UpdateCompanion<InvoicePayment> {
   final Value<String?> method;
   final Value<String?> reference;
   final Value<String?> note;
+  final Value<String> entryType;
+  final Value<int?> reversesPaymentId;
   final Value<DateTime> paidAt;
   final Value<DateTime> createdAt;
   const InvoicePaymentsCompanion({
@@ -6879,6 +6961,8 @@ class InvoicePaymentsCompanion extends UpdateCompanion<InvoicePayment> {
     this.method = const Value.absent(),
     this.reference = const Value.absent(),
     this.note = const Value.absent(),
+    this.entryType = const Value.absent(),
+    this.reversesPaymentId = const Value.absent(),
     this.paidAt = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
@@ -6889,6 +6973,8 @@ class InvoicePaymentsCompanion extends UpdateCompanion<InvoicePayment> {
     this.method = const Value.absent(),
     this.reference = const Value.absent(),
     this.note = const Value.absent(),
+    this.entryType = const Value.absent(),
+    this.reversesPaymentId = const Value.absent(),
     required DateTime paidAt,
     this.createdAt = const Value.absent(),
   }) : invoiceId = Value(invoiceId),
@@ -6901,6 +6987,8 @@ class InvoicePaymentsCompanion extends UpdateCompanion<InvoicePayment> {
     Expression<String>? method,
     Expression<String>? reference,
     Expression<String>? note,
+    Expression<String>? entryType,
+    Expression<int>? reversesPaymentId,
     Expression<DateTime>? paidAt,
     Expression<DateTime>? createdAt,
   }) {
@@ -6911,6 +6999,8 @@ class InvoicePaymentsCompanion extends UpdateCompanion<InvoicePayment> {
       if (method != null) 'method': method,
       if (reference != null) 'reference': reference,
       if (note != null) 'note': note,
+      if (entryType != null) 'entry_type': entryType,
+      if (reversesPaymentId != null) 'reverses_payment_id': reversesPaymentId,
       if (paidAt != null) 'paid_at': paidAt,
       if (createdAt != null) 'created_at': createdAt,
     });
@@ -6923,6 +7013,8 @@ class InvoicePaymentsCompanion extends UpdateCompanion<InvoicePayment> {
     Value<String?>? method,
     Value<String?>? reference,
     Value<String?>? note,
+    Value<String>? entryType,
+    Value<int?>? reversesPaymentId,
     Value<DateTime>? paidAt,
     Value<DateTime>? createdAt,
   }) {
@@ -6933,6 +7025,8 @@ class InvoicePaymentsCompanion extends UpdateCompanion<InvoicePayment> {
       method: method ?? this.method,
       reference: reference ?? this.reference,
       note: note ?? this.note,
+      entryType: entryType ?? this.entryType,
+      reversesPaymentId: reversesPaymentId ?? this.reversesPaymentId,
       paidAt: paidAt ?? this.paidAt,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -6959,6 +7053,12 @@ class InvoicePaymentsCompanion extends UpdateCompanion<InvoicePayment> {
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
+    if (entryType.present) {
+      map['entry_type'] = Variable<String>(entryType.value);
+    }
+    if (reversesPaymentId.present) {
+      map['reverses_payment_id'] = Variable<int>(reversesPaymentId.value);
+    }
     if (paidAt.present) {
       map['paid_at'] = Variable<DateTime>(paidAt.value);
     }
@@ -6977,6 +7077,8 @@ class InvoicePaymentsCompanion extends UpdateCompanion<InvoicePayment> {
           ..write('method: $method, ')
           ..write('reference: $reference, ')
           ..write('note: $note, ')
+          ..write('entryType: $entryType, ')
+          ..write('reversesPaymentId: $reversesPaymentId, ')
           ..write('paidAt: $paidAt, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -10592,6 +10694,8 @@ typedef $$InvoicePaymentsTableCreateCompanionBuilder =
       Value<String?> method,
       Value<String?> reference,
       Value<String?> note,
+      Value<String> entryType,
+      Value<int?> reversesPaymentId,
       required DateTime paidAt,
       Value<DateTime> createdAt,
     });
@@ -10603,6 +10707,8 @@ typedef $$InvoicePaymentsTableUpdateCompanionBuilder =
       Value<String?> method,
       Value<String?> reference,
       Value<String?> note,
+      Value<String> entryType,
+      Value<int?> reversesPaymentId,
       Value<DateTime> paidAt,
       Value<DateTime> createdAt,
     });
@@ -10665,6 +10771,16 @@ class $$InvoicePaymentsTableFilterComposer
 
   ColumnFilters<String> get note => $composableBuilder(
     column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entryType => $composableBuilder(
+    column: $table.entryType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reversesPaymentId => $composableBuilder(
+    column: $table.reversesPaymentId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10736,6 +10852,16 @@ class $$InvoicePaymentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get entryType => $composableBuilder(
+    column: $table.entryType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reversesPaymentId => $composableBuilder(
+    column: $table.reversesPaymentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get paidAt => $composableBuilder(
     column: $table.paidAt,
     builder: (column) => ColumnOrderings(column),
@@ -10795,6 +10921,14 @@ class $$InvoicePaymentsTableAnnotationComposer
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get entryType =>
+      $composableBuilder(column: $table.entryType, builder: (column) => column);
+
+  GeneratedColumn<int> get reversesPaymentId => $composableBuilder(
+    column: $table.reversesPaymentId,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get paidAt =>
       $composableBuilder(column: $table.paidAt, builder: (column) => column);
@@ -10862,6 +10996,8 @@ class $$InvoicePaymentsTableTableManager
                 Value<String?> method = const Value.absent(),
                 Value<String?> reference = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<String> entryType = const Value.absent(),
+                Value<int?> reversesPaymentId = const Value.absent(),
                 Value<DateTime> paidAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => InvoicePaymentsCompanion(
@@ -10871,6 +11007,8 @@ class $$InvoicePaymentsTableTableManager
                 method: method,
                 reference: reference,
                 note: note,
+                entryType: entryType,
+                reversesPaymentId: reversesPaymentId,
                 paidAt: paidAt,
                 createdAt: createdAt,
               ),
@@ -10882,6 +11020,8 @@ class $$InvoicePaymentsTableTableManager
                 Value<String?> method = const Value.absent(),
                 Value<String?> reference = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<String> entryType = const Value.absent(),
+                Value<int?> reversesPaymentId = const Value.absent(),
                 required DateTime paidAt,
                 Value<DateTime> createdAt = const Value.absent(),
               }) => InvoicePaymentsCompanion.insert(
@@ -10891,6 +11031,8 @@ class $$InvoicePaymentsTableTableManager
                 method: method,
                 reference: reference,
                 note: note,
+                entryType: entryType,
+                reversesPaymentId: reversesPaymentId,
                 paidAt: paidAt,
                 createdAt: createdAt,
               ),

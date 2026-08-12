@@ -1,4 +1,8 @@
 abstract final class TaxUtils {
+  /// Common total GST rates currently used in India. Values are basis points.
+  /// Custom entry remains available for product-specific notified rates.
+  static const gstRateBasisPoints = <int>[0, 25, 300, 500, 1200, 1800, 2800];
+
   static int? parseBasisPoints(String input) {
     final value = double.tryParse(input.trim());
     if (value == null || value < 0 || value > 100) return null;

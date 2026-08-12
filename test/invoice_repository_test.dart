@@ -82,13 +82,18 @@ void main() {
         date: now,
       ),
     );
-    await repository.updatePayment(invoice.id!, 10000);
+    await repository.recordPayment(
+      invoiceId: invoice.id!,
+      amountMinor: 10000,
+      paidAt: now,
+      method: 'Cash',
+    );
     final updated = await repository.getById(invoice.id!);
     expect(updated?.status, InvoiceStatus.partiallyPaid);
     expect(updated?.calculation.balanceDueMinor, 15000);
     var payments = await repository.getPayments(invoice.id!);
     expect(payments.single.amountMinor, 10000);
-    expect(payments.single.method, 'Adjustment');
+    expect(payments.single.method, 'Cash');
 
     await repository.recordPayment(
       invoiceId: invoice.id!,
@@ -169,6 +174,118 @@ void main() {
       expect(invoice.calculation.balanceDueMinor, 12500);
     },
   );
+
+  test('reverses a payment without deleting financial history', () async {
+    final now = DateTime(2026, 8, 12, 10);
+    final invoice = await repository.save(
+      _invoice(
+        number: 'INV-REVERSAL',
+        customer: 'Reversal Client',
+        company: 'Reversal Studio',
+        totalMinor: 30000,
+        status: InvoiceStatus.unpaid,
+        date: now,
+      ),
+    );
+    await repository.recordPayment(
+      invoiceId: invoice.id!,
+      amountMinor: 12000,
+      paidAt: now,
+      method: 'UPI',
+      reference: 'PAY-1',
+    );
+    final original = (await repository.getPayments(invoice.id!)).single;
+
+    await repository.reversePayment(
+      invoiceId: invoice.id!,
+      paymentId: original.id!,
+      reason: 'Payment entered twice',
+      reversedAt: now.add(const Duration(minutes: 5)),
+    );
+
+    final payments = await repository.getPayments(invoice.id!);
+    expect(payments, hasLength(2));
+    expect(
+      payments.singleWhere((entry) => entry.id == original.id).isReversed,
+      isTrue,
+    );
+    final reversal = payments.singleWhere((entry) => entry.isReversal);
+    expect(reversal.amountMinor, -12000);
+    expect(reversal.reversesPaymentId, original.id);
+    expect(reversal.note, 'Payment entered twice');
+    final updated = await repository.getById(invoice.id!);
+    expect(updated?.calculation.paidAmountMinor, 0);
+    expect(updated?.calculation.balanceDueMinor, 30000);
+    expect(updated?.status, InvoiceStatus.unpaid);
+
+    expect(
+      () => repository.reversePayment(
+        invoiceId: invoice.id!,
+        paymentId: original.id!,
+        reason: 'Again',
+        reversedAt: now,
+      ),
+      throwsA(isA<StateError>()),
+    );
+  });
+
+  test('existing invoice edits cannot rewrite ledger payment totals', () async {
+    final now = DateTime(2026, 8, 12);
+    final invoice = await repository.save(
+      _invoice(
+        number: 'INV-LOCKED-LEDGER',
+        customer: 'Ledger Client',
+        company: 'Ledger Studio',
+        totalMinor: 40000,
+        status: InvoiceStatus.unpaid,
+        date: now,
+      ),
+    );
+    await repository.recordPayment(
+      invoiceId: invoice.id!,
+      amountMinor: 10000,
+      paidAt: now,
+    );
+    final paid = (await repository.getById(invoice.id!))!;
+    final invalidCalculation = InvoiceCalculationResult(
+      items: paid.calculation.items,
+      subtotalMinor: paid.calculation.subtotalMinor,
+      itemDiscountTotalMinor: paid.calculation.itemDiscountTotalMinor,
+      invoiceDiscountMinor: paid.calculation.invoiceDiscountMinor,
+      taxableTotalMinor: paid.calculation.taxableTotalMinor,
+      taxTotalMinor: paid.calculation.taxTotalMinor,
+      cgstMinor: paid.calculation.cgstMinor,
+      sgstMinor: paid.calculation.sgstMinor,
+      igstMinor: paid.calculation.igstMinor,
+      additionalChargeTotalMinor: paid.calculation.additionalChargeTotalMinor,
+      roundOffMinor: paid.calculation.roundOffMinor,
+      grandTotalMinor: paid.calculation.grandTotalMinor,
+      paidAmountMinor: 0,
+      balanceDueMinor: paid.calculation.grandTotalMinor,
+      paymentStatus: InvoicePaymentStatus.unpaid,
+    );
+    final invalid = InvoiceModel(
+      id: paid.id,
+      documentType: paid.documentType,
+      invoiceNumber: paid.invoiceNumber,
+      customer: paid.customer,
+      invoiceDate: paid.invoiceDate,
+      dueDate: paid.dueDate,
+      status: paid.status,
+      taxType: paid.taxType,
+      invoiceDiscount: paid.invoiceDiscount,
+      items: paid.items,
+      charges: paid.charges,
+      calculation: invalidCalculation,
+      notes: paid.notes,
+      terms: paid.terms,
+      createdAt: paid.createdAt,
+      updatedAt: now,
+    );
+
+    expect(() => repository.save(invalid), throwsA(isA<StateError>()));
+    expect(await repository.getPayments(invoice.id!), hasLength(1));
+  });
 
   test('builds reports for a selected historical month', () async {
     await repository.save(

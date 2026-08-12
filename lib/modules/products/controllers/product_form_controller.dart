@@ -16,7 +16,7 @@ class ProductFormController extends GetxController {
     this._businessRepository,
     this.unitService,
   );
-  static const taxRates = [0, 500, 1200, 1800, 2800];
+  static const taxRates = TaxUtils.gstRateBasisPoints;
 
   final ProductRepository _repository;
   final BusinessRepository _businessRepository;

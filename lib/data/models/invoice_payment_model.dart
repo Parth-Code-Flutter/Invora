@@ -1,3 +1,5 @@
+enum InvoicePaymentEntryType { payment, opening, imported, reversal }
+
 class InvoicePaymentModel {
   const InvoicePaymentModel({
     this.id,
@@ -7,6 +9,9 @@ class InvoicePaymentModel {
     this.method,
     this.reference,
     this.note,
+    this.entryType = InvoicePaymentEntryType.payment,
+    this.reversesPaymentId,
+    this.isReversed = false,
   });
 
   final int? id;
@@ -16,4 +21,10 @@ class InvoicePaymentModel {
   final String? method;
   final String? reference;
   final String? note;
+  final InvoicePaymentEntryType entryType;
+  final int? reversesPaymentId;
+  final bool isReversed;
+
+  bool get isReversal => entryType == InvoicePaymentEntryType.reversal;
+  bool get canReverse => amountMinor > 0 && !isReversed;
 }

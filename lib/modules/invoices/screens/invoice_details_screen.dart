@@ -12,6 +12,7 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
+import '../../../app/widgets/app_notification.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/invoice_payment_model.dart';
@@ -293,6 +294,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
               balanceMinor: invoice.calculation.balanceDueMinor,
               totalMinor: invoice.calculation.grandTotalMinor,
               symbol: symbol,
+              onReverse: (payment) => _showReversalDialog(context, payment),
             ),
           AppCard(
             padding: const EdgeInsets.all(16),
@@ -471,6 +473,26 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
     await controller.reload();
   }
 
+  Future<void> _showReversalDialog(
+    BuildContext context,
+    InvoicePaymentModel payment,
+  ) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (_) => _PaymentReversalDialog(payment: payment),
+    );
+    if (result == null) return;
+    final error = await controller.reversePayment(payment, result);
+    if (error != null) {
+      AppNotification.warning('Cannot reverse payment', error);
+    } else {
+      AppNotification.success(
+        'Payment reversed',
+        'The invoice balance and status were updated.',
+      );
+    }
+  }
+
   Future<bool> _confirm(
     BuildContext context, {
     required String title,
@@ -515,6 +537,7 @@ class _PaymentHistoryCard extends StatelessWidget {
     required this.balanceMinor,
     required this.totalMinor,
     required this.symbol,
+    required this.onReverse,
   });
 
   final List<InvoicePaymentModel> payments;
@@ -522,6 +545,7 @@ class _PaymentHistoryCard extends StatelessWidget {
   final int balanceMinor;
   final int totalMinor;
   final String symbol;
+  final ValueChanged<InvoicePaymentModel> onReverse;
 
   @override
   Widget build(BuildContext context) {
@@ -548,7 +572,7 @@ class _PaymentHistoryCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(99),
                 ),
                 child: Text(
-                  '${payments.length} ${payments.length == 1 ? 'payment' : 'payments'}',
+                  '${payments.length} ${payments.length == 1 ? 'entry' : 'entries'}',
                   style: AppTextStyles.small.copyWith(
                     color: AppColors.success,
                     fontWeight: FontWeight.w700,
@@ -596,7 +620,11 @@ class _PaymentHistoryCard extends StatelessWidget {
             const SizedBox(height: 16),
             const Divider(height: 1),
             ...payments.map(
-              (payment) => _PaymentHistoryRow(payment: payment, symbol: symbol),
+              (payment) => _PaymentHistoryRow(
+                payment: payment,
+                symbol: symbol,
+                onReverse: payment.canReverse ? () => onReverse(payment) : null,
+              ),
             ),
           ],
         ],
@@ -643,10 +671,15 @@ class _PaymentMetric extends StatelessWidget {
 }
 
 class _PaymentHistoryRow extends StatelessWidget {
-  const _PaymentHistoryRow({required this.payment, required this.symbol});
+  const _PaymentHistoryRow({
+    required this.payment,
+    required this.symbol,
+    this.onReverse,
+  });
 
   final InvoicePaymentModel payment;
   final String symbol;
+  final VoidCallback? onReverse;
 
   @override
   Widget build(BuildContext context) {
@@ -654,7 +687,7 @@ class _PaymentHistoryRow extends StatelessWidget {
       if (payment.reference?.isNotEmpty ?? false) 'Ref ${payment.reference}',
       if (payment.note?.isNotEmpty ?? false) payment.note!,
     ].join(' • ');
-    final isCorrection = payment.amountMinor < 0;
+    final isCorrection = payment.isReversal;
     return Padding(
       padding: const EdgeInsets.only(top: 13),
       child: Row(
@@ -681,7 +714,13 @@ class _PaymentHistoryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  payment.method ?? 'Payment',
+                  payment.entryType == InvoicePaymentEntryType.reversal
+                      ? 'Payment reversal'
+                      : payment.entryType == InvoicePaymentEntryType.opening
+                      ? 'Opening payment'
+                      : payment.entryType == InvoicePaymentEntryType.imported
+                      ? 'Previous payment'
+                      : payment.method ?? 'Payment',
                   style: AppTextStyles.cardTitle.copyWith(fontSize: 14),
                 ),
                 const SizedBox(height: 2),
@@ -713,10 +752,89 @@ class _PaymentHistoryRow extends StatelessWidget {
               color: isCorrection ? AppColors.error : AppColors.success,
             ),
           ),
+          if (onReverse != null)
+            IconButton(
+              tooltip: 'Reverse payment',
+              onPressed: onReverse,
+              icon: const Icon(Icons.undo_rounded, size: 19),
+            )
+          else if (payment.isReversed)
+            Padding(
+              padding: const EdgeInsets.only(left: 8, top: 2),
+              child: Text(
+                'REVERSED',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
+}
+
+class _PaymentReversalDialog extends StatefulWidget {
+  const _PaymentReversalDialog({required this.payment});
+
+  final InvoicePaymentModel payment;
+
+  @override
+  State<_PaymentReversalDialog> createState() => _PaymentReversalDialogState();
+}
+
+class _PaymentReversalDialogState extends State<_PaymentReversalDialog> {
+  final reason = TextEditingController();
+  String? error;
+
+  @override
+  void dispose() {
+    reason.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final value = reason.text.trim();
+    if (value.isEmpty) {
+      setState(() => error = 'A reason is required for the audit history.');
+      return;
+    }
+    AppFocus.pop(context, value);
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    scrollable: true,
+    title: const Text('Reverse payment?'),
+    content: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'This keeps the original payment and adds a linked reversal. The invoice balance and status will be recalculated.',
+        ),
+        const SizedBox(height: 14),
+        TextField(
+          controller: reason,
+          autofocus: true,
+          maxLines: 2,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            labelText: 'Reversal reason *',
+            hintText: 'e.g. Payment entered twice',
+            errorText: error,
+          ),
+        ),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => AppFocus.pop(context),
+        child: const Text('Keep payment'),
+      ),
+      FilledButton(onPressed: _submit, child: const Text('Reverse payment')),
+    ],
+  );
 }
 
 class _PaymentSheetState extends State<_PaymentSheet> {

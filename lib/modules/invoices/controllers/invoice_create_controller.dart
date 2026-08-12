@@ -36,6 +36,9 @@ class InvoiceCreateController extends GetxController {
   static const _validator = InvoiceValidationService();
   final DocumentType documentType;
   bool get isQuotation => documentType == DocumentType.quotation;
+  bool get isEditing => _id != null;
+  bool get hasRecordedPayments =>
+      isEditing && (calculation.value?.paidAmountMinor ?? 0) > 0;
   bool get shouldPromptForCustomer => _id == null && customer.value == null;
 
   final invoiceNumber = ''.obs;
@@ -353,7 +356,7 @@ class InvoiceCreateController extends GetxController {
   InvoiceModel? buildDocument({required bool draft}) {
     recalculate();
     final result = calculation.value!;
-    final status = draft
+    final status = draft && !isEditing
         ? InvoiceStatus.draft
         : isQuotation
         ? InvoiceStatus.sent

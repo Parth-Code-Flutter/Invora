@@ -17,4 +17,8 @@ void main() {
     expect(TaxUtils.parseBasisPoints('101'), isNull);
     expect(TaxUtils.formatBasisPoints(1250), '12.5%');
   });
+
+  test('provides current common Indian GST rate presets', () {
+    expect(TaxUtils.gstRateBasisPoints, [0, 25, 300, 500, 1200, 1800, 2800]);
+  });
 }

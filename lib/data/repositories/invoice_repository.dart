@@ -232,6 +232,10 @@ class InvoiceRepository extends BaseRepository {
               ..where((table) => table.invoiceId.equals(invoiceId))
               ..orderBy([(table) => OrderingTerm.desc(table.paidAt)]))
             .get();
+    final reversedIds = rows
+        .where((row) => row.reversesPaymentId != null)
+        .map((row) => row.reversesPaymentId!)
+        .toSet();
     return rows
         .map(
           (row) => InvoicePaymentModel(
@@ -242,6 +246,9 @@ class InvoiceRepository extends BaseRepository {
             method: row.method,
             reference: row.reference,
             note: row.note,
+            entryType: InvoicePaymentEntryType.values.byName(row.entryType),
+            reversesPaymentId: row.reversesPaymentId,
+            isReversed: reversedIds.contains(row.id),
           ),
         )
         .toList();
@@ -264,6 +271,12 @@ class InvoiceRepository extends BaseRepository {
       if (invoice.status == InvoiceStatus.cancelled) {
         throw StateError('A cancelled invoice cannot receive payments.');
       }
+      if (invoice.status == InvoiceStatus.draft) {
+        throw StateError('Finalize the invoice before recording payments.');
+      }
+      if (invoice.documentType != DocumentType.invoice) {
+        throw StateError('Quotations cannot receive payments.');
+      }
       if (amountMinor > invoice.calculation.balanceDueMinor) {
         throw ArgumentError('Payment cannot exceed the remaining balance.');
       }
@@ -277,6 +290,7 @@ class InvoiceRepository extends BaseRepository {
               method: Value(_optional(method)),
               reference: Value(_optional(reference)),
               note: Value(_optional(note)),
+              entryType: const Value('payment'),
             ),
           );
       await _writePaymentTotal(
@@ -286,32 +300,57 @@ class InvoiceRepository extends BaseRepository {
     });
   }
 
-  Future<void> updatePayment(int id, int paidAmountMinor) async {
-    final invoice = await getById(id);
-    if (invoice == null) throw StateError('Invoice not found.');
-    if (invoice.status == InvoiceStatus.cancelled) {
-      throw StateError('A cancelled invoice cannot receive payments.');
+  Future<void> reversePayment({
+    required int invoiceId,
+    required int paymentId,
+    required String reason,
+    required DateTime reversedAt,
+  }) async {
+    final normalizedReason = reason.trim();
+    if (normalizedReason.isEmpty) {
+      throw ArgumentError('A reversal reason is required.');
     }
-    if (paidAmountMinor < 0 ||
-        paidAmountMinor > invoice.calculation.grandTotalMinor) {
-      throw ArgumentError('Payment must be between zero and the grand total.');
-    }
-    final difference = paidAmountMinor - invoice.calculation.paidAmountMinor;
     await database.transaction(() async {
-      if (difference != 0) {
-        await database
-            .into(database.invoicePayments)
-            .insert(
-              InvoicePaymentsCompanion.insert(
-                invoiceId: id,
-                amountMinor: difference,
-                paidAt: DateTime.now(),
-                method: const Value('Adjustment'),
-                note: const Value('Payment total adjusted'),
-              ),
-            );
+      final invoice = await getById(invoiceId);
+      if (invoice == null) throw StateError('Invoice not found.');
+      if (invoice.status == InvoiceStatus.cancelled) {
+        throw StateError('A cancelled invoice cannot reverse payments.');
       }
-      await _writePaymentTotal(invoice, paidAmountMinor);
+      if (invoice.documentType != DocumentType.invoice) {
+        throw StateError('Quotations do not have reversible payments.');
+      }
+      final original =
+          await (database.select(database.invoicePayments)..where(
+                (table) =>
+                    table.id.equals(paymentId) &
+                    table.invoiceId.equals(invoiceId),
+              ))
+              .getSingleOrNull();
+      if (original == null || original.amountMinor <= 0) {
+        throw StateError('Only a received payment can be reversed.');
+      }
+      final existing =
+          await (database.select(database.invoicePayments)
+                ..where((table) => table.reversesPaymentId.equals(paymentId)))
+              .getSingleOrNull();
+      if (existing != null) throw StateError('Payment is already reversed.');
+      await database
+          .into(database.invoicePayments)
+          .insert(
+            InvoicePaymentsCompanion.insert(
+              invoiceId: invoiceId,
+              amountMinor: -original.amountMinor,
+              paidAt: reversedAt,
+              method: const Value('Payment reversal'),
+              note: Value(normalizedReason),
+              entryType: const Value('reversal'),
+              reversesPaymentId: Value(paymentId),
+            ),
+          );
+      await _writePaymentTotal(
+        invoice,
+        invoice.calculation.paidAmountMinor - original.amountMinor,
+      );
     });
   }
 
@@ -456,6 +495,26 @@ class InvoiceRepository extends BaseRepository {
       if (validation != null) throw ArgumentError(validation);
     }
     return database.transaction(() async {
+      final existingLedgerRows = model.id == null
+          ? const <InvoicePayment>[]
+          : await (database.select(
+              database.invoicePayments,
+            )..where((table) => table.invoiceId.equals(model.id!))).get();
+      final ledgerTotal = existingLedgerRows.fold<int>(
+        0,
+        (total, payment) => total + payment.amountMinor,
+      );
+      if (model.id != null &&
+          model.calculation.paidAmountMinor != ledgerTotal) {
+        throw StateError(
+          'Existing invoice payments can only be changed from Payment activity.',
+        );
+      }
+      if (ledgerTotal > model.calculation.grandTotalMinor) {
+        throw StateError(
+          'Invoice total cannot be lower than the amount already paid.',
+        );
+      }
       final invoice = InvoicesCompanion(
         id: model.id == null ? const Value.absent() : Value(model.id!),
         invoiceNumber: Value(model.invoiceNumber),
@@ -504,32 +563,19 @@ class InvoiceRepository extends BaseRepository {
         )..where((table) => table.id.equals(invoiceId))).write(invoice);
       }
 
-      // Keep the append-only ledger aligned with older create/edit flows that
-      // still submit a cumulative paid amount as part of the invoice model.
-      final ledgerRows = await (database.select(
-        database.invoicePayments,
-      )..where((table) => table.invoiceId.equals(invoiceId))).get();
-      final ledgerTotal = ledgerRows.fold<int>(
-        0,
-        (total, payment) => total + payment.amountMinor,
-      );
-      final paymentDifference = model.calculation.paidAmountMinor - ledgerTotal;
-      if (paymentDifference != 0) {
+      // Only a brand-new invoice may establish an opening payment. Existing
+      // invoices are reconciled exclusively through immutable ledger actions.
+      if (model.id == null && model.calculation.paidAmountMinor > 0) {
         await database
             .into(database.invoicePayments)
             .insert(
               InvoicePaymentsCompanion.insert(
                 invoiceId: invoiceId,
-                amountMinor: paymentDifference,
-                method: Value(
-                  ledgerRows.isEmpty ? 'Opening payment' : 'Adjustment',
-                ),
-                note: Value(
-                  ledgerRows.isEmpty
-                      ? 'Recorded when the invoice was created'
-                      : 'Reconciled when the invoice was updated',
-                ),
+                amountMinor: model.calculation.paidAmountMinor,
+                method: const Value('Opening payment'),
+                note: const Value('Recorded when the invoice was created'),
                 paidAt: model.updatedAt,
+                entryType: const Value('opening'),
               ),
             );
       }

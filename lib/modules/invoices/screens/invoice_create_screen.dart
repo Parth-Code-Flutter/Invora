@@ -674,17 +674,46 @@ class _InvoiceForm extends StatelessWidget {
             AppCard(
               child: Column(
                 children: [
-                  TextField(
-                    controller: controller.paidController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
+                  if (!controller.isEditing && !controller.isQuotation) ...[
+                    TextField(
+                      controller: controller.paidController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Opening payment',
+                        hintText: '0.00',
+                        helperText:
+                            'Optional payment received when creating this invoice.',
+                      ),
                     ),
-                    decoration: const InputDecoration(
-                      labelText: 'Amount paid',
-                      hintText: '0.00',
+                    const SizedBox(height: 12),
+                  ],
+                  if (controller.hasRecordedPayments) ...[
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.warningLight,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.lock_clock_outlined,
+                            color: AppColors.warning,
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Payments are managed from Invoice details. Keep the revised total at or above the amount already paid.',
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
+                  ],
                   TextField(
                     controller: controller.notesController,
                     maxLines: 2,
@@ -1669,12 +1698,14 @@ class _ItemSheet extends StatefulWidget {
 }
 
 class _ItemSheetState extends State<_ItemSheet> {
+  static const _customGstRate = -1;
   late final TextEditingController name;
   late final TextEditingController quantity;
   late String unit;
   late final TextEditingController rate;
   late final TextEditingController hsn;
   late final TextEditingController tax;
+  late int selectedTaxRate;
   late final TextEditingController discount;
   late DiscountType discountType;
 
@@ -1694,6 +1725,10 @@ class _ItemSheetState extends State<_ItemSheet> {
     tax = TextEditingController(
       text: item == null ? '' : TaxUtils.toInputValue(item.taxRateBasisPoints),
     );
+    final storedTax = item?.taxRateBasisPoints ?? 0;
+    selectedTaxRate = TaxUtils.gstRateBasisPoints.contains(storedTax)
+        ? storedTax
+        : _customGstRate;
     discountType = item?.discount.type ?? DiscountType.none;
     discount = TextEditingController(
       text: item == null
@@ -1784,19 +1819,52 @@ class _ItemSheetState extends State<_ItemSheet> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: TextField(
-                    controller: tax,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: const InputDecoration(
-                      labelText: 'GST %',
-                      hintText: '0',
-                    ),
+                  child: AppDropdownField<int>(
+                    label: 'GST rate',
+                    sheetTitle: 'Choose GST rate',
+                    prefixIcon: Icons.percent_rounded,
+                    value: selectedTaxRate,
+                    options: [
+                      ...TaxUtils.gstRateBasisPoints.map(
+                        (rate) => AppDropdownOption(
+                          value: rate,
+                          label: rate == 0
+                              ? 'No GST (0%)'
+                              : TaxUtils.formatBasisPoints(rate),
+                        ),
+                      ),
+                      const AppDropdownOption(
+                        value: _customGstRate,
+                        label: 'Custom rate',
+                        icon: Icons.edit_outlined,
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() => selectedTaxRate = value);
+                      if (value == _customGstRate) {
+                        tax.clear();
+                      } else {
+                        tax.text = TaxUtils.toInputValue(value);
+                      }
+                    },
                   ),
                 ),
               ],
             ),
+            if (selectedTaxRate == _customGstRate) ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: tax,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: const InputDecoration(
+                  labelText: 'Custom GST percentage *',
+                  hintText: 'Enter a rate from 0 to 100',
+                  prefixIcon: Icon(Icons.percent_rounded),
+                ),
+              ),
+            ],
             const SizedBox(height: 12),
             AppDropdownField<DiscountType>(
               label: 'Discount',

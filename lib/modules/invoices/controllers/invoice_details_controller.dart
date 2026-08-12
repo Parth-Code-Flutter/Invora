@@ -129,6 +129,30 @@ class InvoiceDetailsController extends GetxController {
     return null;
   }
 
+  Future<String?> reversePayment(
+    InvoicePaymentModel payment,
+    String reason,
+  ) async {
+    final value = invoice.value;
+    if (value?.id == null || payment.id == null) return 'Payment not found.';
+    if (!payment.canReverse) return 'This payment cannot be reversed.';
+    if (reason.trim().isEmpty) return 'Enter a reason for the reversal.';
+    try {
+      await _repository.reversePayment(
+        invoiceId: value!.id!,
+        paymentId: payment.id!,
+        reason: reason,
+        reversedAt: DateTime.now(),
+      );
+      await reload();
+      return null;
+    } on ArgumentError catch (error) {
+      return error.message?.toString() ?? 'Could not reverse payment.';
+    } on StateError catch (error) {
+      return error.message;
+    }
+  }
+
   Future<void> cancel() async {
     final id = invoice.value?.id;
     if (id == null) return;

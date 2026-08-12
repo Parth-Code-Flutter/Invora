@@ -34,118 +34,85 @@ class CustomerListScreen extends GetView<CustomerListController> {
       bottomNavigationBar: const AppMainNavigation(
         current: MainDestination.customers,
       ),
-      body: Column(
-        children: [
-          Obx(
-            () => Padding(
-              padding: EdgeInsets.fromLTRB(
-                ResponsiveUtils.horizontalPadding(context),
-                ResponsiveUtils.height(context, 8),
-                ResponsiveUtils.horizontalPadding(context),
-                ResponsiveUtils.height(context, 12),
-              ),
-              child: _CustomerWorkspaceHeader(
-                count: controller.customers.length,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (controller.customers.isEmpty) {
-                return AppEmptyState(
-                  icon: Icons.people_outline_rounded,
-                  title: controller.searchQuery.value.isEmpty
-                      ? 'No customers yet'
-                      : 'No customers found',
-                  message: controller.searchQuery.value.isEmpty
-                      ? 'Add your first customer to make invoicing faster.'
-                      : 'Try a different name, company, mobile or GSTIN.',
-                  actionLabel: controller.searchQuery.value.isEmpty
-                      ? 'Add customer'
-                      : null,
-                  onAction: controller.searchQuery.value.isEmpty
-                      ? () => Get.toNamed<void>(AppRoutes.customerAdd)
-                      : null,
-                );
-              }
-              return LayoutBuilder(
-                builder: (context, constraints) {
-                  final columns = ResponsiveUtils.gridColumns(context);
-                  final horizontal = ResponsiveUtils.horizontalPadding(context);
-                  if (columns == 1) {
-                    return ListView.separated(
-                      padding: EdgeInsets.fromLTRB(
-                        horizontal,
-                        4,
-                        horizontal,
-                        100,
-                      ),
-                      itemCount: controller.customers.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 10),
-                      itemBuilder: (context, index) => _CustomerCard(
-                        customer: controller.customers[index],
-                        onInvoice: () => Get.toNamed<void>(
-                          AppRoutes.invoiceCreate,
-                          arguments: InvoiceEditorArgs(
-                            customerId: controller.customers[index].id,
-                          ),
-                        ),
-                        onEdit: () => Get.toNamed<void>(
-                          AppRoutes.customerEdit,
-                          arguments: controller.customers[index].id,
-                        ),
-                        onConfirmDelete: () => _confirmDelete(
-                          context,
-                          controller.customers[index],
-                        ),
-                        onDelete: () => controller.deleteCustomer(
-                          controller.customers[index],
-                        ),
-                      ),
-                    );
-                  }
-                  return GridView.builder(
-                    padding: EdgeInsets.fromLTRB(
-                      horizontal,
-                      4,
-                      horizontal,
-                      100,
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (controller.customers.isEmpty) {
+          return AppEmptyState(
+            icon: Icons.people_outline_rounded,
+            title: controller.searchQuery.value.isEmpty
+                ? 'No customers yet'
+                : 'No customers found',
+            message: controller.searchQuery.value.isEmpty
+                ? 'Add your first customer to make invoicing faster.'
+                : 'Try a different name, company, mobile or GSTIN.',
+            actionLabel: controller.searchQuery.value.isEmpty
+                ? 'Add customer'
+                : null,
+            onAction: controller.searchQuery.value.isEmpty
+                ? () => Get.toNamed<void>(AppRoutes.customerAdd)
+                : null,
+          );
+        }
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = ResponsiveUtils.gridColumns(context);
+            final horizontal = ResponsiveUtils.horizontalPadding(context);
+            if (columns == 1) {
+              return ListView.separated(
+                padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, 100),
+                itemCount: controller.customers.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
+                itemBuilder: (context, index) => _CustomerCard(
+                  customer: controller.customers[index],
+                  onInvoice: () => Get.toNamed<void>(
+                    AppRoutes.invoiceCreate,
+                    arguments: InvoiceEditorArgs(
+                      customerId: controller.customers[index].id,
                     ),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: columns,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      mainAxisExtent: ResponsiveUtils.height(context, 156),
-                    ),
-                    itemCount: controller.customers.length,
-                    itemBuilder: (context, index) => _CustomerCard(
-                      customer: controller.customers[index],
-                      onInvoice: () => Get.toNamed<void>(
-                        AppRoutes.invoiceCreate,
-                        arguments: InvoiceEditorArgs(
-                          customerId: controller.customers[index].id,
-                        ),
-                      ),
-                      onEdit: () => Get.toNamed<void>(
-                        AppRoutes.customerEdit,
-                        arguments: controller.customers[index].id,
-                      ),
-                      onConfirmDelete: () =>
-                          _confirmDelete(context, controller.customers[index]),
-                      onDelete: () => controller.deleteCustomer(
-                        controller.customers[index],
-                      ),
-                    ),
-                  );
-                },
+                  ),
+                  onEdit: () => Get.toNamed<void>(
+                    AppRoutes.customerEdit,
+                    arguments: controller.customers[index].id,
+                  ),
+                  onConfirmDelete: () =>
+                      _confirmDelete(context, controller.customers[index]),
+                  onDelete: () =>
+                      controller.deleteCustomer(controller.customers[index]),
+                ),
               );
-            }),
-          ),
-        ],
-      ),
+            }
+            return GridView.builder(
+              padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, 100),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                mainAxisExtent: ResponsiveUtils.height(context, 156),
+              ),
+              itemCount: controller.customers.length,
+              itemBuilder: (context, index) => _CustomerCard(
+                customer: controller.customers[index],
+                onInvoice: () => Get.toNamed<void>(
+                  AppRoutes.invoiceCreate,
+                  arguments: InvoiceEditorArgs(
+                    customerId: controller.customers[index].id,
+                  ),
+                ),
+                onEdit: () => Get.toNamed<void>(
+                  AppRoutes.customerEdit,
+                  arguments: controller.customers[index].id,
+                ),
+                onConfirmDelete: () =>
+                    _confirmDelete(context, controller.customers[index]),
+                onDelete: () =>
+                    controller.deleteCustomer(controller.customers[index]),
+              ),
+            );
+          },
+        );
+      }),
     );
   }
 
@@ -174,79 +141,6 @@ class CustomerListScreen extends GetView<CustomerListController> {
     );
     return confirmed ?? false;
   }
-}
-
-class _CustomerWorkspaceHeader extends StatelessWidget {
-  const _CustomerWorkspaceHeader({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.fromLTRB(16, 15, 12, 15),
-    decoration: BoxDecoration(
-      gradient: const LinearGradient(
-        colors: [AppColors.secondary, AppColors.primary, AppColors.accent],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      borderRadius: BorderRadius.circular(22),
-      boxShadow: [
-        BoxShadow(
-          color: AppColors.secondary.withValues(alpha: .16),
-          blurRadius: 18,
-          offset: const Offset(0, 7),
-        ),
-      ],
-    ),
-    child: Row(
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: .16),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.white.withValues(alpha: .18)),
-          ),
-          child: const Icon(Icons.people_alt_outlined, color: Colors.white),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '$count ${count == 1 ? 'customer' : 'customers'}',
-                style: AppTextStyles.cardTitle.copyWith(color: Colors.white),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Your billing relationships',
-                style: AppTextStyles.small.copyWith(
-                  color: Colors.white.withValues(alpha: .78),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: .14),
-            borderRadius: BorderRadius.circular(99),
-          ),
-          child: Text(
-            'READY TO BILL',
-            style: AppTextStyles.caption.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
 }
 
 class _CustomerCard extends StatelessWidget {

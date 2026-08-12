@@ -169,6 +169,8 @@ class InvoicePayments extends Table {
   TextColumn get method => text().nullable()();
   TextColumn get reference => text().nullable()();
   TextColumn get note => text().nullable()();
+  TextColumn get entryType => text().withDefault(const Constant('payment'))();
+  IntColumn get reversesPaymentId => integer().nullable()();
   DateTimeColumn get paidAt => dateTime()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
@@ -220,11 +222,30 @@ class AppDatabase extends _$AppDatabase {
         // opening ledger entry so existing partial payments remain auditable.
         await customStatement('''
           INSERT INTO invoice_payments
-            (invoice_id, amount_minor, method, note, paid_at, created_at)
+            (invoice_id, amount_minor, method, note, entry_type, paid_at, created_at)
           SELECT id, paid_amount_minor, 'Previous payment',
-                 'Imported during payment-history upgrade', updated_at, updated_at
+                 'Imported during payment-history upgrade', 'imported',
+                 updated_at, updated_at
           FROM invoices
           WHERE paid_amount_minor > 0
+        ''');
+      }
+      // From v7 the table already exists without classification columns.
+      // Older upgrades create the current table shape above and must not add
+      // the same columns twice.
+      if (from >= 7 && from < 8) {
+        await migrator.addColumn(invoicePayments, invoicePayments.entryType);
+        await migrator.addColumn(
+          invoicePayments,
+          invoicePayments.reversesPaymentId,
+        );
+        await customStatement('''
+          UPDATE invoice_payments
+          SET entry_type = CASE
+            WHEN method = 'Previous payment' THEN 'imported'
+            WHEN method = 'Opening payment' THEN 'opening'
+            ELSE 'payment'
+          END
         ''');
       }
     },
