@@ -82,6 +82,15 @@ class DashboardScreen extends GetView<DashboardController> {
                   padding: const EdgeInsets.only(bottom: AppSpacing.xl),
                   children: [
                     _businessOverview(context),
+                    if (controller.backupDue.value) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      _BackupReminderPrompt(
+                        onTap: () async {
+                          await Get.toNamed<void>(AppRoutes.backup);
+                          controller.refreshBackupStatus();
+                        },
+                      ),
+                    ],
                     if (controller.report.value.outstandingMinor > 0) ...[
                       const SizedBox(height: AppSpacing.sm),
                       _OutstandingPrompt(
@@ -602,6 +611,65 @@ class _OutstandingPrompt extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             const Icon(Icons.arrow_forward_rounded, color: AppColors.warning),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _BackupReminderPrompt extends StatelessWidget {
+  const _BackupReminderPrompt({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: Theme.of(context).colorScheme.surface,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(17),
+      side: BorderSide(color: AppColors.primary.withValues(alpha: .24)),
+    ),
+    clipBehavior: Clip.antiAlias,
+    child: InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: const Icon(
+                Icons.backup_outlined,
+                color: AppColors.primary,
+                size: 21,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Protect your latest data',
+                    style: AppTextStyles.cardTitle,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Your scheduled local backup is due.',
+                    style: AppTextStyles.small.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_rounded, color: AppColors.primary),
           ],
         ),
       ),

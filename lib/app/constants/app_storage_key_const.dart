@@ -6,4 +6,7 @@ abstract final class AppStorageKeyConst {
   static const customUnits = 'custom_units';
   static const managedUnits = 'managed_units';
   static const defaultUnit = 'default_unit';
+  static const lastBackupAt = 'last_backup_at';
+  static const backupReminderDays = 'backup_reminder_days';
+  static const restoreCompleted = 'restore_completed';
 }

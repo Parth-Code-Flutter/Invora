@@ -52,6 +52,10 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Offline backup/restore with validation and database rollback; validation
   rejects missing/invalid schema metadata and embedded files without a valid
   SQLite signature before replacing application data
+- Backup workspace warns that ZIP exports are sensitive and unencrypted, shows
+  the last successful device backup, supports 7/14/30-day or disabled local
+  reminders, and gives explicit restart guidance after restore. Due reminders
+  also appear on the dashboard.
 
 ### Customers
 
@@ -147,6 +151,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   `AppStorageKeyConst.managedUnits/defaultUnit`; legacy `customUnits` values are
   imported into the initial list, and all unit preferences are backed up.
 - Evaluate every new `AppStorage` value for inclusion in `BackupService`.
+- `last_backup_at` records device-local export history and is intentionally not
+  restored. `backup_reminder_days` is included in settings backup/restore;
+  `restore_completed` records that the app must reload restored state.
 
 ## Important validation rules
 
@@ -219,7 +226,7 @@ transfer automatically.
 As of 2026-08-12:
 
 - Flutter analysis: no issues
-- Automated suite: all 56 tests passing
+- Automated suite: all 61 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -228,8 +235,8 @@ As of 2026-08-12:
    signing.
 2. Verify Android AAB and iOS archive release builds.
 3. Add onboarding-to-PDF integration tests.
-4. Add full backup restore/rollback and newer-version compatibility tests;
-   corrupt-file and historical database migration fixtures are covered.
+4. Consider password-encrypted backup exports after V1; core compatibility,
+   database rollback, and corruption coverage are implemented.
 5. Complete store privacy declarations and iOS privacy-manifest review.
 6. Test all PDFs with long, multi-page, and Unicode content.
 7. Complete accessibility, tablet, landscape, and physical-device QA.
@@ -239,6 +246,27 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-12 — Production backup safety and local reminders
+
+- Added a mandatory privacy confirmation before backup export explaining that
+  the ZIP contains customer, invoice, bank, signature, and payment QR data and
+  is not encrypted.
+- Added last-successful-backup state, due/up-to-date status, configurable
+  7/14/30-day or disabled local reminders, and a due reminder on the dashboard.
+- Replaced the transient restore message with an explicit non-dismissible
+  completion dialog instructing the user to restart the app before continuing.
+- Expanded compatibility coverage for incomplete and newer-version archives,
+  successful replacement, failed replacement rollback, restart state, and
+  reminder validation. The database-file provider is injectable for isolated
+  restore testing without changing production behaviour.
+- Storage changes: added `last_backup_at`, `backup_reminder_days`, and
+  `restore_completed`; the reminder preference is backed up, while last-export
+  and restart state remain device-local.
+- Important files: backup service/controller/screen, dashboard controller and
+  binding/screen, storage-key constants, and backup service/screen tests.
+- Verified with formatting, focused backup tests, the full automated suite,
+  static analysis, and whitespace checks.
 
 ### 2026-08-12 — Professional dashboard hierarchy
 

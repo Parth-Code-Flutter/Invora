@@ -83,14 +83,16 @@ Status: **Implemented for every historical launch schema through v8**
 
 #### 3. Backup safety
 
-- Warn that backup ZIPs contain customer, invoice, bank, signature, and QR
-  information.
-- Show last successful backup date.
-- Add periodic local backup reminders.
-- Extend the current damaged/old-version validation coverage with full restore
-  rollback and newer-version compatibility tests.
+Status: **Implemented for V1 launch safety**
+
+- Warn before export that ZIPs contain customer, invoice, bank, signature, and
+  QR information and are not encrypted.
+- Show the last successful backup date and whether a backup is due.
+- Provide configurable 7/14/30-day local reminders, surfaced on the dashboard.
+- Cover damaged, incomplete, old-version, newer-version, successful restore,
+  and failed database-replacement rollback behaviour with automated tests.
 - Consider optional password-encrypted backup files.
-- Make restore completion/restart behaviour simple and explicit.
+- Restore completion now provides explicit, non-dismissible restart guidance.
 
 #### 4. Unsaved-change protection
 

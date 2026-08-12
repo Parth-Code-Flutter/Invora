@@ -6,6 +6,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:creovo_invoice/app/constants/app_storage_key_const.dart';
 import 'package:creovo_invoice/data/repositories/business_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
@@ -76,12 +77,93 @@ void main() {
     expect(result.isValid, isFalse);
     expect(result.message, contains('version'));
   });
+
+  test('rejects incomplete and newer-version backups', () async {
+    final incomplete = File('${temporaryDirectory.path}/incomplete.zip');
+    final incompleteArchive = Archive()
+      ..addFile(
+        ArchiveFile.string(
+          'metadata.json',
+          jsonEncode({
+            'format': 'creovo-invoice-backup',
+            'version': 1,
+            'schemaVersion': 8,
+          }),
+        ),
+      );
+    await incomplete.writeAsBytes(ZipEncoder().encode(incompleteArchive));
+    expect((await service.validate(incomplete)).message, contains('missing'));
+
+    final newer = await _backupFile(
+      temporaryDirectory,
+      schemaVersion: 999,
+      databaseBytes: _sqliteBytes('newer'),
+    );
+    expect((await service.validate(newer)).message, contains('newer'));
+  });
+
+  test('failed restore puts the original database file back', () async {
+    final target = File('${temporaryDirectory.path}/active.sqlite');
+    final original = _sqliteBytes('original customer data');
+    await target.writeAsBytes(original);
+    service = BackupService(
+      database,
+      BusinessRepository(database),
+      await AppStorage.create(),
+      databaseFileProvider: () async => target,
+    );
+    final backup = await _backupFile(
+      temporaryDirectory,
+      schemaVersion: 8,
+      databaseBytes: _sqliteBytes('replacement data'),
+      settingsBytes: utf8.encode('{invalid settings'),
+    );
+
+    await expectLater(service.restore(backup), throwsA(isA<FormatException>()));
+    expect(await target.readAsBytes(), original);
+    expect(await File('${target.path}.before_restore').exists(), isFalse);
+  });
+
+  test('successful restore replaces data and records restart state', () async {
+    final target = File('${temporaryDirectory.path}/active.sqlite');
+    await target.writeAsBytes(_sqliteBytes('old'));
+    final storage = await AppStorage.create();
+    service = BackupService(
+      database,
+      BusinessRepository(database),
+      storage,
+      databaseFileProvider: () async => target,
+    );
+    final replacement = _sqliteBytes('restored');
+    final backup = await _backupFile(
+      temporaryDirectory,
+      schemaVersion: 8,
+      databaseBytes: replacement,
+    );
+
+    await service.restore(backup);
+
+    expect(await target.readAsBytes(), replacement);
+    expect(storage.getBool(AppStorageKeyConst.restoreCompleted), isTrue);
+  });
+
+  test('stores a validated local reminder interval', () async {
+    expect(service.reminderDays, 7);
+    expect(service.isBackupDue, isTrue);
+
+    await service.setReminderDays(14);
+    expect(service.reminderDays, 14);
+    await service.setReminderDays(0);
+    expect(service.isBackupDue, isFalse);
+    await expectLater(service.setReminderDays(2), throwsArgumentError);
+  });
 }
 
 Future<File> _backupFile(
   Directory directory, {
   required int schemaVersion,
   required List<int> databaseBytes,
+  List<int>? settingsBytes,
 }) async {
   final archive = Archive()
     ..addFile(
@@ -101,7 +183,18 @@ Future<File> _backupFile(
         databaseBytes,
       ),
     );
+  if (settingsBytes != null) {
+    archive.addFile(
+      ArchiveFile('settings.json', settingsBytes.length, settingsBytes),
+    );
+  }
   final file = File('${directory.path}/backup_$schemaVersion.zip');
   await file.writeAsBytes(ZipEncoder().encode(archive), flush: true);
   return file;
 }
+
+List<int> _sqliteBytes(String content) => [
+  ...utf8.encode('SQLite format 3\u0000'),
+  ...utf8.encode(content),
+  ...List<int>.filled(100, 0),
+];

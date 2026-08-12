@@ -14,15 +14,42 @@ import 'app_database.dart';
 import 'app_storage.dart';
 
 class BackupService {
-  BackupService(this._database, this._business, this._storage);
+  BackupService(
+    this._database,
+    this._business,
+    this._storage, {
+    Future<File> Function()? databaseFileProvider,
+  }) : _databaseFileProvider = databaseFileProvider ?? appDatabaseFile;
   final AppDatabase _database;
   final BusinessRepository _business;
   final AppStorage _storage;
+  final Future<File> Function() _databaseFileProvider;
+
+  DateTime? get lastBackupAt => DateTime.tryParse(
+    _storage.getString(AppStorageKeyConst.lastBackupAt) ?? '',
+  )?.toLocal();
+
+  int get reminderDays =>
+      _storage.getInt(AppStorageKeyConst.backupReminderDays) ?? 7;
+
+  bool get isBackupDue {
+    if (reminderDays <= 0) return false;
+    final created = lastBackupAt;
+    if (created == null) return true;
+    return DateTime.now().difference(created).inDays >= reminderDays;
+  }
+
+  Future<void> setReminderDays(int days) async {
+    if (![0, 7, 14, 30].contains(days)) {
+      throw ArgumentError('Unsupported backup reminder interval.');
+    }
+    await _storage.setInt(AppStorageKeyConst.backupReminderDays, days);
+  }
 
   Future<File> createBackup() async {
     // Flush WAL pages first so the copied SQLite file is self-contained.
     await _database.customStatement('PRAGMA wal_checkpoint(FULL)');
-    final databaseFile = await appDatabaseFile();
+    final databaseFile = await _databaseFileProvider();
     final archive = Archive();
     final dbBytes = await databaseFile.readAsBytes();
     archive.addFile(
@@ -78,6 +105,9 @@ class BackupService {
       AppStorageKeyConst.defaultUnit: _storage.getString(
         AppStorageKeyConst.defaultUnit,
       ),
+      AppStorageKeyConst.backupReminderDays: _storage.getInt(
+        AppStorageKeyConst.backupReminderDays,
+      ),
     });
     archive.addFile(ArchiveFile.string('settings.json', settings));
     final bytes = ZipEncoder().encode(archive);
@@ -87,6 +117,10 @@ class BackupService {
     final directory = await getTemporaryDirectory();
     final output = File(p.join(directory.path, name));
     await output.writeAsBytes(bytes, flush: true);
+    await _storage.setString(
+      AppStorageKeyConst.lastBackupAt,
+      now.toUtc().toIso8601String(),
+    );
     return output;
   }
 
@@ -187,7 +221,7 @@ class BackupService {
     final databaseEntry =
         archive.findFile('data/creovo_invoice.sqlite') ??
         archive.findFile('data/invora.sqlite')!;
-    final target = await appDatabaseFile();
+    final target = await _databaseFileProvider();
     final rollback = File('${target.path}.before_restore');
     if (await target.exists()) await target.copy(rollback.path);
     try {
@@ -198,7 +232,7 @@ class BackupService {
       );
       await _restoreMedia(archive, target.parent);
       await _restoreSettings(archive);
-      await _storage.setBool('restore_completed', true);
+      await _storage.setBool(AppStorageKeyConst.restoreCompleted, true);
     } catch (_) {
       if (await rollback.exists()) await rollback.copy(target.path);
       rethrow;

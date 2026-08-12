@@ -7,15 +7,22 @@ import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
 import '../../../data/models/report_summary_model.dart';
 import '../../../data/models/invoice_model.dart';
+import '../../../data/services/backup_service.dart';
 
 class DashboardController extends GetxController {
-  DashboardController(this._repository, this._invoiceRepository);
+  DashboardController(
+    this._repository,
+    this._invoiceRepository,
+    this._backupService,
+  );
 
   final BusinessRepository _repository;
   final InvoiceRepository _invoiceRepository;
+  final BackupService _backupService;
   final profile = Rxn<BusinessProfileModel>();
   final report = const ReportSummaryModel().obs;
   final recentInvoices = <InvoiceSummaryModel>[].obs;
+  final backupDue = false.obs;
   StreamSubscription<ReportSummaryModel>? _reportSubscription;
   StreamSubscription<List<InvoiceSummaryModel>>? _recentSubscription;
 
@@ -23,6 +30,7 @@ class DashboardController extends GetxController {
   void onInit() {
     super.onInit();
     _loadProfile();
+    refreshBackupStatus();
     _reportSubscription = _invoiceRepository.watchCurrentMonthReport().listen(
       (value) => report.value = value,
     );
@@ -30,6 +38,8 @@ class DashboardController extends GetxController {
         .watchSummaries(sort: InvoiceSort.newest)
         .listen((values) => recentInvoices.assignAll(values.take(5)));
   }
+
+  void refreshBackupStatus() => backupDue.value = _backupService.isBackupDue;
 
   Future<void> _loadProfile() async {
     profile.value = await _repository.getProfile();

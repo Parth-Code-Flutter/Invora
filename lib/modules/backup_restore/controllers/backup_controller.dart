@@ -10,12 +10,30 @@ class BackupController extends GetxController {
   final BackupService _service;
   final isWorking = false.obs;
   final lastBackup = Rxn<File>();
+  final lastBackupAt = Rxn<DateTime>();
+  final reminderDays = 7.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    lastBackupAt.value = _service.lastBackupAt;
+    reminderDays.value = _service.reminderDays;
+  }
+
+  bool get isBackupDue {
+    final days = reminderDays.value;
+    if (days <= 0) return false;
+    final created = lastBackupAt.value;
+    if (created == null) return true;
+    return DateTime.now().difference(created).inDays >= days;
+  }
 
   Future<void> createAndShare() async {
     isWorking.value = true;
     try {
       final file = await _service.createBackup();
       lastBackup.value = file;
+      lastBackupAt.value = _service.lastBackupAt;
       await _service.shareBackup(file);
       AppNotification.success(
         'Backup created',
@@ -23,6 +41,16 @@ class BackupController extends GetxController {
       );
     } finally {
       isWorking.value = false;
+    }
+  }
+
+  Future<void> setReminderDays(int days) async {
+    reminderDays.value = days;
+    try {
+      await _service.setReminderDays(days);
+    } catch (_) {
+      reminderDays.value = _service.reminderDays;
+      rethrow;
     }
   }
 
@@ -34,14 +62,11 @@ class BackupController extends GetxController {
     return file.path;
   }
 
-  Future<void> restore(String path) async {
+  Future<bool> restore(String path) async {
     isWorking.value = true;
     try {
       await _service.restore(File(path));
-      AppNotification.success(
-        'Restore complete',
-        'Close and reopen Creovo Invoice to load the restored records.',
-      );
+      return true;
     } finally {
       isWorking.value = false;
     }
