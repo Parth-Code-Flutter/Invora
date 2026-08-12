@@ -1,4 +1,5 @@
 import '../../app/enums/item_type.dart';
+import 'product_attribute_model.dart';
 
 class ProductServiceModel {
   const ProductServiceModel({
@@ -10,6 +11,7 @@ class ProductServiceModel {
     required this.salePriceMinor,
     this.hsnSac,
     this.taxRateBasisPoints = 0,
+    this.attributes = const [],
     this.isDeleted = false,
     required this.createdAt,
     required this.updatedAt,
@@ -23,6 +25,7 @@ class ProductServiceModel {
   final int salePriceMinor;
   final String? hsnSac;
   final int taxRateBasisPoints;
+  final List<ProductAttributeValue> attributes;
   final bool isDeleted;
   final DateTime createdAt;
   final DateTime updatedAt;

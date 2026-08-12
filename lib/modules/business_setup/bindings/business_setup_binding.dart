@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/services/app_storage.dart';
 import '../../../data/services/image_storage_service.dart';
+import '../../../data/services/product_settings_service.dart';
 import '../controllers/business_setup_controller.dart';
 
 class BusinessSetupBinding extends Bindings {
@@ -14,6 +15,7 @@ class BusinessSetupBinding extends Bindings {
         Get.find<BusinessRepository>(),
         Get.find<AppStorage>(),
         Get.find<ImageStorageService>(),
+        Get.find<ProductSettingsService>(),
       ),
     );
   }

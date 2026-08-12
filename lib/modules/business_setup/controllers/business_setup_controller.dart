@@ -6,16 +6,24 @@ import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/validation_utils.dart';
 import '../../../app/utils/app_focus.dart';
 import '../../../data/models/business_profile_model.dart';
+import '../../../data/models/business_category_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/services/app_storage.dart';
 import '../../../data/services/image_storage_service.dart';
+import '../../../data/services/product_settings_service.dart';
 
 class BusinessSetupController extends GetxController {
-  BusinessSetupController(this._repository, this._storage, this._imageStorage);
+  BusinessSetupController(
+    this._repository,
+    this._storage,
+    this._imageStorage,
+    this._productSettings,
+  );
 
   final BusinessRepository _repository;
   final AppStorage _storage;
   final ImageStorageService _imageStorage;
+  final ProductSettingsService _productSettings;
   final formKey = GlobalKey<FormState>();
 
   final businessName = TextEditingController();
@@ -41,10 +49,12 @@ class BusinessSetupController extends GetxController {
   final setupStep = 0.obs;
   final gstRegistered = false.obs;
   final currencyCode = 'INR'.obs;
+  final businessCategory = BusinessCategory.generalBusiness.obs;
   final logoPath = RxnString();
   final paymentQrPath = RxnString();
   final signaturePath = RxnString();
   BusinessProfileModel? _existing;
+  late BusinessCategory _savedCategory;
   String _baseline = '';
 
   bool get hasUnsavedChanges => !isLoading.value && _snapshot() != _baseline;
@@ -215,6 +225,10 @@ class BusinessSetupController extends GetxController {
         updatedAt: now,
       );
       _existing = await _repository.saveProfile(profile);
+      if (businessCategory.value != _savedCategory) {
+        await _productSettings.changeCategory(businessCategory.value);
+        _savedCategory = businessCategory.value;
+      }
       _captureBaseline();
       await _storage.setBool(AppStorageKeyConst.businessSetupCompleted, true);
       await AppFocus.dismissKeyboard();
@@ -225,6 +239,8 @@ class BusinessSetupController extends GetxController {
   }
 
   Future<void> _loadExistingProfile() async {
+    businessCategory.value = _productSettings.category;
+    _savedCategory = businessCategory.value;
     _existing = await _repository.getProfile();
     final profile = _existing;
     if (profile != null) {
@@ -279,6 +295,7 @@ class BusinessSetupController extends GetxController {
           .followedBy([
             gstRegistered.value.toString(),
             currencyCode.value,
+            businessCategory.value.name,
             logoPath.value ?? '',
             paymentQrPath.value ?? '',
             signaturePath.value ?? '',

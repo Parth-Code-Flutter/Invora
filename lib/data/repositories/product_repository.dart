@@ -1,7 +1,9 @@
 import 'package:drift/drift.dart';
+import 'dart:convert';
 
 import '../../app/enums/item_type.dart';
 import '../models/product_service_model.dart';
+import '../models/product_attribute_model.dart';
 import '../services/app_database.dart';
 import 'base_repository.dart';
 
@@ -15,21 +17,25 @@ class ProductRepository extends BaseRepository {
     final statement = database.select(database.productServices)
       ..where((table) => table.isDeleted.equals(false))
       ..orderBy([(table) => OrderingTerm.asc(table.name)]);
-    final search = query.trim();
-    if (search.isNotEmpty) {
-      statement.where(
-        (table) =>
-            table.name.contains(search) |
-            table.description.contains(search) |
-            table.hsnSac.contains(search),
-      );
-    }
+    final search = query.trim().toLowerCase();
     if (type != null) {
       statement.where((table) => table.type.equals(type.name));
     }
-    return statement.watch().map(
-      (rows) => rows.map(_toModel).toList(growable: false),
-    );
+    return statement.watch().map((rows) {
+      final values = rows.map(_toModel);
+      if (search.isEmpty) return values.toList(growable: false);
+      return values
+          .where((item) {
+            final content = [
+              item.name,
+              item.description,
+              item.hsnSac,
+              ...item.attributes.expand((value) => [value.label, value.value]),
+            ].whereType<String>().join(' ').toLowerCase();
+            return content.contains(search);
+          })
+          .toList(growable: false);
+    });
   }
 
   Future<ProductServiceModel?> getById(int id) async {
@@ -49,6 +55,9 @@ class ProductRepository extends BaseRepository {
       salePriceMinor: Value(model.salePriceMinor),
       hsnSac: Value(model.hsnSac),
       taxRateBasisPoints: Value(model.taxRateBasisPoints),
+      attributesJson: Value(
+        jsonEncode(model.attributes.map((value) => value.toJson()).toList()),
+      ),
       isDeleted: Value(model.isDeleted),
       createdAt: Value(model.createdAt),
       updatedAt: Value(model.updatedAt),
@@ -80,9 +89,26 @@ class ProductRepository extends BaseRepository {
       salePriceMinor: row.salePriceMinor,
       hsnSac: row.hsnSac,
       taxRateBasisPoints: row.taxRateBasisPoints,
+      attributes: _attributes(row.attributesJson),
       isDeleted: row.isDeleted,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
+  }
+
+  List<ProductAttributeValue> _attributes(String raw) {
+    try {
+      return (jsonDecode(raw) as List)
+          .whereType<Map>()
+          .map(
+            (value) => ProductAttributeValue.fromJson(
+              Map<String, dynamic>.from(value),
+            ),
+          )
+          .where((value) => value.key.isNotEmpty && value.value.isNotEmpty)
+          .toList(growable: false);
+    } catch (_) {
+      return const [];
+    }
   }
 }

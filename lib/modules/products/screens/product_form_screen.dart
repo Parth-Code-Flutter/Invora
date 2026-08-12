@@ -15,6 +15,27 @@ import '../../../app/widgets/app_unit_field.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
 import '../controllers/product_form_controller.dart';
 
+String? _attributeHint(String key) => switch (key) {
+  'size' => 'e.g. XL, 10 inch or 2 × 4 ft',
+  'color' => 'e.g. Black',
+  'material' => 'e.g. MDF, Wood or Cotton',
+  'shape' => 'e.g. Round or Rectangle',
+  'dimensions' => 'e.g. 10 × 6 × 6 inch',
+  'weight' => 'e.g. 500 g',
+  _ => null,
+};
+
+IconData _attributeIcon(String key) => switch (key) {
+  'color' => Icons.palette_outlined,
+  'size' || 'dimensions' => Icons.straighten_rounded,
+  'brand' => Icons.workspace_premium_outlined,
+  'material' => Icons.layers_outlined,
+  'shape' => Icons.category_outlined,
+  'expiryDate' || 'manufacturingDate' => Icons.event_outlined,
+  'serialNumber' || 'sku' || 'batchNumber' => Icons.tag_rounded,
+  _ => Icons.label_outline_rounded,
+};
+
 class ProductFormScreen extends GetView<ProductFormController> {
   const ProductFormScreen({super.key});
 
@@ -83,55 +104,128 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                 ],
                               ),
                               const SizedBox(height: 12),
-                              AppCard(
-                                child: Column(
-                                  children: [
-                                    _ResponsiveFields(
-                                      children: [
-                                        AppTextField(
-                                          controller: controller.name,
-                                          label: 'Item name *',
-                                          hint: 'e.g. Brand consultation',
-                                          prefixIcon: Icons.sell_outlined,
-                                          validator: controller.validateName,
-                                          textCapitalization:
-                                              TextCapitalization.words,
-                                        ),
-                                        Obx(
-                                          () => AppTextField(
-                                            controller: controller.salePrice,
-                                            label:
-                                                'Sale price (${controller.currencySymbol.value}) *',
-                                            hint: '0.00',
-                                            prefixIcon:
-                                                Icons.currency_rupee_rounded,
-                                            validator: controller.validatePrice,
-                                            keyboardType:
-                                                const TextInputType.numberWithOptions(
-                                                  decimal: true,
+                              if (controller.fieldEnabled('unit') ||
+                                  controller.fieldEnabled('hsnSac') ||
+                                  controller.fieldEnabled('tax'))
+                                AppCard(
+                                  child: Column(
+                                    children: [
+                                      _ResponsiveFields(
+                                        children: [
+                                          AppTextField(
+                                            controller: controller.name,
+                                            label: 'Item name *',
+                                            hint: 'e.g. Brand consultation',
+                                            prefixIcon: Icons.sell_outlined,
+                                            validator: controller.validateName,
+                                            textCapitalization:
+                                                TextCapitalization.words,
+                                          ),
+                                          Obx(
+                                            () => AppTextField(
+                                              controller: controller.salePrice,
+                                              label:
+                                                  'Sale price (${controller.currencySymbol.value}) *',
+                                              hint: '0.00',
+                                              prefixIcon:
+                                                  Icons.currency_rupee_rounded,
+                                              validator:
+                                                  controller.validatePrice,
+                                              keyboardType:
+                                                  const TextInputType.numberWithOptions(
+                                                    decimal: true,
+                                                  ),
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter.allow(
+                                                  RegExp(r'^\d*\.?\d{0,2}'),
                                                 ),
-                                            inputFormatters: [
-                                              FilteringTextInputFormatter.allow(
-                                                RegExp(r'^\d*\.?\d{0,2}'),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Obx(
+                                        () =>
+                                            controller.fieldEnabled(
+                                              'description',
+                                            )
+                                            ? AppTextField(
+                                                controller:
+                                                    controller.description,
+                                                label: 'Invoice description',
+                                                hint:
+                                                    'What should the customer know?',
+                                                prefixIcon: Icons.notes_rounded,
+                                                maxLines: 2,
+                                                textCapitalization:
+                                                    TextCapitalization
+                                                        .sentences,
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              Obx(() {
+                                final fields = controller.attributeDefinitions
+                                    .where(
+                                      (field) =>
+                                          controller.fieldEnabled(field.key),
+                                    )
+                                    .toList(growable: false);
+                                if (fields.isEmpty) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 14),
+                                  child: AppCard(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Product details',
+                                          style: AppTextStyles.sectionTitle,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '${controller.productSettings.category.label} recommendations · all optional',
+                                          style: AppTextStyles.small.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 14),
+                                        ...fields.map(
+                                          (field) => Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 12,
+                                            ),
+                                            child: AppTextField(
+                                              controller:
+                                                  controller
+                                                      .attributeControllers[field
+                                                      .key]!,
+                                              label: field.label,
+                                              hint: _attributeHint(field.key),
+                                              prefixIcon: _attributeIcon(
+                                                field.key,
                                               ),
-                                            ],
+                                              keyboardType: field.number
+                                                  ? const TextInputType.numberWithOptions(
+                                                      decimal: true,
+                                                    )
+                                                  : TextInputType.text,
+                                              textCapitalization:
+                                                  TextCapitalization.sentences,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 12),
-                                    AppTextField(
-                                      controller: controller.description,
-                                      label: 'Invoice description',
-                                      hint: 'What should the customer know?',
-                                      prefixIcon: Icons.notes_rounded,
-                                      maxLines: 2,
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                  ),
+                                );
+                              }),
                               const SizedBox(height: 14),
                               ListenableBuilder(
                                 listenable: Listenable.merge([
@@ -182,7 +276,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                     style: AppTextStyles.cardTitle,
                                   ),
                                   subtitle: Text(
-                                    'Unit, GST and HSN/SAC · optional',
+                                    'Only the details enabled in Product Settings',
                                     style: AppTextStyles.small.copyWith(
                                       color: AppColors.textSecondary,
                                     ),
@@ -190,25 +284,35 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                   children: [
                                     _ResponsiveFields(
                                       children: [
-                                        Obx(
-                                          () => AppUnitField(
-                                            value:
-                                                controller.selectedUnit.value,
-                                            unitService: controller.unitService,
-                                            onChanged: (value) =>
-                                                controller.selectedUnit.value =
-                                                    value,
+                                        if (controller.fieldEnabled('unit'))
+                                          Obx(
+                                            () => AppUnitField(
+                                              value:
+                                                  controller.selectedUnit.value,
+                                              unitService:
+                                                  controller.unitService,
+                                              recommendedUnits: controller
+                                                  .productSettings
+                                                  .preferredUnits,
+                                              onChanged: (value) =>
+                                                  controller
+                                                          .selectedUnit
+                                                          .value =
+                                                      value,
+                                            ),
                                           ),
-                                        ),
-                                        AppTextField(
-                                          controller: controller.hsnSac,
-                                          label: 'HSN/SAC',
-                                          prefixIcon: Icons.tag_rounded,
-                                        ),
+                                        if (controller.fieldEnabled('hsnSac'))
+                                          AppTextField(
+                                            controller: controller.hsnSac,
+                                            label: 'HSN/SAC',
+                                            prefixIcon: Icons.tag_rounded,
+                                          ),
                                       ],
                                     ),
                                     Obx(
-                                      () => controller.gstEnabled.value
+                                      () =>
+                                          controller.fieldEnabled('tax') &&
+                                              controller.gstEnabled.value
                                           ? Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -268,7 +372,8 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                     ),
                                     Obx(
                                       () =>
-                                          controller.gstEnabled.value &&
+                                          controller.fieldEnabled('tax') &&
+                                              controller.gstEnabled.value &&
                                               controller.isCustomTax.value
                                           ? Padding(
                                               padding: const EdgeInsets.only(

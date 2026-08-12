@@ -7,6 +7,7 @@ import '../../data/services/invoice_calculation_service.dart';
 import '../../data/services/invoice_pdf_service.dart';
 import '../../data/services/invoice_defaults_service.dart';
 import '../../data/services/data_export_service.dart';
+import '../../data/services/product_settings_service.dart';
 import '../../data/services/payment_receipt_pdf_service.dart';
 import '../../data/services/backup_service.dart';
 import '../../data/services/unit_service.dart';
@@ -47,7 +48,14 @@ class InitialBinding extends Bindings {
       const InvoiceCalculationService(),
       permanent: true,
     );
-    Get.put<InvoicePdfService>(const InvoicePdfService(), permanent: true);
+    Get.put<ProductSettingsService>(
+      ProductSettingsService(appStorage),
+      permanent: true,
+    );
+    Get.put<InvoicePdfService>(
+      InvoicePdfService(productSettings: Get.find<ProductSettingsService>()),
+      permanent: true,
+    );
     Get.put<PaymentReceiptPdfService>(
       const PaymentReceiptPdfService(),
       permanent: true,

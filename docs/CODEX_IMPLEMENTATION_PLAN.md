@@ -78,6 +78,25 @@ The app should allow a user to create a professional invoice in approximately **
 29. Dark mode
 30. Responsive phone + tablet UI
 
+### Category-based product customization extension
+
+- Business setup asks for an optional business category and clearly explains
+  that the choice only controls recommendations.
+- Presets cover General Business, Clothing/Fashion, Grocery/Kirana,
+  Electronics, Furniture, Hardware, Jewellery, Beauty/Salon,
+  Medical/Pharmacy, Food/Restaurant, Printing/Stationery,
+  Construction/Material Supplier, Professional Services, Repair/Service, and
+  Other.
+- Users can independently enable or disable relevant product fields, add Text
+  or Number custom fields, and use category-aware recommended units.
+- Product values remain intact when a category or field selection changes.
+- Invoice lines copy product attributes as historical snapshots. Later catalog
+  edits must never rewrite existing invoices.
+- Invoice editor, details, and PDFs show a compact prioritized attribute
+  summary when the invoice-display preference is enabled.
+- This extension is product customization only. It does not introduce
+  inventory, stock, variants as separate SKUs, ERP, or accounting workflows.
+
 ---
 
 ## Do NOT Implement in V1

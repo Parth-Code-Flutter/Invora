@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:creovo_invoice/app/enums/item_type.dart';
 import 'package:creovo_invoice/data/models/product_service_model.dart';
+import 'package:creovo_invoice/data/models/product_attribute_model.dart';
 import 'package:creovo_invoice/data/repositories/product_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 
@@ -28,6 +29,10 @@ void main() {
           salePriceMinor: 125050,
           hsnSac: '4802',
           taxRateBasisPoints: 1800,
+          attributes: const [
+            ProductAttributeValue(key: 'color', label: 'Color', value: 'Ivory'),
+            ProductAttributeValue(key: 'size', label: 'Size', value: 'A4'),
+          ],
           createdAt: now,
           updatedAt: now,
         ),
@@ -50,6 +55,14 @@ void main() {
       expect(
         (await repository.watchItems(query: 'Logo').first).single.type,
         ItemType.service,
+      );
+      expect(
+        (await repository.watchItems(query: 'Ivory').first).single.attributes,
+        hasLength(2),
+      );
+      expect(
+        (await repository.getById(product.id!))!.attributes.first.value,
+        'Ivory',
       );
 
       final edited = await repository.save(

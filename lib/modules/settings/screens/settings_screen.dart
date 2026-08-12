@@ -36,6 +36,12 @@ class SettingsScreen extends GetView<SettingsController> {
                 onTap: () => Get.toNamed<void>(AppRoutes.invoiceDefaults),
               ),
               AppMenuTile(
+                icon: Icons.tune_rounded,
+                title: 'Product settings',
+                subtitle: 'Business category, product fields and PDF display',
+                onTap: () => Get.toNamed<void>(AppRoutes.productSettings),
+              ),
+              AppMenuTile(
                 icon: Icons.straighten_rounded,
                 title: 'Units',
                 subtitle: 'Manage choices and the default item unit',

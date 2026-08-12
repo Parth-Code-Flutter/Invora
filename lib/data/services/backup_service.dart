@@ -127,6 +127,21 @@ class BackupService {
       AppStorageKeyConst.defaultPaymentMethod: _storage.getString(
         AppStorageKeyConst.defaultPaymentMethod,
       ),
+      AppStorageKeyConst.businessCategory: _storage.getString(
+        AppStorageKeyConst.businessCategory,
+      ),
+      AppStorageKeyConst.enabledProductFields: _storage.getStringList(
+        AppStorageKeyConst.enabledProductFields,
+      ),
+      AppStorageKeyConst.customProductFields: _storage.getString(
+        AppStorageKeyConst.customProductFields,
+      ),
+      AppStorageKeyConst.preferredUnits: _storage.getStringList(
+        AppStorageKeyConst.preferredUnits,
+      ),
+      AppStorageKeyConst.showProductAttributesOnInvoice: _storage.getBool(
+        AppStorageKeyConst.showProductAttributesOnInvoice,
+      ),
       AppStorageKeyConst.backupReminderDays: _storage.getInt(
         AppStorageKeyConst.backupReminderDays,
       ),

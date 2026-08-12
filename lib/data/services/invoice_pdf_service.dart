@@ -9,10 +9,12 @@ import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../app/utils/currency_utils.dart';
+import '../../app/utils/product_attribute_utils.dart';
 import '../../app/utils/quantity_utils.dart';
 import '../models/business_profile_model.dart';
 import '../models/invoice_model.dart';
 import 'invoice_validation_service.dart';
+import 'product_settings_service.dart';
 
 enum InvoiceTemplate { minimal, professional, modern, elegant, compact }
 
@@ -23,7 +25,9 @@ extension InvoiceTemplateLabel on InvoiceTemplate {
 /// Builds every invoice template from the same persisted snapshot. This keeps
 /// rendering concerns separate from invoice calculations and lifecycle rules.
 class InvoicePdfService {
-  const InvoicePdfService();
+  const InvoicePdfService({this.productSettings});
+
+  final ProductSettingsService? productSettings;
 
   static const _validator = InvoiceValidationService();
 
@@ -424,7 +428,7 @@ class InvoicePdfService {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Text(
-                    item.name,
+                    _itemTitle(item),
                     style: pw.TextStyle(
                       fontSize: 8.7,
                       fontWeight: pw.FontWeight.bold,
@@ -852,7 +856,7 @@ class InvoicePdfService {
       final item = entry.value;
       final result = invoice.calculation.items[entry.key];
       return [
-        item.name,
+        _itemTitle(item),
         item.hsnSac ?? '-',
         '${QuantityUtils.toInputValue(item.quantityScaled)} ${item.unit}',
         CurrencyUtils.formatMinor(item.rateMinor, symbol: symbol),
@@ -1094,6 +1098,12 @@ class InvoicePdfService {
 
   String _date(DateTime value) =>
       '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}';
+
+  String _itemTitle(InvoiceItemModel item) {
+    if (!(productSettings?.showAttributesOnInvoice ?? true)) return item.name;
+    final attributes = ProductAttributeUtils.compact(item.attributes);
+    return attributes.isEmpty ? item.name : '${item.name}\n$attributes';
+  }
 }
 
 class _PdfStyle {

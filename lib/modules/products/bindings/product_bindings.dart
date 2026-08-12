@@ -26,6 +26,7 @@ class ProductFormBinding extends Bindings {
         Get.find<ProductRepository>(),
         Get.find<BusinessRepository>(),
         Get.find(),
+        Get.find(),
       ),
     );
   }

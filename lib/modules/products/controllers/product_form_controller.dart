@@ -6,21 +6,26 @@ import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/utils/app_focus.dart';
 import '../../../data/models/product_service_model.dart';
+import '../../../data/models/business_category_model.dart';
+import '../../../data/models/product_attribute_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
 import '../../../data/services/unit_service.dart';
+import '../../../data/services/product_settings_service.dart';
 
 class ProductFormController extends GetxController {
   ProductFormController(
     this._repository,
     this._businessRepository,
     this.unitService,
+    this.productSettings,
   );
   static const taxRates = TaxUtils.gstRateBasisPoints;
 
   final ProductRepository _repository;
   final BusinessRepository _businessRepository;
   final UnitService unitService;
+  final ProductSettingsService productSettings;
   final formKey = GlobalKey<FormState>();
   final name = TextEditingController();
   final description = TextEditingController();
@@ -33,6 +38,9 @@ class ProductFormController extends GetxController {
   final isCustomTax = false.obs;
   final currencySymbol = '₹'.obs;
   final gstEnabled = false.obs;
+  final enabledFieldKeys = <String>{}.obs;
+  final customFields = <ProductCustomField>[].obs;
+  final attributeControllers = <String, TextEditingController>{};
   final isLoading = false.obs;
   final isSaving = false.obs;
   ProductServiceModel? _existing;
@@ -45,6 +53,11 @@ class ProductFormController extends GetxController {
   void onInit() {
     super.onInit();
     selectedUnit.value = unitService.defaultUnit;
+    enabledFieldKeys.assignAll(productSettings.enabledFields);
+    customFields.assignAll(productSettings.customFields);
+    for (final field in attributeDefinitions) {
+      attributeControllers[field.key] = TextEditingController();
+    }
     _captureBaseline();
     _loadCurrency();
     final id = Get.arguments as int?;
@@ -57,6 +70,37 @@ class ProductFormController extends GetxController {
       selectedUnit.value = unitService.defaultUnit;
     }
   }
+
+  bool fieldEnabled(String key) {
+    if (type.value == ItemType.service &&
+        const {
+          'color',
+          'size',
+          'material',
+          'weight',
+          'dimensions',
+          'shape',
+          'batchNumber',
+          'expiryDate',
+        }.contains(key)) {
+      return false;
+    }
+    return enabledFieldKeys.contains(key);
+  }
+
+  List<ProductFieldDefinition> get attributeDefinitions => [
+    ...ProductFieldPresets.fields.where(
+      (field) =>
+          !const {'description', 'unit', 'tax', 'hsnSac'}.contains(field.key),
+    ),
+    ...productSettings.customFields.map(
+      (field) => ProductFieldDefinition(
+        field.key,
+        field.label,
+        number: field.type == ProductCustomFieldType.number,
+      ),
+    ),
+  ];
 
   void selectTax(int? basisPoints) {
     if (basisPoints == null) {
@@ -105,6 +149,7 @@ class ProductFormController extends GetxController {
           taxRateBasisPoints: gstEnabled.value
               ? TaxUtils.parseBasisPoints(taxRate.text)!
               : 0,
+          attributes: _attributeValues(),
           createdAt: _existing?.createdAt ?? now,
           updatedAt: now,
         ),
@@ -137,6 +182,12 @@ class ProductFormController extends GetxController {
       taxRate.text = TaxUtils.toInputValue(item.taxRateBasisPoints);
       selectedTaxBasisPoints.value = item.taxRateBasisPoints;
       isCustomTax.value = !taxRates.contains(item.taxRateBasisPoints);
+      for (final attribute in item.attributes) {
+        attributeControllers
+                .putIfAbsent(attribute.key, TextEditingController.new)
+                .text =
+            attribute.value;
+      }
     }
     _captureBaseline();
     isLoading.value = false;
@@ -152,6 +203,9 @@ class ProductFormController extends GetxController {
     selectedUnit.value,
     selectedTaxBasisPoints.value.toString(),
     isCustomTax.value.toString(),
+    ...attributeControllers.entries.map(
+      (entry) => '${entry.key}:${entry.value.text}',
+    ),
   ].join('\u001f');
 
   void _captureBaseline() => _baseline = _snapshot();
@@ -168,6 +222,36 @@ class ProductFormController extends GetxController {
     salePrice.dispose();
     hsnSac.dispose();
     taxRate.dispose();
+    for (final controller in attributeControllers.values) {
+      controller.dispose();
+    }
     super.onClose();
+  }
+
+  List<ProductAttributeValue> _attributeValues() {
+    final labels = {
+      for (final field in attributeDefinitions) field.key: field.label,
+    };
+    final previous = {
+      for (final value
+          in _existing?.attributes ?? const <ProductAttributeValue>[])
+        value.key: value,
+    };
+    final result = <ProductAttributeValue>[];
+    for (final entry in attributeControllers.entries) {
+      final value = entry.value.text.trim();
+      if (value.isNotEmpty) {
+        result.add(
+          ProductAttributeValue(
+            key: entry.key,
+            label: labels[entry.key] ?? previous[entry.key]?.label ?? entry.key,
+            value: value,
+          ),
+        );
+      } else if (!fieldEnabled(entry.key) && previous[entry.key] != null) {
+        result.add(previous[entry.key]!);
+      }
+    }
+    return result;
   }
 }

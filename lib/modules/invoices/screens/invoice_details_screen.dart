@@ -8,6 +8,7 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/app_focus.dart';
 import '../../../app/utils/quantity_utils.dart';
+import '../../../app/utils/product_attribute_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
@@ -19,6 +20,7 @@ import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/invoice_payment_model.dart';
 import '../../../data/services/invoice_defaults_service.dart';
+import '../../../data/services/product_settings_service.dart';
 import '../controllers/invoice_details_controller.dart';
 import '../controllers/payment_receipt_controller.dart';
 
@@ -361,6 +363,21 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(item.name, style: AppTextStyles.cardTitle),
+                              if (Get.find<ProductSettingsService>()
+                                      .showAttributesOnInvoice &&
+                                  item.attributes.isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  ProductAttributeUtils.compact(
+                                    item.attributes,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.small.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
                               const SizedBox(height: 3),
                               Text(
                                 '${QuantityUtils.toInputValue(item.quantityScaled)} ${item.unit} × ${CurrencyUtils.formatMinor(item.rateMinor, symbol: symbol)}',

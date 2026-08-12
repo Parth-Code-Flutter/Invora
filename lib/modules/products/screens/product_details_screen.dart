@@ -106,6 +106,12 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
                             label: 'Description',
                             value: item.description,
                           ),
+                          ...item.attributes.map(
+                            (attribute) => _InfoRow(
+                              label: attribute.label,
+                              value: attribute.value,
+                            ),
+                          ),
                         ],
                       ),
                     ),

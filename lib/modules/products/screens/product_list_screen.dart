@@ -261,6 +261,20 @@ class _ItemCard extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                 ),
+                if (item.attributes.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    item.attributes
+                        .take(3)
+                        .map((value) => value.value)
+                        .join(' • '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 8),
                 Text(
                   CurrencyUtils.formatMinor(

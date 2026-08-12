@@ -13,6 +13,7 @@ class AppUnitField extends StatelessWidget {
     required this.unitService,
     required this.onChanged,
     this.label = 'Unit *',
+    this.recommendedUnits = const [],
     super.key,
   });
 
@@ -20,6 +21,7 @@ class AppUnitField extends StatelessWidget {
   final UnitService unitService;
   final ValueChanged<String> onChanged;
   final String label;
+  final List<String> recommendedUnits;
 
   @override
   Widget build(BuildContext context) => Semantics(
@@ -51,24 +53,35 @@ class AppUnitField extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (sheetContext) =>
-          _UnitSheet(selected: value, unitService: unitService),
+      builder: (sheetContext) => _UnitSheet(
+        selected: value,
+        unitService: unitService,
+        recommendedUnits: recommendedUnits,
+      ),
     );
     if (selected != null) onChanged(selected);
   }
 }
 
 class _UnitSheet extends StatefulWidget {
-  const _UnitSheet({required this.selected, required this.unitService});
+  const _UnitSheet({
+    required this.selected,
+    required this.unitService,
+    required this.recommendedUnits,
+  });
   final String selected;
   final UnitService unitService;
+  final List<String> recommendedUnits;
 
   @override
   State<_UnitSheet> createState() => _UnitSheetState();
 }
 
 class _UnitSheetState extends State<_UnitSheet> {
-  late List<String> units = widget.unitService.units;
+  late List<String> units = _allUnits();
+
+  List<String> _allUnits() =>
+      {...widget.recommendedUnits, ...widget.unitService.units}.toList();
 
   @override
   Widget build(BuildContext context) => ConstrainedBox(
@@ -98,6 +111,16 @@ class _UnitSheetState extends State<_UnitSheet> {
             style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 14),
+          if (widget.recommendedUnits.isNotEmpty) ...[
+            Text(
+              'Recommended for your business',
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
@@ -165,7 +188,7 @@ class _UnitSheetState extends State<_UnitSheet> {
     try {
       final unit = await widget.unitService.create(created);
       if (!mounted) return;
-      setState(() => units = widget.unitService.units);
+      setState(() => units = _allUnits());
       Navigator.pop(context, unit);
     } on ArgumentError {
       AppNotification.warning(

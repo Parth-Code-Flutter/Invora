@@ -12,6 +12,7 @@ import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
+import '../../../data/models/business_category_model.dart';
 import '../controllers/business_setup_controller.dart';
 
 class BusinessSetupScreen extends GetView<BusinessSetupController> {
@@ -74,6 +75,32 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                           prefixIcon: Icons.storefront_outlined,
                           validator: controller.requiredBusinessName,
                           textCapitalization: TextCapitalization.words,
+                        ),
+                        const SizedBox(height: 14),
+                        Obx(
+                          () => AppDropdownField<BusinessCategory>(
+                            label: 'Business category',
+                            value: controller.businessCategory.value,
+                            sheetTitle: 'Choose your business category',
+                            prefixIcon: Icons.category_outlined,
+                            options: BusinessCategory.values
+                                .map(
+                                  (value) => AppDropdownOption(
+                                    value: value,
+                                    label: value.label,
+                                  ),
+                                )
+                                .toList(growable: false),
+                            onChanged: (value) =>
+                                controller.businessCategory.value = value,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'This only recommends useful product fields and units. You can change it later.',
+                          style: AppTextStyles.small.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ] else ...[
                         const _SectionLabel(

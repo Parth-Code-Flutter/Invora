@@ -30,7 +30,7 @@ remain intentionally out of scope until explicitly requested.
 - PDF byte generation for every template and a professional lifecycle PDF.
 - Backup creation/validation, corrupt/incomplete/newer-version rejection,
   successful restore, failed replacement rollback, and reminder preferences.
-- Database V5/V6/V7 upgrades to V8 and failed-migration data preservation.
+- Database V5/V6/V7 upgrades through V9 and failed-migration data preservation.
 - Required-field, mobile, email, money, quantity, tax, payment, and date rules.
 - Unsaved-change clean exit, continue editing, discard, and Save draft.
 - Onboarding tablet-landscape layout and dashboard small-phone dark-mode layout.
@@ -88,3 +88,14 @@ flutter test
 ```
 
 Run the native/manual section on both Android and iOS before any release pass.
+# Category-based product customization
+
+- [ ] First business setup can select a category and explains that presets are recommendations.
+- [ ] Changing category updates enabled-field and unit recommendations without deleting saved product values.
+- [ ] Every standard field can be independently enabled/disabled.
+- [ ] Text and Number custom fields can be added, filled, edited through a product, hidden, and removed from settings.
+- [ ] Category-recommended units appear first and custom saved units remain available.
+- [ ] Product search matches attribute labels and values.
+- [ ] Invoice item attributes remain unchanged after editing the source product.
+- [ ] Attribute display preference consistently affects invoice edit, details, and all PDF templates.
+- [ ] Long attribute values remain compact on phone/tablet and multi-page PDFs.

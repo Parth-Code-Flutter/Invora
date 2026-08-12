@@ -5,6 +5,7 @@ import 'package:creovo_invoice/app/enums/tax_type.dart';
 import 'package:creovo_invoice/data/models/invoice_calculation_models.dart';
 import 'package:creovo_invoice/data/models/business_profile_model.dart';
 import 'package:creovo_invoice/data/models/invoice_model.dart';
+import 'package:creovo_invoice/data/models/product_attribute_model.dart';
 import 'package:creovo_invoice/data/repositories/invoice_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 import 'package:creovo_invoice/data/services/invoice_calculation_service.dart';
@@ -151,6 +152,38 @@ void main() {
       'Invoice_INV-0101_Mira-Studio.pdf',
     );
   });
+
+  test(
+    'invoice item attributes are persisted as an immutable snapshot',
+    () async {
+      final invoice = await repository.save(
+        _invoice(
+          number: 'INV-ATTR',
+          customer: 'Attribute Buyer',
+          company: 'Snapshot Studio',
+          totalMinor: 42000,
+          status: InvoiceStatus.unpaid,
+          date: DateTime(2026, 8, 12),
+          attributes: const [
+            ProductAttributeValue(key: 'color', label: 'Color', value: 'Black'),
+            ProductAttributeValue(key: 'size', label: 'Size', value: 'XL'),
+          ],
+        ),
+      );
+
+      final loaded = await repository.getById(invoice.id!);
+      expect(loaded!.items.single.attributes.first.value, 'Black');
+
+      final copy = await repository.duplicate(
+        id: invoice.id!,
+        newInvoiceNumber: 'INV-ATTR-COPY',
+      );
+      expect(copy.items.single.attributes.map((value) => value.value), [
+        'Black',
+        'XL',
+      ]);
+    },
+  );
 
   test(
     'creates an opening ledger entry for an initially paid amount',
@@ -369,6 +402,7 @@ InvoiceModel _invoice({
   required DateTime date,
   DateTime? dueDate,
   DocumentType documentType = DocumentType.invoice,
+  List<ProductAttributeValue> attributes = const [],
 }) {
   final item = InvoiceItemModel(
     localId: number,
@@ -376,6 +410,7 @@ InvoiceModel _invoice({
     quantityScaled: 1000,
     unit: 'service',
     rateMinor: totalMinor,
+    attributes: attributes,
   );
   final calculation = const InvoiceCalculationService().calculate(
     InvoiceCalculationInput(

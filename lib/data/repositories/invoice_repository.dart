@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'dart:convert';
 
 import '../../app/enums/discount_type.dart';
 import '../../app/enums/invoice_status.dart';
@@ -6,6 +7,7 @@ import '../../app/enums/tax_type.dart';
 import '../models/invoice_calculation_models.dart';
 import '../models/invoice_model.dart';
 import '../models/invoice_payment_model.dart';
+import '../models/product_attribute_model.dart';
 import '../models/report_summary_model.dart';
 import '../services/app_database.dart';
 import '../services/invoice_validation_service.dart';
@@ -477,6 +479,7 @@ class InvoiceRepository extends BaseRepository {
                 rateMinor: item.rateMinor,
                 hsnSac: item.hsnSac,
                 taxRateBasisPoints: item.taxRateBasisPoints,
+                attributes: item.attributes,
                 discount: item.discount,
               ),
             )
@@ -604,6 +607,11 @@ class InvoiceRepository extends BaseRepository {
                 rateMinor: item.rateMinor,
                 hsnSac: Value(item.hsnSac),
                 taxRateBasisPoints: item.taxRateBasisPoints,
+                attributesJson: Value(
+                  jsonEncode(
+                    item.attributes.map((value) => value.toJson()).toList(),
+                  ),
+                ),
                 discountType: item.discount.type.name,
                 discountValue: Value(discountStorageValue(item.discount)),
                 baseAmountMinor: result.baseMinor,
@@ -678,6 +686,7 @@ class InvoiceRepository extends BaseRepository {
               rateMinor: item.rateMinor,
               hsnSac: item.hsnSac,
               taxRateBasisPoints: item.taxRateBasisPoints,
+              attributes: _attributes(item.attributesJson),
               discount: discountFromStorage(
                 DiscountType.values.byName(item.discountType),
                 item.discountValue,
@@ -730,5 +739,21 @@ class InvoiceRepository extends BaseRepository {
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
+  }
+
+  List<ProductAttributeValue> _attributes(String raw) {
+    try {
+      return (jsonDecode(raw) as List)
+          .whereType<Map>()
+          .map(
+            (value) => ProductAttributeValue.fromJson(
+              Map<String, dynamic>.from(value),
+            ),
+          )
+          .where((value) => value.key.isNotEmpty && value.value.isNotEmpty)
+          .toList(growable: false);
+    } catch (_) {
+      return const [];
+    }
   }
 }

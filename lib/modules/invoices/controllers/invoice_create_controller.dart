@@ -201,6 +201,7 @@ class InvoiceCreateController extends GetxController {
         rateMinor: product.salePriceMinor,
         hsnSac: product.hsnSac,
         taxRateBasisPoints: product.taxRateBasisPoints,
+        attributes: product.attributes,
       ),
     );
   }
@@ -231,6 +232,7 @@ class InvoiceCreateController extends GetxController {
       hsnSac: item.hsnSac,
       taxRateBasisPoints: item.taxRateBasisPoints,
       discount: item.discount,
+      attributes: item.attributes,
     );
     recalculate();
   }
@@ -263,6 +265,7 @@ class InvoiceCreateController extends GetxController {
         hsnSac: item.hsnSac,
         taxRateBasisPoints: item.taxRateBasisPoints,
         discount: item.discount,
+        attributes: item.attributes,
       ),
     );
     recalculate();
@@ -286,6 +289,7 @@ class InvoiceCreateController extends GetxController {
         hsnSac: item.hsnSac,
         taxRateBasisPoints: item.taxRateBasisPoints,
         discount: item.discount,
+        attributes: item.attributes,
       );
 
   void addCharge(InvoiceChargeModel charge) {
@@ -476,6 +480,9 @@ class InvoiceCreateController extends GetxController {
             'rate': item.rateMinor,
             'hsnSac': item.hsnSac,
             'tax': item.taxRateBasisPoints,
+            'attributes': item.attributes
+                .map((value) => value.toJson())
+                .toList(),
             'discount': _discountSnapshot(item.discount),
           },
         )

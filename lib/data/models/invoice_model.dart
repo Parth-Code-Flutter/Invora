@@ -2,6 +2,7 @@ import '../../app/enums/discount_type.dart';
 import '../../app/enums/invoice_status.dart';
 import '../../app/enums/tax_type.dart';
 import 'customer_model.dart';
+import 'product_attribute_model.dart';
 import 'invoice_calculation_models.dart';
 
 enum InvoiceListFilter {
@@ -125,6 +126,7 @@ class InvoiceItemModel {
     this.hsnSac,
     this.taxRateBasisPoints = 0,
     this.discount = const DiscountInput.none(),
+    this.attributes = const [],
   });
 
   final String localId;
@@ -138,6 +140,7 @@ class InvoiceItemModel {
   final String? hsnSac;
   final int taxRateBasisPoints;
   final DiscountInput discount;
+  final List<ProductAttributeValue> attributes;
 }
 
 class InvoiceChargeModel {

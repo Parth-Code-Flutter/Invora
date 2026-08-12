@@ -2556,6 +2556,18 @@ class $ProductServicesTable extends ProductServices
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _attributesJsonMeta = const VerificationMeta(
+    'attributesJson',
+  );
+  @override
+  late final GeneratedColumn<String> attributesJson = GeneratedColumn<String>(
+    'attributes_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
   static const VerificationMeta _isDeletedMeta = const VerificationMeta(
     'isDeleted',
   );
@@ -2605,6 +2617,7 @@ class $ProductServicesTable extends ProductServices
     salePriceMinor,
     hsnSac,
     taxRateBasisPoints,
+    attributesJson,
     isDeleted,
     createdAt,
     updatedAt,
@@ -2683,6 +2696,15 @@ class $ProductServicesTable extends ProductServices
         ),
       );
     }
+    if (data.containsKey('attributes_json')) {
+      context.handle(
+        _attributesJsonMeta,
+        attributesJson.isAcceptableOrUnknown(
+          data['attributes_json']!,
+          _attributesJsonMeta,
+        ),
+      );
+    }
     if (data.containsKey('is_deleted')) {
       context.handle(
         _isDeletedMeta,
@@ -2742,6 +2764,10 @@ class $ProductServicesTable extends ProductServices
         DriftSqlType.int,
         data['${effectivePrefix}tax_rate_basis_points'],
       )!,
+      attributesJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}attributes_json'],
+      )!,
       isDeleted: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
@@ -2772,6 +2798,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
   final int salePriceMinor;
   final String? hsnSac;
   final int taxRateBasisPoints;
+  final String attributesJson;
   final bool isDeleted;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -2784,6 +2811,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     required this.salePriceMinor,
     this.hsnSac,
     required this.taxRateBasisPoints,
+    required this.attributesJson,
     required this.isDeleted,
     required this.createdAt,
     required this.updatedAt,
@@ -2803,6 +2831,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       map['hsn_sac'] = Variable<String>(hsnSac);
     }
     map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints);
+    map['attributes_json'] = Variable<String>(attributesJson);
     map['is_deleted'] = Variable<bool>(isDeleted);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -2823,6 +2852,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
           ? const Value.absent()
           : Value(hsnSac),
       taxRateBasisPoints: Value(taxRateBasisPoints),
+      attributesJson: Value(attributesJson),
       isDeleted: Value(isDeleted),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -2843,6 +2873,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       salePriceMinor: serializer.fromJson<int>(json['salePriceMinor']),
       hsnSac: serializer.fromJson<String?>(json['hsnSac']),
       taxRateBasisPoints: serializer.fromJson<int>(json['taxRateBasisPoints']),
+      attributesJson: serializer.fromJson<String>(json['attributesJson']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -2860,6 +2891,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       'salePriceMinor': serializer.toJson<int>(salePriceMinor),
       'hsnSac': serializer.toJson<String?>(hsnSac),
       'taxRateBasisPoints': serializer.toJson<int>(taxRateBasisPoints),
+      'attributesJson': serializer.toJson<String>(attributesJson),
       'isDeleted': serializer.toJson<bool>(isDeleted),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -2875,6 +2907,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     int? salePriceMinor,
     Value<String?> hsnSac = const Value.absent(),
     int? taxRateBasisPoints,
+    String? attributesJson,
     bool? isDeleted,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -2887,6 +2920,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     salePriceMinor: salePriceMinor ?? this.salePriceMinor,
     hsnSac: hsnSac.present ? hsnSac.value : this.hsnSac,
     taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+    attributesJson: attributesJson ?? this.attributesJson,
     isDeleted: isDeleted ?? this.isDeleted,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -2907,6 +2941,9 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       taxRateBasisPoints: data.taxRateBasisPoints.present
           ? data.taxRateBasisPoints.value
           : this.taxRateBasisPoints,
+      attributesJson: data.attributesJson.present
+          ? data.attributesJson.value
+          : this.attributesJson,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -2924,6 +2961,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
           ..write('salePriceMinor: $salePriceMinor, ')
           ..write('hsnSac: $hsnSac, ')
           ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('attributesJson: $attributesJson, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -2941,6 +2979,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     salePriceMinor,
     hsnSac,
     taxRateBasisPoints,
+    attributesJson,
     isDeleted,
     createdAt,
     updatedAt,
@@ -2957,6 +2996,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
           other.salePriceMinor == this.salePriceMinor &&
           other.hsnSac == this.hsnSac &&
           other.taxRateBasisPoints == this.taxRateBasisPoints &&
+          other.attributesJson == this.attributesJson &&
           other.isDeleted == this.isDeleted &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -2971,6 +3011,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
   final Value<int> salePriceMinor;
   final Value<String?> hsnSac;
   final Value<int> taxRateBasisPoints;
+  final Value<String> attributesJson;
   final Value<bool> isDeleted;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -2983,6 +3024,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     this.salePriceMinor = const Value.absent(),
     this.hsnSac = const Value.absent(),
     this.taxRateBasisPoints = const Value.absent(),
+    this.attributesJson = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -2996,6 +3038,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     required int salePriceMinor,
     this.hsnSac = const Value.absent(),
     this.taxRateBasisPoints = const Value.absent(),
+    this.attributesJson = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -3012,6 +3055,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     Expression<int>? salePriceMinor,
     Expression<String>? hsnSac,
     Expression<int>? taxRateBasisPoints,
+    Expression<String>? attributesJson,
     Expression<bool>? isDeleted,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -3026,6 +3070,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
       if (hsnSac != null) 'hsn_sac': hsnSac,
       if (taxRateBasisPoints != null)
         'tax_rate_basis_points': taxRateBasisPoints,
+      if (attributesJson != null) 'attributes_json': attributesJson,
       if (isDeleted != null) 'is_deleted': isDeleted,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -3041,6 +3086,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     Value<int>? salePriceMinor,
     Value<String?>? hsnSac,
     Value<int>? taxRateBasisPoints,
+    Value<String>? attributesJson,
     Value<bool>? isDeleted,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -3054,6 +3100,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
       salePriceMinor: salePriceMinor ?? this.salePriceMinor,
       hsnSac: hsnSac ?? this.hsnSac,
       taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+      attributesJson: attributesJson ?? this.attributesJson,
       isDeleted: isDeleted ?? this.isDeleted,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -3087,6 +3134,9 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     if (taxRateBasisPoints.present) {
       map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints.value);
     }
+    if (attributesJson.present) {
+      map['attributes_json'] = Variable<String>(attributesJson.value);
+    }
     if (isDeleted.present) {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
@@ -3110,6 +3160,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
           ..write('salePriceMinor: $salePriceMinor, ')
           ..write('hsnSac: $hsnSac, ')
           ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('attributesJson: $attributesJson, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -5208,6 +5259,18 @@ class $InvoiceItemsTable extends InvoiceItems
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _attributesJsonMeta = const VerificationMeta(
+    'attributesJson',
+  );
+  @override
+  late final GeneratedColumn<String> attributesJson = GeneratedColumn<String>(
+    'attributes_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
   static const VerificationMeta _discountTypeMeta = const VerificationMeta(
     'discountType',
   );
@@ -5307,6 +5370,7 @@ class $InvoiceItemsTable extends InvoiceItems
     rateMinor,
     hsnSac,
     taxRateBasisPoints,
+    attributesJson,
     discountType,
     discountValue,
     baseAmountMinor,
@@ -5405,6 +5469,15 @@ class $InvoiceItemsTable extends InvoiceItems
       );
     } else if (isInserting) {
       context.missing(_taxRateBasisPointsMeta);
+    }
+    if (data.containsKey('attributes_json')) {
+      context.handle(
+        _attributesJsonMeta,
+        attributesJson.isAcceptableOrUnknown(
+          data['attributes_json']!,
+          _attributesJsonMeta,
+        ),
+      );
     }
     if (data.containsKey('discount_type')) {
       context.handle(
@@ -5535,6 +5608,10 @@ class $InvoiceItemsTable extends InvoiceItems
         DriftSqlType.int,
         data['${effectivePrefix}tax_rate_basis_points'],
       )!,
+      attributesJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}attributes_json'],
+      )!,
       discountType: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}discount_type'],
@@ -5587,6 +5664,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
   final int rateMinor;
   final String? hsnSac;
   final int taxRateBasisPoints;
+  final String attributesJson;
   final String discountType;
   final int discountValue;
   final int baseAmountMinor;
@@ -5606,6 +5684,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
     required this.rateMinor,
     this.hsnSac,
     required this.taxRateBasisPoints,
+    required this.attributesJson,
     required this.discountType,
     required this.discountValue,
     required this.baseAmountMinor,
@@ -5634,6 +5713,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
       map['hsn_sac'] = Variable<String>(hsnSac);
     }
     map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints);
+    map['attributes_json'] = Variable<String>(attributesJson);
     map['discount_type'] = Variable<String>(discountType);
     map['discount_value'] = Variable<int>(discountValue);
     map['base_amount_minor'] = Variable<int>(baseAmountMinor);
@@ -5663,6 +5743,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
           ? const Value.absent()
           : Value(hsnSac),
       taxRateBasisPoints: Value(taxRateBasisPoints),
+      attributesJson: Value(attributesJson),
       discountType: Value(discountType),
       discountValue: Value(discountValue),
       baseAmountMinor: Value(baseAmountMinor),
@@ -5690,6 +5771,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
       rateMinor: serializer.fromJson<int>(json['rateMinor']),
       hsnSac: serializer.fromJson<String?>(json['hsnSac']),
       taxRateBasisPoints: serializer.fromJson<int>(json['taxRateBasisPoints']),
+      attributesJson: serializer.fromJson<String>(json['attributesJson']),
       discountType: serializer.fromJson<String>(json['discountType']),
       discountValue: serializer.fromJson<int>(json['discountValue']),
       baseAmountMinor: serializer.fromJson<int>(json['baseAmountMinor']),
@@ -5716,6 +5798,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
       'rateMinor': serializer.toJson<int>(rateMinor),
       'hsnSac': serializer.toJson<String?>(hsnSac),
       'taxRateBasisPoints': serializer.toJson<int>(taxRateBasisPoints),
+      'attributesJson': serializer.toJson<String>(attributesJson),
       'discountType': serializer.toJson<String>(discountType),
       'discountValue': serializer.toJson<int>(discountValue),
       'baseAmountMinor': serializer.toJson<int>(baseAmountMinor),
@@ -5738,6 +5821,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
     int? rateMinor,
     Value<String?> hsnSac = const Value.absent(),
     int? taxRateBasisPoints,
+    String? attributesJson,
     String? discountType,
     int? discountValue,
     int? baseAmountMinor,
@@ -5757,6 +5841,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
     rateMinor: rateMinor ?? this.rateMinor,
     hsnSac: hsnSac.present ? hsnSac.value : this.hsnSac,
     taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+    attributesJson: attributesJson ?? this.attributesJson,
     discountType: discountType ?? this.discountType,
     discountValue: discountValue ?? this.discountValue,
     baseAmountMinor: baseAmountMinor ?? this.baseAmountMinor,
@@ -5784,6 +5869,9 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
       taxRateBasisPoints: data.taxRateBasisPoints.present
           ? data.taxRateBasisPoints.value
           : this.taxRateBasisPoints,
+      attributesJson: data.attributesJson.present
+          ? data.attributesJson.value
+          : this.attributesJson,
       discountType: data.discountType.present
           ? data.discountType.value
           : this.discountType,
@@ -5822,6 +5910,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
           ..write('rateMinor: $rateMinor, ')
           ..write('hsnSac: $hsnSac, ')
           ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('attributesJson: $attributesJson, ')
           ..write('discountType: $discountType, ')
           ..write('discountValue: $discountValue, ')
           ..write('baseAmountMinor: $baseAmountMinor, ')
@@ -5846,6 +5935,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
     rateMinor,
     hsnSac,
     taxRateBasisPoints,
+    attributesJson,
     discountType,
     discountValue,
     baseAmountMinor,
@@ -5869,6 +5959,7 @@ class InvoiceItem extends DataClass implements Insertable<InvoiceItem> {
           other.rateMinor == this.rateMinor &&
           other.hsnSac == this.hsnSac &&
           other.taxRateBasisPoints == this.taxRateBasisPoints &&
+          other.attributesJson == this.attributesJson &&
           other.discountType == this.discountType &&
           other.discountValue == this.discountValue &&
           other.baseAmountMinor == this.baseAmountMinor &&
@@ -5890,6 +5981,7 @@ class InvoiceItemsCompanion extends UpdateCompanion<InvoiceItem> {
   final Value<int> rateMinor;
   final Value<String?> hsnSac;
   final Value<int> taxRateBasisPoints;
+  final Value<String> attributesJson;
   final Value<String> discountType;
   final Value<int> discountValue;
   final Value<int> baseAmountMinor;
@@ -5909,6 +6001,7 @@ class InvoiceItemsCompanion extends UpdateCompanion<InvoiceItem> {
     this.rateMinor = const Value.absent(),
     this.hsnSac = const Value.absent(),
     this.taxRateBasisPoints = const Value.absent(),
+    this.attributesJson = const Value.absent(),
     this.discountType = const Value.absent(),
     this.discountValue = const Value.absent(),
     this.baseAmountMinor = const Value.absent(),
@@ -5929,6 +6022,7 @@ class InvoiceItemsCompanion extends UpdateCompanion<InvoiceItem> {
     required int rateMinor,
     this.hsnSac = const Value.absent(),
     required int taxRateBasisPoints,
+    this.attributesJson = const Value.absent(),
     required String discountType,
     this.discountValue = const Value.absent(),
     required int baseAmountMinor,
@@ -5961,6 +6055,7 @@ class InvoiceItemsCompanion extends UpdateCompanion<InvoiceItem> {
     Expression<int>? rateMinor,
     Expression<String>? hsnSac,
     Expression<int>? taxRateBasisPoints,
+    Expression<String>? attributesJson,
     Expression<String>? discountType,
     Expression<int>? discountValue,
     Expression<int>? baseAmountMinor,
@@ -5982,6 +6077,7 @@ class InvoiceItemsCompanion extends UpdateCompanion<InvoiceItem> {
       if (hsnSac != null) 'hsn_sac': hsnSac,
       if (taxRateBasisPoints != null)
         'tax_rate_basis_points': taxRateBasisPoints,
+      if (attributesJson != null) 'attributes_json': attributesJson,
       if (discountType != null) 'discount_type': discountType,
       if (discountValue != null) 'discount_value': discountValue,
       if (baseAmountMinor != null) 'base_amount_minor': baseAmountMinor,
@@ -6006,6 +6102,7 @@ class InvoiceItemsCompanion extends UpdateCompanion<InvoiceItem> {
     Value<int>? rateMinor,
     Value<String?>? hsnSac,
     Value<int>? taxRateBasisPoints,
+    Value<String>? attributesJson,
     Value<String>? discountType,
     Value<int>? discountValue,
     Value<int>? baseAmountMinor,
@@ -6026,6 +6123,7 @@ class InvoiceItemsCompanion extends UpdateCompanion<InvoiceItem> {
       rateMinor: rateMinor ?? this.rateMinor,
       hsnSac: hsnSac ?? this.hsnSac,
       taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+      attributesJson: attributesJson ?? this.attributesJson,
       discountType: discountType ?? this.discountType,
       discountValue: discountValue ?? this.discountValue,
       baseAmountMinor: baseAmountMinor ?? this.baseAmountMinor,
@@ -6070,6 +6168,9 @@ class InvoiceItemsCompanion extends UpdateCompanion<InvoiceItem> {
     if (taxRateBasisPoints.present) {
       map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints.value);
     }
+    if (attributesJson.present) {
+      map['attributes_json'] = Variable<String>(attributesJson.value);
+    }
     if (discountType.present) {
       map['discount_type'] = Variable<String>(discountType.value);
     }
@@ -6110,6 +6211,7 @@ class InvoiceItemsCompanion extends UpdateCompanion<InvoiceItem> {
           ..write('rateMinor: $rateMinor, ')
           ..write('hsnSac: $hsnSac, ')
           ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('attributesJson: $attributesJson, ')
           ..write('discountType: $discountType, ')
           ..write('discountValue: $discountValue, ')
           ..write('baseAmountMinor: $baseAmountMinor, ')
@@ -8347,6 +8449,7 @@ typedef $$ProductServicesTableCreateCompanionBuilder =
       required int salePriceMinor,
       Value<String?> hsnSac,
       Value<int> taxRateBasisPoints,
+      Value<String> attributesJson,
       Value<bool> isDeleted,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -8361,6 +8464,7 @@ typedef $$ProductServicesTableUpdateCompanionBuilder =
       Value<int> salePriceMinor,
       Value<String?> hsnSac,
       Value<int> taxRateBasisPoints,
+      Value<String> attributesJson,
       Value<bool> isDeleted,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -8412,6 +8516,11 @@ class $$ProductServicesTableFilterComposer
 
   ColumnFilters<int> get taxRateBasisPoints => $composableBuilder(
     column: $table.taxRateBasisPoints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get attributesJson => $composableBuilder(
+    column: $table.attributesJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8480,6 +8589,11 @@ class $$ProductServicesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get attributesJson => $composableBuilder(
+    column: $table.attributesJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isDeleted => $composableBuilder(
     column: $table.isDeleted,
     builder: (column) => ColumnOrderings(column),
@@ -8532,6 +8646,11 @@ class $$ProductServicesTableAnnotationComposer
 
   GeneratedColumn<int> get taxRateBasisPoints => $composableBuilder(
     column: $table.taxRateBasisPoints,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get attributesJson => $composableBuilder(
+    column: $table.attributesJson,
     builder: (column) => column,
   );
 
@@ -8590,6 +8709,7 @@ class $$ProductServicesTableTableManager
                 Value<int> salePriceMinor = const Value.absent(),
                 Value<String?> hsnSac = const Value.absent(),
                 Value<int> taxRateBasisPoints = const Value.absent(),
+                Value<String> attributesJson = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -8602,6 +8722,7 @@ class $$ProductServicesTableTableManager
                 salePriceMinor: salePriceMinor,
                 hsnSac: hsnSac,
                 taxRateBasisPoints: taxRateBasisPoints,
+                attributesJson: attributesJson,
                 isDeleted: isDeleted,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -8616,6 +8737,7 @@ class $$ProductServicesTableTableManager
                 required int salePriceMinor,
                 Value<String?> hsnSac = const Value.absent(),
                 Value<int> taxRateBasisPoints = const Value.absent(),
+                Value<String> attributesJson = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -8628,6 +8750,7 @@ class $$ProductServicesTableTableManager
                 salePriceMinor: salePriceMinor,
                 hsnSac: hsnSac,
                 taxRateBasisPoints: taxRateBasisPoints,
+                attributesJson: attributesJson,
                 isDeleted: isDeleted,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -9800,6 +9923,7 @@ typedef $$InvoiceItemsTableCreateCompanionBuilder =
       required int rateMinor,
       Value<String?> hsnSac,
       required int taxRateBasisPoints,
+      Value<String> attributesJson,
       required String discountType,
       Value<int> discountValue,
       required int baseAmountMinor,
@@ -9821,6 +9945,7 @@ typedef $$InvoiceItemsTableUpdateCompanionBuilder =
       Value<int> rateMinor,
       Value<String?> hsnSac,
       Value<int> taxRateBasisPoints,
+      Value<String> attributesJson,
       Value<String> discountType,
       Value<int> discountValue,
       Value<int> baseAmountMinor,
@@ -9904,6 +10029,11 @@ class $$InvoiceItemsTableFilterComposer
 
   ColumnFilters<int> get taxRateBasisPoints => $composableBuilder(
     column: $table.taxRateBasisPoints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get attributesJson => $composableBuilder(
+    column: $table.attributesJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10025,6 +10155,11 @@ class $$InvoiceItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get attributesJson => $composableBuilder(
+    column: $table.attributesJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get discountType => $composableBuilder(
     column: $table.discountType,
     builder: (column) => ColumnOrderings(column),
@@ -10131,6 +10266,11 @@ class $$InvoiceItemsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get attributesJson => $composableBuilder(
+    column: $table.attributesJson,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get discountType => $composableBuilder(
     column: $table.discountType,
     builder: (column) => column,
@@ -10231,6 +10371,7 @@ class $$InvoiceItemsTableTableManager
                 Value<int> rateMinor = const Value.absent(),
                 Value<String?> hsnSac = const Value.absent(),
                 Value<int> taxRateBasisPoints = const Value.absent(),
+                Value<String> attributesJson = const Value.absent(),
                 Value<String> discountType = const Value.absent(),
                 Value<int> discountValue = const Value.absent(),
                 Value<int> baseAmountMinor = const Value.absent(),
@@ -10250,6 +10391,7 @@ class $$InvoiceItemsTableTableManager
                 rateMinor: rateMinor,
                 hsnSac: hsnSac,
                 taxRateBasisPoints: taxRateBasisPoints,
+                attributesJson: attributesJson,
                 discountType: discountType,
                 discountValue: discountValue,
                 baseAmountMinor: baseAmountMinor,
@@ -10271,6 +10413,7 @@ class $$InvoiceItemsTableTableManager
                 required int rateMinor,
                 Value<String?> hsnSac = const Value.absent(),
                 required int taxRateBasisPoints,
+                Value<String> attributesJson = const Value.absent(),
                 required String discountType,
                 Value<int> discountValue = const Value.absent(),
                 required int baseAmountMinor,
@@ -10290,6 +10433,7 @@ class $$InvoiceItemsTableTableManager
                 rateMinor: rateMinor,
                 hsnSac: hsnSac,
                 taxRateBasisPoints: taxRateBasisPoints,
+                attributesJson: attributesJson,
                 discountType: discountType,
                 discountValue: discountValue,
                 baseAmountMinor: baseAmountMinor,

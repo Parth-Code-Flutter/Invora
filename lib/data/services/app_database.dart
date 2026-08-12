@@ -82,6 +82,7 @@ class ProductServices extends Table {
   TextColumn get hsnSac => text().nullable()();
   IntColumn get taxRateBasisPoints =>
       integer().withDefault(const Constant(0))();
+  TextColumn get attributesJson => text().withDefault(const Constant('[]'))();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
@@ -141,6 +142,7 @@ class InvoiceItems extends Table {
   IntColumn get rateMinor => integer()();
   TextColumn get hsnSac => text().nullable()();
   IntColumn get taxRateBasisPoints => integer()();
+  TextColumn get attributesJson => text().withDefault(const Constant('[]'))();
   TextColumn get discountType => text()();
   IntColumn get discountValue => integer().withDefault(const Constant(0))();
   IntColumn get baseAmountMinor => integer()();
@@ -247,6 +249,20 @@ class AppDatabase extends _$AppDatabase {
             ELSE 'payment'
           END
         ''');
+      }
+      final existingTables = (await customSelect(
+        "SELECT name FROM sqlite_master WHERE type = 'table'",
+      ).get()).map((row) => row.read<String>('name')).toSet();
+      if (from >= 4 &&
+          from < 9 &&
+          existingTables.contains('product_services')) {
+        await migrator.addColumn(
+          productServices,
+          productServices.attributesJson,
+        );
+      }
+      if (from >= 5 && from < 9 && existingTables.contains('invoice_items')) {
+        await migrator.addColumn(invoiceItems, invoiceItems.attributesJson);
       }
     },
   );

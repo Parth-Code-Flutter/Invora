@@ -32,6 +32,7 @@ import '../../modules/settings/bindings/settings_binding.dart';
 import '../../modules/settings/screens/settings_screen.dart';
 import '../../modules/settings/screens/invoice_defaults_screen.dart';
 import '../../modules/settings/screens/data_export_screen.dart';
+import '../../modules/settings/screens/product_settings_screen.dart';
 import '../../modules/settings/screens/more_screen.dart';
 import '../../modules/settings/screens/unit_settings_screen.dart';
 import 'app_routes.dart';
@@ -162,6 +163,11 @@ abstract final class AppRouter {
       name: AppRoutes.dataExport,
       page: DataExportScreen.new,
       binding: DataExportBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.productSettings,
+      page: ProductSettingsScreen.new,
+      binding: ProductSettingsBinding(),
     ),
     GetPage(
       name: AppRoutes.unitSettings,

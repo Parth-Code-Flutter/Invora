@@ -36,6 +36,14 @@ class MoreScreen extends GetView<MoreController> {
           AppMenuGroup(
             children: [
               AppMenuTile(
+                icon: Icons.tune_rounded,
+                title: 'Product settings',
+                subtitle: 'Business category, fields and invoice display',
+                color: AppColors.primary,
+                background: AppColors.primaryLight,
+                onTap: () => Get.toNamed<void>(AppRoutes.productSettings),
+              ),
+              AppMenuTile(
                 icon: Icons.straighten_rounded,
                 title: 'Set default unit',
                 subtitle: 'Manage units and choose the default for new items',

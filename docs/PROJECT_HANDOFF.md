@@ -95,6 +95,15 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   main path while progressively disclosing unit, tax, and HSN/SAC details
 - Product/service forms use an expressive compact type picker, cohesive
   essentials card, and live invoice-line preview for name, price, and unit
+- Optional business-category presets recommend useful product fields and units
+  for 15 business types without locking the catalog to a template. Category
+  can be selected during business setup or changed under Product Settings.
+- Product Settings supports independent field toggles, reusable Text/Number
+  custom fields, category-aware preferred units, and a preference controlling
+  whether attributes appear on invoices. Changing category updates only the
+  recommendations; existing product values remain stored.
+- Product attributes are searchable and appear as a compact prioritized
+  secondary line in catalog/product details.
 
 ### Invoices and quotations
 
@@ -102,6 +111,10 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Draft, unpaid, partially paid, paid, overdue, sent, accepted, rejected, and
   cancelled lifecycle states where applicable
 - Historical customer and line-item snapshots
+- Historical line-item snapshots include configurable product attributes;
+  later catalog edits cannot rewrite saved invoice content. Attribute summaries
+  appear consistently in invoice editing, details, and every PDF template when
+  enabled.
 - Saved catalog items and one-time custom items
 - Line-item edit, duplicate, and remove actions
 - Re-selecting the same saved catalog item increases its existing quantity;
@@ -119,7 +132,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   reference, note, paid progress, and remaining balance. Schema v8 classifies
   payment/opening/imported/reversal entries and links every explicit reversal
   to its immutable original payment; existing invoice edits cannot rewrite the
-  ledger, while legacy cumulative payments remain preserved.
+  ledger, while legacy cumulative payments remain preserved. Schema v9 adds
+  backward-compatible JSON attribute columns to products and invoice items.
 - Successful ledger payments open an animated receipt-roll experience with a
   stable receipt number and offline A5 PDF preview/save/share/print actions;
   valid historical receipts reopen from payment activity and reversed payments
@@ -272,7 +286,7 @@ transfer automatically.
 As of 2026-08-12:
 
 - Flutter analysis: no issues
-- Automated suite: all 78 tests passing
+- Automated suite: all 81 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -293,6 +307,33 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-12 — Category-based configurable product details
+
+- Added optional category selection during business setup and a dedicated
+  Product Settings workspace reachable from both More and App Settings.
+  Fifteen category presets recommend product fields and units but never enforce
+  a rigid template.
+- Added independent product-field toggles, custom Text/Number field creation,
+  invoice-display preference, and category-aware unit recommendations while
+  preserving the existing create/edit product workflow.
+- Product attributes now persist as structured JSON, participate in catalog
+  search, and render compactly in product lists/details. Existing values remain
+  stored when fields are hidden or the category changes.
+- Invoice line items copy attributes into immutable snapshots and show them in
+  invoice edit/details and all PDF templates. Product edits therefore cannot
+  alter historical documents.
+- Storage/schema changes: schema v9 adds non-null `attributes_json` columns
+  with `[]` defaults to products and invoice items. SharedPreferences adds the
+  business category, enabled fields, custom fields, recommended units, and PDF
+  display preference; all are included in backup/restore settings.
+- Important files: business/product attribute models, product settings service
+  and screens, business setup, product form/list/details, invoice repositories
+  and screens, PDF service, database migration/generated schema, backup service,
+  tests, QA checklist, plan, and this handoff.
+- Verification: code generation, static analysis, all 81 automated tests, and
+  focused schema migration, category settings, product repository, invoice
+  snapshot, and every-template PDF tests passed.
 
 ### 2026-08-12 — Project-wide modern dialog system
 
