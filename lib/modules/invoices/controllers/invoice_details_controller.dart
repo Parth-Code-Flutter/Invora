@@ -20,6 +20,7 @@ class InvoiceDetailsController extends GetxController {
   final isLoading = true.obs;
   final isWorking = false.obs;
   final payments = <InvoicePaymentModel>[].obs;
+  final lastRecordedPayment = Rxn<InvoicePaymentModel>();
   int? _invoiceId;
 
   @override
@@ -126,6 +127,11 @@ class InvoiceDetailsController extends GetxController {
       note: note,
     );
     await reload();
+    lastRecordedPayment.value = payments.firstWhereOrNull(
+      (payment) =>
+          payment.amountMinor == amount &&
+          payment.entryType == InvoicePaymentEntryType.payment,
+    );
     return null;
   }
 

@@ -10,6 +10,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_search_field.dart';
@@ -162,7 +163,9 @@ class ProductListScreen extends GetView<ProductListController> {
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AppDialog(
+        icon: Icons.delete_outline_rounded,
+        iconColor: AppColors.error,
         title: Text('Delete ${item.type.label.toLowerCase()}?'),
         content: Text(
           '${item.name} will be hidden from lists. Historical invoices will remain unchanged.',

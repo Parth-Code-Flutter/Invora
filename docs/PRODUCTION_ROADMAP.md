@@ -96,10 +96,16 @@ Status: **Implemented for V1 launch safety**
 
 #### 4. Unsaved-change protection
 
-- Detect changes in invoice, customer, product, and business forms.
-- On back/navigation, offer `Continue editing`, `Save draft` where applicable,
-  and `Discard`.
-- Prevent accidental loss when switching main navigation destinations.
+Status: **Implemented for all data-entry routes**
+
+- Invoice, customer, product/service, and business forms compare their current
+  state with the loaded/saved baseline.
+- Back buttons, Android system back, and iOS back gestures use one consistent
+  `Continue editing` / `Discard` confirmation.
+- Invoice and quotation composers additionally offer `Save draft` before
+  leaving, and clean or successfully saved forms exit without a warning.
+- Data-entry routes do not expose the main bottom navigation, preventing an
+  unguarded tab switch while editing.
 
 ### P0 — Release engineering and compliance
 
@@ -127,6 +133,8 @@ Status: **Implemented for V1 launch safety**
 
 #### 7. End-to-end release tests
 
+Status: **Automated offline lifecycle active; native device pass remains**
+
 Automate and physically test:
 
 1. Onboarding and business setup
@@ -140,30 +148,52 @@ Automate and physically test:
 9. Backup and restore
 10. App/database upgrade
 
+The repeatable status and remaining physical-device cases are tracked in
+[QA_CHECKLIST.md](QA_CHECKLIST.md).
+
 ### P1 — Features required for a complete V1 experience
 
 #### 8. Payment receipts
 
-- Generate receipt PDF after a payment.
-- Include receipt/payment number, invoice number, customer, amount, date,
-  method, reference, business identity, and remaining balance.
-- Preview, save, share, and print.
-- Open a receipt from payment history.
+Status: **Implemented**
+
+- Generate an offline A5 receipt PDF after a payment with a stable receipt
+  number, invoice/customer/business identity, amount, date, method, reference,
+  and remaining balance.
+- Show a receipt-roll print animation immediately after payment, matching the
+  supplied reference's gold printer, descending paper, success reveal, replay,
+  and receipt action feel.
+- Preview, save, share, and print from the receipt workspace, and reopen valid
+  historical receipts from payment activity.
+- Reversed payments are visibly marked and cannot produce active receipts.
 
 #### 9. Customer statements
 
-- Date-range customer account statement.
-- Show opening balance, invoices, payments/reversals, and closing balance.
-- Export/share a statement PDF.
-- Reuse Customer Details account metrics and invoice history.
+Status: **Implemented**
+
+- Date-range customer account statement with opening balance, invoices,
+  payments, reversals, and running/closing balance.
+- Cancelled invoices are excluded; reversals restore debit without erasing the
+  original payment history.
+- Customer Details opens the account-style statement workspace with date
+  controls, totals, chronological activity, and offline PDF preview/save/share/
+  print actions.
 
 #### 10. Data export
+
+Status: **Implemented**
 
 - CSV export for customers, products/services, invoices, and payments.
 - Date-range CSV/PDF export for reports.
 - Clearly document fields and date/currency formats.
+- The Export Data workspace provides native save/share actions, Excel-friendly
+  UTF-8 CSV, ISO dates, decimal major-unit amounts, tax/status/payment columns,
+  and a Unicode A4 report PDF. Invoice ranges use invoice date and payment
+  ranges use ledger-entry date.
 
 #### 11. Invoice defaults
+
+Status: **Implemented**
 
 - Default due period: immediate, 7, 15, 30 days, or custom.
 - Default GST rate and tax mode.
@@ -171,6 +201,10 @@ Automate and physically test:
 - Default payment method.
 - Existing default unit and PDF template remain part of this settings group.
 - Include every new preference in backup/restore.
+- Settings now provides one focused Invoice Defaults workspace. New invoices
+  and estimates inherit the due period, tax mode, notes, and terms; custom
+  items inherit the GST rate; payment recording inherits the payment method.
+  Saved documents and catalog GST rates remain unchanged.
 
 ## Existing features that need improvement
 

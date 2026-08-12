@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,6 +18,7 @@ import '../../../data/repositories/customer_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
 import '../../../data/repositories/product_repository.dart';
 import '../../../data/services/invoice_calculation_service.dart';
+import '../../../data/services/invoice_defaults_service.dart';
 import '../../../data/services/invoice_validation_service.dart';
 
 class InvoiceCreateController extends GetxController {
@@ -25,6 +28,7 @@ class InvoiceCreateController extends GetxController {
     this._customers,
     this._products,
     this._calculator, {
+    this.defaults,
     this.documentType = DocumentType.invoice,
   });
 
@@ -33,6 +37,7 @@ class InvoiceCreateController extends GetxController {
   final CustomerRepository _customers;
   final ProductRepository _products;
   final InvoiceCalculationService _calculator;
+  final InvoiceDefaultsService? defaults;
   static const _validator = InvoiceValidationService();
   final DocumentType documentType;
   bool get isQuotation => documentType == DocumentType.quotation;
@@ -61,6 +66,10 @@ class InvoiceCreateController extends GetxController {
   DateTime _createdAt = DateTime.now();
   InvoiceStatus _originalStatus = InvoiceStatus.draft;
   var _counter = 0;
+  String _baseline = '';
+  bool _dueDateUsesDefault = false;
+
+  bool get hasUnsavedChanges => !isLoading.value && _snapshot() != _baseline;
 
   @override
   void onInit() {
@@ -93,6 +102,13 @@ class InvoiceCreateController extends GetxController {
       _restore(saved);
       AppNotification.info('Draft restored', saved.invoiceNumber);
     } else {
+      taxType.value = defaults?.taxType ?? TaxType.cgstSgst;
+      dueDate.value = invoiceDate.value.add(
+        Duration(days: defaults?.dueDays ?? 0),
+      );
+      _dueDateUsesDefault = true;
+      notesController.text = defaults?.notes ?? '';
+      termsController.text = defaults?.terms ?? '';
       invoiceNumber.value = await _invoices.nextInvoiceNumber(
         prefix: isQuotation ? 'QTN' : profile?.invoicePrefix ?? 'INV',
         startingNumber: isQuotation ? 1 : profile?.startingInvoiceNumber ?? 1,
@@ -109,10 +125,23 @@ class InvoiceCreateController extends GetxController {
         }
       }
     }
+    _captureBaseline();
     isLoading.value = false;
   }
 
   Future<List<CustomerModel>> customers() => _customers.watchCustomers().first;
+
+  void setInvoiceDate(DateTime value) {
+    invoiceDate.value = value;
+    if (_dueDateUsesDefault) {
+      dueDate.value = value.add(Duration(days: defaults?.dueDays ?? 0));
+    }
+  }
+
+  void setDueDate(DateTime value) {
+    dueDate.value = value;
+    _dueDateUsesDefault = false;
+  }
 
   void selectCustomer(CustomerModel value) {
     customer.value = CustomerSnapshotModel.fromCustomer(value);
@@ -312,34 +341,35 @@ class InvoiceCreateController extends GetxController {
     );
   }
 
-  Future<void> save({required bool draft}) async {
+  Future<bool> save({required bool draft}) async {
     if (_originalStatus == InvoiceStatus.cancelled) {
       AppNotification.warning(
         'Invoice cancelled',
         'Cancelled invoices cannot be edited.',
       );
-      return;
+      return false;
     }
     if (await _invoices.numberExists(invoiceNumber.value, excludingId: _id)) {
       AppNotification.error(
         'Duplicate invoice number',
         'Use a unique invoice number.',
       );
-      return;
+      return false;
     }
     isSaving.value = true;
     try {
       final model = buildDocument(draft: draft);
-      if (model == null) return;
+      if (model == null) return false;
       if (!draft) {
         final validation = _validator.validateRequired(model);
         if (validation != null) {
           AppNotification.warning('Complete required details', validation);
-          return;
+          return false;
         }
       }
       final saved = await _invoices.save(model);
       _id = saved.id;
+      _captureBaseline();
       AppNotification.success(
         draft ? 'Draft saved' : 'Invoice saved',
         saved.invoiceNumber,
@@ -348,6 +378,7 @@ class InvoiceCreateController extends GetxController {
         await AppFocus.dismissKeyboard();
         Get.back(result: true);
       }
+      return true;
     } finally {
       isSaving.value = false;
     }
@@ -412,6 +443,7 @@ class InvoiceCreateController extends GetxController {
     customer.value = model.customer.name.isEmpty ? null : model.customer;
     invoiceDate.value = model.invoiceDate;
     dueDate.value = model.dueDate;
+    _dueDateUsesDefault = false;
     taxType.value = model.taxType;
     invoiceDiscount.value = model.invoiceDiscount;
     items.assignAll(model.items);
@@ -425,4 +457,58 @@ class InvoiceCreateController extends GetxController {
   }
 
   String? _optional(String value) => value.trim().isEmpty ? null : value.trim();
+
+  String _snapshot() => jsonEncode({
+    'number': invoiceNumber.value,
+    'customer': _customerSnapshot(customer.value),
+    'invoiceDate': invoiceDate.value.toIso8601String(),
+    'dueDate': dueDate.value?.toIso8601String(),
+    'taxType': taxType.value.name,
+    'discount': _discountSnapshot(invoiceDiscount.value),
+    'items': items
+        .map(
+          (item) => {
+            'productId': item.productId,
+            'name': item.name,
+            'description': item.description,
+            'quantity': item.quantityScaled,
+            'unit': item.unit,
+            'rate': item.rateMinor,
+            'hsnSac': item.hsnSac,
+            'tax': item.taxRateBasisPoints,
+            'discount': _discountSnapshot(item.discount),
+          },
+        )
+        .toList(),
+    'charges': charges
+        .map((charge) => [charge.title, charge.amountMinor])
+        .toList(),
+    'notes': notesController.text,
+    'terms': termsController.text,
+    'paid': paidController.text,
+  });
+
+  Map<String, Object?>? _customerSnapshot(CustomerSnapshotModel? value) =>
+      value == null
+      ? null
+      : {
+          'id': value.customerId,
+          'name': value.name,
+          'company': value.companyName,
+          'mobile': value.mobile,
+          'email': value.email,
+          'address': value.address,
+          'city': value.city,
+          'state': value.state,
+          'pin': value.pinCode,
+          'gstin': value.gstin,
+        };
+
+  Map<String, Object> _discountSnapshot(DiscountInput value) => {
+    'type': value.type.name,
+    'fixed': value.fixedMinor,
+    'percentage': value.percentageBasisPoints,
+  };
+
+  void _captureBaseline() => _baseline = _snapshot();
 }

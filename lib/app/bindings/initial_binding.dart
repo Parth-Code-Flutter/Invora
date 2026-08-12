@@ -5,6 +5,9 @@ import '../../data/services/app_storage.dart';
 import '../../data/services/local_database_service.dart';
 import '../../data/services/invoice_calculation_service.dart';
 import '../../data/services/invoice_pdf_service.dart';
+import '../../data/services/invoice_defaults_service.dart';
+import '../../data/services/data_export_service.dart';
+import '../../data/services/payment_receipt_pdf_service.dart';
 import '../../data/services/backup_service.dart';
 import '../../data/services/unit_service.dart';
 import '../../data/repositories/business_repository.dart';
@@ -45,7 +48,23 @@ class InitialBinding extends Bindings {
       permanent: true,
     );
     Get.put<InvoicePdfService>(const InvoicePdfService(), permanent: true);
+    Get.put<PaymentReceiptPdfService>(
+      const PaymentReceiptPdfService(),
+      permanent: true,
+    );
     Get.put<UnitService>(UnitService(appStorage), permanent: true);
+    Get.put<InvoiceDefaultsService>(
+      InvoiceDefaultsService(appStorage),
+      permanent: true,
+    );
+    Get.put<DataExportService>(
+      DataExportService(
+        Get.find<CustomerRepository>(),
+        Get.find<ProductRepository>(),
+        Get.find<InvoiceRepository>(),
+      ),
+      permanent: true,
+    );
     Get.put<BackupService>(
       BackupService(
         databaseService.database,

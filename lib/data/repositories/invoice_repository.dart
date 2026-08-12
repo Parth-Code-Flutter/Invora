@@ -99,6 +99,7 @@ class InvoiceRepository extends BaseRepository {
           .map(
             (row) => InvoiceSummaryModel(
               id: row.id,
+              customerId: row.customerId,
               invoiceNumber: row.invoiceNumber,
               customerName: row.customerName,
               companyName: row.customerCompany,
@@ -161,6 +162,7 @@ class InvoiceRepository extends BaseRepository {
           .map(
             (row) => InvoiceSummaryModel(
               id: row.id,
+              customerId: row.customerId,
               invoiceNumber: row.invoiceNumber,
               customerName: row.customerName,
               companyName: row.customerCompany,

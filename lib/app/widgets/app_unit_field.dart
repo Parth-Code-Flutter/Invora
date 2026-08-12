@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/services/unit_service.dart';
 import '../constants/app_colors.dart';
+import 'app_dialog.dart';
 import '../themes/app_text_styles.dart';
 import '../utils/app_focus.dart';
 import 'app_notification.dart';
@@ -197,7 +198,8 @@ class _CreateUnitDialogState extends State<_CreateUnitDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
+  Widget build(BuildContext context) => AppDialog(
+    icon: Icons.straighten_rounded,
     scrollable: true,
     title: const Text('Create unit'),
     content: TextField(

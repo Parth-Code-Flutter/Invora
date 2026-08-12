@@ -36,13 +36,16 @@ class ProductFormController extends GetxController {
   final isLoading = false.obs;
   final isSaving = false.obs;
   ProductServiceModel? _existing;
+  String _baseline = '';
 
   bool get isEditing => _existing != null;
+  bool get hasUnsavedChanges => !isLoading.value && _snapshot() != _baseline;
 
   @override
   void onInit() {
     super.onInit();
     selectedUnit.value = unitService.defaultUnit;
+    _captureBaseline();
     _loadCurrency();
     final id = Get.arguments as int?;
     if (id != null) _load(id);
@@ -106,6 +109,7 @@ class ProductFormController extends GetxController {
           updatedAt: now,
         ),
       );
+      _captureBaseline();
       await AppFocus.dismissKeyboard();
       Get.back<ProductServiceModel>(result: saved);
     } finally {
@@ -134,8 +138,23 @@ class ProductFormController extends GetxController {
       selectedTaxBasisPoints.value = item.taxRateBasisPoints;
       isCustomTax.value = !taxRates.contains(item.taxRateBasisPoints);
     }
+    _captureBaseline();
     isLoading.value = false;
   }
+
+  String _snapshot() => [
+    name.text,
+    description.text,
+    salePrice.text,
+    hsnSac.text,
+    taxRate.text,
+    type.value.name,
+    selectedUnit.value,
+    selectedTaxBasisPoints.value.toString(),
+    isCustomTax.value.toString(),
+  ].join('\u001f');
+
+  void _captureBaseline() => _baseline = _snapshot();
 
   String? _optional(String value) {
     final trimmed = value.trim();

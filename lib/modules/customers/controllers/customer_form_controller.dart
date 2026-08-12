@@ -30,9 +30,11 @@ class CustomerFormController extends GetxController {
   CustomerModel? _existing;
   bool _returnToInvoice = false;
   bool _isEditing = false;
+  String _baseline = '';
 
   bool get isEditing => _isEditing;
   bool get isInvoiceFlow => _returnToInvoice;
+  bool get hasUnsavedChanges => !isLoading.value && _snapshot() != _baseline;
 
   @override
   void onInit() {
@@ -46,6 +48,7 @@ class CustomerFormController extends GetxController {
     _returnToInvoice =
         arguments is CustomerFormArgs && arguments.returnToInvoice;
     _isEditing = id != null;
+    _captureBaseline();
     if (id != null) {
       _load(id);
     }
@@ -160,6 +163,7 @@ class CustomerFormController extends GetxController {
           updatedAt: now,
         ),
       );
+      _captureBaseline();
       // Only the invoice flow needs the saved model as a route result.
       await AppFocus.dismissKeyboard();
       Get.back(result: isInvoiceFlow ? saved : null);
@@ -184,8 +188,24 @@ class CustomerFormController extends GetxController {
       gstin.text = customer.gstin ?? '';
       notes.text = customer.notes ?? '';
     }
+    _captureBaseline();
     isLoading.value = false;
   }
+
+  String _snapshot() => [
+    name,
+    companyName,
+    mobile,
+    email,
+    address,
+    city,
+    state,
+    pinCode,
+    gstin,
+    notes,
+  ].map((controller) => controller.text).join('\u001f');
+
+  void _captureBaseline() => _baseline = _snapshot();
 
   String? _optional(String value) {
     final trimmed = value.trim();

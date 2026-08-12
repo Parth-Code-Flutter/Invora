@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
@@ -170,8 +171,9 @@ class BackupScreen extends GetView<BackupController> {
   Future<void> _confirmCreate(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        icon: const Icon(Icons.privacy_tip_outlined),
+      builder: (dialogContext) => AppDialog(
+        icon: Icons.warning_amber_rounded,
+        iconColor: AppColors.warning,
         title: const Text('Create sensitive-data backup?'),
         content: const Text(
           'This unencrypted ZIP contains customer, invoice, bank, signature, and payment QR information. Share it only to a private location you trust.',
@@ -202,7 +204,8 @@ class BackupScreen extends GetView<BackupController> {
     if (!context.mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => AppDialog(
+        icon: Icons.restore_rounded,
         title: const Text('Replace local data?'),
         content: const Text(
           'Current records will be replaced. Creovo Invoice must be restarted after restore.',
@@ -225,8 +228,9 @@ class BackupScreen extends GetView<BackupController> {
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        icon: const Icon(Icons.check_circle_rounded, color: AppColors.success),
+      builder: (dialogContext) => AppDialog(
+        icon: Icons.check_circle_rounded,
+        iconColor: AppColors.success,
         title: const Text('Restore complete'),
         content: const Text(
           'Your backup was restored safely. Close and reopen Creovo Invoice now to load the restored records.',

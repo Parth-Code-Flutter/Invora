@@ -12,6 +12,7 @@ import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/app_unit_field.dart';
+import '../../../app/widgets/unsaved_changes_scope.dart';
 import '../controllers/product_form_controller.dart';
 
 class ProductFormScreen extends GetView<ProductFormController> {
@@ -19,297 +20,309 @@ class ProductFormScreen extends GetView<ProductFormController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const AppBackButton(),
-        title: Text(Get.arguments == null ? 'Add item' : 'Edit item'),
-      ),
-      body: Obx(
-        () => controller.isLoading.value
-            ? const Center(child: CircularProgressIndicator())
-            : Form(
-                key: controller.formKey,
-                child: ListView(
-                  padding: EdgeInsets.fromLTRB(
-                    ResponsiveUtils.horizontalPadding(context),
-                    ResponsiveUtils.height(context, 8),
-                    ResponsiveUtils.horizontalPadding(context),
-                    ResponsiveUtils.height(context, 32),
-                  ),
-                  children: [
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: ResponsiveUtils.contentMaxWidth(context),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _IntroPanel(isEditing: controller.isEditing),
-                            const SizedBox(height: 18),
-                            Obx(
-                              () => _TypeSelector(
-                                value: controller.type.value,
-                                onChanged: controller.selectType,
-                              ),
-                            ),
-                            const SizedBox(height: 22),
-                            Row(
-                              children: [
-                                Text(
-                                  'Essentials',
-                                  style: AppTextStyles.sectionTitle,
+    return UnsavedChangesScope(
+      hasChanges: () => controller.hasUnsavedChanges,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: const AppBackButton(),
+          title: Text(Get.arguments == null ? 'Add item' : 'Edit item'),
+        ),
+        body: Obx(
+          () => controller.isLoading.value
+              ? const Center(child: CircularProgressIndicator())
+              : Form(
+                  key: controller.formKey,
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      ResponsiveUtils.horizontalPadding(context),
+                      ResponsiveUtils.height(context, 8),
+                      ResponsiveUtils.horizontalPadding(context),
+                      ResponsiveUtils.height(context, 32),
+                    ),
+                    children: [
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: ResponsiveUtils.contentMaxWidth(context),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _IntroPanel(isEditing: controller.isEditing),
+                              const SizedBox(height: 18),
+                              Obx(
+                                () => _TypeSelector(
+                                  value: controller.type.value,
+                                  onChanged: controller.selectType,
                                 ),
-                                const Spacer(),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 5,
+                              ),
+                              const SizedBox(height: 22),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Essentials',
+                                    style: AppTextStyles.sectionTitle,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryLight,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    '2 required',
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.primaryDark,
+                                  const Spacer(),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryLight,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '2 required',
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: AppColors.primaryDark,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            AppCard(
-                              child: Column(
-                                children: [
-                                  _ResponsiveFields(
-                                    children: [
-                                      AppTextField(
-                                        controller: controller.name,
-                                        label: 'Item name *',
-                                        hint: 'e.g. Brand consultation',
-                                        prefixIcon: Icons.sell_outlined,
-                                        validator: controller.validateName,
-                                        textCapitalization:
-                                            TextCapitalization.words,
-                                      ),
-                                      Obx(
-                                        () => AppTextField(
-                                          controller: controller.salePrice,
-                                          label:
-                                              'Sale price (${controller.currencySymbol.value}) *',
-                                          hint: '0.00',
-                                          prefixIcon:
-                                              Icons.currency_rupee_rounded,
-                                          validator: controller.validatePrice,
-                                          keyboardType:
-                                              const TextInputType.numberWithOptions(
-                                                decimal: true,
-                                              ),
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter.allow(
-                                              RegExp(r'^\d*\.?\d{0,2}'),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  AppTextField(
-                                    controller: controller.description,
-                                    label: 'Invoice description',
-                                    hint: 'What should the customer know?',
-                                    prefixIcon: Icons.notes_rounded,
-                                    maxLines: 2,
-                                    textCapitalization:
-                                        TextCapitalization.sentences,
-                                  ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(height: 14),
-                            ListenableBuilder(
-                              listenable: Listenable.merge([
-                                controller.name,
-                                controller.salePrice,
-                              ]),
-                              builder: (context, _) => Obx(
-                                () => _InvoiceLinePreview(
-                                  name: controller.name.text.trim(),
-                                  price: controller.salePrice.text.trim(),
-                                  currency: controller.currencySymbol.value,
-                                  unit: controller.selectedUnit.value,
-                                  type: controller.type.value,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            AppCard(
-                              padding: EdgeInsets.zero,
-                              child: ExpansionTile(
-                                shape: const Border(),
-                                collapsedShape: const Border(),
-                                tilePadding: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                  vertical: 5,
-                                ),
-                                childrenPadding: const EdgeInsets.fromLTRB(
-                                  18,
-                                  4,
-                                  18,
-                                  18,
-                                ),
-                                leading: Container(
-                                  width: 42,
-                                  height: 42,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.secondaryLight,
-                                    borderRadius: BorderRadius.circular(13),
-                                  ),
-                                  child: const Icon(
-                                    Icons.tune_rounded,
-                                    color: AppColors.secondary,
-                                    size: 21,
-                                  ),
-                                ),
-                                title: Text(
-                                  'More invoice details',
-                                  style: AppTextStyles.cardTitle,
-                                ),
-                                subtitle: Text(
-                                  'Unit, GST and HSN/SAC · optional',
-                                  style: AppTextStyles.small.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                                children: [
-                                  _ResponsiveFields(
-                                    children: [
-                                      Obx(
-                                        () => AppUnitField(
-                                          value: controller.selectedUnit.value,
-                                          unitService: controller.unitService,
-                                          onChanged: (value) =>
-                                              controller.selectedUnit.value =
-                                                  value,
+                              const SizedBox(height: 12),
+                              AppCard(
+                                child: Column(
+                                  children: [
+                                    _ResponsiveFields(
+                                      children: [
+                                        AppTextField(
+                                          controller: controller.name,
+                                          label: 'Item name *',
+                                          hint: 'e.g. Brand consultation',
+                                          prefixIcon: Icons.sell_outlined,
+                                          validator: controller.validateName,
+                                          textCapitalization:
+                                              TextCapitalization.words,
                                         ),
-                                      ),
-                                      AppTextField(
-                                        controller: controller.hsnSac,
-                                        label: 'HSN/SAC',
-                                        prefixIcon: Icons.tag_rounded,
-                                      ),
-                                    ],
-                                  ),
-                                  Obx(
-                                    () => controller.gstEnabled.value
-                                        ? Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              const SizedBox(height: 18),
-                                              Text(
-                                                'GST rate',
-                                                style: AppTextStyles.cardTitle,
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Wrap(
-                                                spacing: 8,
-                                                runSpacing: 8,
-                                                children: [
-                                                  ...ProductFormController.taxRates.map(
-                                                    (rate) => ChoiceChip(
-                                                      label: Text(
-                                                        TaxUtils.formatBasisPoints(
-                                                          rate,
-                                                        ),
-                                                      ),
-                                                      selected:
-                                                          !controller
-                                                              .isCustomTax
-                                                              .value &&
-                                                          controller
-                                                                  .selectedTaxBasisPoints
-                                                                  .value ==
-                                                              rate,
-                                                      onSelected: (_) =>
-                                                          controller.selectTax(
-                                                            rate,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                  ChoiceChip(
-                                                    label: const Text('Custom'),
-                                                    selected: controller
-                                                        .isCustomTax
-                                                        .value,
-                                                    onSelected: (_) =>
-                                                        controller.selectTax(
-                                                          null,
-                                                        ),
-                                                  ),
-                                                ],
+                                        Obx(
+                                          () => AppTextField(
+                                            controller: controller.salePrice,
+                                            label:
+                                                'Sale price (${controller.currencySymbol.value}) *',
+                                            hint: '0.00',
+                                            prefixIcon:
+                                                Icons.currency_rupee_rounded,
+                                            validator: controller.validatePrice,
+                                            keyboardType:
+                                                const TextInputType.numberWithOptions(
+                                                  decimal: true,
+                                                ),
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.allow(
+                                                RegExp(r'^\d*\.?\d{0,2}'),
                                               ),
                                             ],
-                                          )
-                                        : const SizedBox.shrink(),
-                                  ),
-                                  Obx(
-                                    () =>
-                                        controller.gstEnabled.value &&
-                                            controller.isCustomTax.value
-                                        ? Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 12,
-                                            ),
-                                            child: AppTextField(
-                                              controller: controller.taxRate,
-                                              label: 'Custom tax percentage *',
-                                              hint: 'e.g. 18',
-                                              validator: controller.validateTax,
-                                              keyboardType:
-                                                  const TextInputType.numberWithOptions(
-                                                    decimal: true,
-                                                  ),
-                                            ),
-                                          )
-                                        : const SizedBox.shrink(),
-                                  ),
-                                ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    AppTextField(
+                                      controller: controller.description,
+                                      label: 'Invoice description',
+                                      hint: 'What should the customer know?',
+                                      prefixIcon: Icons.notes_rounded,
+                                      maxLines: 2,
+                                      textCapitalization:
+                                          TextCapitalization.sentences,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 12),
-                          ],
+                              const SizedBox(height: 14),
+                              ListenableBuilder(
+                                listenable: Listenable.merge([
+                                  controller.name,
+                                  controller.salePrice,
+                                ]),
+                                builder: (context, _) => Obx(
+                                  () => _InvoiceLinePreview(
+                                    name: controller.name.text.trim(),
+                                    price: controller.salePrice.text.trim(),
+                                    currency: controller.currencySymbol.value,
+                                    unit: controller.selectedUnit.value,
+                                    type: controller.type.value,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              AppCard(
+                                padding: EdgeInsets.zero,
+                                child: ExpansionTile(
+                                  shape: const Border(),
+                                  collapsedShape: const Border(),
+                                  tilePadding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 5,
+                                  ),
+                                  childrenPadding: const EdgeInsets.fromLTRB(
+                                    18,
+                                    4,
+                                    18,
+                                    18,
+                                  ),
+                                  leading: Container(
+                                    width: 42,
+                                    height: 42,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.secondaryLight,
+                                      borderRadius: BorderRadius.circular(13),
+                                    ),
+                                    child: const Icon(
+                                      Icons.tune_rounded,
+                                      color: AppColors.secondary,
+                                      size: 21,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    'More invoice details',
+                                    style: AppTextStyles.cardTitle,
+                                  ),
+                                  subtitle: Text(
+                                    'Unit, GST and HSN/SAC · optional',
+                                    style: AppTextStyles.small.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  children: [
+                                    _ResponsiveFields(
+                                      children: [
+                                        Obx(
+                                          () => AppUnitField(
+                                            value:
+                                                controller.selectedUnit.value,
+                                            unitService: controller.unitService,
+                                            onChanged: (value) =>
+                                                controller.selectedUnit.value =
+                                                    value,
+                                          ),
+                                        ),
+                                        AppTextField(
+                                          controller: controller.hsnSac,
+                                          label: 'HSN/SAC',
+                                          prefixIcon: Icons.tag_rounded,
+                                        ),
+                                      ],
+                                    ),
+                                    Obx(
+                                      () => controller.gstEnabled.value
+                                          ? Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const SizedBox(height: 18),
+                                                Text(
+                                                  'GST rate',
+                                                  style:
+                                                      AppTextStyles.cardTitle,
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Wrap(
+                                                  spacing: 8,
+                                                  runSpacing: 8,
+                                                  children: [
+                                                    ...ProductFormController
+                                                        .taxRates
+                                                        .map(
+                                                          (rate) => ChoiceChip(
+                                                            label: Text(
+                                                              TaxUtils.formatBasisPoints(
+                                                                rate,
+                                                              ),
+                                                            ),
+                                                            selected:
+                                                                !controller
+                                                                    .isCustomTax
+                                                                    .value &&
+                                                                controller
+                                                                        .selectedTaxBasisPoints
+                                                                        .value ==
+                                                                    rate,
+                                                            onSelected: (_) =>
+                                                                controller
+                                                                    .selectTax(
+                                                                      rate,
+                                                                    ),
+                                                          ),
+                                                        ),
+                                                    ChoiceChip(
+                                                      label: const Text(
+                                                        'Custom',
+                                                      ),
+                                                      selected: controller
+                                                          .isCustomTax
+                                                          .value,
+                                                      onSelected: (_) =>
+                                                          controller.selectTax(
+                                                            null,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            )
+                                          : const SizedBox.shrink(),
+                                    ),
+                                    Obx(
+                                      () =>
+                                          controller.gstEnabled.value &&
+                                              controller.isCustomTax.value
+                                          ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 12,
+                                              ),
+                                              child: AppTextField(
+                                                controller: controller.taxRate,
+                                                label:
+                                                    'Custom tax percentage *',
+                                                hint: 'e.g. 18',
+                                                validator:
+                                                    controller.validateTax,
+                                                keyboardType:
+                                                    const TextInputType.numberWithOptions(
+                                                      decimal: true,
+                                                    ),
+                                              ),
+                                            )
+                                          : const SizedBox.shrink(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+        ),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Container(
+            padding: EdgeInsets.fromLTRB(
+              ResponsiveUtils.horizontalPadding(context),
+              12,
+              ResponsiveUtils.horizontalPadding(context),
+              12,
+            ),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              border: Border(top: BorderSide(color: AppColors.border)),
+            ),
+            child: Obx(
+              () => AppButton(
+                label: controller.isEditing
+                    ? 'Save changes'
+                    : 'Save ${controller.type.value == ItemType.product ? 'product' : 'service'}',
+                icon: Icons.check_rounded,
+                isLoading: controller.isSaving.value,
+                onPressed: controller.save,
               ),
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Container(
-          padding: EdgeInsets.fromLTRB(
-            ResponsiveUtils.horizontalPadding(context),
-            12,
-            ResponsiveUtils.horizontalPadding(context),
-            12,
-          ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: AppColors.border)),
-          ),
-          child: Obx(
-            () => AppButton(
-              label: controller.isEditing
-                  ? 'Save changes'
-                  : 'Save ${controller.type.value == ItemType.product ? 'product' : 'service'}',
-              icon: Icons.check_rounded,
-              isLoading: controller.isSaving.value,
-              onPressed: controller.save,
             ),
           ),
         ),

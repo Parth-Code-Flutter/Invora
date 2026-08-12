@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/enums/invoice_status.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
@@ -12,11 +13,14 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
+import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_notification.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/invoice_payment_model.dart';
+import '../../../data/services/invoice_defaults_service.dart';
 import '../controllers/invoice_details_controller.dart';
+import '../controllers/payment_receipt_controller.dart';
 
 class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
   const InvoiceDetailsScreen({super.key});
@@ -295,6 +299,13 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
               totalMinor: invoice.calculation.grandTotalMinor,
               symbol: symbol,
               onReverse: (payment) => _showReversalDialog(context, payment),
+              onReceipt: (payment) => Get.toNamed<void>(
+                AppRoutes.paymentReceipt,
+                arguments: PaymentReceiptArgs(
+                  invoiceId: invoice.id!,
+                  paymentId: payment.id!,
+                ),
+              ),
             ),
           AppCard(
             padding: const EdgeInsets.all(16),
@@ -461,7 +472,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
   Future<void> _showPaymentDialog(BuildContext context) async {
     final invoice = controller.invoice.value;
     if (invoice == null || invoice.status == InvoiceStatus.cancelled) return;
-    await showModalBottomSheet<void>(
+    final payment = await showModalBottomSheet<InvoicePaymentModel>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
@@ -471,6 +482,15 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
     // Re-read after the modal route is fully removed so the visible route
     // always paints the latest status, balance, and payment activity.
     await controller.reload();
+    if (payment?.id != null && context.mounted) {
+      await Get.toNamed<void>(
+        AppRoutes.paymentReceipt,
+        arguments: PaymentReceiptArgs(
+          invoiceId: invoice.id!,
+          paymentId: payment!.id!,
+        ),
+      );
+    }
   }
 
   Future<void> _showReversalDialog(
@@ -501,7 +521,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
   }) async {
     return await showDialog<bool>(
           context: context,
-          builder: (dialogContext) => AlertDialog(
+          builder: (dialogContext) => AppDialog(
             title: Text(title),
             content: Text(message),
             actions: [
@@ -538,6 +558,7 @@ class _PaymentHistoryCard extends StatelessWidget {
     required this.totalMinor,
     required this.symbol,
     required this.onReverse,
+    required this.onReceipt,
   });
 
   final List<InvoicePaymentModel> payments;
@@ -546,6 +567,7 @@ class _PaymentHistoryCard extends StatelessWidget {
   final int totalMinor;
   final String symbol;
   final ValueChanged<InvoicePaymentModel> onReverse;
+  final ValueChanged<InvoicePaymentModel> onReceipt;
 
   @override
   Widget build(BuildContext context) {
@@ -624,6 +646,9 @@ class _PaymentHistoryCard extends StatelessWidget {
                 payment: payment,
                 symbol: symbol,
                 onReverse: payment.canReverse ? () => onReverse(payment) : null,
+                onReceipt: payment.amountMinor > 0 && !payment.isReversed
+                    ? () => onReceipt(payment)
+                    : null,
               ),
             ),
           ],
@@ -675,11 +700,13 @@ class _PaymentHistoryRow extends StatelessWidget {
     required this.payment,
     required this.symbol,
     this.onReverse,
+    this.onReceipt,
   });
 
   final InvoicePaymentModel payment;
   final String symbol;
   final VoidCallback? onReverse;
+  final VoidCallback? onReceipt;
 
   @override
   Widget build(BuildContext context) {
@@ -752,13 +779,19 @@ class _PaymentHistoryRow extends StatelessWidget {
               color: isCorrection ? AppColors.error : AppColors.success,
             ),
           ),
+          if (onReceipt != null)
+            IconButton(
+              tooltip: 'Open receipt',
+              onPressed: onReceipt,
+              icon: const Icon(Icons.receipt_long_outlined, size: 19),
+            ),
           if (onReverse != null)
             IconButton(
               tooltip: 'Reverse payment',
               onPressed: onReverse,
               icon: const Icon(Icons.undo_rounded, size: 19),
-            )
-          else if (payment.isReversed)
+            ),
+          if (payment.isReversed)
             Padding(
               padding: const EdgeInsets.only(left: 8, top: 2),
               child: Text(
@@ -804,7 +837,9 @@ class _PaymentReversalDialogState extends State<_PaymentReversalDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
+  Widget build(BuildContext context) => AppDialog(
+    icon: Icons.undo_rounded,
+    iconColor: AppColors.warning,
     scrollable: true,
     title: const Text('Reverse payment?'),
     content: Column(
@@ -848,6 +883,9 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   @override
   void initState() {
     super.initState();
+    method = Get.isRegistered<InvoiceDefaultsService>()
+        ? Get.find<InvoiceDefaultsService>().paymentMethod
+        : 'UPI';
     input = TextEditingController();
     reference = TextEditingController();
     note = TextEditingController();
@@ -1039,7 +1077,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     );
     if (!mounted) return;
     if (validation == null) {
-      await AppFocus.pop(context);
+      await AppFocus.pop(context, widget.controller.lastRecordedPayment.value);
       return;
     }
     setState(() {

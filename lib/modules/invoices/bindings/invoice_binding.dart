@@ -4,7 +4,9 @@ import '../controllers/invoice_create_controller.dart';
 import '../controllers/invoice_details_controller.dart';
 import '../controllers/invoice_list_controller.dart';
 import '../controllers/invoice_preview_controller.dart';
+import '../controllers/payment_receipt_controller.dart';
 import '../../../data/models/invoice_model.dart';
+import '../../../data/services/invoice_defaults_service.dart';
 
 class InvoiceListBinding extends Bindings {
   @override
@@ -36,6 +38,7 @@ class InvoiceCreateBinding extends Bindings {
         Get.find(),
         Get.find(),
         Get.find(),
+        defaults: Get.find<InvoiceDefaultsService>(),
       ),
     );
   }
@@ -51,6 +54,7 @@ class QuotationCreateBinding extends Bindings {
         Get.find(),
         Get.find(),
         Get.find(),
+        defaults: Get.find<InvoiceDefaultsService>(),
         documentType: DocumentType.quotation,
       ),
     );
@@ -74,6 +78,15 @@ class InvoicePreviewBinding extends Bindings {
         Get.find(),
         Get.find(),
       ),
+    );
+  }
+}
+
+class PaymentReceiptBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut(
+      () => PaymentReceiptController(Get.find(), Get.find(), Get.find()),
     );
   }
 }

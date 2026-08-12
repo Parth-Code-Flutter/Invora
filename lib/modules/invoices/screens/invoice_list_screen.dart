@@ -11,6 +11,7 @@ import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_list_motion.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/invoice_list_controller.dart';
 
@@ -149,7 +150,7 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return const AppListSkeleton();
               }
               if (controller.invoices.isEmpty) {
                 final searching =
@@ -180,12 +181,15 @@ class InvoiceListScreen extends GetView<InvoiceListController> {
                 padding: EdgeInsets.fromLTRB(padding, 4, padding, 100),
                 itemCount: controller.invoices.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 8),
-                itemBuilder: (_, index) => AppInvoiceSummaryCard(
-                  invoice: controller.invoices[index],
-                  currencySymbol: controller.currencySymbol.value,
-                  onTap: () => Get.toNamed<void>(
-                    AppRoutes.invoiceDetails,
-                    arguments: controller.invoices[index].id,
+                itemBuilder: (_, index) => AppListEntrance(
+                  index: index,
+                  child: AppInvoiceSummaryCard(
+                    invoice: controller.invoices[index],
+                    currencySymbol: controller.currencySymbol.value,
+                    onTap: () => Get.toNamed<void>(
+                      AppRoutes.invoiceDetails,
+                      arguments: controller.invoices[index].id,
+                    ),
                   ),
                 ),
               );

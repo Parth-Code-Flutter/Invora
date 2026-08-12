@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
@@ -17,6 +18,13 @@ class ReportScreen extends GetView<ReportController> {
     appBar: AppBar(
       leading: const AppBackButton(),
       title: const Text('Reports'),
+      actions: [
+        IconButton(
+          tooltip: 'Export report',
+          onPressed: () => Get.toNamed<void>(AppRoutes.dataExport),
+          icon: const Icon(Icons.ios_share_rounded),
+        ),
+      ],
     ),
     body: Obx(() {
       final value = controller.report.value;

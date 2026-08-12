@@ -6,12 +6,19 @@ import '../../../data/repositories/invoice_repository.dart';
 import '../controllers/customer_details_controller.dart';
 import '../controllers/customer_form_controller.dart';
 import '../controllers/customer_list_controller.dart';
+import '../controllers/customer_statement_controller.dart';
+import '../../../data/services/customer_statement_pdf_service.dart';
+import '../../../data/services/customer_statement_service.dart';
 
 class CustomerListBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<CustomerListController>(
-      () => CustomerListController(Get.find<CustomerRepository>()),
+      () => CustomerListController(
+        Get.find<CustomerRepository>(),
+        Get.find<InvoiceRepository>(),
+        Get.find<BusinessRepository>(),
+      ),
     );
   }
 }
@@ -33,6 +40,20 @@ class CustomerDetailsBinding extends Bindings {
         Get.find<CustomerRepository>(),
         Get.find<InvoiceRepository>(),
         Get.find<BusinessRepository>(),
+      ),
+    );
+  }
+}
+
+class CustomerStatementBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut(
+      () => CustomerStatementController(
+        Get.find(),
+        Get.find(),
+        CustomerStatementService(Get.find()),
+        const CustomerStatementPdfService(),
       ),
     );
   }

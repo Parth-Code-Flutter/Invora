@@ -9,6 +9,7 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_text_field.dart';
+import '../../../app/widgets/unsaved_changes_scope.dart';
 import '../controllers/customer_form_controller.dart';
 
 class CustomerFormScreen extends GetView<CustomerFormController> {
@@ -16,212 +17,215 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const AppBackButton(),
-        title: Text(controller.isEditing ? 'Edit customer' : 'New customer'),
-      ),
-      body: Obx(
-        () => controller.isLoading.value
-            ? const Center(child: CircularProgressIndicator())
-            : Form(
-                key: controller.formKey,
-                child: ListView(
-                  padding: EdgeInsets.fromLTRB(
-                    ResponsiveUtils.horizontalPadding(context),
-                    8,
-                    ResponsiveUtils.horizontalPadding(context),
-                    32,
-                  ),
-                  children: [
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: ResponsiveUtils.contentMaxWidth(context),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _FormIntro(
-                              invoiceFlow: controller.isInvoiceFlow,
-                              editing: controller.isEditing,
-                            ),
-                            const SizedBox(height: 24),
-                            const _SectionHeading(
-                              title: 'Customer essentials',
-                              badge: 'NAME REQUIRED',
-                            ),
-                            const SizedBox(height: 12),
-                            AppCard(
-                              padding: const EdgeInsets.all(16),
-                              child: _ResponsiveFields(
-                                children: [
-                                  AppTextField(
-                                    controller: controller.name,
-                                    label: 'Customer name *',
-                                    hint: 'Who are you billing?',
-                                    prefixIcon: Icons.person_outline_rounded,
-                                    validator: controller.validateName,
-                                    textCapitalization:
-                                        TextCapitalization.words,
-                                  ),
-                                  _MobileField(controller: controller),
-                                  AppTextField(
-                                    controller: controller.email,
-                                    label: 'Email address',
-                                    prefixIcon: Icons.alternate_email_rounded,
-                                    keyboardType: TextInputType.emailAddress,
-                                    validator: controller.validateEmail,
-                                    inputFormatters: [
-                                      LengthLimitingTextInputFormatter(254),
-                                      FilteringTextInputFormatter.deny(
-                                        RegExp(r'\s'),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+    return UnsavedChangesScope(
+      hasChanges: () => controller.hasUnsavedChanges,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: const AppBackButton(),
+          title: Text(controller.isEditing ? 'Edit customer' : 'New customer'),
+        ),
+        body: Obx(
+          () => controller.isLoading.value
+              ? const Center(child: CircularProgressIndicator())
+              : Form(
+                  key: controller.formKey,
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      ResponsiveUtils.horizontalPadding(context),
+                      8,
+                      ResponsiveUtils.horizontalPadding(context),
+                      32,
+                    ),
+                    children: [
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: ResponsiveUtils.contentMaxWidth(context),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _FormIntro(
+                                invoiceFlow: controller.isInvoiceFlow,
+                                editing: controller.isEditing,
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            const _SectionHeading(
-                              title: 'Invoice details',
-                              badge: 'OPTIONAL',
-                            ),
-                            const SizedBox(height: 10),
-                            _OptionalCustomerSection(
-                              icon: Icons.business_outlined,
-                              title: 'Business & tax',
-                              subtitle: 'Company name and GSTIN',
-                              child: _ResponsiveFields(
-                                children: [
-                                  AppTextField(
-                                    controller: controller.companyName,
-                                    label: 'Company name',
-                                    prefixIcon: Icons.apartment_rounded,
-                                    textCapitalization:
-                                        TextCapitalization.words,
-                                  ),
-                                  AppTextField(
-                                    controller: controller.gstin,
-                                    label: 'GSTIN',
-                                    prefixIcon: Icons.receipt_long_outlined,
-                                    validator: controller.validateGstin,
-                                    inputFormatters: [
-                                      LengthLimitingTextInputFormatter(15),
-                                      FilteringTextInputFormatter.allow(
-                                        RegExp('[0-9a-zA-Z]'),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                              const SizedBox(height: 24),
+                              const _SectionHeading(
+                                title: 'Customer essentials',
+                                badge: 'NAME REQUIRED',
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            _OptionalCustomerSection(
-                              icon: Icons.location_on_outlined,
-                              title: 'Billing address',
-                              subtitle: 'Address printed on invoices',
-                              child: Column(
-                                children: [
-                                  AppTextField(
-                                    controller: controller.address,
-                                    label: 'Street address',
-                                    prefixIcon: Icons.home_outlined,
-                                    maxLines: 2,
-                                    textCapitalization:
-                                        TextCapitalization.sentences,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  _ResponsiveFields(
-                                    children: [
-                                      AppTextField(
-                                        controller: controller.city,
-                                        label: 'City',
-                                      ),
-                                      AppTextField(
-                                        controller: controller.state,
-                                        label: 'State',
-                                      ),
-                                      AppTextField(
-                                        controller: controller.pinCode,
-                                        label: 'PIN code',
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter
-                                              .digitsOnly,
-                                          LengthLimitingTextInputFormatter(6),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            _OptionalCustomerSection(
-                              icon: Icons.notes_rounded,
-                              title: 'Private notes',
-                              subtitle: 'Visible only inside Creovo Invoice',
-                              child: AppTextField(
-                                controller: controller.notes,
-                                label: 'Notes',
-                                prefixIcon: Icons.edit_note_rounded,
-                                maxLines: 3,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                              ),
-                            ),
-                            const SizedBox(height: 18),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.lock_outline_rounded,
-                                  size: 15,
-                                  color: AppColors.accent,
+                              const SizedBox(height: 12),
+                              AppCard(
+                                padding: const EdgeInsets.all(16),
+                                child: _ResponsiveFields(
+                                  children: [
+                                    AppTextField(
+                                      controller: controller.name,
+                                      label: 'Customer name *',
+                                      hint: 'Who are you billing?',
+                                      prefixIcon: Icons.person_outline_rounded,
+                                      validator: controller.validateName,
+                                      textCapitalization:
+                                          TextCapitalization.words,
+                                    ),
+                                    _MobileField(controller: controller),
+                                    AppTextField(
+                                      controller: controller.email,
+                                      label: 'Email address',
+                                      prefixIcon: Icons.alternate_email_rounded,
+                                      keyboardType: TextInputType.emailAddress,
+                                      validator: controller.validateEmail,
+                                      inputFormatters: [
+                                        LengthLimitingTextInputFormatter(254),
+                                        FilteringTextInputFormatter.deny(
+                                          RegExp(r'\s'),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Stored privately on this device',
-                                  style: AppTextStyles.small.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                              ),
+                              const SizedBox(height: 20),
+                              const _SectionHeading(
+                                title: 'Invoice details',
+                                badge: 'OPTIONAL',
+                              ),
+                              const SizedBox(height: 10),
+                              _OptionalCustomerSection(
+                                icon: Icons.business_outlined,
+                                title: 'Business & tax',
+                                subtitle: 'Company name and GSTIN',
+                                child: _ResponsiveFields(
+                                  children: [
+                                    AppTextField(
+                                      controller: controller.companyName,
+                                      label: 'Company name',
+                                      prefixIcon: Icons.apartment_rounded,
+                                      textCapitalization:
+                                          TextCapitalization.words,
+                                    ),
+                                    AppTextField(
+                                      controller: controller.gstin,
+                                      label: 'GSTIN',
+                                      prefixIcon: Icons.receipt_long_outlined,
+                                      validator: controller.validateGstin,
+                                      inputFormatters: [
+                                        LengthLimitingTextInputFormatter(15),
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp('[0-9a-zA-Z]'),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ],
+                              ),
+                              const SizedBox(height: 10),
+                              _OptionalCustomerSection(
+                                icon: Icons.location_on_outlined,
+                                title: 'Billing address',
+                                subtitle: 'Address printed on invoices',
+                                child: Column(
+                                  children: [
+                                    AppTextField(
+                                      controller: controller.address,
+                                      label: 'Street address',
+                                      prefixIcon: Icons.home_outlined,
+                                      maxLines: 2,
+                                      textCapitalization:
+                                          TextCapitalization.sentences,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _ResponsiveFields(
+                                      children: [
+                                        AppTextField(
+                                          controller: controller.city,
+                                          label: 'City',
+                                        ),
+                                        AppTextField(
+                                          controller: controller.state,
+                                          label: 'State',
+                                        ),
+                                        AppTextField(
+                                          controller: controller.pinCode,
+                                          label: 'PIN code',
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter
+                                                .digitsOnly,
+                                            LengthLimitingTextInputFormatter(6),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              _OptionalCustomerSection(
+                                icon: Icons.notes_rounded,
+                                title: 'Private notes',
+                                subtitle: 'Visible only inside Creovo Invoice',
+                                child: AppTextField(
+                                  controller: controller.notes,
+                                  label: 'Notes',
+                                  prefixIcon: Icons.edit_note_rounded,
+                                  maxLines: 3,
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.lock_outline_rounded,
+                                    size: 15,
+                                    color: AppColors.accent,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Stored privately on this device',
+                                    style: AppTextStyles.small.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+        ),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Container(
+            padding: EdgeInsets.fromLTRB(
+              ResponsiveUtils.horizontalPadding(context),
+              12,
+              ResponsiveUtils.horizontalPadding(context),
+              12,
+            ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              border: const Border(top: BorderSide(color: AppColors.border)),
+            ),
+            child: Obx(
+              () => AppButton(
+                label: controller.isEditing
+                    ? 'Save changes'
+                    : controller.isInvoiceFlow
+                    ? 'Save & use customer'
+                    : 'Save customer',
+                icon: controller.isInvoiceFlow
+                    ? Icons.arrow_forward_rounded
+                    : Icons.check_rounded,
+                isLoading: controller.isSaving.value,
+                onPressed: controller.save,
               ),
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Container(
-          padding: EdgeInsets.fromLTRB(
-            ResponsiveUtils.horizontalPadding(context),
-            12,
-            ResponsiveUtils.horizontalPadding(context),
-            12,
-          ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            border: const Border(top: BorderSide(color: AppColors.border)),
-          ),
-          child: Obx(
-            () => AppButton(
-              label: controller.isEditing
-                  ? 'Save changes'
-                  : controller.isInvoiceFlow
-                  ? 'Save & use customer'
-                  : 'Save customer',
-              icon: controller.isInvoiceFlow
-                  ? Icons.arrow_forward_rounded
-                  : Icons.check_rounded,
-              isLoading: controller.isSaving.value,
-              onPressed: controller.save,
             ),
           ),
         ),

@@ -12,6 +12,7 @@ import '../../modules/customers/bindings/customer_bindings.dart';
 import '../../modules/customers/screens/customer_details_screen.dart';
 import '../../modules/customers/screens/customer_form_screen.dart';
 import '../../modules/customers/screens/customer_list_screen.dart';
+import '../../modules/customers/screens/customer_statement_screen.dart';
 import '../../modules/products/bindings/product_bindings.dart';
 import '../../modules/products/screens/product_details_screen.dart';
 import '../../modules/products/screens/product_form_screen.dart';
@@ -22,12 +23,15 @@ import '../../modules/invoices/screens/invoice_item_picker_screen.dart';
 import '../../modules/invoices/screens/invoice_details_screen.dart';
 import '../../modules/invoices/screens/invoice_list_screen.dart';
 import '../../modules/invoices/screens/invoice_preview_screen.dart';
+import '../../modules/invoices/screens/payment_receipt_screen.dart';
 import '../../modules/reports/bindings/report_binding.dart';
 import '../../modules/reports/screens/report_screen.dart';
 import '../../modules/backup_restore/bindings/backup_binding.dart';
 import '../../modules/backup_restore/screens/backup_screen.dart';
 import '../../modules/settings/bindings/settings_binding.dart';
 import '../../modules/settings/screens/settings_screen.dart';
+import '../../modules/settings/screens/invoice_defaults_screen.dart';
+import '../../modules/settings/screens/data_export_screen.dart';
 import '../../modules/settings/screens/more_screen.dart';
 import '../../modules/settings/screens/unit_settings_screen.dart';
 import 'app_routes.dart';
@@ -80,6 +84,11 @@ abstract final class AppRouter {
       name: AppRoutes.customerDetails,
       page: CustomerDetailsScreen.new,
       binding: CustomerDetailsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.customerStatement,
+      page: CustomerStatementScreen.new,
+      binding: CustomerStatementBinding(),
     ),
     GetPage(
       name: AppRoutes.products,
@@ -145,6 +154,16 @@ abstract final class AppRouter {
       binding: SettingsBinding(),
     ),
     GetPage(
+      name: AppRoutes.invoiceDefaults,
+      page: InvoiceDefaultsScreen.new,
+      binding: InvoiceDefaultsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.dataExport,
+      page: DataExportScreen.new,
+      binding: DataExportBinding(),
+    ),
+    GetPage(
       name: AppRoutes.unitSettings,
       page: UnitSettingsScreen.new,
       binding: UnitSettingsBinding(),
@@ -163,6 +182,11 @@ abstract final class AppRouter {
       name: AppRoutes.invoicePreview,
       page: InvoicePreviewScreen.new,
       binding: InvoicePreviewBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.paymentReceipt,
+      page: PaymentReceiptScreen.new,
+      binding: PaymentReceiptBinding(),
     ),
   ];
 }

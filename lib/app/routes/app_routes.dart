@@ -7,6 +7,7 @@ abstract final class AppRoutes {
   static const customerAdd = '/customer/add';
   static const customerEdit = '/customer/edit';
   static const customerDetails = '/customer/details';
+  static const customerStatement = '/customer/statement';
   static const products = '/products';
   static const productAdd = '/product/add';
   static const productEdit = '/product/edit';
@@ -16,10 +17,13 @@ abstract final class AppRoutes {
   static const invoiceItemPicker = '/invoice/item-picker';
   static const invoiceDetails = '/invoice/details';
   static const invoicePreview = '/invoice/preview';
+  static const paymentReceipt = '/invoice/payment-receipt';
   static const quotations = '/quotations';
   static const quotationCreate = '/quotation/create';
   static const reports = '/reports';
   static const settings = '/settings';
+  static const invoiceDefaults = '/settings/invoice-defaults';
+  static const dataExport = '/settings/data-export';
   static const unitSettings = '/settings/units';
   static const more = '/more';
   static const backup = '/backup';

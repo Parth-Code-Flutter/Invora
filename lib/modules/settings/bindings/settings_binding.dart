@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 
 import '../controllers/settings_controller.dart';
+import '../controllers/invoice_defaults_controller.dart';
+import '../controllers/data_export_controller.dart';
 import '../controllers/more_controller.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/services/unit_service.dart';
@@ -10,6 +12,20 @@ class SettingsBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut(() => SettingsController(Get.find()));
+  }
+}
+
+class InvoiceDefaultsBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut(() => InvoiceDefaultsController(Get.find()));
+  }
+}
+
+class DataExportBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut(() => DataExportController(Get.find()));
   }
 }
 

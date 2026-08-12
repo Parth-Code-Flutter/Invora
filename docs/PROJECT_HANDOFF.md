@@ -37,6 +37,13 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Create-mode forms use non-destructive hints for example/default text; edit
   mode continues to load actual persisted values
 - Reusable fields, dropdown sheets, navigation, and modern notifications
+- All app-owned dialogs use one modern `AppDialog` surface with a rounded
+  icon-led header, clear title/body hierarchy, adaptive wrapped actions, dark
+  mode, and optional stacked full-width actions for three-choice flows such as
+  unsaved invoice changes.
+- Shared unsaved-change protection covers invoice/quotation, customer,
+  product/service, and business forms across AppBar back, system back, and iOS
+  back gestures. Dirty document composers can save a draft before leaving.
 - Shared gradient `AppButton` owns full-width primary actions, including
   loading, disabled, icon, sizing, semantics, and responsive behavior; compact
   selectors, secondary actions, and destructive confirmations remain distinct
@@ -49,6 +56,11 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - More and App Settings use fully visible grouped destination rows with a
   shared icon, subtitle, divider, and disclosure treatment; secondary tools no
   longer require horizontal discovery scrolling
+- App Settings includes a focused Invoice Defaults workspace for immediate,
+  7/15/30-day, or custom due periods; tax mode and GST rate; document notes and
+  terms; and payment method. New documents/custom items/payment entries inherit
+  the relevant defaults while existing records and saved catalog tax rates stay
+  unchanged.
 - Offline backup/restore with validation and database rollback; validation
   rejects missing/invalid schema metadata and embedded files without a valid
   SQLite signature before replacing application data
@@ -67,6 +79,11 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   discloses company/tax, billing address, and private notes
 - Create-customer action directly inside invoice customer selection; customers
   saved there are immediately returned to and selected for the invoice
+- Customer list rows use a compact account-ledger hierarchy inspired by modern
+  billing apps: identity and creation date on the left, optional company/mobile
+  context, and lifetime billed plus Paid/Due state on the right. Aggregates
+  exclude drafts and cancelled invoices; create-invoice/edit/delete remain in
+  the row action sheet and swipe gestures.
 
 ### Products and services
 
@@ -103,6 +120,10 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   payment/opening/imported/reversal entries and links every explicit reversal
   to its immutable original payment; existing invoice edits cannot rewrite the
   ledger, while legacy cumulative payments remain preserved.
+- Successful ledger payments open an animated receipt-roll experience with a
+  stable receipt number and offline A5 PDF preview/save/share/print actions;
+  valid historical receipts reopen from payment activity and reversed payments
+  are blocked.
 - Quotation-to-invoice conversion
 - Customer and valid items required before final save, preview, PDF, sharing,
   printing, or payment; incomplete work may be saved as a draft
@@ -117,11 +138,18 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   and due metrics, structured contact/billing information, and complete invoice
   history. History opens the standard invoice workspace with status-appropriate
   edit, payment, duplicate, cancel/delete, and PDF export operations.
+- Customer Details opens a date-range statement workspace with opening,
+  invoiced, received, and closing metrics; chronological invoice/payment/
+  reversal activity; and offline PDF preview/save/share/print actions.
 - Invoice creation uses a focused composer hierarchy: compact customer/invoice
   header, equal-width metadata controls, count-labelled line items, secondary
   tax/discount disclosure, and a non-duplicated empty-item flow. Phone layouts
   avoid repeating the full totals card because the fixed footer already keeps
   total and Review visible; tablets retain the live summary side panel.
+- Customer and invoice lists replace blocking spinners with reusable animated
+  skeleton rows and apply a subtle staggered fade/translate/scale entrance as
+  rows are built during initial display and scrolling. System reduced-motion
+  settings bypass the entrance animation.
 
 ### Documents and reporting
 
@@ -134,10 +162,25 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   use explicit responsive table columns/alignment so real invoice values wrap
   predictably without overlapping
 - Offline PDF preview, save, share, and print
+- A centralized Export Data workspace saves or shares Excel-friendly UTF-8 CSV
+  for active customers, products/services, invoices, and immutable payment
+  ledger entries. Financial exports use a configurable date range (invoice date
+  for invoices; paid-at date for payments) with ISO dates, decimal major-unit
+  amounts, and explicit status/tax/payment fields. Date-range sales summaries
+  export as CSV or a Unicode A4 PDF and are also reachable from Reports.
 - Dashboard totals and basic reports
 - Dashboard prioritizes current-month cash flow and collection progress, an
   actionable outstanding-payment reminder, quick creation, and shared recent
   invoice cards
+- Dashboard header is a compact greeting/business identity without a Settings
+  shortcut (Settings remains under More). Its professional light account card
+  shows current-month invoiced value and invoice count, a real six-month sales
+  sparkline, and icon-led received, outstanding, and collected metrics with
+  dark-mode support.
+- Automated whole-flow QA covers the offline GST lifecycle from business,
+  customer, and catalog data through invoice payments/reversal, quotation
+  conversion, PDF generation, and backup validation. Native picker/share/print
+  and physical-device cases are tracked in `docs/QA_CHECKLIST.md`.
 - Customer and product detail history links
 
 ## Persisted data notes
@@ -150,6 +193,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Managed units and the default selection use
   `AppStorageKeyConst.managedUnits/defaultUnit`; legacy `customUnits` values are
   imported into the initial list, and all unit preferences are backed up.
+- Invoice defaults use SharedPreferences keys for due days, tax mode, GST basis
+  points, notes, terms, and payment method. All are included in ZIP settings
+  backup/restore; no database migration is required.
 - Evaluate every new `AppStorage` value for inclusion in `BackupService`.
 - `last_backup_at` records device-local export history and is intentionally not
   restored. `backup_reminder_days` is included in settings backup/restore;
@@ -226,7 +272,7 @@ transfer automatically.
 As of 2026-08-12:
 
 - Flutter analysis: no issues
-- Automated suite: all 61 tests passing
+- Automated suite: all 78 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -234,7 +280,8 @@ As of 2026-08-12:
 1. Configure secure Android release signing; release still references debug
    signing.
 2. Verify Android AAB and iOS archive release builds.
-3. Add onboarding-to-PDF integration tests.
+3. Complete native Android/iOS picker, share, print, restore/restart, gesture,
+   and high-volume checks in `docs/QA_CHECKLIST.md`.
 4. Consider password-encrypted backup exports after V1; core compatibility,
    database rollback, and corruption coverage are implemented.
 5. Complete store privacy declarations and iOS privacy-manifest review.
@@ -246,6 +293,221 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-12 — Project-wide modern dialog system
+
+- Added a reusable `AppDialog` with a 24px rounded surface, soft icon tile,
+  consistent title/body spacing, constrained responsive width, dark-mode
+  styling, scroll support, adaptive wrapped actions, and an optional stacked
+  action layout for narrow or three-choice flows.
+- Migrated every app-owned Material alert: generic confirmations, unsaved
+  changes, customer/product/unit deletion, unit editing, invoice discount and
+  additional-charge editors, payment reversal and status confirmations, and
+  backup create/restore/restart dialogs.
+- Destructive and warning flows now use semantic error/warning icon colors;
+  unsaved changes uses full-width stacked Continue editing, Discard, and Save
+  draft actions so labels never form a cramped or uneven action rail.
+- Dialog behavior, returned values, validation, and persistence remain
+  unchanged. No schema, storage, backup-format, or user-data changes occurred.
+- Important files: shared app dialog/confirmation/unsaved/unit widgets and the
+  customer, product, invoice, settings-unit, and backup screens that host modal
+  flows, plus QA checklist and this handoff.
+- Verified with formatting, focused unsaved/backup/design-system tests, the
+  full automated suite, static analysis, and whitespace checks.
+
+### 2026-08-12 — Invoice-default binding type fix
+
+- Fixed a runtime GetX failure when opening `/invoice/create` or the quotation
+  composer after invoice defaults were introduced. Dart inferred
+  `Get.find<InvoiceDefaultsService?>()` from the controller's optional
+  constructor parameter, but the permanent dependency is correctly registered
+  as non-null `InvoiceDefaultsService`.
+- Both invoice and quotation bindings now request the explicit non-null service
+  type. The optional controller parameter remains only to keep isolated unit
+  construction lightweight; production routes always receive the service.
+- No schema, storage, backup, or user-data changes were required.
+- Important files: invoice binding, QA checklist, and this handoff.
+- Verified with formatting, focused route/binding coverage, the full automated
+  suite, static analysis, and whitespace checks.
+
+### 2026-08-12 — Professional dashboard account overview
+
+- Reworked the dashboard top area to match the supplied modern finance-card
+  reference: compact business avatar/greeting header followed by a clean light
+  Business overview card with month context and invoice-count badge.
+- Replaced the previous full-gradient cash-flow block with a scan-friendly
+  current-month amount, a custom-painted six-month sales sparkline and area
+  fill, and three icon-led Received, Outstanding, and Collected metrics.
+- Removed the header Settings icon to reduce duplicate navigation; Settings
+  remains fully available from More. The card adapts its border/chart treatment
+  for dark mode and retains safe truncation on narrow phones.
+- Gave the overview a restrained warm blush surface in light mode and a lifted
+  plum surface in dark mode so it reads as the primary dashboard summary
+  without competing with its graph, metrics, or action colors. The final light
+  treatment matches the supplied reference's pale lavender (`#FCFAFF`) and soft
+  plum border (`#E9DFF0`).
+- Restyled the due-backup prompt to the supplied compact peach treatment with
+  the direct `Backup due` / `Protect your latest data with a local backup`
+  hierarchy, circular cloud icon, and circular forward action.
+- Updated responsive dashboard coverage to require the new overview and verify
+  the Settings header action is absent. No data, schema, backup, or settings
+  changes were required.
+- Important files: dashboard screen/custom painter, responsive layout test, QA
+  checklist, and this handoff.
+- Verified with formatting, focused small-phone dashboard coverage, the full
+  automated suite, static analysis, and whitespace checks.
+
+### 2026-08-12 — Account-rich customer rows and animated lists
+
+- Redesigned customer list rows around modern billing-list hierarchy: avatar,
+  customer name, creation date and contact context, with lifetime billed value
+  and a clear Paid/Due/No invoices indicator aligned on the right.
+- Added `customerId` to in-memory invoice summaries and live customer-list
+  aggregation for billed, balance, and invoice count. Draft and cancelled
+  documents do not affect customer account indicators; persisted database data
+  and historical snapshots are unchanged.
+- Moved the row-level Create invoice shortcut into the existing action sheet to
+  prevent crowded trailing actions while preserving one-tap customer details,
+  edit/delete swipe gestures, and explicit actions.
+- Added reusable shimmer-style list skeletons plus staggered fade, upward
+  motion, and gentle scale for customer and invoice rows as they load/build on
+  scroll. Reduced-motion users receive static rows without entrance animation.
+- Added widget coverage for normal and reduced-motion list behavior. No schema,
+  migration, backup, or settings changes were required.
+- Important files: shared list-motion widgets, customer list controller/screen/
+  binding, invoice summary/repository mapping, invoice list screen, motion
+  tests, QA checklist, and this handoff.
+- Verified with formatting, focused motion tests, the full automated suite,
+  static analysis, and whitespace checks.
+
+### 2026-08-12 — Portable CSV and date-range report exports
+
+- Added a focused Export Data workspace under Settings with native save/share
+  actions for customers, products/services, invoices, and payment-ledger CSVs.
+  Reports link directly to the same workspace.
+- Added From/To controls for financial data. Invoice exports filter on invoice
+  date, payment exports filter immutable ledger entries on paid-at date, and
+  sales reports exclude cancelled invoices.
+- CSV output uses an Excel-friendly UTF-8 BOM, RFC-style escaping for commas,
+  quotes and line breaks, ISO `YYYY-MM-DD` dates, ISO timestamps for payments,
+  decimal major-unit money, and explicit GST, status, reversal, and format
+  columns. Empty datasets still export useful headers.
+- Added date-range report CSV plus a multi-page-ready Unicode A4 PDF containing
+  invoiced/received/outstanding totals and invoice activity.
+- Added automated coverage for escaping, Unicode/BOM preservation, documented
+  customer columns, and empty exports. No database, migration, or settings
+  storage changes were required.
+- Important files: data-export service/controller/screen, Settings and Reports
+  entry points, routes/bindings, export tests, roadmap, QA checklist, and this
+  handoff.
+- Verified with formatting, focused export tests, the full automated suite,
+  static analysis, and whitespace checks.
+
+### 2026-08-12 — Configurable invoice defaults
+
+- Added a professional Invoice Defaults workspace under Settings covering due
+  immediately, 7/15/30-day and custom 1–365-day periods, tax mode, current GST
+  presets, payment method, default notes, and default terms.
+- New invoices and estimates apply the saved due period, tax mode, notes, and
+  terms. Changing the invoice date continues to preserve its default due
+  interval until the due date is manually overridden. Custom line items start
+  with the configured GST rate, while catalog items retain their saved rate;
+  payment entry starts with the configured method.
+- Added safe fallbacks for absent/unsupported preferences and automated service
+  coverage for first-use values, full persistence, and invalid stored values.
+- Storage changes: added SharedPreferences keys for due days, tax type, GST
+  basis points, notes, terms, and payment method. Backup export/restore now
+  includes integer preferences as well as these new fields. No database schema
+  migration is required.
+- Important files: invoice-defaults service/controller/screen, Settings route
+  and menu, invoice composer/custom-item/payment integration, backup service,
+  storage constants, and invoice-default tests.
+- Verified with formatting, focused defaults/backup tests, the full automated
+  suite, static analysis, and whitespace checks.
+
+### 2026-08-12 — Date-range customer statements and PDF export
+
+- Added ledger-derived customer statements with opening balance before the
+  selected range, chronological invoices/payments/reversals, running balance,
+  period invoiced/received totals, and closing balance.
+- Excluded cancelled invoices and represented reversals as linked debit events,
+  preserving the original payment rather than silently netting history.
+- Added an account-style Customer Statement route from Customer Details with
+  From/To date controls, activity rows, totals, and offline PDF preview, save,
+  share, and print actions.
+- Added a multi-page-ready A4 statement PDF and automated coverage for opening
+  balance, date filtering, invoice/payment/reversal ordering, cancelled invoice
+  exclusion, closing balance, and PDF rendering.
+- Important files: customer statement model/service/PDF service/controller/
+  screen, customer routes/bindings/details entry point, and statement tests.
+- No database schema, backup format, or storage-key changes; statements are
+  calculated from existing immutable invoice/payment data.
+- Verified with formatting, focused ledger/PDF tests, the full automated suite,
+  static analysis, and whitespace checks.
+
+### 2026-08-12 — Animated payment receipts and offline receipt PDF
+
+- Added payment receipts backed by immutable ledger entry IDs, using stable
+  `RCT-{invoiceId}-{paymentId}` numbers and an A5 PDF containing business,
+  customer, invoice, amount, date, method, reference, and balance-after-payment
+  details.
+- Implemented the supplied animation reference's feel: a gold printer roll,
+  vertically unrolling receipt paper, delayed payment-success reveal, replay
+  action, and direct receipt preview. The workspace also provides native save,
+  share, and print actions.
+- Recording a payment now returns the exact new ledger entry and opens its
+  receipt experience. Payment history exposes receipt access for valid entries;
+  reversed payments are marked and receipt generation rejects them.
+- Added receipt PDF tests covering Unicode/INR rendering, stable naming, and
+  reversed-payment rejection.
+- Important files: payment receipt model/PDF service/controller/screen,
+  invoice details payment flow, routes/bindings, and receipt PDF tests.
+- No database schema, backup format, or storage-key changes; receipt identity is
+  derived from existing immutable invoice/payment primary keys.
+- Verified with reference-video inspection, formatting, focused receipt tests,
+  the full automated suite, static analysis, and whitespace checks.
+
+### 2026-08-12 — Whole-flow QA lifecycle and small-phone dashboard fix
+
+- Added a file-backed offline lifecycle test that creates a GST business,
+  customer, and product, then exercises taxed invoice creation, partial
+  payment, explicit reversal, full payment, duplicate/cancel/delete,
+  quotation conversion, professional PDF generation, backup creation and
+  validation, and historical snapshots after catalog deletion.
+- Made the backup database and output locations injectable for deterministic
+  end-to-end testing while preserving production defaults.
+- Added a full-app 320×568 dark-mode dashboard test. It exposed a real overflow
+  between the business-overview heading and invoice-count badge; the heading
+  is now constrained and ellipsizes safely.
+- Added `docs/QA_CHECKLIST.md` to distinguish passing automated coverage from
+  native contact/image/file picker, share/print, gesture, high-volume, and
+  physical-device checks that cannot be proven by host widget tests.
+- Important files: `offline_lifecycle_test.dart`, `responsive_layout_test.dart`,
+  dashboard screen, backup service, and QA checklist.
+- No database schema, backup format, or storage-key changes.
+- Verified with focused lifecycle/responsive tests, formatting, the full
+  automated suite, static analysis, and whitespace checks.
+
+### 2026-08-12 — Cross-form unsaved-change protection
+
+- Added one shared PopScope-based guard for AppBar back, Android system back,
+  and iOS back gestures, with consistent `Continue editing` and `Discard`
+  choices and keyboard-safe confirmation handling.
+- Added baseline snapshots to customer, product/service, business profile, and
+  invoice/quotation controllers so untouched and successfully saved forms exit
+  without unnecessary prompts while all meaningful field, selector, image,
+  customer, item, charge, date, tax, discount, note, and payment edits are
+  detected.
+- Invoice and quotation composers additionally offer `Save draft`; draft save
+  must succeed before the route closes, and a successful save refreshes the
+  baseline to avoid a second warning.
+- Added widget regression tests for clean exit, continue/discard, and save-draft
+  exit behaviour.
+- Important files: shared `unsaved_changes_scope.dart`, the four form
+  controllers/screens, and `unsaved_changes_scope_test.dart`.
+- No database, storage, backup, or migration changes.
+- Verified with formatting, focused navigation/controller tests, the full
+  automated suite, static analysis, and whitespace checks.
 
 ### 2026-08-12 — Production backup safety and local reminders
 

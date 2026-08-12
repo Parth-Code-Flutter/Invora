@@ -19,11 +19,15 @@ class BackupService {
     this._business,
     this._storage, {
     Future<File> Function()? databaseFileProvider,
-  }) : _databaseFileProvider = databaseFileProvider ?? appDatabaseFile;
+    Future<Directory> Function()? outputDirectoryProvider,
+  }) : _databaseFileProvider = databaseFileProvider ?? appDatabaseFile,
+       _outputDirectoryProvider =
+           outputDirectoryProvider ?? getTemporaryDirectory;
   final AppDatabase _database;
   final BusinessRepository _business;
   final AppStorage _storage;
   final Future<File> Function() _databaseFileProvider;
+  final Future<Directory> Function() _outputDirectoryProvider;
 
   DateTime? get lastBackupAt => DateTime.tryParse(
     _storage.getString(AppStorageKeyConst.lastBackupAt) ?? '',
@@ -105,6 +109,24 @@ class BackupService {
       AppStorageKeyConst.defaultUnit: _storage.getString(
         AppStorageKeyConst.defaultUnit,
       ),
+      AppStorageKeyConst.defaultDueDays: _storage.getInt(
+        AppStorageKeyConst.defaultDueDays,
+      ),
+      AppStorageKeyConst.defaultTaxType: _storage.getString(
+        AppStorageKeyConst.defaultTaxType,
+      ),
+      AppStorageKeyConst.defaultGstRateBasisPoints: _storage.getInt(
+        AppStorageKeyConst.defaultGstRateBasisPoints,
+      ),
+      AppStorageKeyConst.defaultInvoiceNotes: _storage.getString(
+        AppStorageKeyConst.defaultInvoiceNotes,
+      ),
+      AppStorageKeyConst.defaultInvoiceTerms: _storage.getString(
+        AppStorageKeyConst.defaultInvoiceTerms,
+      ),
+      AppStorageKeyConst.defaultPaymentMethod: _storage.getString(
+        AppStorageKeyConst.defaultPaymentMethod,
+      ),
       AppStorageKeyConst.backupReminderDays: _storage.getInt(
         AppStorageKeyConst.backupReminderDays,
       ),
@@ -114,7 +136,7 @@ class BackupService {
     final now = DateTime.now();
     final name =
         'creovo_invoice_backup_${now.year}_${now.month.toString().padLeft(2, '0')}_${now.day.toString().padLeft(2, '0')}.zip';
-    final directory = await getTemporaryDirectory();
+    final directory = await _outputDirectoryProvider();
     final output = File(p.join(directory.path, name));
     await output.writeAsBytes(bytes, flush: true);
     await _storage.setString(
@@ -259,6 +281,7 @@ class BackupService {
     for (final entry in values.entries) {
       final value = entry.value;
       if (value is bool) await _storage.setBool(entry.key, value);
+      if (value is int) await _storage.setInt(entry.key, value);
       if (value is String) await _storage.setString(entry.key, value);
       if (value is List) {
         await _storage.setStringList(

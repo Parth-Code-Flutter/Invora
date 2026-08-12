@@ -45,6 +45,9 @@ class BusinessSetupController extends GetxController {
   final paymentQrPath = RxnString();
   final signaturePath = RxnString();
   BusinessProfileModel? _existing;
+  String _baseline = '';
+
+  bool get hasUnsavedChanges => !isLoading.value && _snapshot() != _baseline;
 
   static const currencies = <String, String>{
     'INR': '₹',
@@ -212,6 +215,7 @@ class BusinessSetupController extends GetxController {
         updatedAt: now,
       );
       _existing = await _repository.saveProfile(profile);
+      _captureBaseline();
       await _storage.setBool(AppStorageKeyConst.businessSetupCompleted, true);
       await AppFocus.dismissKeyboard();
       Get.offAllNamed<void>(AppRoutes.dashboard);
@@ -247,8 +251,41 @@ class BusinessSetupController extends GetxController {
       paymentQrPath.value = profile.paymentQrPath;
       signaturePath.value = profile.signaturePath;
     }
+    _captureBaseline();
     isLoading.value = false;
   }
+
+  String _snapshot() =>
+      [
+            businessName,
+            ownerName,
+            mobile,
+            email,
+            address,
+            city,
+            state,
+            pinCode,
+            gstin,
+            pan,
+            invoicePrefix,
+            startingInvoiceNumber,
+            bankName,
+            accountHolderName,
+            accountNumber,
+            ifsc,
+            upiId,
+          ]
+          .map((controller) => controller.text)
+          .followedBy([
+            gstRegistered.value.toString(),
+            currencyCode.value,
+            logoPath.value ?? '',
+            paymentQrPath.value ?? '',
+            signaturePath.value ?? '',
+          ])
+          .join('\u001f');
+
+  void _captureBaseline() => _baseline = _snapshot();
 
   String? _optional(String value) {
     final trimmed = value.trim();

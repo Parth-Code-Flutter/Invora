@@ -15,12 +15,15 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
+import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_notification.dart';
 import '../../../app/widgets/app_unit_field.dart';
+import '../../../app/widgets/unsaved_changes_scope.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_calculation_models.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/services/unit_service.dart';
+import '../../../data/services/invoice_defaults_service.dart';
 import '../../customers/controllers/customer_form_controller.dart';
 import '../controllers/invoice_create_controller.dart';
 import 'invoice_item_picker_screen.dart';
@@ -38,115 +41,119 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const AppBackButton(),
-        title: Text(controller.isQuotation ? 'New estimate' : 'New invoice'),
-        actions: [
-          Obx(
-            () => TextButton.icon(
-              onPressed: controller.isSaving.value
-                  ? null
-                  : () => controller.save(draft: true),
-              icon: const Icon(Icons.bookmark_border_rounded, size: 19),
-              label: const Text('Draft'),
-            ),
-          ),
-          const SizedBox(width: 12),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            border: const Border(top: BorderSide(color: AppColors.border)),
-          ),
-          child: Obx(() {
-            final actionWidth = (MediaQuery.sizeOf(context).width * .56)
-                .clamp(210.0, 300.0)
-                .toDouble();
-            return Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        controller.calculation.value?.balanceDueMinor == 0 &&
-                                controller.items.isNotEmpty
-                            ? 'READY TO REVIEW'
-                            : 'INVOICE TOTAL',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        CurrencyUtils.formatMinor(
-                          controller.calculation.value?.grandTotalMinor ?? 0,
-                          symbol: controller.currencySymbol.value,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.sectionTitle,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: actionWidth,
-                  child: AppButton(
-                    onPressed: controller.preview,
-                    trailingIcon: Icons.arrow_forward_rounded,
-                    label: controller.isQuotation
-                        ? 'Review estimate'
-                        : 'Review invoice',
-                  ),
-                ),
-              ],
-            );
-          }),
-        ),
-      ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (!_customerPromptScheduled && controller.shouldPromptForCustomer) {
-          _customerPromptScheduled = true;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _selectCustomer(context, controller);
-          });
-        }
-        final form = _InvoiceForm(controller: controller);
-        final summary = _InvoiceSummary(controller: controller);
-        if (ResponsiveUtils.isTablet(context)) {
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1180),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: form),
-                  const VerticalDivider(width: 1),
-                  SizedBox(width: 360, child: summary),
-                ],
+    return UnsavedChangesScope(
+      hasChanges: () => controller.hasUnsavedChanges,
+      onSaveDraft: () => controller.save(draft: true),
+      child: Scaffold(
+        appBar: AppBar(
+          leading: const AppBackButton(),
+          title: Text(controller.isQuotation ? 'New estimate' : 'New invoice'),
+          actions: [
+            Obx(
+              () => TextButton.icon(
+                onPressed: controller.isSaving.value
+                    ? null
+                    : () => controller.save(draft: true),
+                icon: const Icon(Icons.bookmark_border_rounded, size: 19),
+                label: const Text('Draft'),
               ),
             ),
-          );
-        }
-        return ListView(
-          padding: EdgeInsets.symmetric(
-            horizontal: ResponsiveUtils.horizontalPadding(context),
-            vertical: 12,
+            const SizedBox(width: 12),
+          ],
+        ),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              border: const Border(top: BorderSide(color: AppColors.border)),
+            ),
+            child: Obx(() {
+              final actionWidth = (MediaQuery.sizeOf(context).width * .56)
+                  .clamp(210.0, 300.0)
+                  .toDouble();
+              return Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          controller.calculation.value?.balanceDueMinor == 0 &&
+                                  controller.items.isNotEmpty
+                              ? 'READY TO REVIEW'
+                              : 'INVOICE TOTAL',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          CurrencyUtils.formatMinor(
+                            controller.calculation.value?.grandTotalMinor ?? 0,
+                            symbol: controller.currencySymbol.value,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.sectionTitle,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: actionWidth,
+                    child: AppButton(
+                      onPressed: controller.preview,
+                      trailingIcon: Icons.arrow_forward_rounded,
+                      label: controller.isQuotation
+                          ? 'Review estimate'
+                          : 'Review invoice',
+                    ),
+                  ),
+                ],
+              );
+            }),
           ),
-          children: [form, const SizedBox(height: 16)],
-        );
-      }),
+        ),
+        body: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!_customerPromptScheduled && controller.shouldPromptForCustomer) {
+            _customerPromptScheduled = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _selectCustomer(context, controller);
+            });
+          }
+          final form = _InvoiceForm(controller: controller);
+          final summary = _InvoiceSummary(controller: controller);
+          if (ResponsiveUtils.isTablet(context)) {
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1180),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: form),
+                    const VerticalDivider(width: 1),
+                    SizedBox(width: 360, child: summary),
+                  ],
+                ),
+              ),
+            );
+          }
+          return ListView(
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveUtils.horizontalPadding(context),
+              vertical: 12,
+            ),
+            children: [form, const SizedBox(height: 16)],
+          );
+        }),
+      ),
     );
   }
 }
@@ -752,9 +759,9 @@ class _InvoiceForm extends StatelessWidget {
     );
     if (picked == null) return;
     if (due) {
-      controller.dueDate.value = picked;
+      controller.setDueDate(picked);
     } else {
-      controller.invoiceDate.value = picked;
+      controller.setInvoiceDate(picked);
     }
   }
 
@@ -1725,7 +1732,11 @@ class _ItemSheetState extends State<_ItemSheet> {
     tax = TextEditingController(
       text: item == null ? '' : TaxUtils.toInputValue(item.taxRateBasisPoints),
     );
-    final storedTax = item?.taxRateBasisPoints ?? 0;
+    final storedTax =
+        item?.taxRateBasisPoints ??
+        (Get.isRegistered<InvoiceDefaultsService>()
+            ? Get.find<InvoiceDefaultsService>().gstRateBasisPoints
+            : 1800);
     selectedTaxRate = TaxUtils.gstRateBasisPoints.contains(storedTax)
         ? storedTax
         : _customGstRate;
@@ -2029,7 +2040,8 @@ class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
+  Widget build(BuildContext context) => AppDialog(
+    icon: Icons.discount_outlined,
     scrollable: true,
     title: const Text('Additional charge'),
     content: Column(
@@ -2080,7 +2092,8 @@ class _DiscountDialogState extends State<_DiscountDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
+  Widget build(BuildContext context) => AppDialog(
+    icon: Icons.add_card_rounded,
     title: const Text('Invoice discount'),
     content: Column(
       mainAxisSize: MainAxisSize.min,

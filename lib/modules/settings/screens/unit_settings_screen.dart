@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../controllers/unit_settings_controller.dart';
 
@@ -104,7 +105,9 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
   Future<void> _confirmDelete(BuildContext context, String unit) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AppDialog(
+        icon: Icons.delete_outline_rounded,
+        iconColor: AppColors.error,
         title: const Text('Delete unit?'),
         content: Text(
           'Remove “$unit” from future unit choices? Existing records using it will not change.',
@@ -171,7 +174,8 @@ class _UnitEditorDialogState extends State<_UnitEditorDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
+  Widget build(BuildContext context) => AppDialog(
+    icon: Icons.straighten_rounded,
     title: Text(widget.current == null ? 'Add a unit' : 'Rename unit'),
     content: TextField(
       controller: input,

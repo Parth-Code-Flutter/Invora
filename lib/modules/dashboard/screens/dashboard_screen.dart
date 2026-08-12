@@ -62,13 +62,6 @@ class DashboardScreen extends GetView<DashboardController> {
             ],
           ),
         ),
-        actions: [
-          IconButton(
-            tooltip: 'Settings',
-            onPressed: () => Get.toNamed<void>(AppRoutes.settings),
-            icon: const Icon(Icons.settings_outlined),
-          ),
-        ],
       ),
       body: Row(
         children: [
@@ -224,167 +217,158 @@ class DashboardScreen extends GetView<DashboardController> {
 
   Widget _businessOverview(BuildContext context) {
     final report = controller.report.value;
-    return Stack(
-      children: [
-        Container(
-          padding: const EdgeInsets.fromLTRB(20, 19, 20, 20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.secondary, AppColors.primaryDark],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(22),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x24151827),
-                blurRadius: 22,
-                offset: Offset(0, 9),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final collected = report.totalSalesMinor <= 0
+        ? 0
+        : ((report.totalReceivedMinor / report.totalSalesMinor) * 100)
+              .clamp(0, 100)
+              .round();
+    return AppCard(
+      color: isDark ? const Color(0xFF3B2038) : const Color(0xFFFCFAFF),
+      borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
+      padding: const EdgeInsets.fromLTRB(16, 15, 16, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: .11),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.auto_graph_rounded,
-                      color: Colors.white,
-                      size: 21,
-                    ),
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.secondary, AppColors.primary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  const SizedBox(width: 11),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'BUSINESS OVERVIEW',
-                        style: AppTextStyles.caption.copyWith(
-                          color: Colors.white70,
-                          letterSpacing: .8,
-                        ),
-                      ),
-                      Text(
-                        '${_monthName(DateTime.now().month)} cash flow',
-                        style: AppTextStyles.small.copyWith(
-                          color: Colors.white54,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 9,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: .08),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${report.invoiceCount} ${report.invoiceCount == 1 ? 'invoice' : 'invoices'}',
-                      style: AppTextStyles.caption.copyWith(
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              Text(
-                'Invoiced this month',
-                style: AppTextStyles.secondaryBody.copyWith(
-                  color: Colors.white60,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                CurrencyUtils.formatMinor(
-                  report.totalSalesMinor,
-                  symbol: _symbol,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.displayAmount.copyWith(
+                child: const Icon(
+                  Icons.auto_graph_rounded,
                   color: Colors.white,
+                  size: 20,
                 ),
               ),
-              const SizedBox(height: 17),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(99),
-                child: LinearProgressIndicator(
-                  value: report.totalSalesMinor <= 0
-                      ? 0
-                      : (report.totalReceivedMinor / report.totalSalesMinor)
-                            .clamp(0.0, 1.0),
-                  minHeight: 6,
-                  backgroundColor: Colors.white.withValues(alpha: .13),
-                  valueColor: const AlwaysStoppedAnimation(Color(0xFF61D7B4)),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Business overview', style: AppTextStyles.cardTitle),
+                    const SizedBox(height: 1),
+                    Text(
+                      '${_monthName(DateTime.now().month)} cash flow',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 15),
-              Row(
-                children: [
-                  Expanded(
-                    child: _OverviewValue(
-                      label: 'Received',
-                      value: CurrencyUtils.formatMinor(
-                        report.totalReceivedMinor,
-                        symbol: _symbol,
-                      ),
-                      color: const Color(0xFF61D7B4),
-                    ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${report.invoiceCount} ${report.invoiceCount == 1 ? 'invoice' : 'invoices'}',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
                   ),
-                  Container(width: 1, height: 38, color: Colors.white12),
-                  const SizedBox(width: 18),
-                  Expanded(
-                    child: _OverviewValue(
-                      label: 'Outstanding',
-                      value: CurrencyUtils.formatMinor(
-                        report.outstandingMinor,
-                        symbol: _symbol,
-                      ),
-                      color: const Color(0xFFFFC878),
-                    ),
-                  ),
-                  Container(width: 1, height: 38, color: Colors.white12),
-                  const SizedBox(width: 18),
-                  Expanded(
-                    child: _OverviewValue(
-                      label: 'Collected',
-                      value: report.totalSalesMinor <= 0
-                          ? '0%'
-                          : '${((report.totalReceivedMinor / report.totalSalesMinor) * 100).clamp(0, 100).round()}%',
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
-        Positioned(
-          right: -34,
-          top: -42,
-          child: Container(
-            width: 140,
-            height: 140,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: .06),
-            ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Invoiced this month',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      CurrencyUtils.formatMinor(
+                        report.totalSalesMinor,
+                        symbol: _symbol,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.displayAmount,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 132,
+                height: 62,
+                child: CustomPaint(
+                  painter: _CashFlowPainter(
+                    report.monthlySales
+                        .map((point) => point.amountMinor)
+                        .toList(),
+                    isDark: isDark,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 14),
+          Divider(color: isDark ? AppColors.darkBorder : AppColors.border),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _OverviewMetric(
+                  icon: Icons.south_rounded,
+                  label: 'Received',
+                  value: CurrencyUtils.formatMinor(
+                    report.totalReceivedMinor,
+                    symbol: _symbol,
+                  ),
+                  color: AppColors.success,
+                  background: AppColors.successLight,
+                ),
+              ),
+              const _OverviewDivider(),
+              Expanded(
+                child: _OverviewMetric(
+                  icon: Icons.schedule_rounded,
+                  label: 'Outstanding',
+                  value: CurrencyUtils.formatMinor(
+                    report.outstandingMinor,
+                    symbol: _symbol,
+                  ),
+                  color: AppColors.warning,
+                  background: AppColors.warningLight,
+                ),
+              ),
+              const _OverviewDivider(),
+              Expanded(
+                child: _OverviewMetric(
+                  icon: Icons.percent_rounded,
+                  label: 'Collected',
+                  value: '$collected%',
+                  color: AppColors.secondary,
+                  background: AppColors.secondaryLight,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -483,29 +467,141 @@ class _SectionHeader extends StatelessWidget {
   );
 }
 
-class _OverviewValue extends StatelessWidget {
-  const _OverviewValue({
+class _OverviewMetric extends StatelessWidget {
+  const _OverviewMetric({
+    required this.icon,
     required this.label,
     required this.value,
     required this.color,
+    required this.background,
   });
+  final IconData icon;
   final String label;
   final String value;
   final Color color;
+  final Color background;
+
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => Row(
     children: [
-      Text(label, style: AppTextStyles.caption.copyWith(color: Colors.white54)),
-      const SizedBox(height: 4),
-      Text(
-        value,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.cardTitle.copyWith(color: color),
+      Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(color: background, shape: BoxShape.circle),
+        child: Icon(icon, color: color, size: 17),
+      ),
+      const SizedBox(width: 7),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.small.copyWith(
+                color: color,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
       ),
     ],
   );
+}
+
+class _OverviewDivider extends StatelessWidget {
+  const _OverviewDivider();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 1,
+    height: 38,
+    margin: const EdgeInsets.symmetric(horizontal: 8),
+    color: Theme.of(context).brightness == Brightness.dark
+        ? AppColors.darkBorder
+        : AppColors.border,
+  );
+}
+
+class _CashFlowPainter extends CustomPainter {
+  const _CashFlowPainter(this.values, {required this.isDark});
+
+  final List<int> values;
+  final bool isDark;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final points = values.isEmpty ? const <int>[0, 0, 0, 0, 0, 0] : values;
+    final maximum = points.fold<int>(
+      1,
+      (max, value) => value > max ? value : max,
+    );
+    final path = Path();
+    final fill = Path();
+    for (var index = 0; index < points.length; index++) {
+      final x = points.length == 1
+          ? size.width
+          : size.width * index / (points.length - 1);
+      final normalized = points[index] / maximum;
+      final y = size.height - 7 - (normalized * (size.height - 16));
+      if (index == 0) {
+        path.moveTo(x, y);
+        fill.moveTo(x, size.height);
+        fill.lineTo(x, y);
+      } else {
+        path.lineTo(x, y);
+        fill.lineTo(x, y);
+      }
+      if (index == points.length - 1) {
+        fill.lineTo(x, y);
+        fill.lineTo(x, size.height);
+        fill.close();
+      }
+    }
+    canvas.drawPath(
+      fill,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.secondary.withValues(alpha: .18),
+            AppColors.secondary.withValues(alpha: 0),
+          ],
+        ).createShader(Offset.zero & size),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = isDark ? AppColors.accent : AppColors.secondary
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+    final lastY =
+        size.height - 7 - ((points.last / maximum) * (size.height - 16));
+    canvas.drawCircle(
+      Offset(size.width, lastY),
+      3.5,
+      Paint()..color = isDark ? AppColors.accent : AppColors.secondary,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _CashFlowPainter oldDelegate) =>
+      oldDelegate.values != values || oldDelegate.isDark != isDark;
 }
 
 class _QuickAction extends StatelessWidget {
@@ -625,10 +721,16 @@ class _BackupReminderPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    color: Theme.of(context).colorScheme.surface,
+    color: Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF3A242E)
+        : const Color(0xFFFFF8F3),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(17),
-      side: BorderSide(color: AppColors.primary.withValues(alpha: .24)),
+      side: BorderSide(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppColors.darkBorder
+            : const Color(0xFFF5DED2),
+      ),
     ),
     clipBehavior: Clip.antiAlias,
     child: InkWell(
@@ -642,7 +744,7 @@ class _BackupReminderPrompt extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(13),
+                shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.backup_outlined,
@@ -655,13 +757,10 @@ class _BackupReminderPrompt extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Protect your latest data',
-                    style: AppTextStyles.cardTitle,
-                  ),
+                  Text('Backup due', style: AppTextStyles.cardTitle),
                   const SizedBox(height: 2),
                   Text(
-                    'Your scheduled local backup is due.',
+                    'Protect your latest data with a local backup',
                     style: AppTextStyles.small.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -669,7 +768,19 @@ class _BackupReminderPrompt extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_rounded, color: AppColors.primary),
+            Container(
+              width: 34,
+              height: 34,
+              decoration: const BoxDecoration(
+                color: AppColors.primaryLight,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.arrow_forward_rounded,
+                color: AppColors.primary,
+                size: 19,
+              ),
+            ),
           ],
         ),
       ),

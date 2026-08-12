@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../constants/app_colors.dart';
+import 'app_dialog.dart';
+
 Future<bool> showAppConfirmDialog({
   required BuildContext context,
   required String title,
@@ -9,7 +12,11 @@ Future<bool> showAppConfirmDialog({
 }) async {
   return await showDialog<bool>(
         context: context,
-        builder: (dialogContext) => AlertDialog(
+        builder: (dialogContext) => AppDialog(
+          icon: destructive
+              ? Icons.delete_outline_rounded
+              : Icons.help_outline_rounded,
+          iconColor: destructive ? AppColors.error : AppColors.primary,
           title: Text(title),
           content: Text(message),
           actions: [

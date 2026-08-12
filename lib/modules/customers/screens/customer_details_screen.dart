@@ -103,6 +103,15 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                   ),
                   hasDue: controller.outstandingMinor > 0,
                 ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => Get.toNamed<void>(
+                    AppRoutes.customerStatement,
+                    arguments: customer.id,
+                  ),
+                  icon: const Icon(Icons.account_balance_wallet_outlined),
+                  label: const Text('View customer statement'),
+                ),
                 const SizedBox(height: 20),
                 Text('Contact & billing', style: AppTextStyles.sectionTitle),
                 const SizedBox(height: 9),

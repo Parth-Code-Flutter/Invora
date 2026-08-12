@@ -30,6 +30,7 @@ class InvoiceEditorArgs {
 class InvoiceSummaryModel {
   const InvoiceSummaryModel({
     required this.id,
+    this.customerId,
     required this.invoiceNumber,
     required this.customerName,
     this.companyName,
@@ -41,6 +42,7 @@ class InvoiceSummaryModel {
   });
 
   final int id;
+  final int? customerId;
   final String invoiceNumber;
   final String customerName;
   final String? companyName;

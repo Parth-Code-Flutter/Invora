@@ -29,6 +29,18 @@ class SettingsScreen extends GetView<SettingsController> {
                 subtitle: 'Identity, GST, bank details and branding',
                 onTap: () => Get.toNamed<void>(AppRoutes.businessSetup),
               ),
+              AppMenuTile(
+                icon: Icons.receipt_long_outlined,
+                title: 'Invoice defaults',
+                subtitle: 'Due date, GST, payment, notes and terms',
+                onTap: () => Get.toNamed<void>(AppRoutes.invoiceDefaults),
+              ),
+              AppMenuTile(
+                icon: Icons.straighten_rounded,
+                title: 'Units',
+                subtitle: 'Manage choices and the default item unit',
+                onTap: () => Get.toNamed<void>(AppRoutes.unitSettings),
+              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -55,6 +67,12 @@ class SettingsScreen extends GetView<SettingsController> {
           _heading('Data'),
           AppMenuGroup(
             children: [
+              AppMenuTile(
+                icon: Icons.file_download_outlined,
+                title: 'Export data',
+                subtitle: 'CSV business data and date-range reports',
+                onTap: () => Get.toNamed<void>(AppRoutes.dataExport),
+              ),
               AppMenuTile(
                 icon: Icons.settings_backup_restore,
                 title: 'Backup & restore',
