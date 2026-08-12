@@ -16,13 +16,6 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
     appBar: AppBar(
       leading: const AppBackButton(),
       title: const Text('Set default unit'),
-      actions: [
-        IconButton(
-          tooltip: 'Add unit',
-          onPressed: () => _showEditor(context),
-          icon: const Icon(Icons.add_rounded),
-        ),
-      ],
     ),
     body: ResponsiveContent(
       tabletMaxWidth: 720,
@@ -48,13 +41,23 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
-                child: Text(
-                  'Available units',
-                  style: AppTextStyles.sectionTitle,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Available units', style: AppTextStyles.sectionTitle),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Tap a unit to make it your default',
+                      style: AppTextStyles.small.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               TextButton.icon(
@@ -64,7 +67,7 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 7),
           Expanded(
             child: Obx(() {
               // Read both reactive values while Obx is building. Reading
@@ -73,18 +76,26 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
               // correctly without repainting the selected tile.
               final units = controller.units.toList(growable: false);
               final selectedDefault = controller.selectedDefault.value;
-              return ListView.separated(
+              return GridView.builder(
                 padding: const EdgeInsets.only(bottom: 24),
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 240,
+                  mainAxisExtent: 56,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
                 itemCount: units.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final unit = units[index];
                   return _UnitTile(
                     unit: unit,
                     selected: selectedDefault == unit,
                     onSelect: () => controller.setDefault(unit),
-                    onEdit: () => _showEditor(context, unit: unit),
-                    onDelete: () => _confirmDelete(context, unit),
+                    onActions: () => _showActions(
+                      context,
+                      unit: unit,
+                      selected: selectedDefault == unit,
+                    ),
                   );
                 },
               );
@@ -100,6 +111,72 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
       context: context,
       builder: (_) => _UnitEditorDialog(current: unit, controller: controller),
     );
+  }
+
+  Future<void> _showActions(
+    BuildContext context, {
+    required String unit,
+    required bool selected,
+  }) async {
+    final action = await showModalBottomSheet<_UnitAction>(
+      context: context,
+      showDragHandle: true,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(unit, style: AppTextStyles.sectionTitle),
+            const SizedBox(height: 4),
+            Text(
+              'Choose what you want to do with this unit.',
+              style: AppTextStyles.small.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              enabled: !selected,
+              leading: Icon(
+                selected ? Icons.check_circle_rounded : Icons.check_rounded,
+                color: selected ? AppColors.success : AppColors.primary,
+              ),
+              title: Text(selected ? 'Current default' : 'Set as default'),
+              subtitle: const Text('Preselect for newly created items'),
+              onTap: selected
+                  ? null
+                  : () => Navigator.pop(sheetContext, _UnitAction.setDefault),
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text('Edit unit'),
+              subtitle: const Text('Rename this unit everywhere it is offered'),
+              onTap: () => Navigator.pop(sheetContext, _UnitAction.edit),
+            ),
+            ListTile(
+              textColor: AppColors.error,
+              iconColor: AppColors.error,
+              leading: const Icon(Icons.delete_outline_rounded),
+              title: const Text('Delete unit'),
+              subtitle: const Text('Existing records remain unchanged'),
+              onTap: () => Navigator.pop(sheetContext, _UnitAction.delete),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!context.mounted || action == null) return;
+    switch (action) {
+      case _UnitAction.setDefault:
+        await controller.setDefault(unit);
+      case _UnitAction.edit:
+        await _showEditor(context, unit: unit);
+      case _UnitAction.delete:
+        await _confirmDelete(context, unit);
+    }
   }
 
   Future<void> _confirmDelete(BuildContext context, String unit) async {
@@ -213,68 +290,66 @@ class _UnitTile extends StatelessWidget {
     required this.unit,
     required this.selected,
     required this.onSelect,
-    required this.onEdit,
-    required this.onDelete,
+    required this.onActions,
   });
 
   final String unit;
   final bool selected;
   final VoidCallback onSelect;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final VoidCallback onActions;
 
   @override
   Widget build(BuildContext context) => Material(
-    color: selected ? AppColors.primaryLight : Theme.of(context).cardColor,
+    color: selected ? AppColors.primary : Theme.of(context).cardColor,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(14),
       side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
     ),
     child: InkWell(
       onTap: onSelect,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(14),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
+        padding: const EdgeInsets.fromLTRB(8, 6, 0, 6),
         child: Row(
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              width: 42,
-              height: 42,
+              width: 26,
+              height: 26,
               decoration: BoxDecoration(
-                color: selected ? AppColors.primary : AppColors.surfaceSoft,
-                borderRadius: BorderRadius.circular(13),
+                color: selected
+                    ? Colors.white.withValues(alpha: .18)
+                    : AppColors.surfaceSoft,
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 selected ? Icons.check_rounded : Icons.straighten_rounded,
                 color: selected ? Colors.white : AppColors.textSecondary,
+                size: 15,
               ),
             ),
-            const SizedBox(width: 13),
+            const SizedBox(width: 7),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(unit, style: AppTextStyles.cardTitle),
-                  if (selected)
-                    Text(
-                      'Default unit',
-                      style: AppTextStyles.small.copyWith(
-                        color: AppColors.primary,
-                      ),
-                    ),
-                ],
+              child: Text(
+                unit,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.small.copyWith(
+                  color: selected ? Colors.white : null,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 11.5,
+                ),
               ),
             ),
             IconButton(
-              tooltip: 'Rename $unit',
-              onPressed: onEdit,
-              icon: const Icon(Icons.edit_outlined, size: 20),
-            ),
-            IconButton(
-              tooltip: 'Delete $unit',
-              onPressed: onDelete,
-              icon: const Icon(Icons.delete_outline_rounded, size: 20),
+              tooltip: 'Actions for $unit',
+              onPressed: onActions,
+              visualDensity: VisualDensity.compact,
+              icon: Icon(
+                Icons.more_horiz_rounded,
+                size: 18,
+                color: selected ? Colors.white : AppColors.textSecondary,
+              ),
             ),
           ],
         ),
@@ -282,3 +357,5 @@ class _UnitTile extends StatelessWidget {
     ),
   );
 }
+
+enum _UnitAction { setDefault, edit, delete }

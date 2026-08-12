@@ -71,6 +71,14 @@ class ProductFormController extends GetxController {
     }
   }
 
+  void refreshFieldSettings() {
+    enabledFieldKeys.assignAll(productSettings.enabledFields);
+    customFields.assignAll(productSettings.customFields);
+    for (final field in attributeDefinitions) {
+      attributeControllers.putIfAbsent(field.key, TextEditingController.new);
+    }
+  }
+
   bool fieldEnabled(String key) {
     if (type.value == ItemType.service &&
         const {

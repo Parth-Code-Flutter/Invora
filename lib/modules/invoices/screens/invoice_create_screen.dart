@@ -536,9 +536,9 @@ class _InvoiceForm extends StatelessWidget {
                           PopupMenuButton<String>(
                             tooltip: 'Item actions',
                             padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints.tightFor(
-                              width: 36,
-                              height: 36,
+                            constraints: const BoxConstraints(
+                              minWidth: 180,
+                              maxWidth: 220,
                             ),
                             iconSize: 20,
                             onSelected: (action) {
@@ -555,21 +555,26 @@ class _InvoiceForm extends StatelessWidget {
                             itemBuilder: (_) => const [
                               PopupMenuItem(
                                 value: 'edit',
-                                child: ListTile(
-                                  leading: Icon(Icons.edit_outlined),
-                                  title: Text('Edit details'),
-                                  dense: true,
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.edit_outlined, size: 20),
+                                    SizedBox(width: 12),
+                                    Text('Edit details'),
+                                  ],
                                 ),
                               ),
                               PopupMenuItem(
                                 value: 'delete',
-                                child: ListTile(
-                                  leading: Icon(
-                                    Icons.delete_outline,
-                                    color: AppColors.error,
-                                  ),
-                                  title: Text('Remove item'),
-                                  dense: true,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.delete_outline,
+                                      color: AppColors.error,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text('Remove item'),
+                                  ],
                                 ),
                               ),
                             ],

@@ -8,6 +8,7 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_text_field.dart';
@@ -27,7 +28,9 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
           title: const Text(''),
           leading: Obx(
             () => controller.setupStep.value == 0
-                ? const SizedBox.shrink()
+                ? controller.isEditing
+                      ? const AppBackButton()
+                      : const SizedBox.shrink()
                 : IconButton(
                     onPressed: controller.returnToIdentity,
                     icon: const Icon(Icons.arrow_back_rounded),
@@ -53,12 +56,17 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                       ResponsiveUtils.height(context, 32),
                     ),
                     children: [
-                      _SetupHeader(step: controller.setupStep.value),
+                      _SetupHeader(
+                        step: controller.setupStep.value,
+                        isEditing: controller.isEditing,
+                      ),
                       const SizedBox(height: 26),
                       if (controller.setupStep.value == 0) ...[
                         _SectionLabel(
                           title: 'Your identity',
-                          caption: 'Required to create your first invoice.',
+                          caption: controller.isEditing
+                              ? 'Used across your invoices.'
+                              : 'Required to create your first invoice.',
                         ),
                         const SizedBox(height: 12),
                         Obx(
@@ -446,8 +454,16 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
               () => AppButton(
                 label: controller.setupStep.value == 0
                     ? 'Continue'
+                    : controller.isEditing
+                    ? 'Save changes'
                     : 'Save & start invoicing',
-                trailingIcon: Icons.arrow_forward_rounded,
+                icon: controller.isEditing && controller.setupStep.value == 1
+                    ? Icons.check_rounded
+                    : null,
+                trailingIcon:
+                    controller.setupStep.value == 0 || !controller.isEditing
+                    ? Icons.arrow_forward_rounded
+                    : null,
                 isLoading: controller.isSaving.value,
                 onPressed: controller.isLoading.value
                     ? null
@@ -486,8 +502,9 @@ class _StepBadge extends StatelessWidget {
 }
 
 class _SetupHeader extends StatelessWidget {
-  const _SetupHeader({required this.step});
+  const _SetupHeader({required this.step, required this.isEditing});
   final int step;
+  final bool isEditing;
 
   @override
   Widget build(BuildContext context) {
@@ -503,7 +520,13 @@ class _SetupHeader extends StatelessWidget {
             ],
           ).createShader(bounds),
           child: Text(
-            step == 0 ? 'Let’s make it yours' : 'How can customers reach you?',
+            isEditing
+                ? step == 0
+                      ? 'Edit business identity'
+                      : 'Update business details'
+                : step == 0
+                ? 'Let’s make it yours'
+                : 'How can customers reach you?',
             style: AppTextStyles.pageTitle.copyWith(
               color: Colors.white,
               fontSize: ResponsiveUtils.fontSize(context, 30),
@@ -513,7 +536,11 @@ class _SetupHeader extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          step == 0
+          isEditing
+              ? step == 0
+                    ? 'Update the name, category, or logo shown across your invoices.'
+                    : 'Review contact, tax, payment, and invoice preferences for your business.'
+              : step == 0
               ? 'Add your business name and an optional logo for a polished invoice header.'
               : 'Contact, tax and payment details are optional. Add only what you need.',
           style: AppTextStyles.body.copyWith(

@@ -308,6 +308,73 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-13 — Stable compact overflow menus
+
+- Fixed the invoice line-item overflow menu crash caused by applying a tiny
+  button-sized constraint to the popup route itself. Item actions now open in a
+  properly sized compact menu while the trigger remains visually small.
+- Applied the same safe menu constraint to Unit Settings so its compact action
+  trigger cannot reproduce the gesture hit-test failure.
+- No invoice calculation, item editing, deletion, unit persistence, or storage
+  behavior changed.
+- Important files: invoice composer, Unit Settings, popup regression test, and
+  this handoff.
+- Verification: popup open/dismiss regression, formatting, and static analysis.
+
+### 2026-08-13 — Existing-business edit mode
+
+- Business Profile now distinguishes first-time setup from editing an existing
+  business. Existing users see Edit business identity / Update business details
+  copy instead of onboarding language such as “Let’s make it yours”.
+- Edit mode exposes a back button on the first step, retains the step-back action
+  on the second, labels the final action Save changes, and returns to the prior
+  screen after saving. First-time setup still completes into the dashboard.
+- Identity guidance now says it is used across invoices rather than implying the
+  user has not yet created their first invoice.
+- No schema, storage, profile-field, validation, or setup-completion changes.
+- Important files: business setup controller/screen, edit-mode widget test, QA
+  checklist, and this handoff.
+- Verification: edit/first-time conditional rendering, back-action presence,
+  save navigation behavior, formatting, and static analysis.
+
+### 2026-08-13 — Compact Unit Settings workspace
+
+- Redesigned Set default unit to match the grouped field-selection experience:
+  concise usage guidance and a compact two-column phone grid that scales
+  responsively on larger widths instead of a long one-row-per-unit list. The
+  original explanatory header was retained to clearly explain data safety.
+- Removed the duplicate Add icon from the AppBar; the labeled Add action beside
+  Available units is now the single clear creation entry point.
+- Selecting a unit uses the same high-contrast coral/white treatment as product
+  field selection. The overflow popup was replaced with a modern bottom action
+  sheet containing Set as default, Edit unit, and Delete unit.
+- Reduced each picker tile to a single-line 56px control and removed its repeated
+  Default unit caption. The selected tile and bottom sheet communicate default
+  status clearly while keeping full unit names readable.
+- Existing optimistic default persistence, rename/delete safety, and historical
+  invoice/product behavior remain unchanged.
+- Important files: Unit Settings screen, focused narrow-phone/widget tests, QA
+  checklist, and this handoff.
+- Verification: formatting, static analysis, compact-grid overflow coverage,
+  default repaint tests, and unit editor lifecycle regression.
+
+### 2026-08-13 — Manage product fields from Add/Edit Item
+
+- Added a visible Manage fields action to the Product details section in both
+  Add item and Edit item. It opens Product Settings directly, avoiding a detour
+  through More or App Settings.
+- Returning to the item form immediately refreshes enabled and custom fields;
+  newly enabled fields appear in place, hidden fields disappear, and all typed
+  item/attribute values remain preserved in their existing controllers.
+- The Product details card remains visible even when no optional fields are
+  enabled and provides a focused empty-state explanation linking the user to
+  Manage fields.
+- No schema, storage, backup, invoice snapshot, or validation changes occurred.
+- Important files: product form controller/screen, tests, QA checklist, and
+  this handoff.
+- Verification: formatting, static analysis, field-refresh preservation tests,
+  product form rendering, and existing Product Settings regressions.
+
 ### 2026-08-13 — Clean grouped Product Settings UX
 
 - Replaced the visually heavy gradient header and long divider checklist with
@@ -318,6 +385,10 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
   immediately visible while reducing scrolling and removing repetitive
   “Shown/Hidden” labels. Invoice visibility and custom fields remain separate,
   focused controls.
+- Selected chips now use a solid coral surface with white text and checkmark for
+  accessible contrast. The top panel uses a soft light/dark-aware gradient,
+  generous title spacing, subtle active-count badge, and a nested category
+  control with a clear Change affordance instead of a harsh divider row.
 - Existing category recommendations, field persistence, custom field behavior,
   invoice snapshots, and PDF behavior are unchanged.
 - Important files: Product Settings screen, narrow-phone widget coverage, QA

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:creovo_invoice/app/themes/app_theme.dart';
+import 'package:creovo_invoice/app/constants/app_colors.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/product_settings_service.dart';
 import 'package:creovo_invoice/modules/settings/controllers/product_settings_controller.dart';
@@ -66,6 +67,12 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Invoice essentials'), findsOneWidget);
+    final selectedUnit = tester.widget<FilterChip>(
+      find.widgetWithText(FilterChip, 'Unit'),
+    );
+    expect(selectedUnit.selected, isTrue);
+    expect(selectedUnit.checkmarkColor, Colors.white);
+    expect(selectedUnit.selectedColor, AppColors.primary);
     await tester.scrollUntilVisible(
       find.text('Identity'),
       180,

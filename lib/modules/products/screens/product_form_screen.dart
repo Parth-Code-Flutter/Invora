@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/enums/item_type.dart';
 import '../../../app/themes/app_text_styles.dart';
+import '../../../app/routes/app_routes.dart';
+import '../../../app/utils/app_focus.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
@@ -174,9 +176,6 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                           controller.fieldEnabled(field.key),
                                     )
                                     .toList(growable: false);
-                                if (fields.isEmpty) {
-                                  return const SizedBox.shrink();
-                                }
                                 return Padding(
                                   padding: const EdgeInsets.only(top: 14),
                                   child: AppCard(
@@ -184,43 +183,82 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          'Product details',
-                                          style: AppTextStyles.sectionTitle,
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                'Product details',
+                                                style:
+                                                    AppTextStyles.sectionTitle,
+                                              ),
+                                            ),
+                                            TextButton.icon(
+                                              onPressed: () =>
+                                                  _manageFields(context),
+                                              icon: const Icon(
+                                                Icons.tune_rounded,
+                                                size: 17,
+                                              ),
+                                              label: const Text(
+                                                'Manage fields',
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(height: 4),
                                         Text(
                                           '${controller.productSettings.category.label} recommendations · all optional',
                                           style: AppTextStyles.small.copyWith(
                                             color: AppColors.textSecondary,
                                           ),
                                         ),
-                                        const SizedBox(height: 14),
-                                        ...fields.map(
-                                          (field) => Padding(
-                                            padding: const EdgeInsets.only(
-                                              bottom: 12,
+                                        if (fields.isEmpty) ...[
+                                          const SizedBox(height: 12),
+                                          Container(
+                                            width: double.infinity,
+                                            padding: const EdgeInsets.all(14),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.surfaceSoft,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
                                             ),
-                                            child: AppTextField(
-                                              controller:
-                                                  controller
-                                                      .attributeControllers[field
-                                                      .key]!,
-                                              label: field.label,
-                                              hint: _attributeHint(field.key),
-                                              prefixIcon: _attributeIcon(
-                                                field.key,
+                                            child: const Text(
+                                              'No optional product fields are enabled. Use Manage fields to add what you need.',
+                                              style: TextStyle(
+                                                color: AppColors.textSecondary,
+                                                fontSize: 12,
+                                                height: 1.4,
                                               ),
-                                              keyboardType: field.number
-                                                  ? const TextInputType.numberWithOptions(
-                                                      decimal: true,
-                                                    )
-                                                  : TextInputType.text,
-                                              textCapitalization:
-                                                  TextCapitalization.sentences,
                                             ),
                                           ),
-                                        ),
+                                        ] else ...[
+                                          const SizedBox(height: 14),
+                                          ...fields.map(
+                                            (field) => Padding(
+                                              padding: const EdgeInsets.only(
+                                                bottom: 12,
+                                              ),
+                                              child: AppTextField(
+                                                controller:
+                                                    controller
+                                                        .attributeControllers[field
+                                                        .key]!,
+                                                label: field.label,
+                                                hint: _attributeHint(field.key),
+                                                prefixIcon: _attributeIcon(
+                                                  field.key,
+                                                ),
+                                                keyboardType: field.number
+                                                    ? const TextInputType.numberWithOptions(
+                                                        decimal: true,
+                                                      )
+                                                    : TextInputType.text,
+                                                textCapitalization:
+                                                    TextCapitalization
+                                                        .sentences,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ),
@@ -433,6 +471,13 @@ class ProductFormScreen extends GetView<ProductFormController> {
         ),
       ),
     );
+  }
+
+  Future<void> _manageFields(BuildContext context) async {
+    await AppFocus.dismissKeyboard();
+    if (!context.mounted) return;
+    await Get.toNamed<void>(AppRoutes.productSettings);
+    controller.refreshFieldSettings();
   }
 }
 

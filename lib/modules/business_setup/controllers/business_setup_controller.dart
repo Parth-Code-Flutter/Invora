@@ -58,6 +58,7 @@ class BusinessSetupController extends GetxController {
   String _baseline = '';
 
   bool get hasUnsavedChanges => !isLoading.value && _snapshot() != _baseline;
+  bool get isEditing => _existing != null;
 
   static const currencies = <String, String>{
     'INR': '₹',
@@ -193,6 +194,7 @@ class BusinessSetupController extends GetxController {
     if (!(formKey.currentState?.validate() ?? false)) return;
     isSaving.value = true;
     try {
+      final wasEditing = isEditing;
       final now = DateTime.now();
       final profile = BusinessProfileModel(
         id: _existing?.id,
@@ -232,7 +234,11 @@ class BusinessSetupController extends GetxController {
       _captureBaseline();
       await _storage.setBool(AppStorageKeyConst.businessSetupCompleted, true);
       await AppFocus.dismissKeyboard();
-      Get.offAllNamed<void>(AppRoutes.dashboard);
+      if (wasEditing) {
+        Get.back<void>();
+      } else {
+        Get.offAllNamed<void>(AppRoutes.dashboard);
+      }
     } finally {
       isSaving.value = false;
     }

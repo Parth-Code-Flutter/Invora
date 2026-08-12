@@ -307,21 +307,41 @@ class _SettingsHero extends StatelessWidget {
   final VoidCallback onCategoryTap;
 
   @override
-  Widget build(BuildContext context) => AppCard(
-    padding: EdgeInsets.zero,
-    child: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(17, 16, 17, 14),
-          child: Row(
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? const [Color(0xFF312532), Color(0xFF251F2A)]
+              : const [Color(0xFFFFF3F1), Color(0xFFF8F3FA)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(23),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : const Color(0xFFF0D9E2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.secondary.withValues(alpha: isDark ? .08 : .1),
+            blurRadius: 18,
+            offset: const Offset(0, 7),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
             children: [
               const _IconTile(
                 icon: Icons.tune_rounded,
                 color: AppColors.secondary,
                 background: AppColors.secondaryLight,
-                size: 44,
+                size: 46,
               ),
-              const SizedBox(width: 13),
+              const SizedBox(width: 14),
               const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,28 +349,33 @@ class _SettingsHero extends StatelessWidget {
                     Text(
                       'Configure your catalog',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 16.5,
                         fontWeight: FontWeight.w700,
-                        letterSpacing: -.15,
+                        letterSpacing: -.25,
                       ),
                     ),
-                    SizedBox(height: 3),
+                    SizedBox(height: 4),
                     Text(
-                      'Choose the details you collect for every item.',
+                      'Choose only the details you need for each item.',
                       style: TextStyle(
                         color: AppColors.textSecondary,
-                        fontSize: 12,
-                        height: 1.35,
+                        fontSize: 11.5,
+                        height: 1.4,
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: isDark
+                      ? AppColors.darkSurfaceVariant
+                      : Colors.white.withValues(alpha: .82),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: .18),
+                  ),
                 ),
                 child: Text(
                   '$enabledCount active',
@@ -363,53 +388,96 @@ class _SettingsHero extends StatelessWidget {
               ),
             ],
           ),
-        ),
-        const Divider(height: 1),
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onCategoryTap,
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(17, 13, 13, 13),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.storefront_outlined,
-                    size: 20,
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: 11),
-                  const Text(
-                    'Business category',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12.5,
-                    ),
-                  ),
-                  const Spacer(),
-                  Flexible(
-                    child: Text(
-                      category,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
+          const SizedBox(height: 15),
+          Material(
+            color: isDark
+                ? AppColors.darkSurfaceVariant
+                : Colors.white.withValues(alpha: .9),
+            borderRadius: BorderRadius.circular(15),
+            child: InkWell(
+              onTap: onCategoryTap,
+              borderRadius: BorderRadius.circular(15),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(13, 10, 9, 10),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryLight,
+                        borderRadius: BorderRadius.circular(11),
+                      ),
+                      child: const Icon(
+                        Icons.storefront_outlined,
+                        size: 18,
+                        color: AppColors.secondary,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.chevron_right_rounded, size: 20),
-                ],
+                    const SizedBox(width: 11),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'BUSINESS CATEGORY',
+                            style: TextStyle(
+                              color: AppColors.textTertiary,
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: .55,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            category,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondaryLight,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Change',
+                            style: TextStyle(
+                              color: AppColors.secondary,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(width: 1),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            size: 17,
+                            color: AppColors.secondary,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -498,6 +566,7 @@ class _FieldGroup extends StatelessWidget {
                 return FilterChip(
                   selected: enabled,
                   showCheckmark: true,
+                  checkmarkColor: Colors.white,
                   avatar: enabled
                       ? null
                       : const Icon(Icons.add_rounded, size: 16),
@@ -506,11 +575,9 @@ class _FieldGroup extends StatelessWidget {
                   labelStyle: TextStyle(
                     fontSize: 12,
                     fontWeight: enabled ? FontWeight.w600 : FontWeight.w500,
-                    color: enabled
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
+                    color: enabled ? Colors.white : AppColors.textSecondary,
                   ),
-                  selectedColor: AppColors.primaryLight,
+                  selectedColor: AppColors.primary,
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   side: BorderSide(
                     color: enabled ? AppColors.primary : AppColors.border,

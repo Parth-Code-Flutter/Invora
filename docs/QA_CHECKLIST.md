@@ -17,6 +17,15 @@ remain intentionally out of scope until explicitly requested.
   offline across the screen, its dialogs/sheets, and the wider app.
 - Product fields are grouped into essentials, identity, specifications, and
   variant/date chips; selection remains readable without divider-heavy rows.
+- Selected field chips have clearly visible text/checkmarks in light and dark
+  modes; the catalog header and category action remain readable on narrow phones.
+- Add/Edit Item exposes Manage fields, returns with updated standard/custom
+  fields immediately, and preserves already typed item values.
+- Unit Settings has one labeled Add action, a compact responsive selection grid,
+  visible default state, and per-unit Rename/Delete overflow actions.
+- Existing Business Profile opens with edit-specific copy, a first-step back
+  action, Save changes, and returns to the previous screen after saving; only
+  first-time setup uses onboarding language and dashboard completion routing.
 - Plus Jakarta Sans is the only bundled UI/PDF font; invoice, receipt,
   statement, and report PDFs retain Unicode and Indian-rupee rendering.
 - Opening, typing in, cancelling, or saving the custom-field dialog completes
