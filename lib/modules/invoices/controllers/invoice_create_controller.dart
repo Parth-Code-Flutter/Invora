@@ -250,6 +250,12 @@ class InvoiceCreateController extends GetxController {
     recalculate();
   }
 
+  void updateItemQuantity(int index, int quantityScaled) {
+    if (index < 0 || index >= items.length || quantityScaled <= 0) return;
+    items[index] = _withQuantity(items[index], quantityScaled);
+    recalculate();
+  }
+
   void duplicateItem(int index) {
     final item = items[index];
     items.insert(

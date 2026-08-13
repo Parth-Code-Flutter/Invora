@@ -308,6 +308,54 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-13 — Compact Invoice ledger rows
+
+- Reworked Invoice List cards into compact ledger rows: document/customer/date
+  hierarchy stays on the left while status and amount align on the right.
+- Dates now use readable short-month formatting in one metadata line. Fully
+  unpaid invoices no longer repeat the same value as both total and balance due;
+  a separate due value remains visible for partial payments.
+- Removed the Invoice List floating + because the persistent center Create action
+  already provides invoice creation, eliminating duplicate controls and list
+  obstruction. Quotation history retains its dedicated create FAB.
+- Reduced card padding and row gaps without removing invoice information.
+- Important files: shared invoice summary card, Invoice List, narrow-card test,
+  QA checklist, and this handoff.
+- Verification: 320px invoice metadata rendering, formatting, static analysis,
+  and responsive regressions.
+
+### 2026-08-13 — Persistent Invoice tab live query
+
+- Fixed the remaining intermittent Invoice List skeleton after create/preview
+  navigation by correcting controller ownership rather than only refreshing the
+  screen. The primary Invoice tab now keeps one app-lifetime live controller, so
+  GetX root-route cleanup cannot cancel its Drift subscription behind the newly
+  displayed list.
+- Quotation history now uses a separate tagged list controller, preventing the
+  permanent Invoice tab controller from being reused for quotation filters.
+- Refreshes now await prior subscription cancellation and use generation checks,
+  preventing overlapping rebinds from cancelling or overwriting the newest one.
+- No invoice storage, list filters, sorting, calculations, or status behavior
+  changed.
+- Important files: Invoice List binding/controller/screen, lifecycle regression
+  tests, QA checklist, and this handoff.
+- Verification: repeated query rebinding, invoice/quotation controller isolation,
+  formatting, static analysis, and invoice regressions.
+
+### 2026-08-13 — Direct invoice item quantity entry
+
+- Invoice create/edit line-item steppers use the quantity number itself as a
+  clean tap target. Tapping it opens a keyboard-focused bottom sheet where
+  users can enter values such as 50 directly instead of tapping + repeatedly.
+- Entry supports up to three decimal places, rejects zero/invalid quantities,
+  shows the item unit, and recalculates totals immediately after confirmation.
+- Existing −/+, remove-at-one behavior, pricing, taxes, and persistence remain
+  unchanged.
+- Important files: invoice composer/controller, controller regression test,
+  QA checklist, and this handoff.
+- Verification: direct 50-unit calculation, formatting, static analysis, and
+  invoice regression tests.
+
 ### 2026-08-13 — Material Symbols and signature navigation dock
 
 - Added `material_symbols_icons` 4.2960.0 and adopted its latest Google Material

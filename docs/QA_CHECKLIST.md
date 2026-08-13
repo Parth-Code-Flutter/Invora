@@ -25,11 +25,17 @@ remain intentionally out of scope until explicitly requested.
   visible default state, and per-unit Default/Edit/Delete bottom-sheet actions.
 - Returning from invoice creation/preview immediately refreshes Invoice List;
   the loading skeleton settles without requiring a tab change.
+- Repeated root-route replacement keeps the primary Invoice live query active;
+  quotation history uses an isolated tagged controller.
+- Invoice ledger rows keep customer, short issued/due dates, status, and amount
+  readable at 320px without duplicate full-balance text or a redundant list FAB.
 - At narrow Android widths, Dashboard metric labels and Invoice List issue/due
   dates remain complete; Product search copy and Payment Receipt title do not
   truncate. Product and Invoice actions open mobile bottom sheets.
 - The Material Symbols navigation dock displays all destination/Create labels
   without overlap and remains overflow-free at 320px in light and dark themes.
+- Invoice create/edit quantity values open a direct-entry sheet, accept whole or
+  three-decimal quantities, reject zero/invalid input, and update totals.
 - Existing Business Profile opens with edit-specific copy, a first-step back
   action, Save changes, and returns to the previous screen after saving; only
   first-time setup uses onboarding language and dashboard completion routing.

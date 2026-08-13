@@ -11,7 +11,9 @@ import '../../../data/services/invoice_defaults_service.dart';
 class InvoiceListBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => InvoiceListController(Get.find(), Get.find()));
+    if (!Get.isRegistered<InvoiceListController>()) {
+      Get.put(InvoiceListController(Get.find(), Get.find()), permanent: true);
+    }
   }
 }
 
@@ -24,6 +26,7 @@ class QuotationListBinding extends Bindings {
         Get.find(),
         documentType: DocumentType.quotation,
       ),
+      tag: InvoiceListController.quotationTag,
     );
   }
 }

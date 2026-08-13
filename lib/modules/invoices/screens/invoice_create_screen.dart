@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -594,6 +595,12 @@ class _InvoiceForm extends StatelessWidget {
                             onRemove: () => controller.removeItem(entry.key),
                             onIncrease: () =>
                                 controller.incrementQuantity(entry.key),
+                            onEdit: () => _editQuantity(
+                              context,
+                              index: entry.key,
+                              value: item.quantityScaled,
+                              unit: item.unit,
+                            ),
                           ),
                           const Spacer(),
                           Text(
@@ -768,6 +775,22 @@ class _InvoiceForm extends StatelessWidget {
       padding: EdgeInsets.all(ResponsiveUtils.horizontalPadding(context)),
       child: content,
     );
+  }
+
+  Future<void> _editQuantity(
+    BuildContext context, {
+    required int index,
+    required int value,
+    required String unit,
+  }) async {
+    final quantity = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => _QuantityEditorSheet(value: value, unit: unit),
+    );
+    if (quantity != null) controller.updateItemQuantity(index, quantity);
   }
 
   Future<void> _pickDate(BuildContext context, {required bool due}) async {
@@ -1167,6 +1190,7 @@ class _QuantityStepper extends StatelessWidget {
     required this.onDecrease,
     required this.onRemove,
     required this.onIncrease,
+    required this.onEdit,
   });
 
   final String value;
@@ -1174,6 +1198,7 @@ class _QuantityStepper extends StatelessWidget {
   final VoidCallback onDecrease;
   final VoidCallback onRemove;
   final VoidCallback onIncrease;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -1198,11 +1223,23 @@ class _QuantityStepper extends StatelessWidget {
           ),
         ),
         Container(width: 1, height: 22, color: AppColors.border),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 9),
-          child: Text(
-            value,
-            style: AppTextStyles.small.copyWith(fontWeight: FontWeight.w700),
+        Tooltip(
+          message: 'Enter quantity',
+          child: InkWell(
+            onTap: onEdit,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 34),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  value,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.small.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
         Container(width: 1, height: 22, color: AppColors.border),
@@ -1212,6 +1249,91 @@ class _QuantityStepper extends StatelessWidget {
           constraints: const BoxConstraints.tightFor(width: 32, height: 32),
           padding: EdgeInsets.zero,
           icon: const Icon(Icons.add_rounded, size: 17),
+        ),
+      ],
+    ),
+  );
+}
+
+class _QuantityEditorSheet extends StatefulWidget {
+  const _QuantityEditorSheet({required this.value, required this.unit});
+  final int value;
+  final String unit;
+
+  @override
+  State<_QuantityEditorSheet> createState() => _QuantityEditorSheetState();
+}
+
+class _QuantityEditorSheetState extends State<_QuantityEditorSheet> {
+  late final TextEditingController input = TextEditingController(
+    text: QuantityUtils.toInputValue(widget.value),
+  );
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    input.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: input.text.length,
+    );
+  }
+
+  @override
+  void dispose() {
+    input.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final value = QuantityUtils.parseScaled(input.text);
+    if (value == null || value <= 0) {
+      setState(() => error = 'Enter a quantity greater than 0.');
+      return;
+    }
+    Navigator.pop(context, value);
+  }
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.fromLTRB(
+      20,
+      0,
+      20,
+      MediaQuery.viewInsetsOf(context).bottom + 20,
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Enter quantity', style: AppTextStyles.sectionTitle),
+        const SizedBox(height: 4),
+        Text(
+          'Type the exact quantity instead of tapping + repeatedly.',
+          style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: input,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.done,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
+          ],
+          decoration: InputDecoration(
+            labelText: 'Quantity *',
+            suffixText: widget.unit,
+            errorText: error,
+            prefixIcon: const Icon(Icons.numbers_rounded),
+          ),
+          onSubmitted: (_) => _save(),
+        ),
+        const SizedBox(height: 16),
+        FilledButton.icon(
+          onPressed: _save,
+          icon: const Icon(Icons.check_rounded),
+          label: const Text('Update quantity'),
         ),
       ],
     ),

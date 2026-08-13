@@ -24,7 +24,9 @@ class InvoiceListScreen extends StatefulWidget {
 }
 
 class _InvoiceListScreenState extends State<InvoiceListScreen> {
-  InvoiceListController get controller => Get.find<InvoiceListController>();
+  InvoiceListController get controller => Get.find<InvoiceListController>(
+    tag: widget.quotation ? InvoiceListController.quotationTag : null,
+  );
   bool get quotation => widget.quotation;
 
   @override
@@ -38,13 +40,13 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        tooltip: quotation ? 'Create quotation' : 'Create invoice',
-        onPressed: () => Get.toNamed<void>(
-          quotation ? AppRoutes.quotationCreate : AppRoutes.invoiceCreate,
-        ),
-        child: const Icon(Icons.add_rounded),
-      ),
+      floatingActionButton: quotation
+          ? FloatingActionButton(
+              tooltip: 'Create quotation',
+              onPressed: () => Get.toNamed<void>(AppRoutes.quotationCreate),
+              child: const Icon(Icons.add_rounded),
+            )
+          : null,
       bottomNavigationBar: AppMainNavigation(
         current: quotation ? MainDestination.more : MainDestination.invoices,
       ),
@@ -148,7 +150,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 5),
                 Obx(
                   () => Align(
                     alignment: Alignment.centerLeft,
@@ -194,9 +196,9 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
               }
               final padding = ResponsiveUtils.horizontalPadding(context);
               return ListView.separated(
-                padding: EdgeInsets.fromLTRB(padding, 4, padding, 100),
+                padding: EdgeInsets.fromLTRB(padding, 2, padding, 90),
                 itemCount: controller.invoices.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                separatorBuilder: (_, _) => const SizedBox(height: 6),
                 itemBuilder: (_, index) => AppListEntrance(
                   index: index,
                   child: AppInvoiceSummaryCard(

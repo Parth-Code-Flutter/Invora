@@ -7,6 +7,8 @@ import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
 
 class InvoiceListController extends GetxController {
+  static const quotationTag = 'quotation-list';
+
   InvoiceListController(
     this._repository,
     this._businessRepository, {
@@ -56,10 +58,13 @@ class InvoiceListController extends GetxController {
   /// GetX can reuse this controller while replacing a create/preview route
   /// stack. Explicit rebinding prevents a cancelled old subscription from
   /// leaving the list permanently in its loading skeleton.
-  void refreshInvoices() {
+  Future<void> refreshInvoices() async {
     final generation = ++_bindingGeneration;
     isLoading.value = true;
-    _subscription?.cancel();
+    final previous = _subscription;
+    _subscription = null;
+    await previous?.cancel();
+    if (generation != _bindingGeneration || isClosed) return;
     _subscription = _repository
         .watchSummaries(
           query: searchQuery.value,

@@ -33,29 +33,25 @@ class AppInvoiceSummaryCard extends StatelessWidget {
             Container(width: 5, decoration: BoxDecoration(color: statusColor)),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                padding: const EdgeInsets.fromLTRB(13, 10, 12, 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                             invoice.invoiceNumber,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.caption.copyWith(
                               color: statusColor,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-                        ),
-                        AppStatusChip(status: status),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
+                          const SizedBox(height: 5),
+                          Text(
                             invoice.customerName.isEmpty
                                 ? 'Customer not selected'
                                 : invoice.customerName,
@@ -63,45 +59,42 @@ class AppInvoiceSummaryCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.cardTitle,
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              CurrencyUtils.formatMinor(
-                                invoice.grandTotalMinor,
-                                symbol: currencySymbol,
-                              ),
-                              style: AppTextStyles.sectionTitle,
+                          const SizedBox(height: 4),
+                          Text(
+                            _dateLine(invoice.invoiceDate, invoice.dueDate),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textSecondary,
                             ),
-                            if (invoice.balanceMinor > 0) ...[
-                              const SizedBox(height: 3),
-                              Text(
-                                '${CurrencyUtils.formatMinor(invoice.balanceMinor, symbol: currencySymbol)} due',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: statusColor,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 7),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 3,
-                      children: [
-                        _DateLabel(
-                          label: 'Issued',
-                          value: _date(invoice.invoiceDate),
-                        ),
-                        if (invoice.dueDate != null)
-                          _DateLabel(
-                            label: 'Due',
-                            value: _date(invoice.dueDate!),
                           ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        AppStatusChip(status: status),
+                        const SizedBox(height: 7),
+                        Text(
+                          CurrencyUtils.formatMinor(
+                            invoice.grandTotalMinor,
+                            symbol: currencySymbol,
+                          ),
+                          style: AppTextStyles.sectionTitle,
+                        ),
+                        if (invoice.balanceMinor > 0 &&
+                            invoice.balanceMinor !=
+                                invoice.grandTotalMinor) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            '${CurrencyUtils.formatMinor(invoice.balanceMinor, symbol: currencySymbol)} due',
+                            style: AppTextStyles.caption.copyWith(
+                              color: statusColor,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],
@@ -115,26 +108,6 @@ class AppInvoiceSummaryCard extends StatelessWidget {
   }
 }
 
-class _DateLabel extends StatelessWidget {
-  const _DateLabel({required this.label, required this.value});
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) => Text.rich(
-    TextSpan(
-      text: '$label ',
-      children: [
-        TextSpan(
-          text: value,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-      ],
-    ),
-    style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
-  );
-}
-
 Color _statusColor(InvoiceStatus status) => switch (status) {
   InvoiceStatus.paid || InvoiceStatus.accepted => AppColors.success,
   InvoiceStatus.overdue ||
@@ -146,5 +119,27 @@ Color _statusColor(InvoiceStatus status) => switch (status) {
   _ => AppColors.primary,
 };
 
-String _date(DateTime value) =>
-    '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}';
+String _dateLine(DateTime issued, DateTime? due) {
+  final issuedText = _shortDate(issued);
+  return due == null
+      ? 'Issued $issuedText'
+      : 'Issued $issuedText  •  Due ${_shortDate(due)}';
+}
+
+String _shortDate(DateTime value) {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return '${value.day} ${months[value.month - 1]} ${value.year}';
+}

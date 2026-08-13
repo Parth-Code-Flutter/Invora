@@ -132,4 +132,36 @@ void main() {
     controller.onClose();
     await database.close();
   });
+
+  test(
+    'direct quantity entry updates item total without repeated taps',
+    () async {
+      final database = AppDatabase.forTesting(NativeDatabase.memory());
+      final controller = InvoiceCreateController(
+        InvoiceRepository(database),
+        BusinessRepository(database),
+        CustomerRepository(database),
+        ProductRepository(database),
+        const InvoiceCalculationService(),
+      );
+      controller.addProduct(
+        ProductServiceModel(
+          id: 12,
+          name: 'MDF Sheet',
+          type: ItemType.product,
+          unit: 'pcs',
+          salePriceMinor: 1000,
+          createdAt: DateTime(2026, 8, 13),
+          updatedAt: DateTime(2026, 8, 13),
+        ),
+      );
+
+      controller.updateItemQuantity(0, 50000);
+
+      expect(controller.items.single.quantityScaled, 50000);
+      expect(controller.calculation.value?.grandTotalMinor, 50000);
+      controller.onClose();
+      await database.close();
+    },
+  );
 }

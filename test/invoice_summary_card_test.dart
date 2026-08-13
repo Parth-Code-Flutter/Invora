@@ -37,9 +37,9 @@ void main() {
     );
 
     expect(find.textContaining('Issued'), findsOneWidget);
-    expect(find.textContaining('11/08/2026'), findsOneWidget);
+    expect(find.textContaining('11 Aug 2026'), findsOneWidget);
     expect(find.textContaining('Due'), findsWidgets);
-    expect(find.textContaining('13/08/2026'), findsOneWidget);
+    expect(find.textContaining('13 Aug 2026'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
