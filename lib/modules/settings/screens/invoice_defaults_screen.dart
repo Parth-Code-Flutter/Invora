@@ -52,6 +52,7 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
           const SizedBox(height: 16),
           Obx(
             () => AppCard(
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -132,6 +133,7 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
           const SizedBox(height: 14),
           Obx(
             () => AppCard(
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -157,6 +159,7 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
           ),
           const SizedBox(height: 14),
           AppCard(
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -164,6 +167,7 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
                 const SizedBox(height: 14),
                 TextField(
                   controller: controller.notes,
+                  minLines: 2,
                   maxLines: 3,
                   textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(
@@ -174,6 +178,7 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
                 const SizedBox(height: 12),
                 TextField(
                   controller: controller.terms,
+                  minLines: 2,
                   maxLines: 4,
                   textCapitalization: TextCapitalization.sentences,
                   decoration: const InputDecoration(

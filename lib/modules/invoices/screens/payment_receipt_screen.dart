@@ -19,16 +19,9 @@ class PaymentReceiptScreen extends GetView<PaymentReceiptController> {
       title: const Text('Payment receipt'),
       actions: [
         IconButton(
-          onPressed: controller.save,
-          icon: const Icon(Icons.download_outlined),
-        ),
-        IconButton(
-          onPressed: controller.share,
-          icon: const Icon(Icons.share_outlined),
-        ),
-        IconButton(
-          onPressed: controller.print,
-          icon: const Icon(Icons.print_outlined),
+          tooltip: 'Receipt actions',
+          onPressed: () => _showActions(context),
+          icon: const Icon(Icons.more_horiz_rounded),
         ),
       ],
     ),
@@ -41,6 +34,44 @@ class PaymentReceiptScreen extends GetView<PaymentReceiptController> {
       }
       return _ReceiptRollExperience(controller: controller);
     }),
+  );
+
+  Future<void> _showActions(BuildContext context) => showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    useSafeArea: true,
+    builder: (sheetContext) => Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.download_outlined),
+            title: const Text('Save receipt'),
+            onTap: () {
+              Navigator.pop(sheetContext);
+              controller.save();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.share_outlined),
+            title: const Text('Share receipt'),
+            onTap: () {
+              Navigator.pop(sheetContext);
+              controller.share();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.print_outlined),
+            title: const Text('Print receipt'),
+            onTap: () {
+              Navigator.pop(sheetContext);
+              controller.print();
+            },
+          ),
+        ],
+      ),
+    ),
   );
 }
 
@@ -80,21 +111,21 @@ class _ReceiptRollExperienceState extends State<_ReceiptRollExperience>
           curve: const Interval(.62, 1, curve: Curves.easeOutBack),
         ).value;
         return ListView(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 28),
           children: [
             Text(
-              'Receipt print',
+              'Payment received',
               textAlign: TextAlign.center,
-              style: AppTextStyles.displayAmount,
+              style: AppTextStyles.pageTitle,
             ),
             Text(
-              'Animation',
+              'Your receipt is ready to save or share.',
               textAlign: TextAlign.center,
-              style: AppTextStyles.sectionTitle.copyWith(
-                color: AppColors.primary,
+              style: AppTextStyles.small.copyWith(
+                color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 16),
             Center(
               child: SizedBox(
                 width: 310,

@@ -15,9 +15,25 @@ import '../../../app/widgets/app_list_motion.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/invoice_list_controller.dart';
 
-class InvoiceListScreen extends GetView<InvoiceListController> {
+class InvoiceListScreen extends StatefulWidget {
   const InvoiceListScreen({this.quotation = false, super.key});
   final bool quotation;
+
+  @override
+  State<InvoiceListScreen> createState() => _InvoiceListScreenState();
+}
+
+class _InvoiceListScreenState extends State<InvoiceListScreen> {
+  InvoiceListController get controller => Get.find<InvoiceListController>();
+  bool get quotation => widget.quotation;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !controller.isClosed) controller.refreshInvoices();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

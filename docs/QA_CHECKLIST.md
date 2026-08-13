@@ -22,7 +22,12 @@ remain intentionally out of scope until explicitly requested.
 - Add/Edit Item exposes Manage fields, returns with updated standard/custom
   fields immediately, and preserves already typed item values.
 - Unit Settings has one labeled Add action, a compact responsive selection grid,
-  visible default state, and per-unit Rename/Delete overflow actions.
+  visible default state, and per-unit Default/Edit/Delete bottom-sheet actions.
+- Returning from invoice creation/preview immediately refreshes Invoice List;
+  the loading skeleton settles without requiring a tab change.
+- At narrow Android widths, Dashboard metric labels and Invoice List issue/due
+  dates remain complete; Product search copy and Payment Receipt title do not
+  truncate. Product and Invoice actions open mobile bottom sheets.
 - Existing Business Profile opens with edit-specific copy, a first-step back
   action, Save changes, and returns to the previous screen after saving; only
   first-time setup uses onboarding language and dashboard completion routing.

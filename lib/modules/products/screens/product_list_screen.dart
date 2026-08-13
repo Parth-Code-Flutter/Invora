@@ -45,7 +45,7 @@ class ProductListScreen extends GetView<ProductListController> {
               children: [
                 AppSearchField(
                   onChanged: controller.updateSearch,
-                  hint: 'Search name, description or HSN/SAC',
+                  hint: 'Search products or services',
                 ),
                 ResponsiveUtils.verticalGap(context, 10),
                 Obx(
@@ -199,6 +199,7 @@ class _ItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      padding: const EdgeInsets.all(12),
       onTap: () =>
           Get.toNamed<void>(AppRoutes.productDetails, arguments: item.id),
       child: Row(
@@ -221,7 +222,7 @@ class _ItemCard extends StatelessWidget {
                   : AppColors.secondary,
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 11),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -286,21 +287,51 @@ class _ItemCard extends StatelessWidget {
               ],
             ),
           ),
-          PopupMenuButton<String>(
-            onSelected: (action) {
-              if (action == 'edit') {
-                Get.toNamed<void>(AppRoutes.productEdit, arguments: item.id);
-              } else if (action == 'delete') {
-                onDelete();
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'edit', child: Text('Edit')),
-              PopupMenuItem(value: 'delete', child: Text('Delete')),
-            ],
+          IconButton(
+            tooltip: 'Item actions',
+            onPressed: () => _showActions(context),
+            icon: const Icon(Icons.more_horiz_rounded),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _showActions(BuildContext context) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      useSafeArea: true,
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(item.name, style: AppTextStyles.sectionTitle),
+            const SizedBox(height: 10),
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text('Edit item'),
+              subtitle: const Text('Update pricing and product details'),
+              onTap: () => Navigator.pop(sheetContext, 'edit'),
+            ),
+            ListTile(
+              textColor: AppColors.error,
+              iconColor: AppColors.error,
+              leading: const Icon(Icons.delete_outline_rounded),
+              title: const Text('Delete item'),
+              subtitle: const Text('Historical invoices remain unchanged'),
+              onTap: () => Navigator.pop(sheetContext, 'delete'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (action == 'edit') {
+      Get.toNamed<void>(AppRoutes.productEdit, arguments: item.id);
+    } else if (action == 'delete') {
+      onDelete();
+    }
   }
 }

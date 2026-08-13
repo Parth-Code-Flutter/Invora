@@ -53,30 +53,15 @@ class AppInvoiceSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                invoice.customerName.isEmpty
-                                    ? 'Customer not selected'
-                                    : invoice.customerName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyles.cardTitle,
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                'Issued ${_date(invoice.invoiceDate)}${invoice.dueDate == null ? '' : '  •  Due ${_date(invoice.dueDate!)}'}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyles.small.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
+                          child: Text(
+                            invoice.customerName.isEmpty
+                                ? 'Customer not selected'
+                                : invoice.customerName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.cardTitle,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -103,6 +88,22 @@ class AppInvoiceSummaryCard extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 7),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 3,
+                      children: [
+                        _DateLabel(
+                          label: 'Issued',
+                          value: _date(invoice.invoiceDate),
+                        ),
+                        if (invoice.dueDate != null)
+                          _DateLabel(
+                            label: 'Due',
+                            value: _date(invoice.dueDate!),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -112,6 +113,26 @@ class AppInvoiceSummaryCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DateLabel extends StatelessWidget {
+  const _DateLabel({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Text.rich(
+    TextSpan(
+      text: '$label ',
+      children: [
+        TextSpan(
+          text: value,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ],
+    ),
+    style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+  );
 }
 
 Color _statusColor(InvoiceStatus status) => switch (status) {

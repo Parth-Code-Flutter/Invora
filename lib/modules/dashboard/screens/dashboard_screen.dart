@@ -482,38 +482,32 @@ class _OverviewMetric extends StatelessWidget {
   final Color background;
 
   @override
-  Widget build(BuildContext context) => Row(
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
     children: [
       Container(
-        width: 32,
-        height: 32,
+        width: 30,
+        height: 30,
         decoration: BoxDecoration(color: background, shape: BoxShape.circle),
         child: Icon(icon, color: color, size: 17),
       ),
-      const SizedBox(width: 7),
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.small.copyWith(
-                color: color,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
+      const SizedBox(height: 5),
+      Text(
+        label,
+        maxLines: 1,
+        style: AppTextStyles.caption.copyWith(
+          color: AppColors.textSecondary,
+          fontSize: 10,
+        ),
+      ),
+      const SizedBox(height: 2),
+      Text(
+        value,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.small.copyWith(
+          color: color,
+          fontWeight: FontWeight.w800,
         ),
       ),
     ],
@@ -526,8 +520,8 @@ class _OverviewDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: 1,
-    height: 38,
-    margin: const EdgeInsets.symmetric(horizontal: 8),
+    height: 62,
+    margin: const EdgeInsets.symmetric(horizontal: 6),
     color: Theme.of(context).brightness == Brightness.dark
         ? AppColors.darkBorder
         : AppColors.border,

@@ -49,51 +49,11 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
             final isQuotation =
                 controller.invoice.value?.documentType ==
                 DocumentType.quotation;
-            return PopupMenuButton<String>(
-              onSelected: (action) => _handleAction(context, action),
-              itemBuilder: (_) => isQuotation
-                  ? const [
-                      PopupMenuItem(
-                        value: 'duplicate',
-                        child: Text('Duplicate'),
-                      ),
-                      PopupMenuItem(value: 'sent', child: Text('Mark sent')),
-                      PopupMenuItem(
-                        value: 'accepted',
-                        child: Text('Mark accepted'),
-                      ),
-                      PopupMenuItem(
-                        value: 'rejected',
-                        child: Text('Mark rejected'),
-                      ),
-                      PopupMenuItem(
-                        value: 'convert',
-                        child: Text('Convert to invoice'),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Delete quotation'),
-                      ),
-                    ]
-                  : const [
-                      PopupMenuItem(value: 'edit', child: Text('Edit')),
-                      PopupMenuItem(
-                        value: 'duplicate',
-                        child: Text('Duplicate'),
-                      ),
-                      PopupMenuItem(
-                        value: 'payment',
-                        child: Text('Update payment'),
-                      ),
-                      PopupMenuItem(
-                        value: 'cancel',
-                        child: Text('Cancel invoice'),
-                      ),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Delete invoice'),
-                      ),
-                    ],
+            return IconButton(
+              tooltip: isQuotation ? 'Quotation actions' : 'Invoice actions',
+              onPressed: () =>
+                  _showDocumentActions(context, isQuotation: isQuotation),
+              icon: const Icon(Icons.more_vert_rounded),
             );
           }),
         ],
@@ -486,6 +446,65 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
     }
   }
 
+  Future<void> _showDocumentActions(
+    BuildContext context, {
+    required bool isQuotation,
+  }) async {
+    final actions = isQuotation
+        ? const [
+            ('duplicate', Icons.copy_outlined, 'Duplicate', false),
+            ('sent', Icons.send_outlined, 'Mark as sent', false),
+            ('accepted', Icons.check_circle_outline, 'Mark accepted', false),
+            ('rejected', Icons.cancel_outlined, 'Mark rejected', false),
+            (
+              'convert',
+              Icons.receipt_long_outlined,
+              'Convert to invoice',
+              false,
+            ),
+            ('delete', Icons.delete_outline_rounded, 'Delete quotation', true),
+          ]
+        : const [
+            ('edit', Icons.edit_outlined, 'Edit invoice', false),
+            ('duplicate', Icons.copy_outlined, 'Duplicate invoice', false),
+            ('payment', Icons.payments_outlined, 'Update payment', false),
+            ('cancel', Icons.block_outlined, 'Cancel invoice', true),
+            ('delete', Icons.delete_outline_rounded, 'Delete invoice', true),
+          ];
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              isQuotation ? 'Quotation actions' : 'Invoice actions',
+              style: AppTextStyles.sectionTitle,
+            ),
+            const SizedBox(height: 8),
+            ...actions.map(
+              (action) => ListTile(
+                textColor: action.$4 ? AppColors.error : null,
+                iconColor: action.$4 ? AppColors.error : null,
+                leading: Icon(action.$2),
+                title: Text(action.$3),
+                onTap: () => Navigator.pop(sheetContext, action.$1),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (selected != null && context.mounted) {
+      await _handleAction(context, selected);
+    }
+  }
+
   Future<void> _showPaymentDialog(BuildContext context) async {
     final invoice = controller.invoice.value;
     if (invoice == null || invoice.status == InvoiceStatus.cancelled) return;
@@ -788,26 +807,39 @@ class _PaymentHistoryRow extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 10),
-          Text(
-            CurrencyUtils.formatMinor(payment.amountMinor, symbol: symbol),
-            style: AppTextStyles.cardTitle.copyWith(
-              fontSize: 14,
-              color: isCorrection ? AppColors.error : AppColors.success,
-            ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                CurrencyUtils.formatMinor(payment.amountMinor, symbol: symbol),
+                style: AppTextStyles.cardTitle.copyWith(
+                  fontSize: 14,
+                  color: isCorrection ? AppColors.error : AppColors.success,
+                ),
+              ),
+              if (onReceipt != null || onReverse != null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (onReceipt != null)
+                      IconButton(
+                        tooltip: 'Open receipt',
+                        visualDensity: VisualDensity.compact,
+                        onPressed: onReceipt,
+                        icon: const Icon(Icons.receipt_long_outlined, size: 18),
+                      ),
+                    if (onReverse != null)
+                      IconButton(
+                        tooltip: 'Reverse payment',
+                        visualDensity: VisualDensity.compact,
+                        onPressed: onReverse,
+                        icon: const Icon(Icons.undo_rounded, size: 18),
+                      ),
+                  ],
+                ),
+            ],
           ),
-          if (onReceipt != null)
-            IconButton(
-              tooltip: 'Open receipt',
-              onPressed: onReceipt,
-              icon: const Icon(Icons.receipt_long_outlined, size: 19),
-            ),
-          if (onReverse != null)
-            IconButton(
-              tooltip: 'Reverse payment',
-              onPressed: onReverse,
-              icon: const Icon(Icons.undo_rounded, size: 19),
-            ),
           if (payment.isReversed)
             Padding(
               padding: const EdgeInsets.only(left: 8, top: 2),

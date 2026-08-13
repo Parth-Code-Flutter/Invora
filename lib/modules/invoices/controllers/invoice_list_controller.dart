@@ -26,19 +26,20 @@ class InvoiceListController extends GetxController {
   Worker? _searchWorker;
   Worker? _filterWorker;
   Worker? _sortWorker;
+  int _bindingGeneration = 0;
 
   @override
   void onInit() {
     super.onInit();
     _loadCurrency();
-    _bindInvoices();
+    refreshInvoices();
     _searchWorker = debounce(
       searchQuery,
-      (_) => _bindInvoices(),
+      (_) => refreshInvoices(),
       time: const Duration(milliseconds: 300),
     );
-    _filterWorker = ever(selectedFilter, (_) => _bindInvoices());
-    _sortWorker = ever(selectedSort, (_) => _bindInvoices());
+    _filterWorker = ever(selectedFilter, (_) => refreshInvoices());
+    _sortWorker = ever(selectedSort, (_) => refreshInvoices());
   }
 
   void updateSearch(String value) => searchQuery.value = value;
@@ -50,7 +51,13 @@ class InvoiceListController extends GetxController {
         (await _businessRepository.getProfile())?.currencySymbol ?? '₹';
   }
 
-  void _bindInvoices() {
+  /// Rebinds the live database query when the list route becomes visible.
+  ///
+  /// GetX can reuse this controller while replacing a create/preview route
+  /// stack. Explicit rebinding prevents a cancelled old subscription from
+  /// leaving the list permanently in its loading skeleton.
+  void refreshInvoices() {
+    final generation = ++_bindingGeneration;
     isLoading.value = true;
     _subscription?.cancel();
     _subscription = _repository
@@ -60,14 +67,22 @@ class InvoiceListController extends GetxController {
           sort: selectedSort.value,
           documentType: documentType,
         )
-        .listen((values) {
-          invoices.assignAll(values);
-          isLoading.value = false;
-        });
+        .listen(
+          (values) {
+            if (generation != _bindingGeneration || isClosed) return;
+            invoices.assignAll(values);
+            isLoading.value = false;
+          },
+          onError: (_) {
+            if (generation != _bindingGeneration || isClosed) return;
+            isLoading.value = false;
+          },
+        );
   }
 
   @override
   void onClose() {
+    _bindingGeneration++;
     _subscription?.cancel();
     _searchWorker?.dispose();
     _filterWorker?.dispose();

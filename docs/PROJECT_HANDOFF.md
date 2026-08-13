@@ -308,6 +308,40 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-13 — Responsive mobile UI/UX refinement pass
+
+- Refined the Product catalog, Dashboard overview, Invoice list/details,
+  Invoice Defaults, and Payment Receipt based on narrow Android screenshots.
+- Product search now uses concise mobile copy, cards use tighter spacing, and
+  item management moved from a desktop popup to a descriptive bottom sheet.
+- Dashboard metrics now stack icon, complete label, and value vertically so
+  Received, Outstanding, and Collected remain readable without ellipses.
+- Invoice summary dates moved to their own wrapping metadata row; Invoice Detail
+  document actions now use a mobile bottom sheet and payment-row actions no
+  longer squeeze payment notes or amounts.
+- Invoice Defaults uses compact card/text-area spacing. Payment Receipt keeps its
+  full AppBar title, groups save/share/print in a bottom sheet, and replaces the
+  placeholder “Receipt print / Animation” copy with customer-facing status text.
+- No persistence, calculations, PDF generation, or business rules changed.
+- Important files: shared invoice summary card; product, dashboard, invoice
+  detail, defaults, and receipt screens; responsive tests; QA checklist; handoff.
+- Verification: narrow-phone rendering, action-sheet behavior, formatting,
+  static analysis, and focused widget regressions.
+
+### 2026-08-13 — Invoice list refresh after creation
+
+- Fixed an intermittent stale Invoice List after saving from the create/preview
+  flow. Whenever the list screen mounts it now explicitly rebinds its live Drift
+  query, so a GetX controller reused during root-route replacement cannot retain
+  a cancelled subscription and remain on skeleton rows until another tab change.
+- Query bindings now ignore stale subscription callbacks and leave loading state
+  safely if the stream reports an error.
+- Invoice persistence, filters, sorting, calculations, and navigation outcomes
+  remain unchanged.
+- Important files: Invoice List controller/screen, regression coverage, and this
+  handoff.
+- Verification: repository/live-list refresh, formatting, and static analysis.
+
 ### 2026-08-13 — Business edit back-action lifecycle fix
 
 - Fixed the missing back arrow when an existing business profile finishes
