@@ -31,6 +31,13 @@ class ProductListScreen extends GetView<ProductListController> {
       appBar: AppBar(
         leading: const AppBackButton(),
         title: const Text('Products & services'),
+        actions: [
+          IconButton(
+            tooltip: 'Scan barcode',
+            onPressed: () => Get.toNamed<void>(AppRoutes.catalogScan),
+            icon: const Icon(Icons.qr_code_scanner_rounded),
+          ),
+        ],
       ),
       body: Column(
         children: [

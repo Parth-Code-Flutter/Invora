@@ -69,7 +69,7 @@ abstract final class ProductFieldPresets {
       recommendedUnits: ['pcs', 'set', 'pair'],
     ),
     BusinessCategory.groceryKirana: BusinessCategoryPreset(
-      enabledFields: {'unit', 'weight', 'brand', 'tax', 'hsnSac'},
+      enabledFields: {'unit', 'weight', 'brand', 'sku', 'tax', 'hsnSac'},
       recommendedUnits: [
         'pcs',
         'kg',
@@ -109,7 +109,14 @@ abstract final class ProductFieldPresets {
       recommendedUnits: ['pcs', 'ml', 'g', 'service', 'hour'],
     ),
     BusinessCategory.medicalPharmacy: BusinessCategoryPreset(
-      enabledFields: {'unit', 'batchNumber', 'expiryDate', 'tax', 'hsnSac'},
+      enabledFields: {
+        'unit',
+        'sku',
+        'batchNumber',
+        'expiryDate',
+        'tax',
+        'hsnSac',
+      },
       recommendedUnits: ['pcs', 'box', 'packet', 'ml', 'g'],
     ),
     BusinessCategory.foodRestaurant: BusinessCategoryPreset(

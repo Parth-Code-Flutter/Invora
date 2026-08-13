@@ -30,6 +30,8 @@
 	<string>Creovo Invoice uses selected images for your business logo, signature, and payment QR.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Creovo Invoice uses a contact you select to fill the customer name and mobile number.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Creovo Invoice uses the camera to scan product barcodes and add them to invoices or your catalog.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

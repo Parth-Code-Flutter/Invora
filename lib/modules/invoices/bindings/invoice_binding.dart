@@ -5,6 +5,7 @@ import '../controllers/invoice_details_controller.dart';
 import '../controllers/invoice_list_controller.dart';
 import '../controllers/invoice_preview_controller.dart';
 import '../controllers/payment_receipt_controller.dart';
+import '../scan/product_scan_controller.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/services/invoice_defaults_service.dart';
 
@@ -91,5 +92,12 @@ class PaymentReceiptBinding extends Bindings {
     Get.lazyPut(
       () => PaymentReceiptController(Get.find(), Get.find(), Get.find()),
     );
+  }
+}
+
+class ProductScanBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut(() => ProductScanController(Get.find(), Get.find()));
   }
 }

@@ -20,6 +20,9 @@ import '../../modules/products/screens/product_list_screen.dart';
 import '../../modules/invoices/bindings/invoice_binding.dart';
 import '../../modules/invoices/screens/invoice_create_screen.dart';
 import '../../modules/invoices/screens/invoice_item_picker_screen.dart';
+import '../../modules/invoices/scan/product_scan_screen.dart';
+import '../../modules/products/screens/catalog_barcode_scan_screen.dart';
+import '../../modules/scan/barcode_capture_screen.dart';
 import '../../modules/invoices/screens/invoice_details_screen.dart';
 import '../../modules/invoices/screens/invoice_list_screen.dart';
 import '../../modules/invoices/screens/invoice_preview_screen.dart';
@@ -132,6 +135,13 @@ abstract final class AppRouter {
       name: AppRoutes.invoiceItemPicker,
       page: InvoiceItemPickerScreen.new,
     ),
+    GetPage(
+      name: AppRoutes.productScan,
+      page: ProductScanScreen.new,
+      binding: ProductScanBinding(),
+    ),
+    GetPage(name: AppRoutes.catalogScan, page: CatalogBarcodeScanScreen.new),
+    GetPage(name: AppRoutes.barcodeCapture, page: BarcodeCaptureScreen.new),
     GetPage(
       name: AppRoutes.quotationCreate,
       page: InvoiceCreateScreen.new,

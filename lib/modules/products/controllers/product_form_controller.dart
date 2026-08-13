@@ -5,7 +5,9 @@ import '../../../app/enums/item_type.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/utils/app_focus.dart';
+import '../../../data/models/barcode_capture_result.dart';
 import '../../../data/models/product_service_model.dart';
+import '../../../data/models/product_form_args.dart';
 import '../../../data/models/business_category_model.dart';
 import '../../../data/models/product_attribute_model.dart';
 import '../../../data/repositories/business_repository.dart';
@@ -43,10 +45,10 @@ class ProductFormController extends GetxController {
   final attributeControllers = <String, TextEditingController>{};
   final isLoading = false.obs;
   final isSaving = false.obs;
+  final isEditing = false.obs;
   ProductServiceModel? _existing;
   String _baseline = '';
 
-  bool get isEditing => _existing != null;
   bool get hasUnsavedChanges => !isLoading.value && _snapshot() != _baseline;
 
   @override
@@ -60,13 +62,43 @@ class ProductFormController extends GetxController {
     }
     _captureBaseline();
     _loadCurrency();
-    final id = Get.arguments as int?;
-    if (id != null) _load(id);
+    _applyRouteArguments();
+  }
+
+  /// Supports both legacy integer ids and [ProductFormArgs] from the scanner.
+  void _applyRouteArguments() {
+    final arguments = Get.arguments;
+    if (arguments is int) {
+      isEditing.value = true;
+      _load(arguments);
+      return;
+    }
+    if (arguments is ProductFormArgs) {
+      if (arguments.productId != null) {
+        isEditing.value = true;
+        _load(arguments.productId!);
+      }
+      final sku = arguments.initialSku?.trim();
+      if (sku != null && sku.isNotEmpty) {
+        _applyUnknownSku(sku);
+        _captureBaseline();
+      }
+    }
+  }
+
+  /// Fills the form from a one-shot scan so the user can edit before saving.
+  Future<void> applyCapture(BarcodeCaptureResult capture) async {
+    final product = capture.product;
+    if (product != null) {
+      await _applyProduct(product, treatAsSaved: true);
+      return;
+    }
+    _applyUnknownSku(capture.code);
   }
 
   void selectType(ItemType value) {
     type.value = value;
-    if (!isEditing) {
+    if (!isEditing.value) {
       selectedUnit.value = unitService.defaultUnit;
     }
   }
@@ -113,7 +145,7 @@ class ProductFormController extends GetxController {
   void selectTax(int? basisPoints) {
     if (basisPoints == null) {
       isCustomTax.value = true;
-      if (!isEditing) taxRate.clear();
+      if (!isEditing.value) taxRate.clear();
       return;
     }
     isCustomTax.value = false;
@@ -178,27 +210,47 @@ class ProductFormController extends GetxController {
 
   Future<void> _load(int id) async {
     isLoading.value = true;
-    _existing = await _repository.getById(id);
-    final item = _existing;
+    final item = await _repository.getById(id);
     if (item != null) {
-      name.text = item.name;
-      description.text = item.description ?? '';
-      salePrice.text = CurrencyUtils.toInputValue(item.salePriceMinor);
-      hsnSac.text = item.hsnSac ?? '';
-      type.value = item.type;
-      selectedUnit.value = await unitService.create(item.unit);
-      taxRate.text = TaxUtils.toInputValue(item.taxRateBasisPoints);
-      selectedTaxBasisPoints.value = item.taxRateBasisPoints;
-      isCustomTax.value = !taxRates.contains(item.taxRateBasisPoints);
-      for (final attribute in item.attributes) {
-        attributeControllers
-                .putIfAbsent(attribute.key, TextEditingController.new)
-                .text =
-            attribute.value;
-      }
+      await _applyProduct(item, treatAsSaved: true);
+    }
+    isLoading.value = false;
+  }
+
+  /// Copies catalog values into the editors. [treatAsSaved] marks the form as
+  /// editing that row so Save updates it instead of creating a duplicate.
+  Future<void> _applyProduct(
+    ProductServiceModel item, {
+    required bool treatAsSaved,
+  }) async {
+    _existing = treatAsSaved ? item : null;
+    isEditing.value = treatAsSaved && item.id != null;
+    name.text = item.name;
+    description.text = item.description ?? '';
+    salePrice.text = CurrencyUtils.toInputValue(item.salePriceMinor);
+    hsnSac.text = item.hsnSac ?? '';
+    type.value = item.type;
+    selectedUnit.value = await unitService.create(item.unit);
+    taxRate.text = TaxUtils.toInputValue(item.taxRateBasisPoints);
+    selectedTaxBasisPoints.value = item.taxRateBasisPoints;
+    isCustomTax.value = !taxRates.contains(item.taxRateBasisPoints);
+    for (final controller in attributeControllers.values) {
+      controller.clear();
+    }
+    for (final attribute in item.attributes) {
+      enabledFieldKeys.add(attribute.key);
+      attributeControllers
+              .putIfAbsent(attribute.key, TextEditingController.new)
+              .text =
+          attribute.value;
     }
     _captureBaseline();
-    isLoading.value = false;
+  }
+
+  void _applyUnknownSku(String code) {
+    enabledFieldKeys.add('sku');
+    attributeControllers.putIfAbsent('sku', TextEditingController.new).text =
+        code;
   }
 
   String _snapshot() => [

@@ -86,4 +86,31 @@ void main() {
       expect((await repository.getById(product.id!))?.isDeleted, isTrue);
     },
   );
+
+  test('finds an active product by SKU barcode', () async {
+    final now = DateTime(2026, 8, 13);
+    await repository.save(
+      ProductServiceModel(
+        name: '50-50 Biscuit',
+        type: ItemType.product,
+        unit: 'pcs',
+        salePriceMinor: 500,
+        attributes: const [
+          ProductAttributeValue(
+            key: 'sku',
+            label: 'SKU / Code',
+            value: '8901030865246',
+          ),
+        ],
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+
+    expect(
+      (await repository.findByBarcode('8901030865246'))?.name,
+      '50-50 Biscuit',
+    );
+    expect(await repository.findByBarcode('000000'), isNull);
+  });
 }

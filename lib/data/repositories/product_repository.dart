@@ -45,6 +45,27 @@ class ProductRepository extends BaseRepository {
     return row == null ? null : _toModel(row);
   }
 
+  /// Finds an active catalog item whose SKU or barcode attribute matches [code].
+  Future<ProductServiceModel?> findByBarcode(String code) async {
+    final normalized = code.trim().replaceAll(RegExp(r'\s+'), '');
+    if (normalized.isEmpty) return null;
+    final rows = await (database.select(
+      database.productServices,
+    )..where((table) => table.isDeleted.equals(false))).get();
+    for (final row in rows) {
+      final model = _toModel(row);
+      final matches = model.attributes.any((attribute) {
+        if (attribute.key != 'sku' && attribute.key != 'barcode') {
+          return false;
+        }
+        return attribute.value.trim().replaceAll(RegExp(r'\s+'), '') ==
+            normalized;
+      });
+      if (matches) return model;
+    }
+    return null;
+  }
+
   Future<ProductServiceModel> save(ProductServiceModel model) async {
     final companion = ProductServicesCompanion(
       id: model.id == null ? const Value.absent() : Value(model.id!),

@@ -108,6 +108,13 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   recommendations; existing product values remain stored.
 - Product attributes are searchable and appear as a compact prioritized
   secondary line in catalog/product details.
+- Products can be added by scanning barcodes. Invoice/quotation Add item
+  opens a live camera with a scanned-items list, quantity steppers, and a
+  running total; unknown codes can be saved to the catalog with the barcode
+  stored as SKU. The custom-item sheet and catalog Add item form also have a
+  scan action that fills name, price, tax, and SKU so values can be edited
+  before saving. The catalog list has a scan action to open or create an
+  item. Lookup is local-only against SKU/barcode attributes.
 
 ### Invoices and quotations
 
@@ -322,6 +329,32 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-13 — Scan into add-item forms
+
+- The invoice custom-item sheet and catalog Add item form now include a
+  scan action. A found catalog product fills name, rate, unit, HSN, GST, and
+  SKU so the user can edit values before adding or saving. Unknown codes fill
+  SKU on the catalog form and leave the invoice sheet for manual entry.
+- Important files: barcode capture screen, invoice item prefill, product form
+  scan apply, custom item sheet, capture tests, and this handoff.
+- Verification: barcode form-fill tests, formatting, and static analysis.
+
+### 2026-08-13 — Scan barcodes to add products
+
+- Added an offline barcode scanner for adding catalog products while creating
+  an invoice or quotation. The camera stays open above a scanned-items list
+  with quantity steppers and a running total; Add to invoice applies the
+  session to the document. Unknown codes offer Save product with the barcode
+  prefilled as SKU.
+- Catalog Products & services has a matching scan action to open a found item
+  or create one. Grocery and pharmacy presets now include SKU so packaged
+  goods can be scanned without extra settings.
+- Important files: barcode lookup, scan session/controller/screen, catalog
+  scan screen, invoice add-item sheet, camera permission strings, scan tests,
+  and this handoff.
+- Verification: scan session and product barcode lookup tests, formatting,
+  and static analysis.
 
 ### 2026-08-13 — Invoice card three-row layout
 

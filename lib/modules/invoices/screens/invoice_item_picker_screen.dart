@@ -12,6 +12,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../data/models/product_service_model.dart';
+import '../../../data/models/scanned_invoice_line.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
 
@@ -83,6 +84,11 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
         leading: const AppBackButton(),
         title: const Text('Add saved items'),
         actions: [
+          IconButton(
+            tooltip: 'Scan barcodes',
+            onPressed: _scanItems,
+            icon: const Icon(Icons.qr_code_scanner_rounded),
+          ),
           IconButton(
             tooltip: 'Create product or service',
             onPressed: _createItem,
@@ -438,6 +444,19 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
       ),
     ),
   );
+
+  Future<void> _scanItems() async {
+    final result = await Get.toNamed<dynamic>(AppRoutes.productScan);
+    if (!mounted || result is! List<ScannedInvoiceLine>) return;
+    setState(() {
+      for (final line in result) {
+        final id = line.product.id;
+        if (id == null) continue;
+        _knownItems[id] = line.product;
+        _selectedIds.add(id);
+      }
+    });
+  }
 
   Future<void> _createItem() async {
     final result = await Get.toNamed<dynamic>(AppRoutes.productAdd);

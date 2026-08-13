@@ -13,6 +13,7 @@ import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_calculation_models.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/product_service_model.dart';
+import '../../../data/models/scanned_invoice_line.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/customer_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
@@ -154,7 +155,15 @@ class InvoiceCreateController extends GetxController {
 
   void addProducts(Iterable<ProductServiceModel> products) {
     for (final product in products) {
-      _addOrIncrementProduct(product);
+      _addProductWithQuantity(product, 1000);
+    }
+    recalculate();
+  }
+
+  /// Adds scanner session lines, preserving quantities captured while scanning.
+  void applyScannedLines(Iterable<ScannedInvoiceLine> lines) {
+    for (final line in lines) {
+      _addProductWithQuantity(line.product, line.quantityScaled);
     }
     recalculate();
   }
@@ -171,12 +180,19 @@ class InvoiceCreateController extends GetxController {
       );
     }
     for (final product in added) {
-      _addOrIncrementProduct(product);
+      _addProductWithQuantity(product, 1000);
     }
     recalculate();
   }
 
   void _addOrIncrementProduct(ProductServiceModel product) {
+    _addProductWithQuantity(product, 1000);
+  }
+
+  void _addProductWithQuantity(
+    ProductServiceModel product,
+    int quantityScaled,
+  ) {
     final existingIndex = items.indexWhere(
       (item) => product.id != null && item.productId != null
           ? item.productId == product.id
@@ -187,7 +203,10 @@ class InvoiceCreateController extends GetxController {
     );
     if (existingIndex >= 0) {
       final item = items[existingIndex];
-      items[existingIndex] = _withQuantity(item, item.quantityScaled + 1000);
+      items[existingIndex] = _withQuantity(
+        item,
+        item.quantityScaled + quantityScaled,
+      );
       return;
     }
     items.add(
@@ -196,7 +215,7 @@ class InvoiceCreateController extends GetxController {
         productId: product.id,
         name: product.name,
         description: product.description,
-        quantityScaled: 1000,
+        quantityScaled: quantityScaled,
         unit: product.unit,
         rateMinor: product.salePriceMinor,
         hsnSac: product.hsnSac,

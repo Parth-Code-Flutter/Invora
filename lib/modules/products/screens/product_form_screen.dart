@@ -12,9 +12,12 @@ import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_dialog.dart';
+import '../../../app/widgets/app_notification.dart';
 import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/app_unit_field.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
+import '../../../data/models/barcode_capture_result.dart';
 import '../controllers/product_form_controller.dart';
 
 String? _attributeHint(String key) => switch (key) {
@@ -48,7 +51,16 @@ class ProductFormScreen extends GetView<ProductFormController> {
       child: Scaffold(
         appBar: AppBar(
           leading: const AppBackButton(),
-          title: Text(Get.arguments == null ? 'Add item' : 'Edit item'),
+          title: Obx(
+            () => Text(controller.isEditing.value ? 'Edit item' : 'Add item'),
+          ),
+          actions: [
+            IconButton(
+              tooltip: 'Scan barcode',
+              onPressed: () => _scanIntoForm(context, controller),
+              icon: const Icon(Icons.qr_code_scanner_rounded),
+            ),
+          ],
         ),
         body: Obx(
           () => controller.isLoading.value
@@ -71,7 +83,9 @@ class ProductFormScreen extends GetView<ProductFormController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _IntroPanel(isEditing: controller.isEditing),
+                              _IntroPanel(
+                                isEditing: controller.isEditing.value,
+                              ),
                               const SizedBox(height: 18),
                               Obx(
                                 () => _TypeSelector(
@@ -459,7 +473,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
             ),
             child: Obx(
               () => AppButton(
-                label: controller.isEditing
+                label: controller.isEditing.value
                     ? 'Save changes'
                     : 'Save ${controller.type.value == ItemType.product ? 'product' : 'service'}',
                 icon: Icons.check_rounded,
@@ -471,6 +485,35 @@ class ProductFormScreen extends GetView<ProductFormController> {
         ),
       ),
     );
+  }
+
+  Future<void> _scanIntoForm(
+    BuildContext context,
+    ProductFormController controller,
+  ) async {
+    final result = await Get.toNamed<dynamic>(AppRoutes.barcodeCapture);
+    if (!context.mounted || result is! BarcodeCaptureResult) return;
+    if (result.product != null && controller.hasUnsavedChanges) {
+      final confirmed = await showAppConfirmDialog(
+        context: context,
+        icon: Icons.qr_code_scanner_rounded,
+        tone: AppDialogTone.info,
+        title: 'Load ${result.product!.name}?',
+        message:
+            'This barcode belongs to a saved item. Load it here so you can edit the values before saving.',
+        confirmLabel: 'Load product',
+        cancelLabel: 'Keep typing',
+      );
+      if (!confirmed || !context.mounted) return;
+    }
+    await controller.applyCapture(result);
+    if (!context.mounted) return;
+    if (result.product == null) {
+      AppNotification.info(
+        'SKU filled',
+        'No saved product uses ${result.code}. Complete the name and price, then save.',
+      );
+    }
   }
 
   Future<void> _manageFields(BuildContext context) async {

@@ -21,14 +21,19 @@ import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_notification.dart';
 import '../../../app/widgets/app_unit_field.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
+import '../../../data/models/barcode_capture_result.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_calculation_models.dart';
+import '../../../data/models/invoice_item_scan_prefill.dart';
 import '../../../data/models/invoice_model.dart';
+import '../../../data/models/product_attribute_model.dart';
 import '../../../data/services/unit_service.dart';
 import '../../../data/services/invoice_defaults_service.dart';
 import '../../../data/services/product_settings_service.dart';
 import '../../customers/controllers/customer_form_controller.dart';
 import '../controllers/invoice_create_controller.dart';
+import '../scan/product_scan_screen.dart';
+import '../../../data/models/scanned_invoice_line.dart';
 import 'invoice_item_picker_screen.dart';
 
 class InvoiceCreateScreen extends StatefulWidget {
@@ -827,6 +832,15 @@ class _InvoiceForm extends StatelessWidget {
     );
   }
 
+  Future<void> _scanProducts(BuildContext context) async {
+    final result = await Get.toNamed<dynamic>(
+      AppRoutes.productScan,
+      arguments: ProductScanArgs(quotation: controller.isQuotation),
+    );
+    if (!context.mounted || result is! List<ScannedInvoiceLine>) return;
+    controller.applyScannedLines(result);
+  }
+
   Future<void> _showAddItemOptions(BuildContext context) async {
     final choice = await showModalBottomSheet<_AddItemChoice>(
       context: context,
@@ -848,6 +862,13 @@ class _InvoiceForm extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               _AddItemOption(
+                icon: Icons.qr_code_scanner_rounded,
+                title: 'Scan barcodes',
+                subtitle: 'Add saved products by scanning their codes',
+                onTap: () => Navigator.pop(sheetContext, _AddItemChoice.scan),
+              ),
+              const SizedBox(height: 10),
+              _AddItemOption(
                 icon: Icons.inventory_2_outlined,
                 title: 'Choose saved item',
                 subtitle: 'Use a product or service from your catalog',
@@ -866,7 +887,9 @@ class _InvoiceForm extends StatelessWidget {
       ),
     );
     if (!context.mounted) return;
-    if (choice == _AddItemChoice.saved) {
+    if (choice == _AddItemChoice.scan) {
+      await _scanProducts(context);
+    } else if (choice == _AddItemChoice.saved) {
       await _selectProduct(context);
     } else if (choice == _AddItemChoice.custom) {
       await _editItem(context);
@@ -1340,7 +1363,7 @@ class _QuantityEditorSheetState extends State<_QuantityEditorSheet> {
   );
 }
 
-enum _AddItemChoice { saved, custom }
+enum _AddItemChoice { scan, saved, custom }
 
 class _AddItemOption extends StatelessWidget {
   const _AddItemOption({
@@ -1859,11 +1882,17 @@ class _ItemSheetState extends State<_ItemSheet> {
   late int selectedTaxRate;
   late final TextEditingController discount;
   late DiscountType discountType;
+  int? _productId;
+  String? _description;
+  List<ProductAttributeValue> _attributes = const [];
 
   @override
   void initState() {
     super.initState();
     final item = widget.item;
+    _productId = item?.productId;
+    _description = item?.description;
+    _attributes = item?.attributes ?? const [];
     name = TextEditingController(text: item?.name ?? '');
     quantity = TextEditingController(
       text: item == null ? '' : QuantityUtils.toInputValue(item.quantityScaled),
@@ -1913,10 +1942,18 @@ class _ItemSheetState extends State<_ItemSheet> {
             ),
             const SizedBox(height: 5),
             Text(
-              'Add the line-item details shown on this invoice.',
+              widget.item == null
+                  ? 'Scan a saved product to fill these fields, or enter a one-time item.'
+                  : 'Scan a barcode to load a saved product, then change anything you need.',
               style: AppTextStyles.body.copyWith(
                 color: AppColors.textSecondary,
               ),
+            ),
+            const SizedBox(height: 14),
+            OutlinedButton.icon(
+              onPressed: _scanBarcode,
+              icon: const Icon(Icons.qr_code_scanner_rounded),
+              label: const Text('Scan barcode'),
             ),
             const SizedBox(height: 18),
             TextField(
@@ -2092,6 +2129,38 @@ class _ItemSheetState extends State<_ItemSheet> {
     super.dispose();
   }
 
+  Future<void> _scanBarcode() async {
+    final result = await Get.toNamed<dynamic>(AppRoutes.barcodeCapture);
+    if (!mounted || result is! BarcodeCaptureResult) return;
+    final product = result.product;
+    if (product == null) {
+      AppNotification.warning(
+        'No saved product',
+        'No catalog item uses ${result.code}. Enter the details here, or save it in Products first.',
+      );
+      return;
+    }
+    setState(() => _applyPrefill(InvoiceItemScanPrefill.fromProduct(product)));
+  }
+
+  void _applyPrefill(InvoiceItemScanPrefill prefill) {
+    _productId = prefill.productId;
+    _description = prefill.description;
+    _attributes = prefill.attributes;
+    name.text = prefill.name;
+    if (quantity.text.trim().isEmpty) {
+      quantity.text = prefill.quantityText;
+    }
+    unit = prefill.unit;
+    rate.text = prefill.rateText;
+    hsn.text = prefill.hsnSac;
+    tax.text = TaxUtils.toInputValue(prefill.taxRateBasisPoints);
+    selectedTaxRate =
+        TaxUtils.gstRateBasisPoints.contains(prefill.taxRateBasisPoints)
+        ? prefill.taxRateBasisPoints
+        : _customGstRate;
+  }
+
   void _submit() {
     final quantityValue = quantity.text.trim().isEmpty
         ? 1000
@@ -2129,16 +2198,16 @@ class _ItemSheetState extends State<_ItemSheet> {
             widget.item?.localId ??
             'custom-${DateTime.now().microsecondsSinceEpoch}',
         id: widget.item?.id,
-        productId: widget.item?.productId,
+        productId: _productId,
         name: name.text.trim(),
-        description: widget.item?.description,
+        description: _description,
         quantityScaled: quantityValue,
         unit: unit.trim(),
         rateMinor: rateValue,
         hsnSac: hsn.text.trim().isEmpty ? null : hsn.text.trim(),
         taxRateBasisPoints: taxValue,
         discount: discountValue,
-        attributes: widget.item?.attributes ?? const [],
+        attributes: _attributes,
       ),
     );
   }
