@@ -308,6 +308,24 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-13 — Material Symbols and signature navigation dock
+
+- Added `material_symbols_icons` 4.2960.0 and adopted its latest Google Material
+  Symbols variable icons for primary navigation and quick-create actions.
+- Rebuilt bottom navigation as a stable five-slot floating dock with modern
+  Material Symbols, complete labels, compact selected-icon treatment, and a
+  circular gradient Create control. Fixed widths prevent destinations or the
+  create surface from overlapping on real Android devices.
+- The dock remains readable at 320 logical pixels, supports light/dark borders,
+  preserves all existing root-route behavior, and keeps the create destinations
+  unchanged.
+- Storage and database schemas are unchanged. Dependency files changed only for
+  the new icon-font package.
+- Important files: pubspec/lockfile, main navigation, narrow-phone widget test,
+  QA checklist, and this handoff.
+- Verification: dependency resolution, 320px dock/create-sheet rendering,
+  formatting, static analysis, and full regression suite.
+
 ### 2026-08-13 — Responsive mobile UI/UX refinement pass
 
 - Refined the Product catalog, Dashboard overview, Invoice list/details,

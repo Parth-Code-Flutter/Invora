@@ -28,6 +28,8 @@ remain intentionally out of scope until explicitly requested.
 - At narrow Android widths, Dashboard metric labels and Invoice List issue/due
   dates remain complete; Product search copy and Payment Receipt title do not
   truncate. Product and Invoice actions open mobile bottom sheets.
+- The Material Symbols navigation dock displays all destination/Create labels
+  without overlap and remains overflow-free at 320px in light and dark themes.
 - Existing Business Profile opens with edit-specific copy, a first-step back
   action, Save changes, and returns to the previous screen after saving; only
   first-time setup uses onboarding language and dashboard completion routing.
