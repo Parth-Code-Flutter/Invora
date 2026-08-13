@@ -13,7 +13,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Protected form'), findsNothing);
-    expect(find.text('Keep your changes?'), findsNothing);
+    expect(find.text('Unsaved Changes'), findsNothing);
   });
 
   testWidgets('dirty forms can continue editing or discard', (tester) async {
@@ -21,7 +21,7 @@ void main() {
 
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
-    expect(find.text('Keep your changes?'), findsOneWidget);
+    expect(find.text('Unsaved Changes'), findsOneWidget);
 
     await tester.tap(find.text('Continue editing'));
     await tester.pumpAndSettle();

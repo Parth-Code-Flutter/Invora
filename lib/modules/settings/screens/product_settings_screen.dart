@@ -201,25 +201,15 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
         !context.mounted) {
       return;
     }
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirmDialog(
       context: context,
-      builder: (dialogContext) => AppDialog(
-        icon: Icons.sync_alt_rounded,
-        title: const Text('Change business category?'),
-        content: const Text(
+      tone: AppDialogTone.question,
+      icon: Icons.sync_alt_rounded,
+      confirmIcon: Icons.sync_alt_rounded,
+      title: 'Change business category?',
+      message:
           'Recommended product fields will be updated. Your existing product information will not be deleted.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Change'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Change',
     );
     if (confirmed == true) await controller.changeCategory(selected);
   }
@@ -232,7 +222,9 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AppDialog(
+          tone: AppDialogTone.info,
           icon: Icons.add_box_outlined,
+          form: true,
           title: const Text('Add custom field'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -264,11 +256,14 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
             ],
           ),
           actions: [
-            TextButton(
+            AppDialogButton(
+              label: 'Cancel',
+              variant: AppDialogButtonVariant.outlined,
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
             ),
-            FilledButton(
+            AppDialogButton(
+              label: 'Add field',
+              icon: Icons.add_rounded,
               onPressed: () async {
                 final result = await controller.addCustomField(
                   input.text,
@@ -281,7 +276,6 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
                   setState(() => error = result);
                 }
               },
-              child: const Text('Add field'),
             ),
           ],
         ),

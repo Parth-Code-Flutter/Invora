@@ -180,26 +180,13 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
   }
 
   Future<void> _confirmDelete(BuildContext context, String unit) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirmDialog(
       context: context,
-      builder: (context) => AppDialog(
-        icon: Icons.delete_outline_rounded,
-        iconColor: AppColors.error,
-        title: const Text('Delete unit?'),
-        content: Text(
+      destructive: true,
+      title: 'Delete unit?',
+      message:
           'Remove “$unit” from future unit choices? Existing records using it will not change.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Delete',
     );
     if (confirmed != true) return;
     final error = await controller.delete(unit);
@@ -252,7 +239,9 @@ class _UnitEditorDialogState extends State<_UnitEditorDialog> {
 
   @override
   Widget build(BuildContext context) => AppDialog(
+    tone: AppDialogTone.info,
     icon: Icons.straighten_rounded,
+    form: true,
     title: Text(widget.current == null ? 'Add a unit' : 'Rename unit'),
     content: TextField(
       controller: input,
@@ -268,18 +257,15 @@ class _UnitEditorDialogState extends State<_UnitEditorDialog> {
       onSubmitted: (_) => _save(),
     ),
     actions: [
-      TextButton(
+      AppDialogButton(
+        label: 'Cancel',
+        variant: AppDialogButtonVariant.outlined,
         onPressed: saving ? null : () => Navigator.pop(context),
-        child: const Text('Cancel'),
       ),
-      FilledButton(
+      AppDialogButton(
+        label: widget.current == null ? 'Add unit' : 'Save',
+        icon: Icons.check_rounded,
         onPressed: saving ? null : _save,
-        child: saving
-            ? const SizedBox.square(
-                dimension: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : Text(widget.current == null ? 'Add unit' : 'Save'),
       ),
     ],
   );

@@ -161,28 +161,15 @@ class ProductListScreen extends GetView<ProductListController> {
     BuildContext context,
     ProductServiceModel item,
   ) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirmDialog(
       context: context,
-      builder: (context) => AppDialog(
-        icon: Icons.delete_outline_rounded,
-        iconColor: AppColors.error,
-        title: Text('Delete ${item.type.label.toLowerCase()}?'),
-        content: Text(
+      destructive: true,
+      title: 'Delete ${item.type.label.toLowerCase()}?',
+      message:
           '${item.name} will be hidden from lists. Historical invoices will remain unchanged.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Delete',
     );
-    if (confirmed ?? false) await controller.deleteItem(item);
+    if (confirmed) await controller.deleteItem(item);
   }
 }
 

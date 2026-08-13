@@ -41,7 +41,7 @@ void main() {
     expect(find.text('Add a unit'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField), 'bundle');
-    await tester.tap(find.widgetWithText(FilledButton, 'Add unit'));
+    await tester.tap(find.text('Add unit'));
     await tester.pumpAndSettle();
 
     expect(find.text('Add a unit'), findsNothing);

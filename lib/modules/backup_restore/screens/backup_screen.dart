@@ -169,29 +169,16 @@ class BackupScreen extends GetView<BackupController> {
   );
 
   Future<void> _confirmCreate(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirmDialog(
       context: context,
-      builder: (dialogContext) => AppDialog(
-        icon: Icons.warning_amber_rounded,
-        iconColor: AppColors.warning,
-        title: const Text('Create sensitive-data backup?'),
-        content: const Text(
+      tone: AppDialogTone.warning,
+      confirmIcon: Icons.archive_outlined,
+      title: 'Create sensitive-data backup?',
+      message:
           'This unencrypted ZIP contains customer, invoice, bank, signature, and payment QR information. Share it only to a private location you trust.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton.icon(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            icon: const Icon(Icons.archive_outlined),
-            label: const Text('Create backup'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Create backup',
     );
-    if (confirmed == true) await controller.createAndShare();
+    if (confirmed) await controller.createAndShare();
   }
 
   Future<void> _restore(BuildContext context) async {
@@ -202,46 +189,26 @@ class BackupScreen extends GetView<BackupController> {
       return;
     }
     if (!context.mounted) return;
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirmDialog(
       context: context,
-      builder: (dialogContext) => AppDialog(
-        icon: Icons.restore_rounded,
-        title: const Text('Replace local data?'),
-        content: const Text(
+      tone: AppDialogTone.warning,
+      icon: Icons.restore_rounded,
+      confirmIcon: Icons.restore_rounded,
+      title: 'Replace local data?',
+      message:
           'Current records will be replaced. Creovo Invoice must be restarted after restore.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Restore'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Restore',
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     final restored = await controller.restore(result);
     if (!restored || !context.mounted) return;
-    await showDialog<void>(
+    await showAppNoticeDialog(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) => AppDialog(
-        icon: Icons.check_circle_rounded,
-        iconColor: AppColors.success,
-        title: const Text('Restore complete'),
-        content: const Text(
+      title: 'Restore complete',
+      message:
           'Your backup was restored safely. Close and reopen Creovo Invoice now to load the restored records.',
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('I’ll restart now'),
-          ),
-        ],
-      ),
+      actionLabel: 'I’ll restart now',
     );
   }
 }

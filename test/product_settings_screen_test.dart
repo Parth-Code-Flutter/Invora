@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:creovo_invoice/app/themes/app_theme.dart';
 import 'package:creovo_invoice/app/constants/app_colors.dart';
+import 'package:creovo_invoice/app/widgets/app_dialog.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/product_settings_service.dart';
 import 'package:creovo_invoice/modules/settings/controllers/product_settings_controller.dart';
@@ -33,7 +34,7 @@ void main() {
       await tester.tap(find.widgetWithText(TextButton, 'Custom'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField).last, 'Finish');
-      await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+      await tester.tap(find.widgetWithText(AppDialogButton, 'Cancel'));
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);

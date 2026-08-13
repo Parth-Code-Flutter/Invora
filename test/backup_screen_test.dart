@@ -1,5 +1,4 @@
 import 'package:drift/native.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +7,7 @@ import 'package:creovo_invoice/data/repositories/business_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/backup_service.dart';
+import 'package:creovo_invoice/app/widgets/app_dialog.dart';
 import 'package:creovo_invoice/app/widgets/app_button.dart';
 import 'package:creovo_invoice/modules/backup_restore/controllers/backup_controller.dart';
 import 'package:creovo_invoice/modules/backup_restore/screens/backup_screen.dart';
@@ -49,6 +49,9 @@ void main() {
 
     expect(find.text('Create sensitive-data backup?'), findsOneWidget);
     expect(find.textContaining('unencrypted ZIP'), findsOneWidget);
-    expect(find.widgetWithText(FilledButton, 'Create backup'), findsOneWidget);
+    expect(
+      find.widgetWithText(AppDialogButton, 'Create backup'),
+      findsOneWidget,
+    );
   });
 }

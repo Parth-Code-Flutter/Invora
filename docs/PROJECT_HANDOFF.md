@@ -1,6 +1,6 @@
 # Creovo Invoice — Project Handoff
 
-Last updated: 2026-08-11
+Last updated: 2026-08-13
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -37,10 +37,13 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Create-mode forms use non-destructive hints for example/default text; edit
   mode continues to load actual persisted values
 - Reusable fields, dropdown sheets, navigation, and modern notifications
-- All app-owned dialogs use one modern `AppDialog` surface with a rounded
-  icon-led header, clear title/body hierarchy, adaptive wrapped actions, dark
-  mode, and optional stacked full-width actions for three-choice flows such as
-  unsaved invoice changes.
+- All app-owned dialogs use the local `pro_dialog` package through Creovo
+  aliases (`AppDialog`, `showAppConfirmDialog`). The package lives at
+  `packages/pro_dialog` and can be copied into another Flutter app as a path
+  dependency. Visual system: centered glowing circular icon, typed
+  success/error/warning/info/question colors, bounce/shake/pulse/fade/rotate
+  entry motion, centered title and body, and equal-width outlined plus filled
+  action buttons. Form dialogs keep the same chrome with start-aligned fields.
 - Shared unsaved-change protection covers invoice/quotation, customer,
   product/service, and business forms across AppBar back, system back, and iOS
   back gestures. Dirty document composers can save a draft before leaving.
@@ -283,10 +286,10 @@ transfer automatically.
 
 ## Verification baseline
 
-As of 2026-08-12:
+As of 2026-08-13:
 
 - Flutter analysis: no issues
-- Automated suite: all 81 tests passing
+- Automated suite: all 96 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -307,6 +310,33 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-13 — Extracted ProDialog into a reusable package
+
+- Moved the shared dialog surface into `packages/pro_dialog`, a standalone
+  Flutter package with no GetX or Creovo dependencies. Creovo keeps
+  `AppDialog` aliases and `showAppConfirmDialog` wrappers.
+- Copy `packages/pro_dialog` into another repo and add
+  `pro_dialog: path: packages/pro_dialog` to use `ProDialog.confirm`,
+  `ProDialog.notice`, and the `ProDialog` widget.
+- Important files: package sources and README, Creovo path dependency,
+  thin `app_dialog.dart` wrapper, package widget tests.
+- Verification: package tests, Creovo dialog/unsaved/backup tests,
+  formatting, and static analysis.
+
+### 2026-08-13 — ProDialog-style app dialogs
+
+- Rebuilt the shared dialog surface to match the referenced ProDialog clip:
+  centered 72px glow icon, 28px card radius, semantic tone colors, typed entry
+  motion, and outlined/filled action buttons used everywhere dialogs appear.
+- Confirm, notice, delete, backup, unsaved-change, payment reversal, and form
+  dialogs now share `AppDialogTone` plus `AppDialogButton` instead of mixed
+  Material `TextButton`/`FilledButton` actions.
+- Important files: `app_dialog.dart`, confirm/notice helpers, unsaved-change
+  scope, invoice/customer/product/backup/settings dialog call sites, and
+  dialog widget tests.
+- Verification: dialog, unsaved-change, backup, and unit-editor widget tests,
+  formatting, and static analysis.
 
 ### 2026-08-13 — Compact Invoice ledger rows
 

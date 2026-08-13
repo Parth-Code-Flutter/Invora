@@ -414,11 +414,14 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         await _showPaymentDialog(context);
         return;
       case 'cancel':
-        final confirmed = await _confirm(
-          context,
+        final confirmed = await showAppConfirmDialog(
+          context: context,
+          tone: AppDialogTone.warning,
+          confirmIcon: Icons.block_rounded,
           title: 'Cancel invoice?',
           message: 'The invoice remains in your records but cannot be edited.',
-          action: 'Cancel invoice',
+          confirmLabel: 'Cancel invoice',
+          cancelLabel: 'Back',
         );
         if (confirmed) await controller.cancel();
         return;
@@ -435,11 +438,13 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         await controller.convertToInvoice();
         return;
       case 'delete':
-        final confirmed = await _confirm(
-          context,
+        final confirmed = await showAppConfirmDialog(
+          context: context,
+          destructive: true,
           title: 'Delete invoice?',
           message: 'This permanently removes the invoice and its saved items.',
-          action: 'Delete',
+          confirmLabel: 'Delete',
+          cancelLabel: 'Back',
         );
         if (confirmed) await controller.delete();
         return;
@@ -547,32 +552,6 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         'The invoice balance and status were updated.',
       );
     }
-  }
-
-  Future<bool> _confirm(
-    BuildContext context, {
-    required String title,
-    required String message,
-    required String action,
-  }) async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => AppDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, false),
-                child: const Text('Back'),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(dialogContext, true),
-                child: Text(action),
-              ),
-            ],
-          ),
-        ) ??
-        false;
   }
 }
 
@@ -887,8 +866,9 @@ class _PaymentReversalDialogState extends State<_PaymentReversalDialog> {
 
   @override
   Widget build(BuildContext context) => AppDialog(
+    tone: AppDialogTone.warning,
     icon: Icons.undo_rounded,
-    iconColor: AppColors.warning,
+    form: true,
     scrollable: true,
     title: const Text('Reverse payment?'),
     content: Column(
@@ -912,11 +892,16 @@ class _PaymentReversalDialogState extends State<_PaymentReversalDialog> {
       ],
     ),
     actions: [
-      TextButton(
+      AppDialogButton(
+        label: 'Keep payment',
+        variant: AppDialogButtonVariant.outlined,
         onPressed: () => AppFocus.pop(context),
-        child: const Text('Keep payment'),
       ),
-      FilledButton(onPressed: _submit, child: const Text('Reverse payment')),
+      AppDialogButton(
+        label: 'Reverse payment',
+        icon: Icons.undo_rounded,
+        onPressed: _submit,
+      ),
     ],
   );
 }

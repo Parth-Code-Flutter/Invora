@@ -2186,7 +2186,9 @@ class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
 
   @override
   Widget build(BuildContext context) => AppDialog(
+    tone: AppDialogTone.info,
     icon: Icons.discount_outlined,
+    form: true,
     scrollable: true,
     title: const Text('Additional charge'),
     content: Column(
@@ -2213,11 +2215,16 @@ class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
       ],
     ),
     actions: [
-      TextButton(
+      AppDialogButton(
+        label: 'Cancel',
+        variant: AppDialogButtonVariant.outlined,
         onPressed: () => AppFocus.pop(context),
-        child: const Text('Cancel'),
       ),
-      FilledButton(onPressed: _submit, child: const Text('Add charge')),
+      AppDialogButton(
+        label: 'Add charge',
+        icon: Icons.add_rounded,
+        onPressed: _submit,
+      ),
     ],
   );
 }
@@ -2238,7 +2245,9 @@ class _DiscountDialogState extends State<_DiscountDialog> {
 
   @override
   Widget build(BuildContext context) => AppDialog(
+    tone: AppDialogTone.info,
     icon: Icons.add_card_rounded,
+    form: true,
     title: const Text('Invoice discount'),
     content: Column(
       mainAxisSize: MainAxisSize.min,
@@ -2270,11 +2279,14 @@ class _DiscountDialogState extends State<_DiscountDialog> {
       ],
     ),
     actions: [
-      TextButton(
+      AppDialogButton(
+        label: 'Cancel',
+        variant: AppDialogButtonVariant.outlined,
         onPressed: () => AppFocus.pop(context),
-        child: const Text('Cancel'),
       ),
-      FilledButton(
+      AppDialogButton(
+        label: 'Apply',
+        icon: Icons.check_rounded,
         onPressed: () => AppFocus.pop(context, switch (type) {
           DiscountType.none => const DiscountInput.none(),
           DiscountType.fixed => DiscountInput.fixed(
@@ -2284,7 +2296,6 @@ class _DiscountDialogState extends State<_DiscountDialog> {
             TaxUtils.parseBasisPoints(value.text) ?? 0,
           ),
         }),
-        child: const Text('Apply'),
       ),
     ],
   );

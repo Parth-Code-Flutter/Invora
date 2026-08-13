@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../constants/app_colors.dart';
 import 'app_dialog.dart';
 import '../utils/app_focus.dart';
 
@@ -65,30 +64,35 @@ class _UnsavedChangesScopeState extends State<UnsavedChangesScope> {
   Future<_UnsavedAction?> _showConfirmation() => showDialog<_UnsavedAction>(
     context: context,
     builder: (dialogContext) => AppDialog(
-      icon: Icons.edit_note_rounded,
-      stackedActions: true,
-      title: const Text('Keep your changes?'),
+      tone: AppDialogTone.warning,
+      stackedActions: widget.onSaveDraft != null,
+      title: const Text('Unsaved Changes'),
       content: Text(
         widget.onSaveDraft == null
-            ? 'You have unsaved changes. Continue editing or discard them before leaving.'
+            ? 'You have unsaved changes in this document. Leaving now will permanently discard all recent edits.'
             : 'This document has unsaved changes. Save it as a draft, continue editing, or discard the changes.',
       ),
       actions: [
-        TextButton(
+        AppDialogButton(
+          label: 'Continue editing',
+          variant: AppDialogButtonVariant.outlined,
           onPressed: () => Navigator.pop(dialogContext),
-          child: const Text('Continue editing'),
         ),
-        TextButton(
+        AppDialogButton(
+          label: 'Discard',
+          variant: widget.onSaveDraft == null
+              ? AppDialogButtonVariant.filled
+              : AppDialogButtonVariant.outlined,
+          tone: AppDialogTone.error,
+          icon: Icons.delete_outline_rounded,
           onPressed: () => Navigator.pop(dialogContext, _UnsavedAction.discard),
-          style: TextButton.styleFrom(foregroundColor: AppColors.error),
-          child: const Text('Discard'),
         ),
         if (widget.onSaveDraft != null)
-          FilledButton.icon(
+          AppDialogButton(
+            label: 'Save draft',
+            icon: Icons.bookmark_add_outlined,
             onPressed: () =>
                 Navigator.pop(dialogContext, _UnsavedAction.saveDraft),
-            icon: const Icon(Icons.bookmark_add_outlined),
-            label: const Text('Save draft'),
           ),
       ],
     ),

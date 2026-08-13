@@ -149,28 +149,15 @@ class CustomerListScreen extends GetView<CustomerListController> {
     BuildContext context,
     CustomerModel customer,
   ) async {
-    final confirmed = await showDialog<bool>(
+    return showAppConfirmDialog(
       context: context,
-      builder: (context) => AppDialog(
-        icon: Icons.person_remove_outlined,
-        iconColor: AppColors.error,
-        title: const Text('Delete customer?'),
-        content: Text(
+      destructive: true,
+      icon: Icons.person_remove_outlined,
+      title: 'Delete customer?',
+      message:
           '${customer.name} will be hidden from customer lists. Historical invoices will remain unchanged.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Delete',
     );
-    return confirmed ?? false;
   }
 }
 

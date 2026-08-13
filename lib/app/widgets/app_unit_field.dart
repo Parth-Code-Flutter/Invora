@@ -222,7 +222,9 @@ class _CreateUnitDialogState extends State<_CreateUnitDialog> {
 
   @override
   Widget build(BuildContext context) => AppDialog(
+    tone: AppDialogTone.info,
     icon: Icons.straighten_rounded,
+    form: true,
     scrollable: true,
     title: const Text('Create unit'),
     content: TextField(
@@ -238,11 +240,16 @@ class _CreateUnitDialogState extends State<_CreateUnitDialog> {
       onSubmitted: (_) => _submit(),
     ),
     actions: [
-      TextButton(
+      AppDialogButton(
+        label: 'Cancel',
+        variant: AppDialogButtonVariant.outlined,
         onPressed: () => AppFocus.pop(context),
-        child: const Text('Cancel'),
       ),
-      FilledButton(onPressed: _submit, child: const Text('Save unit')),
+      AppDialogButton(
+        label: 'Save unit',
+        icon: Icons.check_rounded,
+        onPressed: _submit,
+      ),
     ],
   );
 }
