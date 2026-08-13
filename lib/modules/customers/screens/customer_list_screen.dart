@@ -5,10 +5,10 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
-import '../../../app/utils/currency_utils.dart';
-import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_empty_state.dart';
+import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_list_motion.dart';
@@ -69,7 +69,7 @@ class CustomerListScreen extends GetView<CustomerListController> {
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, index) => AppListEntrance(
                   index: index,
-                  child: _CustomerCard(
+                  child: CustomerSummaryCard(
                     customer: controller.customers[index],
                     billedMinor: controller.billedFor(
                       controller.customers[index],
@@ -105,12 +105,12 @@ class CustomerListScreen extends GetView<CustomerListController> {
                 crossAxisCount: columns,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                mainAxisExtent: ResponsiveUtils.height(context, 156),
+                mainAxisExtent: ResponsiveUtils.height(context, 96),
               ),
               itemCount: controller.customers.length,
               itemBuilder: (context, index) => AppListEntrance(
                 index: index,
-                child: _CustomerCard(
+                child: CustomerSummaryCard(
                   customer: controller.customers[index],
                   billedMinor: controller.billedFor(
                     controller.customers[index],
@@ -161,8 +161,8 @@ class CustomerListScreen extends GetView<CustomerListController> {
   }
 }
 
-class _CustomerCard extends StatelessWidget {
-  const _CustomerCard({
+class CustomerSummaryCard extends StatelessWidget {
+  const CustomerSummaryCard({
     required this.customer,
     required this.onInvoice,
     required this.onEdit,
@@ -172,6 +172,8 @@ class _CustomerCard extends StatelessWidget {
     required this.balanceMinor,
     required this.invoiceCount,
     required this.currencySymbol,
+    this.position = AppGroupedPosition.single,
+    super.key,
   });
 
   final CustomerModel customer;
@@ -183,14 +185,25 @@ class _CustomerCard extends StatelessWidget {
   final int balanceMinor;
   final int invoiceCount;
   final String currencySymbol;
+  final AppGroupedPosition position;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final contact = [
       customer.companyName,
       customer.mobile,
     ].whereType<String>().where((value) => value.isNotEmpty).join(' • ');
-    final created = _createdLabel(customer.createdAt);
+    final statusLabel = invoiceCount == 0
+        ? 'No invoices'
+        : balanceMinor > 0
+        ? 'Due'
+        : 'Paid';
+    final statusColor = balanceMinor > 0
+        ? AppColors.warning
+        : invoiceCount == 0
+        ? AppColors.textTertiary
+        : AppColors.success;
     return Dismissible(
       key: ValueKey('customer-${customer.id}'),
       confirmDismiss: (direction) async {
@@ -213,124 +226,105 @@ class _CustomerCard extends StatelessWidget {
         icon: Icons.delete_outline_rounded,
         label: 'Delete',
       ),
-      child: AppCard(
-        padding: const EdgeInsets.fromLTRB(13, 11, 7, 11),
+      child: AppGroupedTile(
+        position: position,
+        padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
         onTap: () => Get.toNamed<void>(
           AppRoutes.customerDetails,
           arguments: customer.id,
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.secondary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final amountMax = (constraints.maxWidth * 0.36).clamp(80.0, 140.0);
+            return Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.darkSurfaceVariant
+                        : AppColors.secondaryLight,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Text(
+                    customer.name.characters.first.toUpperCase(),
+                    style: AppTextStyles.listName.copyWith(
+                      color: AppColors.secondary,
+                    ),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Text(
-                customer.name.characters.first.toUpperCase(),
-                style: AppTextStyles.sectionTitle.copyWith(color: Colors.white),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                const SizedBox(width: 11),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          customer.name,
-                          style: AppTextStyles.cardTitle,
-                        ),
+                      Text(
+                        customer.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.listName,
                       ),
+                      if (contact.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          contact,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption.copyWith(
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    created,
-                    maxLines: 1,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textTertiary,
+                ),
+                const SizedBox(width: 8),
+                AppAmountColumn(
+                  maxWidth: amountMax,
+                  children: [
+                    AppAmountText(
+                      amountMinor: billedMinor,
+                      symbol: currencySymbol,
+                      color: balanceMinor == 0 && invoiceCount > 0
+                          ? (isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.textTertiary)
+                          : null,
+                      style: AppTextStyles.listAmount,
                     ),
-                  ),
-                  if (contact.isNotEmpty) ...[
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text(
-                      contact,
+                      statusLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.small.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  CurrencyUtils.formatMinor(
-                    billedMinor,
-                    symbol: currencySymbol,
-                  ),
-                  style: AppTextStyles.cardTitle.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      invoiceCount == 0
-                          ? 'No invoices'
-                          : balanceMinor > 0
-                          ? 'Due'
-                          : 'Paid',
+                      textAlign: TextAlign.end,
                       style: AppTextStyles.caption.copyWith(
-                        color: balanceMinor > 0
-                            ? AppColors.warning
-                            : invoiceCount == 0
-                            ? AppColors.textTertiary
-                            : AppColors.success,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: balanceMinor > 0
-                            ? AppColors.warning
-                            : invoiceCount == 0
-                            ? AppColors.textTertiary
-                            : AppColors.success,
-                        shape: BoxShape.circle,
+                        color: statusColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
+                ),
+                IconButton(
+                  tooltip: 'Customer actions',
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 36,
+                    height: 36,
+                  ),
+                  onPressed: () => _showActions(context),
+                  icon: const Icon(Icons.more_vert_rounded, size: 20),
                 ),
               ],
-            ),
-            IconButton(
-              tooltip: 'Customer actions',
-              onPressed: () => _showActions(context),
-              icon: const Icon(Icons.more_vert_rounded, size: 20),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -381,24 +375,6 @@ class _CustomerCard extends StatelessWidget {
     } else if (action == 'delete' && await onConfirmDelete()) {
       await onDelete();
     }
-  }
-
-  static String _createdLabel(DateTime value) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return 'Created ${value.day.toString().padLeft(2, '0')} ${months[value.month - 1]} ${value.year}';
   }
 }
 

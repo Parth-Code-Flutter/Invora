@@ -113,7 +113,9 @@ void main() {
     expect(Get.find<AppController>().themeMode.value, ThemeMode.dark);
     await tester.drag(find.byType(ListView), const Offset(0, -320));
     await tester.pumpAndSettle();
-    expect(find.text('Create invoice'), findsOneWidget);
+    expect(find.text('Quick actions'), findsOneWidget);
+    expect(find.text('Estimate'), findsOneWidget);
+    expect(find.text('Create invoice'), findsNothing);
     expect(tester.takeException(), isNull);
 
     await tester.pumpWidget(const SizedBox.shrink());

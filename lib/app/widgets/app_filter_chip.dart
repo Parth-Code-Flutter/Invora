@@ -31,15 +31,17 @@ class AppFilterChip extends StatelessWidget {
         selected: selected,
         onSelected: onSelected,
         showCheckmark: false,
-        avatar: Icon(
-          selected ? Icons.check_rounded : icon,
-          size: 17,
-          color: selected
-              ? Colors.white
-              : isDark
-              ? AppColors.darkTextSecondary
-              : AppColors.textSecondary,
-        ),
+        avatar: icon == null
+            ? null
+            : Icon(
+                icon,
+                size: 16,
+                color: selected
+                    ? Colors.white
+                    : isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
+              ),
         label: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -84,7 +86,7 @@ class AppFilterChip extends StatelessWidget {
               : AppColors.border,
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       ),
     );
   }

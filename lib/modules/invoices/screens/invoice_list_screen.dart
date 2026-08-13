@@ -40,13 +40,14 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: quotation
-          ? FloatingActionButton(
-              tooltip: 'Create quotation',
-              onPressed: () => Get.toNamed<void>(AppRoutes.quotationCreate),
-              child: const Icon(Icons.add_rounded),
-            )
-          : null,
+      floatingActionButton: FloatingActionButton(
+        tooltip: quotation ? 'Create quotation' : 'Create invoice',
+        onPressed: () => Get.toNamed<void>(
+          quotation ? AppRoutes.quotationCreate : AppRoutes.invoiceCreate,
+        ),
+        child: const Icon(Icons.add_rounded),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: AppMainNavigation(
         current: quotation ? MainDestination.more : MainDestination.invoices,
       ),
@@ -137,7 +138,6 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                                   padding: const EdgeInsets.only(right: 8),
                                   child: AppFilterChip(
                                     label: _filterLabel(filter),
-                                    icon: _filterIcon(filter),
                                     selected:
                                         controller.selectedFilter.value ==
                                         filter,
@@ -195,21 +195,52 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                 );
               }
               final padding = ResponsiveUtils.horizontalPadding(context);
-              return ListView.separated(
+              final entries = _invoiceListEntries(
+                controller.invoices.toList(),
+                controller.selectedSort.value,
+                DateTime.now(),
+              );
+              return ListView.builder(
                 padding: EdgeInsets.fromLTRB(padding, 2, padding, 90),
-                itemCount: controller.invoices.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 6),
-                itemBuilder: (_, index) => AppListEntrance(
-                  index: index,
-                  child: AppInvoiceSummaryCard(
-                    invoice: controller.invoices[index],
-                    currencySymbol: controller.currencySymbol.value,
-                    onTap: () => Get.toNamed<void>(
-                      AppRoutes.invoiceDetails,
-                      arguments: controller.invoices[index].id,
+                itemCount: entries.length,
+                itemBuilder: (_, index) {
+                  final entry = entries[index];
+                  if (entry.header != null) {
+                    return Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        4,
+                        index == 0 ? 4 : 18,
+                        4,
+                        8,
+                      ),
+                      child: Text(
+                        entry.header!,
+                        style: AppTextStyles.caption.copyWith(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.textTertiary,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    );
+                  }
+                  final invoice = entry.invoice!;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: AppListEntrance(
+                      index: index,
+                      child: AppInvoiceSummaryCard(
+                        invoice: invoice,
+                        currencySymbol: controller.currencySymbol.value,
+                        onTap: () => Get.toNamed<void>(
+                          AppRoutes.invoiceDetails,
+                          arguments: invoice.id,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               );
             }),
           ),
@@ -279,21 +310,68 @@ String _filterLabel(InvoiceListFilter filter) => switch (filter) {
   InvoiceListFilter.expired => 'Expired',
 };
 
-IconData _filterIcon(InvoiceListFilter filter) => switch (filter) {
-  InvoiceListFilter.all => Icons.grid_view_rounded,
-  InvoiceListFilter.draft => Icons.edit_note_rounded,
-  InvoiceListFilter.unpaid => Icons.schedule_rounded,
-  InvoiceListFilter.paid => Icons.check_circle_outline_rounded,
-  InvoiceListFilter.overdue => Icons.notification_important_outlined,
-  InvoiceListFilter.sent => Icons.send_outlined,
-  InvoiceListFilter.accepted => Icons.thumb_up_alt_outlined,
-  InvoiceListFilter.rejected => Icons.close_rounded,
-  InvoiceListFilter.expired => Icons.timer_off_outlined,
-};
-
 String _sortLabel(InvoiceSort sort) => switch (sort) {
   InvoiceSort.newest => 'Newest first',
   InvoiceSort.oldest => 'Oldest first',
   InvoiceSort.highestAmount => 'Highest amount',
   InvoiceSort.lowestAmount => 'Lowest amount',
 };
+
+class _InvoiceListEntry {
+  const _InvoiceListEntry.header(this.header) : invoice = null;
+  const _InvoiceListEntry.row(this.invoice) : header = null;
+
+  final String? header;
+  final InvoiceSummaryModel? invoice;
+}
+
+List<_InvoiceListEntry> _invoiceListEntries(
+  List<InvoiceSummaryModel> invoices,
+  InvoiceSort sort,
+  DateTime now,
+) {
+  if (invoices.isEmpty) return const [];
+  if (sort == InvoiceSort.highestAmount || sort == InvoiceSort.lowestAmount) {
+    return _groupedRows(invoices);
+  }
+  final groups = <String, List<InvoiceSummaryModel>>{};
+  for (final invoice in invoices) {
+    final key = '${invoice.invoiceDate.year}-${invoice.invoiceDate.month}';
+    (groups[key] ??= []).add(invoice);
+  }
+  return [
+    for (final group in groups.values) ...[
+      _InvoiceListEntry.header(_monthLabel(group.first.invoiceDate, now)),
+      ..._groupedRows(group),
+    ],
+  ];
+}
+
+List<_InvoiceListEntry> _groupedRows(List<InvoiceSummaryModel> invoices) {
+  return [for (final invoice in invoices) _InvoiceListEntry.row(invoice)];
+}
+
+String _monthLabel(DateTime value, DateTime now) {
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  final lastMonth = DateTime(now.year, now.month - 1);
+  if (value.year == now.year && value.month == now.month) {
+    return 'This month';
+  }
+  if (value.year == lastMonth.year && value.month == lastMonth.month) {
+    return 'Last month';
+  }
+  return '${months[value.month - 1]} ${value.year}';
+}

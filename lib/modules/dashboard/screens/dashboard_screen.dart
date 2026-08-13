@@ -7,11 +7,13 @@ import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
+import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/responsive_content.dart';
+import '../../../data/models/report_summary_model.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardScreen extends GetView<DashboardController> {
@@ -101,19 +103,15 @@ class DashboardScreen extends GetView<DashboardController> {
                       onAction: () => Get.toNamed<void>(AppRoutes.reports),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AppButton(
-                            label: 'Create invoice',
-                            icon: Icons.add_rounded,
-                            onPressed: () =>
-                                Get.toNamed<void>(AppRoutes.invoiceCreate),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
+                    if (ResponsiveUtils.isTablet(context)) ...[
+                      AppButton(
+                        label: 'Create invoice',
+                        icon: Icons.add_rounded,
+                        onPressed: () =>
+                            Get.toNamed<void>(AppRoutes.invoiceCreate),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
                     Row(
                       children: [
                         _QuickAction(
@@ -185,19 +183,24 @@ class DashboardScreen extends GetView<DashboardController> {
                           ],
                         ),
                       ),
-                    ...controller.recentInvoices.map(
-                      (invoice) => Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: AppInvoiceSummaryCard(
-                          invoice: invoice,
-                          currencySymbol: _symbol,
-                          onTap: () => Get.toNamed<void>(
-                            AppRoutes.invoiceDetails,
-                            arguments: invoice.id,
+                    ...[
+                      for (var i = 0; i < controller.recentInvoices.length; i++)
+                        Padding(
+                          padding: EdgeInsets.only(
+                            bottom: i == controller.recentInvoices.length - 1
+                                ? 0
+                                : 10,
+                          ),
+                          child: AppInvoiceSummaryCard(
+                            invoice: controller.recentInvoices[i],
+                            currencySymbol: _symbol,
+                            onTap: () => Get.toNamed<void>(
+                              AppRoutes.invoiceDetails,
+                              arguments: controller.recentInvoices[i].id,
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                    ],
                   ],
                 );
               }),
@@ -216,7 +219,64 @@ class DashboardScreen extends GetView<DashboardController> {
   }
 
   Widget _businessOverview(BuildContext context) {
-    final report = controller.report.value;
+    return DashboardOverviewCard(
+      report: controller.report.value,
+      symbol: _symbol,
+    );
+  }
+
+  NavigationRail _navigationRail() => NavigationRail(
+    selectedIndex: 0,
+    labelType: NavigationRailLabelType.all,
+    onDestinationSelected: (index) {
+      final route = [
+        AppRoutes.dashboard,
+        AppRoutes.invoices,
+        AppRoutes.customers,
+        AppRoutes.more,
+      ][index];
+      if (index != 0) Get.offAllNamed<void>(route);
+    },
+    destinations: const [
+      NavigationRailDestination(
+        icon: Icon(Icons.home_outlined),
+        label: Text('Home'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.receipt_long_outlined),
+        label: Text('Invoices'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.people_outline),
+        label: Text('Customers'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.grid_view_outlined),
+        label: Text('More'),
+      ),
+    ],
+  );
+
+  String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+}
+
+class DashboardOverviewCard extends StatelessWidget {
+  const DashboardOverviewCard({
+    required this.report,
+    required this.symbol,
+    super.key,
+  });
+
+  final ReportSummaryModel report;
+  final String symbol;
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final collected = report.totalSalesMinor <= 0
         ? 0
@@ -226,7 +286,7 @@ class DashboardScreen extends GetView<DashboardController> {
     return AppCard(
       color: isDark ? const Color(0xFF3B2038) : const Color(0xFFFCFAFF),
       borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
-      padding: const EdgeInsets.fromLTRB(16, 15, 16, 14),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -284,50 +344,35 @@ class DashboardScreen extends GetView<DashboardController> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Invoiced this month',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      CurrencyUtils.formatMinor(
-                        report.totalSalesMinor,
-                        symbol: _symbol,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.displayAmount,
-                    ),
-                  ],
-                ),
+          const SizedBox(height: 18),
+          Text(
+            'Invoiced this month',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          AppAmountText(
+            amountMinor: report.totalSalesMinor,
+            symbol: symbol,
+            hero: true,
+            textAlign: TextAlign.start,
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            key: const ValueKey('dashboard-cash-flow'),
+            height: 56,
+            width: double.infinity,
+            child: CustomPaint(
+              painter: _CashFlowPainter(
+                report.monthlySales.map((point) => point.amountMinor).toList(),
+                isDark: isDark,
               ),
-              SizedBox(
-                width: 132,
-                height: 62,
-                child: CustomPaint(
-                  painter: _CashFlowPainter(
-                    report.monthlySales
-                        .map((point) => point.amountMinor)
-                        .toList(),
-                    isDark: isDark,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
           const SizedBox(height: 14),
           Divider(color: isDark ? AppColors.darkBorder : AppColors.border),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -336,7 +381,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   label: 'Received',
                   value: CurrencyUtils.formatMinor(
                     report.totalReceivedMinor,
-                    symbol: _symbol,
+                    symbol: symbol,
                   ),
                   color: AppColors.success,
                   background: AppColors.successLight,
@@ -349,7 +394,7 @@ class DashboardScreen extends GetView<DashboardController> {
                   label: 'Outstanding',
                   value: CurrencyUtils.formatMinor(
                     report.outstandingMinor,
-                    symbol: _symbol,
+                    symbol: symbol,
                   ),
                   color: AppColors.warning,
                   background: AppColors.warningLight,
@@ -371,60 +416,6 @@ class DashboardScreen extends GetView<DashboardController> {
       ),
     );
   }
-
-  NavigationRail _navigationRail() => NavigationRail(
-    selectedIndex: 0,
-    labelType: NavigationRailLabelType.all,
-    onDestinationSelected: (index) {
-      final route = [
-        AppRoutes.dashboard,
-        AppRoutes.invoices,
-        AppRoutes.customers,
-        AppRoutes.more,
-      ][index];
-      if (index != 0) Get.offAllNamed<void>(route);
-    },
-    destinations: const [
-      NavigationRailDestination(
-        icon: Icon(Icons.home_outlined),
-        label: Text('Home'),
-      ),
-      NavigationRailDestination(
-        icon: Icon(Icons.receipt_long_outlined),
-        label: Text('Invoices'),
-      ),
-      NavigationRailDestination(
-        icon: Icon(Icons.people_outline),
-        label: Text('Customers'),
-      ),
-      NavigationRailDestination(
-        icon: Icon(Icons.grid_view_outlined),
-        label: Text('More'),
-      ),
-    ],
-  );
-
-  String _greeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  }
-
-  String _monthName(int month) => const [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ][month - 1];
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -500,14 +491,20 @@ class _OverviewMetric extends StatelessWidget {
           fontSize: 10,
         ),
       ),
-      const SizedBox(height: 2),
-      Text(
-        value,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.small.copyWith(
-          color: color,
-          fontWeight: FontWeight.w800,
+      const SizedBox(height: 5),
+      SizedBox(
+        width: double.infinity,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            maxLines: 1,
+            softWrap: false,
+            style: AppTextStyles.small.copyWith(
+              color: color,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ),
       ),
     ],
@@ -527,6 +524,21 @@ class _OverviewDivider extends StatelessWidget {
         : AppColors.border,
   );
 }
+
+String _monthName(int month) => const [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+][month - 1];
 
 class _CashFlowPainter extends CustomPainter {
   const _CashFlowPainter(this.values, {required this.isDark});
@@ -690,7 +702,7 @@ class _OutstandingPrompt extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${CurrencyUtils.formatMinor(amount, symbol: symbol)} is still waiting to be collected',
-                    maxLines: 2,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.small.copyWith(
                       color: AppColors.textSecondary,

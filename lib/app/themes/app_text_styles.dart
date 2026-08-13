@@ -24,6 +24,18 @@ abstract final class AppTextStyles {
     fontSize: 16,
     fontWeight: FontWeight.w600,
   );
+  static const listName = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.15,
+  );
+  static const listAmount = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 15,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.2,
+  );
   static const body = TextStyle(
     fontFamily: fontFamily,
     fontSize: 14,

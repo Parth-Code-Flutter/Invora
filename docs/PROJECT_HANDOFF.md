@@ -82,11 +82,12 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   discloses company/tax, billing address, and private notes
 - Create-customer action directly inside invoice customer selection; customers
   saved there are immediately returned to and selected for the invoice
-- Customer list rows use a compact account-ledger hierarchy inspired by modern
-  billing apps: identity and creation date on the left, optional company/mobile
-  context, and lifetime billed plus Paid/Due state on the right. Aggregates
-  exclude drafts and cancelled invoices; create-invoice/edit/delete remain in
-  the row action sheet and swipe gestures.
+- Customer list rows keep 14px names, company or mobile as caption, a soft
+  initial tile, and a bounded billed-amount column, with 10px space between
+  cards. Status is caption text (Due / Paid / No invoices). Names ellipsize;
+  rupee totals shrink with `AppAmountText`. Aggregates exclude drafts and
+  cancelled invoices; create-invoice/edit/delete remain in the row action
+  sheet and swipe gestures. The add-customer FAB stays on this screen.
 
 ### Products and services
 
@@ -167,6 +168,14 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   skeleton rows and apply a subtle staggered fade/translate/scale entrance as
   rows are built during initial display and scrolling. System reduced-motion
   settings bypass the entrance animation.
+- Shared invoice summary cards use three rows: invoice number with date on the
+  right, customer name with payment status on the right, and billed amount with
+  due amount on the right when a balance remains. A status-colored vertical
+  bar sits on the left edge of every card. Each invoice is its own rounded
+  card with 10px space between rows. Date-sorted lists still group under This
+  month / Last month / August 2026. The Invoice list has a dedicated create
+  `+` FAB in addition to the center dock. Amounts still shrink to fit 7–10
+  digit rupee values.
 
 ### Documents and reporting
 
@@ -192,8 +201,11 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Dashboard header is a compact greeting/business identity without a Settings
   shortcut (Settings remains under More). Its professional light account card
   shows current-month invoiced value and invoice count, a real six-month sales
-  sparkline, and icon-led received, outstanding, and collected metrics with
-  dark-mode support.
+  sparkline reserved below the hero amount, and icon-led received, outstanding,
+  and collected metrics with dark-mode support. Hero and metric amounts shrink
+  to fit; they never clip into the chart. Phone Home omits the duplicate
+  full-width Create invoice button because the center dock already creates
+  invoices; tablets keep the button because they use a navigation rail.
 - Automated whole-flow QA covers the offline GST lifecycle from business,
   customer, and catalog data through invoice payments/reversal, quotation
   conversion, PDF generation, and backup validation. Native picker/share/print
@@ -310,6 +322,72 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-13 — Invoice card three-row layout
+
+- Invoice cards now read as: number + date, customer + status, billed amount +
+  due amount. The status accent is a left vertical bar again instead of a
+  status dot.
+- Paid invoices omit the due amount. Unpaid and partial invoices show due on
+  the right of the amount row. Large rupee values still shrink to fit.
+- Important files: invoice summary card, grouped tile accent, list tests, and
+  this handoff.
+- Verification: 320px/360px invoice row tests, formatting, and static analysis.
+
+### 2026-08-13 — Restore invoice create FAB and list spacing
+
+- Brought the Invoice list `+` create button back. It was removed earlier to
+  avoid duplicating the center dock; the list needs its own create action.
+- Put 10px space between invoice cards and customer cards so rows are no
+  longer packed into one undivided group. Home recent invoices use the same
+  gap.
+- Important files: invoice list, customer list, dashboard recent block, and
+  this handoff.
+- Verification: list widget tests, formatting, and static analysis.
+
+### 2026-08-13 — Grouped ledger lists
+
+- Replaced floating invoice/customer cards with a quiet grouped ledger (Stripe
+  / iOS Settings density): one inset surface, hairline dividers, 14px names,
+  15px amounts, and a single status treatment (dot + caption). Filters are
+  text-only chips. Date-sorted invoices group by month. Home recent invoices
+  use the same rows.
+- Open balances stay prominent; paid totals mute. Partial rows still show
+  `₹ due` under the total. Large rupee values still shrink instead of clipping.
+- Important files: grouped tile, invoice summary row, customer list, invoice
+  list grouping, dashboard recent block, list tests, and this handoff.
+- Verification: 320px/360px invoice and customer overflow tests, formatting,
+  and static analysis.
+
+### 2026-08-13 — Invoice card overflow and quieter list names
+
+- Invoice list cards no longer report a bottom RenderFlex overflow when
+  Issued/Due dates wrap. The status accent is a left border so the card can
+  grow with its content instead of measuring dates as a single line.
+- Customer names on Invoice and Customer lists use 14px `listName` instead of
+  16px card titles, matching denser ledger rows.
+- Important files: invoice summary card, customer summary card, text styles,
+  list widget tests, and this handoff.
+- Verification: 360px overflow regression for a paid invoice with wrapping
+  dates, 320px name-size and amount tests, formatting, and static analysis.
+
+### 2026-08-13 — Amount-safe premium list and Home refresh
+
+- Refreshed Invoice, Customer, and Home presentation so lakh/crore rupee
+  values stay readable on 320–360px phones: names ellipsize, amounts shrink
+  with shared `AppAmountText` / `AppAmountColumn`, and dates wrap instead of
+  truncating ("Due 13...").
+- Invoice rows keep ledger density with quieter ID/status, a dedicated amount
+  column, and a wrapping Issued/Due line. Customer rows bound the billed
+  column so totals cannot overlap identity. Home places the cash-flow
+  sparkline in a reserved box below the hero amount and drops the duplicate
+  Create invoice button on phones (center dock already creates invoices;
+  tablets keep the button).
+- Important files: `app_amount_text.dart`, invoice summary card, customer
+  list, dashboard overview card, amount/list widget tests, and this handoff.
+- Verification: 320px invoice/customer/dashboard overflow tests with
+  ₹2,305,800 and ₹99,999,999, existing small-phone dashboard coverage,
+  formatting, and static analysis.
 
 ### 2026-08-13 — Extracted ProDialog into a reusable package
 

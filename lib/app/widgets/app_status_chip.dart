@@ -5,8 +5,9 @@ import '../enums/invoice_status.dart';
 import '../themes/app_text_styles.dart';
 
 class AppStatusChip extends StatelessWidget {
-  const AppStatusChip({required this.status, super.key});
+  const AppStatusChip({required this.status, this.compact = false, super.key});
   final InvoiceStatus status;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,10 @@ class AppStatusChip extends StatelessWidget {
       label: 'Status: $label',
       excludeSemantics: true,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: EdgeInsets.symmetric(
+          horizontal: compact ? 8 : 10,
+          vertical: compact ? 3 : 5,
+        ),
         decoration: BoxDecoration(
           color: background,
           borderRadius: BorderRadius.circular(99),
@@ -37,7 +41,11 @@ class AppStatusChip extends StatelessWidget {
         child: Text(
           label,
           maxLines: 1,
-          style: AppTextStyles.caption.copyWith(color: foreground),
+          style: AppTextStyles.caption.copyWith(
+            color: foreground,
+            fontSize: compact ? 10.5 : 12,
+            fontWeight: compact ? FontWeight.w700 : FontWeight.w500,
+          ),
         ),
       ),
     );
