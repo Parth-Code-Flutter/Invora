@@ -143,7 +143,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                     Expanded(
                       child: _HeroDate(
                         icon: Icons.calendar_today_outlined,
-                        label: 'Issued',
+                        label: l10n('Issued'),
                         value: _date(invoice.invoiceDate),
                       ),
                     ),
@@ -151,7 +151,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                     Expanded(
                       child: _HeroDate(
                         icon: Icons.event_available_outlined,
-                        label: 'Due',
+                        label: l10n('Due'),
                         value: invoice.dueDate == null
                             ? 'Not set'
                             : _date(invoice.dueDate!),
@@ -170,12 +170,12 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                         invoice.status != InvoiceStatus.cancelled &&
                         invoice.calculation.balanceDueMinor > 0
                     ? AppButton(
-                        label: 'Record payment',
+                        label: l10n('Record payment'),
                         icon: Icons.payments_outlined,
                         onPressed: () => _showPaymentDialog(context),
                       )
                     : AppButton(
-                        label: 'Share / print',
+                        label: l10n('Share / print'),
                         icon: Icons.ios_share_rounded,
                         onPressed: controller.openPreview,
                       ),
@@ -625,7 +625,7 @@ class _PaymentHistoryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _PaymentMetric(
-                  label: 'Paid',
+                  label: l10n('Paid'),
                   value: CurrencyUtils.formatMinor(paidMinor, symbol: symbol),
                   color: AppColors.success,
                 ),
@@ -633,7 +633,7 @@ class _PaymentHistoryCard extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _PaymentMetric(
-                  label: 'Remaining',
+                  label: l10n('Remaining'),
                   value: CurrencyUtils.formatMinor(
                     balanceMinor,
                     symbol: symbol,
@@ -895,12 +895,12 @@ class _PaymentReversalDialogState extends State<_PaymentReversalDialog> {
     ),
     actions: [
       AppDialogButton(
-        label: 'Keep payment',
+        label: l10n('Keep payment'),
         variant: AppDialogButtonVariant.outlined,
         onPressed: () => AppFocus.pop(context),
       ),
       AppDialogButton(
-        label: 'Reverse payment',
+        label: l10n('Reverse payment'),
         icon: Icons.undo_rounded,
         onPressed: _submit,
       ),
@@ -959,17 +959,17 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             ),
             const SizedBox(height: 16),
             _PaymentRow(
-              label: 'Invoice total',
+              label: l10n('Invoice total'),
               amount: invoice.calculation.grandTotalMinor,
               symbol: symbol,
             ),
             _PaymentRow(
-              label: 'Already paid',
+              label: l10n('Already paid'),
               amount: invoice.calculation.paidAmountMinor,
               symbol: symbol,
             ),
             _PaymentRow(
-              label: 'Balance due',
+              label: l10n('Balance due'),
               amount: invoice.calculation.balanceDueMinor,
               symbol: symbol,
             ),
@@ -994,40 +994,40 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             ),
             const SizedBox(height: 12),
             AppDropdownField<String>(
-              label: 'Payment method',
+              label: l10n('Payment method'),
               sheetTitle: 'How was this payment received?',
               prefixIcon: Icons.account_balance_wallet_outlined,
               value: method,
               enabled: !isSaving,
-              options: const [
+              options: [
                 AppDropdownOption(
                   value: 'UPI',
-                  label: 'UPI',
+                  label: l10n('UPI'),
                   icon: Icons.qr_code_2_rounded,
                 ),
                 AppDropdownOption(
                   value: 'Cash',
-                  label: 'Cash',
+                  label: l10n('Cash'),
                   icon: Icons.payments_outlined,
                 ),
                 AppDropdownOption(
                   value: 'Bank transfer',
-                  label: 'Bank transfer',
+                  label: l10n('Bank transfer'),
                   icon: Icons.account_balance_outlined,
                 ),
                 AppDropdownOption(
                   value: 'Card',
-                  label: 'Card',
+                  label: l10n('Card'),
                   icon: Icons.credit_card_rounded,
                 ),
                 AppDropdownOption(
                   value: 'Cheque',
-                  label: 'Cheque',
+                  label: l10n('Cheque'),
                   icon: Icons.receipt_long_outlined,
                 ),
                 AppDropdownOption(
                   value: 'Other',
-                  label: 'Other',
+                  label: l10n('Other'),
                   icon: Icons.more_horiz_rounded,
                 ),
               ],
@@ -1088,7 +1088,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 Expanded(
                   child: AppButton(
                     onPressed: isSaving ? null : _save,
-                    label: 'Save payment',
+                    label: l10n('Save payment'),
                     isLoading: isSaving,
                   ),
                 ),

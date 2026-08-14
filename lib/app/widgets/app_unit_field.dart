@@ -243,12 +243,12 @@ class _CreateUnitDialogState extends State<_CreateUnitDialog> {
     ),
     actions: [
       AppDialogButton(
-        label: 'Cancel',
+        label: l10n('Cancel'),
         variant: AppDialogButtonVariant.outlined,
         onPressed: () => AppFocus.pop(context),
       ),
       AppDialogButton(
-        label: 'Save unit',
+        label: l10n('Save unit'),
         icon: Icons.check_rounded,
         onPressed: _submit,
       ),

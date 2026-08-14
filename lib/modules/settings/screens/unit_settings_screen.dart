@@ -260,7 +260,7 @@ class _UnitEditorDialogState extends State<_UnitEditorDialog> {
     ),
     actions: [
       AppDialogButton(
-        label: 'Cancel',
+        label: l10n('Cancel'),
         variant: AppDialogButtonVariant.outlined,
         onPressed: saving ? null : () => Navigator.pop(context),
       ),

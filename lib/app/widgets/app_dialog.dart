@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pro_dialog/pro_dialog.dart';
 
+import '../localization/app_localization.dart';
+
 export 'package:pro_dialog/pro_dialog.dart';
 
 /// Creovo aliases for the reusable `pro_dialog` package.
@@ -22,10 +24,10 @@ Future<bool> showAppConfirmDialog({
 }) {
   return ProDialog.confirm(
     context,
-    title: title,
-    message: message,
-    confirmLabel: confirmLabel,
-    cancelLabel: cancelLabel,
+    title: AppLocalizer.text(title),
+    message: AppLocalizer.text(message),
+    confirmLabel: AppLocalizer.text(confirmLabel),
+    cancelLabel: AppLocalizer.text(cancelLabel),
     destructive: destructive,
     tone: tone,
     icon: icon,
@@ -44,9 +46,9 @@ Future<void> showAppNoticeDialog({
 }) {
   return ProDialog.notice(
     context,
-    title: title,
-    message: message,
-    actionLabel: actionLabel,
+    title: AppLocalizer.text(title),
+    message: AppLocalizer.text(message),
+    actionLabel: AppLocalizer.text(actionLabel),
     tone: tone,
     icon: icon,
     barrierDismissible: barrierDismissible,

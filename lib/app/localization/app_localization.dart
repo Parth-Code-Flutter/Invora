@@ -62,6 +62,26 @@ abstract final class AppLocalizer {
       final translated = translations[match.group(2)!];
       if (translated != null) return '${match.group(1)} $translated';
     }
+    const translatedSuffixes = [
+      'is still waiting to be collected',
+      'most recent',
+      'cash flow',
+      'remaining',
+      'entries',
+      'invoices created',
+      'saved items',
+      'recommendations · all optional',
+      'active',
+      'field',
+    ];
+    for (final suffix in translatedSuffixes) {
+      final marker = ' $suffix';
+      if (!value.endsWith(marker)) continue;
+      final translated = translations[suffix];
+      if (translated != null) {
+        return '${value.substring(0, value.length - marker.length)} $translated';
+      }
+    }
     final parenthesized = RegExp(r'^(.+?)\s*\((\d+)\)$').firstMatch(value);
     if (parenthesized != null) {
       final translated = translations[parenthesized.group(1)!.trim()];

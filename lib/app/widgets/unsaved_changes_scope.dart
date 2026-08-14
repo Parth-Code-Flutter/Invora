@@ -76,12 +76,12 @@ class _UnsavedChangesScopeState extends State<UnsavedChangesScope> {
       ),
       actions: [
         AppDialogButton(
-          label: 'Continue editing',
+          label: l10n('Continue editing'),
           variant: AppDialogButtonVariant.outlined,
           onPressed: () => Navigator.pop(dialogContext),
         ),
         AppDialogButton(
-          label: 'Discard',
+          label: l10n('Discard'),
           variant: widget.onSaveDraft == null
               ? AppDialogButtonVariant.filled
               : AppDialogButtonVariant.outlined,
@@ -91,7 +91,7 @@ class _UnsavedChangesScopeState extends State<UnsavedChangesScope> {
         ),
         if (widget.onSaveDraft != null)
           AppDialogButton(
-            label: 'Save draft',
+            label: l10n('Save draft'),
             icon: Icons.bookmark_add_outlined,
             onPressed: () =>
                 Navigator.pop(dialogContext, _UnsavedAction.saveDraft),

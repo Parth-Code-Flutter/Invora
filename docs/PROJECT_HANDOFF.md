@@ -316,7 +316,7 @@ transfer automatically.
 As of 2026-08-14:
 
 - Flutter analysis: no issues
-- Automated suite: all 124 tests passing
+- Automated suite: all 125 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -337,6 +337,23 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-14 — Complete interface-copy localization audit
+
+- Closed the remaining mixed-language gaps across Hindi and Gujarati,
+  including dashboard greetings, dashboard helper text, action labels,
+  onboarding, business/customer/product/invoice forms, settings, backup,
+  barcode flows, validation feedback, dialogs, tooltips, menus, count phrases,
+  and interpolated amount text. Invoice numbers, dates, user-entered values,
+  and payment-status values remain data rather than translated interface copy.
+- Shared ProDialog titles, messages, and action labels now pass through the
+  application localization layer. Dynamic count/amount suffixes are localized
+  without changing their numeric or currency values.
+- Important files: localization maps and parameter handling, shared dialog
+  adapter, localization regression tests, and this handoff. No database or
+  storage migration was required.
+- Verification: source-copy localization audit, formatting, static analysis,
+  focused localization tests, and the full automated suite.
 
 ### 2026-08-14 — English, Hindi, and Gujarati localization
 

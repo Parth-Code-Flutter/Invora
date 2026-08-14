@@ -61,6 +61,41 @@ void main() {
         AppLocalizer.text('Select Customer', locale: AppLanguage.hindi.locale),
         'चुनें ग्राहक',
       );
+      expect(
+        AppLocalizer.text(
+          '₹3,214 is still waiting to be collected',
+          locale: AppLanguage.gujarati.locale,
+        ),
+        '₹3,214 હજુ વસૂલ કરવાનું બાકી છે',
+      );
+      expect(
+        AppLocalizer.text('5 most recent', locale: AppLanguage.gujarati.locale),
+        '5 સૌથી તાજેતરના',
+      );
+      expect(
+        AppLocalizer.text('August cash flow', locale: AppLanguage.hindi.locale),
+        'August नकदी प्रवाह',
+      );
+    });
+
+    test('translates dashboard and form copy that previously fell back', () {
+      const phrases = [
+        'Good afternoon',
+        'Create and manage your business',
+        'Estimate',
+        'View all',
+        'Customer name *',
+        'Save payment',
+        'Create product',
+      ];
+      for (final language in [AppLanguage.hindi, AppLanguage.gujarati]) {
+        for (final phrase in phrases) {
+          expect(
+            AppLocalizer.text(phrase, locale: language.locale),
+            isNot(phrase),
+          );
+        }
+      }
     });
   });
 }

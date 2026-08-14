@@ -281,7 +281,7 @@ class _InvoiceForm extends StatelessWidget {
                       Expanded(
                         child: _InvoiceMetaCell(
                           icon: Icons.calendar_today_outlined,
-                          label: 'Issued',
+                          label: l10n('Issued'),
                           value: _shortDate(controller.invoiceDate.value),
                           onTap: () => _pickDate(context, due: false),
                         ),
@@ -290,7 +290,7 @@ class _InvoiceForm extends StatelessWidget {
                       Expanded(
                         child: _InvoiceMetaCell(
                           icon: Icons.event_available_outlined,
-                          label: 'Due',
+                          label: l10n('Due'),
                           value: controller.dueDate.value == null
                               ? 'Add date'
                               : _shortDate(controller.dueDate.value!),
@@ -654,24 +654,24 @@ class _InvoiceForm extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   AppDropdownField<TaxType>(
-                    label: 'Tax mode',
+                    label: l10n('Tax mode'),
                     sheetTitle: 'Choose tax mode',
                     prefixIcon: Icons.account_balance_outlined,
                     value: controller.taxType.value,
-                    options: const [
+                    options: [
                       AppDropdownOption(
                         value: TaxType.none,
-                        label: 'No tax',
+                        label: l10n('No tax'),
                         icon: Icons.money_off_csred_outlined,
                       ),
                       AppDropdownOption(
                         value: TaxType.cgstSgst,
-                        label: 'CGST + SGST',
+                        label: l10n('CGST + SGST'),
                         icon: Icons.call_split_rounded,
                       ),
                       AppDropdownOption(
                         value: TaxType.igst,
-                        label: 'IGST',
+                        label: l10n('IGST'),
                         icon: Icons.arrow_forward_rounded,
                       ),
                     ],
@@ -1073,7 +1073,7 @@ class _InvoiceSummary extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _SummaryMetric(
-                      label: 'Total',
+                      label: l10n('Total'),
                       amount: result.grandTotalMinor,
                       symbol: symbol,
                     ),
@@ -1081,7 +1081,7 @@ class _InvoiceSummary extends StatelessWidget {
                   Container(width: 1, height: 34, color: AppColors.border),
                   Expanded(
                     child: _SummaryMetric(
-                      label: 'Paid',
+                      label: l10n('Paid'),
                       amount: result.paidAmountMinor,
                       symbol: symbol,
                     ),
@@ -1089,7 +1089,7 @@ class _InvoiceSummary extends StatelessWidget {
                   Container(width: 1, height: 34, color: AppColors.border),
                   Expanded(
                     child: _SummaryMetric(
-                      label: 'Due',
+                      label: l10n('Due'),
                       amount: result.balanceDueMinor,
                       symbol: symbol,
                       emphasized: true,
@@ -1842,7 +1842,7 @@ class _InvoicePriceSheetState extends State<_InvoicePriceSheet> {
           ),
         ),
         const SizedBox(height: 18),
-        AppButton(onPressed: _save, label: 'Apply invoice price'),
+        AppButton(onPressed: _save, label: l10n('Apply invoice price')),
       ],
     ),
   );
@@ -2015,7 +2015,7 @@ class _ItemSheetState extends State<_ItemSheet> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: AppDropdownField<int>(
-                    label: 'GST rate',
+                    label: l10n('GST rate'),
                     sheetTitle: 'Choose GST rate',
                     prefixIcon: Icons.percent_rounded,
                     value: selectedTaxRate,
@@ -2028,9 +2028,9 @@ class _ItemSheetState extends State<_ItemSheet> {
                               : TaxUtils.formatBasisPoints(rate),
                         ),
                       ),
-                      const AppDropdownOption(
+                      AppDropdownOption(
                         value: _customGstRate,
-                        label: 'Custom rate',
+                        label: l10n('Custom rate'),
                         icon: Icons.edit_outlined,
                       ),
                     ],
@@ -2062,22 +2062,22 @@ class _ItemSheetState extends State<_ItemSheet> {
             ],
             const SizedBox(height: 12),
             AppDropdownField<DiscountType>(
-              label: 'Discount',
+              label: l10n('Discount'),
               sheetTitle: 'Choose item discount',
               prefixIcon: Icons.discount_outlined,
               value: discountType,
-              options: const [
+              options: [
                 AppDropdownOption(
                   value: DiscountType.none,
-                  label: 'No discount',
+                  label: l10n('No discount'),
                 ),
                 AppDropdownOption(
                   value: DiscountType.percentage,
-                  label: 'Percentage',
+                  label: l10n('Percentage'),
                 ),
                 AppDropdownOption(
                   value: DiscountType.fixed,
-                  label: 'Fixed amount',
+                  label: l10n('Fixed amount'),
                 ),
               ],
               onChanged: (value) => setState(() => discountType = value),
@@ -2291,12 +2291,12 @@ class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
     ),
     actions: [
       AppDialogButton(
-        label: 'Cancel',
+        label: l10n('Cancel'),
         variant: AppDialogButtonVariant.outlined,
         onPressed: () => AppFocus.pop(context),
       ),
       AppDialogButton(
-        label: 'Add charge',
+        label: l10n('Add charge'),
         icon: Icons.add_rounded,
         onPressed: _submit,
       ),
@@ -2328,16 +2328,22 @@ class _DiscountDialogState extends State<_DiscountDialog> {
       mainAxisSize: MainAxisSize.min,
       children: [
         AppDropdownField<DiscountType>(
-          label: 'Discount type',
+          label: l10n('Discount type'),
           sheetTitle: 'Choose invoice discount',
           value: type,
-          options: const [
-            AppDropdownOption(value: DiscountType.none, label: 'No discount'),
+          options: [
+            AppDropdownOption(
+              value: DiscountType.none,
+              label: l10n('No discount'),
+            ),
             AppDropdownOption(
               value: DiscountType.percentage,
-              label: 'Percentage',
+              label: l10n('Percentage'),
             ),
-            AppDropdownOption(value: DiscountType.fixed, label: 'Fixed amount'),
+            AppDropdownOption(
+              value: DiscountType.fixed,
+              label: l10n('Fixed amount'),
+            ),
           ],
           onChanged: (selected) => setState(() => type = selected),
         ),
@@ -2355,12 +2361,12 @@ class _DiscountDialogState extends State<_DiscountDialog> {
     ),
     actions: [
       AppDialogButton(
-        label: 'Cancel',
+        label: l10n('Cancel'),
         variant: AppDialogButtonVariant.outlined,
         onPressed: () => AppFocus.pop(context),
       ),
       AppDialogButton(
-        label: 'Apply',
+        label: l10n('Apply'),
         icon: Icons.check_rounded,
         onPressed: () => AppFocus.pop(context, switch (type) {
           DiscountType.none => const DiscountInput.none(),

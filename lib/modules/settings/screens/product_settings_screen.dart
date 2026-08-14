@@ -259,12 +259,12 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
           ),
           actions: [
             AppDialogButton(
-              label: 'Cancel',
+              label: l10n('Cancel'),
               variant: AppDialogButtonVariant.outlined,
               onPressed: () => Navigator.pop(dialogContext),
             ),
             AppDialogButton(
-              label: 'Add field',
+              label: l10n('Add field'),
               icon: Icons.add_rounded,
               onPressed: () async {
                 final result = await controller.addCustomField(
