@@ -203,6 +203,9 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                 DateTime.now(),
               );
               return ListView.builder(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
                 padding: EdgeInsets.fromLTRB(padding, 2, padding, 90),
                 itemCount: entries.length,
                 itemBuilder: (_, index) {
@@ -248,12 +251,15 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: AppListEntrance(
                       index: index,
-                      child: AppInvoiceSummaryCard(
-                        invoice: invoice,
-                        currencySymbol: controller.currencySymbol.value,
-                        onTap: () => Get.toNamed<void>(
-                          AppRoutes.invoiceDetails,
-                          arguments: invoice.id,
+                      child: AppScrollMotion(
+                        key: ValueKey('invoice-scroll-${invoice.id}'),
+                        child: AppInvoiceSummaryCard(
+                          invoice: invoice,
+                          currencySymbol: controller.currencySymbol.value,
+                          onTap: () => Get.toNamed<void>(
+                            AppRoutes.invoiceDetails,
+                            arguments: invoice.id,
+                          ),
                         ),
                       ),
                     ),

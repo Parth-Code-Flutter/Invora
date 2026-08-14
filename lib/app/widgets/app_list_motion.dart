@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../constants/app_colors.dart';
 
@@ -33,6 +34,71 @@ class AppListEntrance extends StatelessWidget {
         ),
       ),
       child: child,
+    );
+  }
+}
+
+/// Adds a restrained depth effect while a list row moves through the viewport.
+///
+/// Rows stay fully readable and only soften slightly near the viewport edges.
+/// Motion is disabled automatically when the platform's reduced-motion setting
+/// is enabled.
+class AppScrollMotion extends StatefulWidget {
+  const AppScrollMotion({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  State<AppScrollMotion> createState() => _AppScrollMotionState();
+}
+
+class _AppScrollMotionState extends State<AppScrollMotion> {
+  final _childKey = GlobalKey();
+  ScrollPosition? _position;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _position = Scrollable.maybeOf(context)?.position;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final position = _position;
+    final child = KeyedSubtree(key: _childKey, child: widget.child);
+    if (position == null || MediaQuery.disableAnimationsOf(context)) {
+      return child;
+    }
+
+    return AnimatedBuilder(
+      animation: position,
+      child: child,
+      builder: (context, child) {
+        final renderObject = _childKey.currentContext?.findRenderObject();
+        if (renderObject == null || !renderObject.attached) return child!;
+        final viewport = RenderAbstractViewport.maybeOf(renderObject);
+        if (viewport == null || !position.hasContentDimensions) return child!;
+
+        final centeredOffset = viewport
+            .getOffsetToReveal(renderObject, 0.5)
+            .offset;
+        final distanceFromCenter = (centeredOffset - position.pixels).abs();
+        final range = position.viewportDimension * 0.62;
+        final edgeFactor = range <= 0
+            ? 0.0
+            : (distanceFromCenter / range).clamp(0.0, 1.0);
+        final scale = 1 - (edgeFactor * 0.014);
+        final opacity = 1 - (edgeFactor * 0.06);
+
+        return Opacity(
+          opacity: opacity,
+          child: Transform.scale(
+            scale: scale,
+            alignment: Alignment.center,
+            child: child,
+          ),
+        );
+      },
     );
   }
 }

@@ -337,6 +337,13 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 - Rebuilt invoice rows around a compact customer avatar, invoice/customer/date
   hierarchy, theme-colored status treatment, and right-aligned billed/due
   amounts based on the supplied reference.
+- Invoice rows now combine their staggered first-load entrance with restrained
+  scroll-aware depth motion and platform-style bouncing physics. Cards subtly
+  scale and soften near viewport edges, remain fully readable, and respect the
+  operating system's reduced-motion preference. Important files:
+  `app_list_motion.dart`, `invoice_list_screen.dart`; no storage changes.
+  Verified with static analysis and focused motion, invoice-card, and invoice-
+  overview widget tests.
 - Added a responsive overview showing received, pending, and overdue totals. It
   subscribes to the complete invoice collection so list search and filters do
   not distort the totals. Current and historical section headers carry their
