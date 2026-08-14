@@ -12,6 +12,8 @@ import '../../../data/services/invoice_validation_service.dart';
 import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/widgets/app_notification.dart';
+import '../models/invoice_success_args.dart';
+import '../screens/invoice_save_success_screen.dart';
 
 class InvoicePreviewController extends GetxController {
   InvoicePreviewController(
@@ -30,6 +32,7 @@ class InvoicePreviewController extends GetxController {
   final template = InvoiceTemplate.professional.obs;
   final isLoading = true.obs;
   final isSavingDocument = false.obs;
+  final isReadOnly = false.obs;
   final validationError = RxnString();
 
   @override
@@ -102,10 +105,30 @@ class InvoicePreviewController extends GetxController {
     if (!_canContinue()) return;
     isSavingDocument.value = true;
     try {
+      final wasUpdate = document.id != null;
       final saved = await _invoices.save(document);
       invoice.value = saved;
-      AppNotification.success('Invoice saved', saved.invoiceNumber);
-      Get.offAllNamed<void>(AppRoutes.invoices);
+      final action = await Get.dialog<InvoiceSaveSuccessAction>(
+        InvoiceSaveSuccessDialog(
+          arguments: InvoiceSaveSuccessArgs(
+            invoiceId: saved.id!,
+            invoiceNumber: saved.invoiceNumber,
+            documentType: saved.documentType,
+            template: template.value,
+            wasUpdate: wasUpdate,
+          ),
+        ),
+        barrierDismissible: false,
+      );
+      if (action == InvoiceSaveSuccessAction.viewPdf) {
+        isReadOnly.value = true;
+      } else if (action == InvoiceSaveSuccessAction.done) {
+        Get.offAllNamed<void>(
+          saved.documentType == DocumentType.quotation
+              ? AppRoutes.quotations
+              : AppRoutes.invoices,
+        );
+      }
     } finally {
       isSavingDocument.value = false;
     }

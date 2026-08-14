@@ -51,6 +51,7 @@ dependencies:
   material_symbols_icons: ^4.2960.0
   pro_dialog:
     path: packages/pro_dialog
+  lottie: ^3.5.1
 
 dev_dependencies:
   flutter_test:
@@ -79,6 +80,7 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
+    - assets/animations/
 
   fonts:
     - family: Plus Jakarta Sans

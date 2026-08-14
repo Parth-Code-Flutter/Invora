@@ -310,7 +310,7 @@ transfer automatically.
 As of 2026-08-13:
 
 - Flutter analysis: no issues
-- Automated suite: all 114 tests passing
+- Automated suite: all 120 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -331,6 +331,53 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-14 — Zoomable invoice PDF preview
+
+- Replaced the invoice preview's hidden double-tap-only zoom mode with direct
+  pinch zoom and pan gestures, plus double-tap zoom/reset and a compact gesture
+  hint. Preview pages rasterize at higher resolution so invoice values remain
+  legible when enlarged; the generated PDF itself is unchanged.
+- Important file: `invoice_preview_screen.dart`; no storage or migration
+  changes.
+- Verification: formatting, static analysis, and invoice preview widget tests.
+
+### 2026-08-14 — Swipe-to-confirm invoice save
+
+- Replaced the invoice preview's standard save button with a reusable animated
+  swipe-to-confirm control. New documents say `Swipe to create invoice`, saved
+  documents say `Swipe to update invoice`, incomplete gestures snap back, and
+  the thumb locks into a loading state while persistence completes.
+- The swipe track uses the same coral-to-plum primary/secondary gradient as the
+  Review invoice action for consistent visual branding.
+- Validation and duplicate-submit safeguards remain unchanged. Important files:
+  `app_swipe_action.dart`, `invoice_preview_screen.dart`; no storage changes.
+- Verification: formatting, static analysis, and focused swipe interaction
+  widget tests.
+
+### 2026-08-14 — Invoice create/update success dialog
+
+- Successful invoice persistence now opens a non-dismissible modern dialog over
+  the existing invoice preview instead of navigating to a separate completion
+  screen. A bundled offline Lottie check animation sits over a stable branded
+  invoice mockup and supports reduced motion.
+- The dialog distinguishes created from updated documents and offers Share PDF,
+  View PDF, and Done. View closes the dialog and leaves the already-generated
+  PDF visible in read-only pinch-zoom mode on the same screen; Done returns to
+  the correct invoice/quotation listing, and Share rebuilds the saved offline
+  PDF with the chosen template.
+- Reworked the completion UI after device-video review: a dark branded document
+  hero, stable Flutter-rendered invoice mockup, compact Lottie success badge,
+  explicit local-save confirmation, and richer Share PDF/View PDF action cards
+  replace the sparse centered illustration. The Lottie asset was simplified so
+  every supported renderer completes the circle and check animation reliably.
+- Success-dialog Share PDF and View PDF actions now use compact circular icon
+  controls with labels, tooltips, and accessibility semantics. This reduces
+  dialog height and leaves Done as the only full-width primary action.
+- Important files: invoice success screen, preview controller, routes, widget
+  tests, and this handoff; no storage or migration changes.
+- Verification: formatting, static analysis, and focused success-screen tests.
+- Post-dialog verification: complete Flutter suite passes all 120 tests.
 
 ### 2026-08-14 — Responsive invoice list and financial summary
 
