@@ -9,7 +9,7 @@ enum AppDeviceType { phone, tablet, largeTablet }
 /// Shared phone and tablet sizing helpers.
 ///
 /// Inspired by Smart Inspection's responsive utility, while using clamped
-/// logical-pixel scaling so Creovo Invoice does not need a sizing package.
+/// logical-pixel scaling so Creovo Billing does not need a sizing package.
 abstract final class ResponsiveUtils {
   static AppDeviceType deviceType(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;

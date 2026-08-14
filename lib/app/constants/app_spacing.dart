@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-/// Shared spacing and shape tokens used throughout Creovo Invoice's UI.
+/// Shared spacing and shape tokens used throughout Creovo Billing's UI.
 abstract final class AppSpacing {
   static const xxs = 4.0;
   static const xs = 8.0;

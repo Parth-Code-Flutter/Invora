@@ -90,7 +90,7 @@ class PaymentReceiptPdfService {
             pw.SizedBox(height: 6),
             pw.Center(
               child: pw.Text(
-                'Generated offline with Creovo Invoice',
+                'Generated offline with Creovo Billing',
                 style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey),
               ),
             ),

@@ -11,6 +11,8 @@ import 'app/themes/app_theme.dart';
 import 'data/services/app_database.dart';
 import 'data/services/app_storage.dart';
 import 'data/services/local_database_service.dart';
+import 'data/services/app_lock_service.dart';
+import 'modules/settings/screens/app_lock_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +54,10 @@ class CreovoInvoiceApp extends StatelessWidget {
           .map((language) => language.locale)
           .toList(growable: false),
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      builder: (context, child) => AppLockGate(
+        service: Get.find<AppLockService>(),
+        child: child ?? const SizedBox.shrink(),
+      ),
     );
   }
 

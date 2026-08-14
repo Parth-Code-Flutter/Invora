@@ -1,4 +1,4 @@
-# Creovo Invoice — Whole-Flow QA Checklist
+# Creovo Billing — Whole-Flow QA Checklist
 
 Last updated: 2026-08-12
 

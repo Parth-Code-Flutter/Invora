@@ -148,7 +148,7 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                               ),
                               AppTextField(
                                 controller: controller.email,
-                                label: 'Email address',
+                                label: 'Email address (optional)',
                                 prefixIcon: Icons.alternate_email_rounded,
                                 keyboardType: TextInputType.emailAddress,
                                 validator: controller.validateEmail,

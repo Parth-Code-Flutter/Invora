@@ -198,7 +198,7 @@ class BackupScreen extends GetView<BackupController> {
       confirmIcon: Icons.restore_rounded,
       title: 'Replace local data?',
       message:
-          'Current records will be replaced. Creovo Invoice must be restarted after restore.',
+          'Current records will be replaced. Creovo Billing must be restarted after restore.',
       confirmLabel: 'Restore',
     );
     if (!confirmed) return;
@@ -209,7 +209,7 @@ class BackupScreen extends GetView<BackupController> {
       barrierDismissible: false,
       title: 'Restore complete',
       message:
-          'Your backup was restored safely. Close and reopen Creovo Invoice now to load the restored records.',
+          'Your backup was restored safely. Close and reopen Creovo Billing now to load the restored records.',
       actionLabel: 'I’ll restart now',
     );
   }

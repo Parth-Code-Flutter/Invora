@@ -11,6 +11,7 @@ import '../../data/services/product_settings_service.dart';
 import '../../data/services/payment_receipt_pdf_service.dart';
 import '../../data/services/backup_service.dart';
 import '../../data/services/unit_service.dart';
+import '../../data/services/app_lock_service.dart';
 import '../../data/repositories/business_repository.dart';
 import '../../data/repositories/customer_repository.dart';
 import '../../data/repositories/product_repository.dart';
@@ -26,6 +27,8 @@ class InitialBinding extends Bindings {
   @override
   void dependencies() {
     Get.put<AppStorage>(appStorage, permanent: true);
+    final appLockService = AppLockService(appStorage)..load();
+    Get.put<AppLockService>(appLockService, permanent: true);
     Get.put<AppDatabase>(databaseService.database, permanent: true);
     Get.put<LocalDatabaseService>(databaseService, permanent: true);
     Get.put<BusinessRepository>(

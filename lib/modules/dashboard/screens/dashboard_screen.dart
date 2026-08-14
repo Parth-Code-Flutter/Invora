@@ -56,7 +56,7 @@ class DashboardScreen extends GetView<DashboardController> {
                     Text(_greeting(), style: AppTextStyles.caption),
                     Text(
                       controller.profile.value?.businessName ??
-                          'Creovo Invoice',
+                          'Creovo Billing',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

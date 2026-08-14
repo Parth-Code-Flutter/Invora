@@ -150,7 +150,7 @@ class BackupService {
     final bytes = ZipEncoder().encode(archive);
     final now = DateTime.now();
     final name =
-        'creovo_invoice_backup_${now.year}_${now.month.toString().padLeft(2, '0')}_${now.day.toString().padLeft(2, '0')}.zip';
+        'creovo_billing_backup_${now.year}_${now.month.toString().padLeft(2, '0')}_${now.day.toString().padLeft(2, '0')}.zip';
     final directory = await _outputDirectoryProvider();
     final output = File(p.join(directory.path, name));
     await output.writeAsBytes(bytes, flush: true);
@@ -165,7 +165,7 @@ class BackupService {
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(backup.path)],
-        subject: 'Creovo Invoice backup',
+        subject: 'Creovo Billing backup',
       ),
     );
   }
@@ -214,7 +214,7 @@ class BackupService {
       }
       if (schema > DbConstants.schemaVersion) {
         return const BackupValidation.invalid(
-          'This backup was created by a newer Creovo Invoice version.',
+          'This backup was created by a newer Creovo Billing version.',
         );
       }
       return BackupValidation.valid(archive);

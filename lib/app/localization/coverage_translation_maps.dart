@@ -227,7 +227,7 @@ const Map<String, String> appHindiCoverageTranslations = {
   'BUSINESS DATA': 'व्यवसाय डेटा',
   'CUSTOMER ACCOUNT': 'ग्राहक खाता',
   'FINANCIAL DATA': 'वित्तीय डेटा',
-  'Creovo Invoice': 'क्रियोवो चालान',
+  'Creovo Billing': 'क्रियोवो बिलिंग',
   'Only the details enabled in Product Settings':
       'केवल उत्पाद सेटिंग्स में चालू विवरण',
   'Preselect for newly created items': 'नई आइटम के लिए पहले से चुनें',
@@ -283,7 +283,7 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Billing address': 'बिलिंग पता',
   'Address printed on invoices': 'चालान पर छपने वाला पता',
   'Private notes': 'निजी नोट्स',
-  'Visible only inside Creovo Invoice': 'केवल Creovo Invoice में दिखाई देगा',
+  'Visible only inside Creovo Billing': 'केवल Creovo Billing में दिखाई देगा',
   'Who is this invoice for?': 'यह चालान किसके लिए है?',
   'Who are you billing?': 'आप किसे बिल दे रहे हैं?',
   'Choose saved item': 'सहेजा आइटम चुनें',
@@ -434,6 +434,40 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Add first item': 'पहला आइटम जोड़ें',
   'NO ITEMS YET': 'अभी कोई आइटम नहीं',
   'Edit item details': 'आइटम विवरण संपादित करें',
+  'Email address (optional)': 'ईमेल पता (वैकल्पिक)',
+  'Security': 'सुरक्षा',
+  'App lock': 'ऐप लॉक',
+  'Four-digit PIN required': 'चार अंकों का पिन आवश्यक',
+  'Protect the app with a four-digit PIN':
+      'चार अंकों के पिन से ऐप सुरक्षित करें',
+  'On': 'चालू',
+  'App lock is on': 'ऐप लॉक चालू है',
+  'Protect your app': 'अपने ऐप को सुरक्षित करें',
+  'Require a four-digit PIN when Creovo Billing opens or returns from the background.':
+      'Creovo Billing खुलने या बैकग्राउंड से लौटने पर चार अंकों का पिन आवश्यक करें।',
+  'Change PIN': 'पिन बदलें',
+  'Disable app lock': 'ऐप लॉक बंद करें',
+  'Set up PIN': 'पिन सेट करें',
+  'Your PIN protects access to this app on this device. It does not encrypt exported files or backups.':
+      'आपका पिन इस डिवाइस पर ऐप की पहुँच सुरक्षित करता है। यह एक्सपोर्ट की गई फ़ाइलों या बैकअप को एन्क्रिप्ट नहीं करता।',
+  'Create PIN': 'पिन बनाएँ',
+  'Confirm PIN': 'पिन की पुष्टि करें',
+  'Verify PIN': 'पिन सत्यापित करें',
+  'Choose a four-digit PIN': 'चार अंकों का पिन चुनें',
+  'Enter the PIN again': 'पिन दोबारा दर्ज करें',
+  'Enter your current PIN': 'अपना वर्तमान पिन दर्ज करें',
+  'Use a PIN you can remember.': 'ऐसा पिन रखें जो आपको याद रहे।',
+  'This makes sure you entered it correctly.':
+      'इससे पुष्टि होती है कि आपने इसे सही दर्ज किया है।',
+  'Verify before turning off app lock.':
+      'ऐप लॉक बंद करने से पहले सत्यापित करें।',
+  'Verify before choosing a new PIN.': 'नया पिन चुनने से पहले सत्यापित करें।',
+  'PINs do not match. Try again.': 'पिन मेल नहीं खाते। फिर प्रयास करें।',
+  'Incorrect PIN. Try again.': 'गलत पिन। फिर प्रयास करें।',
+  'Welcome back': 'फिर से स्वागत है',
+  'Enter your PIN to unlock Creovo Billing.':
+      'Creovo Billing अनलॉक करने के लिए अपना पिन दर्ज करें।',
+  'Delete digit': 'अंक हटाएँ',
   'Business category, fields and invoice display':
       'व्यवसाय श्रेणी, फ़ील्ड और चालान प्रदर्शन',
   'Customer name *': 'ग्राहक का नाम *',
@@ -446,12 +480,12 @@ const Map<String, String> appHindiCoverageTranslations = {
   'INV': 'INV',
   'This barcode belongs to a saved item. Load it here so you can edit the values before saving.':
       'यह बारकोड सहेजे गए आइटम का है। सहेजने से पहले मान बदलने के लिए इसे यहाँ लोड करें।',
-  'Current records will be replaced. Creovo Invoice must be restarted after restore.':
-      'वर्तमान रिकॉर्ड बदल दिए जाएँगे। पुनर्स्थापना के बाद Creovo Invoice पुनः शुरू करना होगा।',
+  'Current records will be replaced. Creovo Billing must be restarted after restore.':
+      'वर्तमान रिकॉर्ड बदल दिए जाएँगे। पुनर्स्थापना के बाद Creovo Billing पुनः शुरू करना होगा।',
   'This unencrypted ZIP contains customer, invoice, bank, signature, and payment QR information. Share it only to a private location you trust.':
       'इस अनएन्क्रिप्टेड ZIP में ग्राहक, चालान, बैंक, हस्ताक्षर और भुगतान QR जानकारी है। इसे केवल विश्वसनीय निजी स्थान पर साझा करें।',
-  'Your backup was restored safely. Close and reopen Creovo Invoice now to load the restored records.':
-      'आपका बैकअप सुरक्षित रूप से पुनर्स्थापित हुआ। रिकॉर्ड लोड करने के लिए Creovo Invoice बंद करके फिर खोलें।',
+  'Your backup was restored safely. Close and reopen Creovo Billing now to load the restored records.':
+      'आपका बैकअप सुरक्षित रूप से पुनर्स्थापित हुआ। रिकॉर्ड लोड करने के लिए Creovo Billing बंद करके फिर खोलें।',
   'Creovo will show when a new local backup is due. No notification or data leaves this device.':
       'नया स्थानीय बैकअप देय होने पर Creovo बताएगा। इस डिवाइस से कोई सूचना या डेटा बाहर नहीं जाता।',
   'Includes customers, invoices, bank details, signature, payment QR, business media, and app settings.':
@@ -728,7 +762,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'BUSINESS DATA': 'વ્યવસાય ડેટા',
   'CUSTOMER ACCOUNT': 'ગ્રાહક ખાતું',
   'FINANCIAL DATA': 'નાણાકીય ડેટા',
-  'Creovo Invoice': 'ક્રિઓવો ઇન્વૉઇસ',
+  'Creovo Billing': 'ક્રિઓવો બિલિંગ',
   'Only the details enabled in Product Settings':
       'ફક્ત ઉત્પાદન સેટિંગ્સમાં ચાલુ વિગતો',
   'Preselect for newly created items': 'નવી આઇટમ માટે પહેલેથી પસંદ કરો',
@@ -784,7 +818,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Billing address': 'બિલિંગ સરનામું',
   'Address printed on invoices': 'ઇન્વૉઇસ પર છપાતું સરનામું',
   'Private notes': 'ખાનગી નોંધો',
-  'Visible only inside Creovo Invoice': 'ફક્ત Creovo Invoiceમાં દેખાશે',
+  'Visible only inside Creovo Billing': 'ફક્ત Creovo Billingમાં દેખાશે',
   'Who is this invoice for?': 'આ ઇન્વૉઇસ કોના માટે છે?',
   'Who are you billing?': 'તમે કોને બિલ આપી રહ્યા છો?',
   'Choose saved item': 'સાચવેલી આઇટમ પસંદ કરો',
@@ -935,6 +969,38 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Add first item': 'પહેલી આઇટમ ઉમેરો',
   'NO ITEMS YET': 'હજુ કોઈ આઇટમ નથી',
   'Edit item details': 'આઇટમ વિગતોમાં ફેરફાર કરો',
+  'Email address (optional)': 'ઇમેલ સરનામું (વૈકલ્પિક)',
+  'Security': 'સુરક્ષા',
+  'App lock': 'એપ લૉક',
+  'Four-digit PIN required': 'ચાર અંકનો પિન જરૂરી',
+  'Protect the app with a four-digit PIN': 'ચાર અંકના પિનથી એપ સુરક્ષિત કરો',
+  'On': 'ચાલુ',
+  'App lock is on': 'એપ લૉક ચાલુ છે',
+  'Protect your app': 'તમારી એપ સુરક્ષિત કરો',
+  'Require a four-digit PIN when Creovo Billing opens or returns from the background.':
+      'Creovo Billing ખુલે અથવા બેકગ્રાઉન્ડમાંથી પરત આવે ત્યારે ચાર અંકનો પિન જરૂરી કરો.',
+  'Change PIN': 'પિન બદલો',
+  'Disable app lock': 'એપ લૉક બંધ કરો',
+  'Set up PIN': 'પિન સેટ કરો',
+  'Your PIN protects access to this app on this device. It does not encrypt exported files or backups.':
+      'તમારો પિન આ ડિવાઇસ પર એપની ઍક્સેસ સુરક્ષિત કરે છે. તે એક્સપોર્ટ કરેલી ફાઇલો અથવા બેકઅપને એન્ક્રિપ્ટ કરતો નથી.',
+  'Create PIN': 'પિન બનાવો',
+  'Confirm PIN': 'પિનની પુષ્ટિ કરો',
+  'Verify PIN': 'પિન ચકાસો',
+  'Choose a four-digit PIN': 'ચાર અંકનો પિન પસંદ કરો',
+  'Enter the PIN again': 'પિન ફરી દાખલ કરો',
+  'Enter your current PIN': 'તમારો હાલનો પિન દાખલ કરો',
+  'Use a PIN you can remember.': 'તમને યાદ રહે એવો પિન વાપરો.',
+  'This makes sure you entered it correctly.':
+      'આ ખાતરી કરે છે કે તમે તેને સાચો દાખલ કર્યો છે.',
+  'Verify before turning off app lock.': 'એપ લૉક બંધ કરતા પહેલાં ચકાસો.',
+  'Verify before choosing a new PIN.': 'નવો પિન પસંદ કરતા પહેલાં ચકાસો.',
+  'PINs do not match. Try again.': 'પિન મેળ ખાતા નથી. ફરી પ્રયાસ કરો.',
+  'Incorrect PIN. Try again.': 'ખોટો પિન. ફરી પ્રયાસ કરો.',
+  'Welcome back': 'ફરી સ્વાગત છે',
+  'Enter your PIN to unlock Creovo Billing.':
+      'Creovo Billing અનલૉક કરવા તમારો પિન દાખલ કરો.',
+  'Delete digit': 'અંક કાઢો',
   'Business category, fields and invoice display':
       'વ્યવસાય શ્રેણી, ફીલ્ડ અને ઇન્વૉઇસ દેખાવ',
   'Customer name *': 'ગ્રાહકનું નામ *',
@@ -947,12 +1013,12 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'INV': 'INV',
   'This barcode belongs to a saved item. Load it here so you can edit the values before saving.':
       'આ બારકોડ સાચવેલી આઇટમનો છે. સાચવતા પહેલાં મૂલ્યો બદલવા તેને અહીં લોડ કરો.',
-  'Current records will be replaced. Creovo Invoice must be restarted after restore.':
-      'હાલના રેકોર્ડ બદલાઈ જશે. પુનઃસ્થાપન પછી Creovo Invoice ફરી શરૂ કરવું પડશે.',
+  'Current records will be replaced. Creovo Billing must be restarted after restore.':
+      'હાલના રેકોર્ડ બદલાઈ જશે. પુનઃસ્થાપન પછી Creovo Billing ફરી શરૂ કરવું પડશે.',
   'This unencrypted ZIP contains customer, invoice, bank, signature, and payment QR information. Share it only to a private location you trust.':
       'આ અનએન્ક્રિપ્ટેડ ZIPમાં ગ્રાહક, ઇન્વૉઇસ, બેંક, સહી અને ચુકવણી QR માહિતી છે. તેને ફક્ત વિશ્વસનીય ખાનગી જગ્યાએ શેર કરો.',
-  'Your backup was restored safely. Close and reopen Creovo Invoice now to load the restored records.':
-      'તમારો બૅકઅપ સુરક્ષિત રીતે પુનઃસ્થાપિત થયો. રેકોર્ડ લોડ કરવા Creovo Invoice બંધ કરીને ફરી ખોલો.',
+  'Your backup was restored safely. Close and reopen Creovo Billing now to load the restored records.':
+      'તમારો બૅકઅપ સુરક્ષિત રીતે પુનઃસ્થાપિત થયો. રેકોર્ડ લોડ કરવા Creovo Billing બંધ કરીને ફરી ખોલો.',
   'Creovo will show when a new local backup is due. No notification or data leaves this device.':
       'નવો સ્થાનિક બૅકઅપ બાકી હોય ત્યારે Creovo બતાવશે. આ ઉપકરણમાંથી કોઈ સૂચના અથવા ડેટા બહાર જતો નથી.',
   'Includes customers, invoices, bank details, signature, payment QR, business media, and app settings.':

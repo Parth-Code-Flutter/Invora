@@ -5,7 +5,7 @@
         android:name="android.hardware.camera"
         android:required="false" />
     <application
-        android:label="Creovo Invoice"
+        android:label="Creovo Billing"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -38,6 +38,7 @@ import '../../modules/settings/screens/data_export_screen.dart';
 import '../../modules/settings/screens/product_settings_screen.dart';
 import '../../modules/settings/screens/more_screen.dart';
 import '../../modules/settings/screens/unit_settings_screen.dart';
+import '../../modules/settings/screens/app_lock_screen.dart';
 import 'app_routes.dart';
 
 abstract final class AppRouter {
@@ -184,6 +185,7 @@ abstract final class AppRouter {
       page: UnitSettingsScreen.new,
       binding: UnitSettingsBinding(),
     ),
+    GetPage(name: AppRoutes.appLock, page: AppLockSettingsScreen.new),
     GetPage(
       name: AppRoutes.backup,
       page: BackupScreen.new,

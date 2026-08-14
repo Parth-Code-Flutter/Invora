@@ -36,7 +36,7 @@ void main() {
         updatedAt: now,
       ),
     );
-    Get.put(
+    final controller = Get.put(
       BusinessSetupController(
         repository,
         storage,
@@ -54,5 +54,7 @@ void main() {
     expect(find.text('Let’s make it yours'), findsNothing);
     expect(find.byType(AppBackButton), findsOneWidget);
     expect(find.text('Used across your invoices.'), findsOneWidget);
+    expect(controller.validateEmail(''), isNull);
+    expect(controller.validateEmail('invalid-email'), isNotNull);
   });
 }

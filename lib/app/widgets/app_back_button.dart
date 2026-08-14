@@ -4,7 +4,9 @@ import '../constants/app_colors.dart';
 import '../utils/app_focus.dart';
 
 class AppBackButton extends StatelessWidget {
-  const AppBackButton({super.key});
+  const AppBackButton({this.onPressed, super.key});
+
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +14,7 @@ class AppBackButton extends StatelessWidget {
     return Center(
       child: IconButton(
         tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-        onPressed: () => AppFocus.maybePop(context),
+        onPressed: onPressed ?? () => AppFocus.maybePop(context),
         style: IconButton.styleFrom(
           fixedSize: const Size.square(40),
           minimumSize: const Size.square(40),

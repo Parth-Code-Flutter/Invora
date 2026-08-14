@@ -1,4 +1,4 @@
-# Creovo Invoice — Project Handoff
+# Creovo Billing — Project Handoff
 
 Last updated: 2026-08-13
 Active development branch: `parth-dev`  
@@ -13,7 +13,7 @@ every material code change.
 
 ## Product boundaries
 
-Creovo Invoice is a Flutter Android and iOS app for fast, privacy-first,
+Creovo Billing is a Flutter Android and iOS app for fast, privacy-first,
 offline invoicing. It has no backend, authentication, cloud dependency, ads,
 subscriptions, payment gateway, inventory accounting, or multi-user system.
 
@@ -30,6 +30,11 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - First-launch onboarding and business setup
 - Business profile, logo, signature, payment QR, bank, and UPI information
 - Responsive phone/tablet layouts and dark mode
+- Optional four-digit app lock under Settings > Security. PIN setup requires
+  confirmation; changing or disabling requires the current PIN. Enabled locks
+  cover cold launch and foreground return, while the stored credential is a
+  salted, iterated SHA-256 hash rather than plain PIN text. This is an access
+  guard for the local app and does not encrypt SQLite data, exports, or backups.
 - App-wide interface localization with English as the default and selectable
   Hindi or Gujarati under Settings > Appearance. The selected language is
   stored in `AppStorage`, applies immediately, and survives restart. Shared
@@ -337,6 +342,59 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-15 — Explicitly optional business email
+
+- Clarified business setup and profile editing with an “Email address
+  (optional)” label. Empty email values continue to save as null, while entered
+  values retain format validation.
+- Fixed the shared localized `AppTextField` validator adapter converting a
+  successful null result into an empty-string error. Flutter treated that as an
+  invisible validation failure, causing optional email/mobile and other
+  optional validated fields to show a red border and block submission.
+- Added Hindi/Gujarati copy and a controller regression assertion covering both
+  empty and malformed values, plus a shared-field widget regression. No storage
+  or database changes.
+- Important files: shared text field, business setup screen/controller test,
+  shared validation test, localization maps, and this handoff.
+- Verification: formatting, static analysis, focused business-setup test, and
+  the full automated suite.
+
+### 2026-08-14 — Creovo Billing application identity
+
+- Renamed the customer-facing application from Creovo Invoice to Creovo
+  Billing across Android/iOS launcher metadata, in-app brand copy, permissions,
+  PDFs, backup messages, and English/Hindi/Gujarati localization keys.
+- Changed Android namespace/application ID and iOS app/test bundle identifiers
+  from `com.creovo.invoice` to `com.creovo.billing`. This creates a new native
+  app identity, so an installed old build is not upgraded in place and its
+  sandboxed data does not automatically transfer.
+- New backup filenames use `creovo_billing_backup_...`; the internal SQLite
+  archive path remains unchanged so existing backups stay restore-compatible.
+- The Dart package name remains `creovo_invoice` to avoid a needless source
+  import migration; this is internal and does not affect store identity.
+- Important files: Android/iOS platform configuration, app constants, branded
+  screens/services, localization maps, package description, and this handoff.
+- Verification: formatting, static analysis, automated tests, Android debug
+  build, and native bundle-identifier audit.
+
+### 2026-08-14 — Optional four-digit app lock
+
+- Added a localized Settings > Security workspace where users can create and
+  confirm a four-digit PIN, change it after verification, or disable the lock
+  after entering the current PIN.
+- Added a full-screen numeric unlock gate over the existing navigator. It locks
+  on cold launch when enabled and whenever the app returns after being paused
+  or hidden, without changing onboarding, business setup, or business records.
+- Security storage uses a random per-device salt, 12,000 SHA-256 rounds and a
+  constant-time comparison; raw PIN digits are never persisted. The lock is an
+  app access guard and does not claim to encrypt database/export/backup data.
+- Storage changes: new SharedPreferences keys for enabled state, PIN salt and
+  PIN hash. No Drift schema or data migration changes.
+- Important files: app-lock service and tests, root lifecycle gate, security
+  settings UI/route, storage keys, localization maps, and this handoff.
+- Verification: formatting, static analysis, focused app-lock tests, and the
+  full automated suite.
 
 ### 2026-08-14 — One-tap invoice line-item actions
 

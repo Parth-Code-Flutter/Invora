@@ -124,7 +124,7 @@ class _BrandHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 11),
-        Text('Creovo Invoice', style: AppTextStyles.cardTitle),
+        Text('Creovo Billing', style: AppTextStyles.cardTitle),
         const Spacer(),
         TextButton(onPressed: onSkip, child: const Text('Skip for now')),
       ],

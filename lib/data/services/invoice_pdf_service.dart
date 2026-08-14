@@ -57,7 +57,7 @@ class InvoicePdfService {
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
             pw.Text(
-              'Generated offline with Creovo Invoice',
+              'Generated offline with Creovo Billing',
               style: const pw.TextStyle(fontSize: 8),
             ),
             pw.Text(

@@ -22,4 +22,7 @@ abstract final class AppStorageKeyConst {
   static const lastBackupAt = 'last_backup_at';
   static const backupReminderDays = 'backup_reminder_days';
   static const restoreCompleted = 'restore_completed';
+  static const appLockEnabled = 'app_lock_enabled';
+  static const appLockPinHash = 'app_lock_pin_hash';
+  static const appLockPinSalt = 'app_lock_pin_salt';
 }

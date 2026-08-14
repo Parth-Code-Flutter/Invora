@@ -166,7 +166,7 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                               _OptionalCustomerSection(
                                 icon: Icons.notes_rounded,
                                 title: 'Private notes',
-                                subtitle: 'Visible only inside Creovo Invoice',
+                                subtitle: 'Visible only inside Creovo Billing',
                                 child: AppTextField(
                                   controller: controller.notes,
                                   label: 'Notes',

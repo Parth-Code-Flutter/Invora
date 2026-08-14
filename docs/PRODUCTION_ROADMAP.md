@@ -1,4 +1,4 @@
-# Creovo Invoice — Production Roadmap
+# Creovo Billing — Production Roadmap
 
 Last reviewed: 2026-08-12  
 Target: Public Android and iOS release for real end-users  
@@ -6,7 +6,7 @@ Product boundary: Fast, private, offline GST invoicing—not full accounting
 
 ## Purpose
 
-This document defines what remains before Creovo Invoice is safe and complete
+This document defines what remains before Creovo Billing is safe and complete
 for public use. It separates launch requirements from later competitive
 features so the product stays simple.
 
@@ -358,7 +358,7 @@ Prioritize only after public V1 is stable:
 
 ## Definition of ready for public launch
 
-Creovo Invoice is ready when:
+Creovo Billing is ready when:
 
 - Financial totals and payment ledger always reconcile.
 - Every database/backup migration path is tested.

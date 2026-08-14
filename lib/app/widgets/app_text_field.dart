@@ -45,7 +45,10 @@ class AppTextField extends StatelessWidget {
       controller: controller,
       validator: validator == null
           ? null
-          : (value) => AppLocalizer.text(validator!(value)),
+          : (value) {
+              final error = validator!(value);
+              return error == null ? null : AppLocalizer.text(error);
+            },
       keyboardType: keyboardType,
       textInputAction: textInputAction,
       inputFormatters: inputFormatters,

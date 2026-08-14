@@ -11,6 +11,7 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_menu_group.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../controllers/settings_controller.dart';
+import '../../../data/services/app_lock_service.dart';
 
 class SettingsScreen extends GetView<SettingsController> {
   const SettingsScreen({super.key});
@@ -81,6 +82,43 @@ class SettingsScreen extends GetView<SettingsController> {
             ],
           ),
           const SizedBox(height: 18),
+          _heading('Security'),
+          AppMenuGroup(
+            children: [
+              Obx(() {
+                final enabled = Get.find<AppLockService>().isEnabled;
+                return AppMenuTile(
+                  icon: enabled ? Icons.lock_rounded : Icons.lock_open_rounded,
+                  title: 'App lock',
+                  subtitle: enabled
+                      ? 'Four-digit PIN required'
+                      : 'Protect the app with a four-digit PIN',
+                  onTap: () => Get.toNamed<void>(AppRoutes.appLock),
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: enabled
+                          ? AppColors.success.withValues(alpha: .12)
+                          : AppColors.surfaceSoft,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      enabled ? 'On' : 'Off',
+                      style: AppTextStyles.small.copyWith(
+                        color: enabled
+                            ? AppColors.success
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+          const SizedBox(height: 18),
           _heading('Data'),
           AppMenuGroup(
             children: [
@@ -107,7 +145,7 @@ class SettingsScreen extends GetView<SettingsController> {
               Obx(
                 () => AppMenuTile(
                   icon: Icons.info_outline,
-                  title: 'Creovo Invoice',
+                  title: 'Creovo Billing',
                   subtitle: controller.appVersion.value.isEmpty
                       ? 'Privacy-first offline invoicing'
                       : 'Version ${controller.appVersion.value}',
