@@ -247,9 +247,6 @@ class CustomerSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final mobile = customer.mobile?.trim() ?? '';
-    final company = customer.companyName?.trim() ?? '';
-    final contact = mobile.isNotEmpty ? mobile : company;
     final statusLabel = invoiceCount == 0
         ? 'No invoices'
         : balanceMinor > 0
@@ -316,63 +313,86 @@ class CustomerSummaryCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      customer.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.listName,
-                    ),
-                    if (contact.isNotEmpty) ...[
-                      const SizedBox(height: 3),
-                      Row(
-                        children: [
-                          Icon(
-                            mobile.isNotEmpty
-                                ? Icons.phone_outlined
-                                : Icons.business_outlined,
-                            size: 11,
-                            color: isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.textSecondary,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              contact,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.caption.copyWith(
-                                color: isDark
-                                    ? AppColors.darkTextSecondary
-                                    : AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                    const SizedBox(height: 5),
                     Row(
                       children: [
-                        Icon(
-                          Icons.calendar_today_outlined,
-                          size: 11,
-                          color: statusColor,
-                        ),
-                        const SizedBox(width: 5),
                         Expanded(
                           child: Text(
-                            invoiceCount == 0
-                                ? 'Ready to invoice'
-                                : balanceMinor > 0
-                                ? '$invoiceCount ${invoiceCount == 1 ? 'invoice' : 'invoices'} due'
-                                : '$invoiceCount ${invoiceCount == 1 ? 'invoice' : 'invoices'} settled',
+                            customer.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.listName,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(
+                              alpha: isDark ? 0.22 : 0.11,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            statusLabel,
                             style: AppTextStyles.caption.copyWith(
                               color: statusColor,
                               fontSize: 10,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today_outlined,
+                                size: 11,
+                                color: statusColor,
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                child: Text(
+                                  invoiceCount == 0
+                                      ? 'Ready to invoice'
+                                      : balanceMinor > 0
+                                      ? '$invoiceCount ${invoiceCount == 1 ? 'invoice' : 'invoices'} due'
+                                      : '$invoiceCount ${invoiceCount == 1 ? 'invoice' : 'invoices'} settled',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: statusColor,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 120,
+                          child: AppAmountText(
+                            amountMinor: balanceMinor > 0
+                                ? balanceMinor
+                                : billedMinor,
+                            symbol: currencySymbol,
+                            textAlign: TextAlign.end,
+                            color: balanceMinor == 0 && invoiceCount > 0
+                                ? (isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.textTertiary)
+                                : null,
+                            style: AppTextStyles.listAmount.copyWith(
+                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -380,47 +400,6 @@ class CustomerSummaryCard extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              AppAmountColumn(
-                maxWidth: 120,
-                children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusColor.withValues(
-                          alpha: isDark ? 0.22 : 0.11,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        statusLabel,
-                        style: AppTextStyles.caption.copyWith(
-                          color: statusColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 7),
-                  AppAmountText(
-                    amountMinor: balanceMinor > 0 ? balanceMinor : billedMinor,
-                    symbol: currencySymbol,
-                    textAlign: TextAlign.end,
-                    color: balanceMinor == 0 && invoiceCount > 0
-                        ? (isDark
-                              ? AppColors.darkTextSecondary
-                              : AppColors.textTertiary)
-                        : null,
-                    style: AppTextStyles.listAmount,
-                  ),
-                ],
               ),
             ],
           ),

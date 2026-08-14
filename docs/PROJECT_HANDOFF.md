@@ -369,8 +369,15 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
   retains the complete action sheet.
 - Customer Due/Paid badges are content-sized and right-aligned above their
   amount rather than stretching across the financial column.
-- Customer cards prefix mobile numbers with a compact phone icon; company-only
-  contacts use a business icon instead.
+- Customer listing cards intentionally omit mobile/company details and use two
+  explicitly aligned rows: name with payment status, then invoice information
+  with the relevant total. Full contact data remains in customer details.
+- Customer-card amounts use a compact 13px treatment and show outstanding due
+  balance when present, otherwise the customer's total billed amount.
+- Customer list cards no longer expose mobile/company details. Their compact
+  second row now pairs invoice status information with the due-or-total amount;
+  contact information remains available on the customer details screen. No
+  storage or migration changes were required.
 - Changing an invoice or quotation issued date now shifts its due date by the
   same payment-term interval in both create and edit flows. Default terms still
   follow Invoice Defaults, while a manually selected 15-day term remains 15
