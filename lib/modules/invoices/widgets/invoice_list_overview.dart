@@ -51,14 +51,6 @@ class InvoiceListOverview extends StatelessWidget {
       0,
       (sum, invoice) => sum + invoice.balanceMinor,
     );
-    final thisMonth = active
-        .where(
-          (invoice) =>
-              invoice.invoiceDate.year == today.year &&
-              invoice.invoiceDate.month == today.month,
-        )
-        .length;
-
     final metrics = [
       _OverviewMetric(
         label: 'Received',
@@ -82,12 +74,6 @@ class InvoiceListOverview extends StatelessWidget {
         count: overdueInvoices.length,
         icon: Icons.error_outline_rounded,
         color: AppColors.error,
-      ),
-      _OverviewMetric(
-        label: 'This month',
-        count: thisMonth,
-        icon: Icons.calendar_month_outlined,
-        color: AppColors.secondary,
       ),
     ];
 
@@ -142,7 +128,7 @@ class InvoiceListOverview extends StatelessWidget {
                   children: metrics
                       .map(
                         (metric) => SizedBox(
-                          width: (constraints.maxWidth - 52) / 4,
+                          width: (constraints.maxWidth - 44) / 3,
                           child: _MetricView(
                             metric: metric,
                             symbol: currencySymbol,

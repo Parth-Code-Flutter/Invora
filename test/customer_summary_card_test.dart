@@ -42,6 +42,7 @@ void main() {
     expect(tester.widget<Text>(find.text('B E Dhaval')).style?.fontSize, 14);
     expect(find.text('₹2,305,800'), findsOneWidget);
     expect(find.text('9876543210'), findsOneWidget);
+    expect(find.byIcon(Icons.phone_outlined), findsOneWidget);
     expect(find.textContaining('Created'), findsNothing);
     expect(find.text('Due'), findsOneWidget);
 

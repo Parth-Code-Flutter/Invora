@@ -27,12 +27,16 @@ void main() {
       ),
     );
 
-    expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Invoices'), findsOneWidget);
-    expect(find.text('Customers'), findsOneWidget);
-    expect(find.text('More'), findsOneWidget);
-    expect(find.text('Create'), findsOneWidget);
+    expect(find.text('Home'), findsNothing);
+    expect(find.text('Invoices'), findsNothing);
+    expect(find.text('Customers'), findsNothing);
+    expect(find.text('More'), findsNothing);
+    expect(find.text('Create'), findsNothing);
     expect(tester.takeException(), isNull);
+    expect(
+      tester.getTopLeft(find.byIcon(Symbols.add_rounded)).dy,
+      lessThan(tester.getTopLeft(find.byIcon(Symbols.home_rounded)).dy),
+    );
 
     await tester.tap(find.byIcon(Symbols.add_rounded));
     await tester.pumpAndSettle();

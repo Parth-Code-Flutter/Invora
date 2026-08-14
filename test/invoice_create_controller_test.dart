@@ -46,6 +46,26 @@ void main() {
     await database.close();
   });
 
+  test('changing issued date preserves the due-date payment term', () async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final controller = InvoiceCreateController(
+      InvoiceRepository(database),
+      BusinessRepository(database),
+      CustomerRepository(database),
+      ProductRepository(database),
+      const InvoiceCalculationService(),
+    );
+    controller.invoiceDate.value = DateTime(2026, 8, 14);
+    controller.setDueDate(DateTime(2026, 8, 29));
+
+    controller.setInvoiceDate(DateTime(2026, 9, 10));
+
+    expect(controller.invoiceDate.value, DateTime(2026, 9, 10));
+    expect(controller.dueDate.value, DateTime(2026, 9, 25));
+    controller.onClose();
+    await database.close();
+  });
+
   test('adds a multi-selected catalog batch in one invoice update', () async {
     final database = AppDatabase.forTesting(NativeDatabase.memory());
     final controller = InvoiceCreateController(

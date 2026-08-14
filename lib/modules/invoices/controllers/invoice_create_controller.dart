@@ -133,15 +133,32 @@ class InvoiceCreateController extends GetxController {
   Future<List<CustomerModel>> customers() => _customers.watchCustomers().first;
 
   void setInvoiceDate(DateTime value) {
+    final previousInvoiceDate = invoiceDate.value;
+    final previousDueDate = dueDate.value;
     invoiceDate.value = value;
-    if (_dueDateUsesDefault) {
-      dueDate.value = value.add(Duration(days: defaults?.dueDays ?? 0));
+    if (previousDueDate != null) {
+      final existingTermDays = _calendarDayDifference(
+        previousInvoiceDate,
+        previousDueDate,
+      );
+      final termDays = _dueDateUsesDefault
+          ? defaults?.dueDays ?? 0
+          : existingTermDays < 0
+          ? defaults?.dueDays ?? 0
+          : existingTermDays;
+      dueDate.value = value.add(Duration(days: termDays));
     }
   }
 
   void setDueDate(DateTime value) {
     dueDate.value = value;
     _dueDateUsesDefault = false;
+  }
+
+  static int _calendarDayDifference(DateTime from, DateTime to) {
+    final start = DateTime(from.year, from.month, from.day);
+    final end = DateTime(to.year, to.month, to.day);
+    return end.difference(start).inDays;
   }
 
   void selectCustomer(CustomerModel value) {

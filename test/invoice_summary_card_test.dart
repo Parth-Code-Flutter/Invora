@@ -81,7 +81,7 @@ void main() {
     );
 
     expect(find.text('INV-0001'), findsOneWidget);
-    expect(find.textContaining('11 Aug'), findsOneWidget);
+    expect(find.textContaining('11 Aug'), findsNothing);
     expect(find.text('Abhay Designer'), findsOneWidget);
     expect(find.text('Paid'), findsOneWidget);
     expect(find.text('₹550'), findsOneWidget);

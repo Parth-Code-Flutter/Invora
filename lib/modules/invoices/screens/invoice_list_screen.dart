@@ -41,20 +41,24 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        tooltip: quotation ? 'Create quotation' : 'Create invoice',
-        onPressed: () => Get.toNamed<void>(
-          quotation ? AppRoutes.quotationCreate : AppRoutes.invoiceCreate,
-        ),
-        child: const Icon(Icons.add_rounded),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: AppMainNavigation(
         current: quotation ? MainDestination.more : MainDestination.invoices,
       ),
       appBar: AppSearchAppBar(
         leading: quotation ? const AppBackButton() : null,
         title: quotation ? 'Quotations' : 'Invoices',
+        titleSuffix: Obx(
+          () => Text(
+            '(${controller.summaryInvoices.length})',
+            style: AppTextStyles.caption.copyWith(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.textSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
         hint: quotation ? 'Quote or customer' : 'Invoice or customer',
         onChanged: controller.updateSearch,
         actions: [
@@ -160,18 +164,6 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 7),
-                Obx(
-                  () => Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '${controller.invoices.length} ${quotation ? 'estimates' : 'invoices'}',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -223,14 +215,30 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                         4,
                         8,
                       ),
-                      child: Text(
-                        entry.header!,
-                        style: AppTextStyles.caption.copyWith(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? AppColors.darkTextSecondary
-                              : AppColors.textTertiary,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.2,
+                      child: Text.rich(
+                        TextSpan(
+                          text: entry.header!,
+                          children: [
+                            TextSpan(
+                              text: ' (${entry.count})',
+                              style: TextStyle(
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.textPrimary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                          style: AppTextStyles.caption.copyWith(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.textTertiary,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.2,
+                          ),
                         ),
                       ),
                     );
@@ -328,10 +336,11 @@ String _sortLabel(InvoiceSort sort) => switch (sort) {
 };
 
 class _InvoiceListEntry {
-  const _InvoiceListEntry.header(this.header) : invoice = null;
-  const _InvoiceListEntry.row(this.invoice) : header = null;
+  const _InvoiceListEntry.header(this.header, this.count) : invoice = null;
+  const _InvoiceListEntry.row(this.invoice) : header = null, count = 0;
 
   final String? header;
+  final int count;
   final InvoiceSummaryModel? invoice;
 }
 
@@ -351,7 +360,10 @@ List<_InvoiceListEntry> _invoiceListEntries(
   }
   return [
     for (final group in groups.values) ...[
-      _InvoiceListEntry.header(_monthLabel(group.first.invoiceDate, now)),
+      _InvoiceListEntry.header(
+        _monthLabel(group.first.invoiceDate, now),
+        group.length,
+      ),
       ..._groupedRows(group),
     ],
   ];

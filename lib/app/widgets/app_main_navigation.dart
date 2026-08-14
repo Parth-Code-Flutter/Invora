@@ -19,52 +19,66 @@ class AppMainNavigation extends StatelessWidget {
     return SafeArea(
       top: false,
       minimum: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-      child: Container(
-        height: 68,
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(23),
-          border: Border.all(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? AppColors.darkBorder
-                : AppColors.border,
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x1F321D30),
-              blurRadius: 22,
-              offset: Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Row(
+      child: SizedBox(
+        height: 76,
+        child: Stack(
+          alignment: Alignment.topCenter,
           children: [
-            _destination(
-              destination: MainDestination.home,
-              icon: Symbols.home_rounded,
-              label: 'Home',
-              route: AppRoutes.dashboard,
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 14,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(23),
+                  border: Border.all(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.darkBorder
+                        : AppColors.border,
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x1F321D30),
+                      blurRadius: 22,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    _destination(
+                      destination: MainDestination.home,
+                      icon: Symbols.home_rounded,
+                      label: 'Home',
+                      route: AppRoutes.dashboard,
+                    ),
+                    _destination(
+                      destination: MainDestination.invoices,
+                      icon: Symbols.receipt_long_rounded,
+                      label: 'Invoices',
+                      route: AppRoutes.invoices,
+                    ),
+                    const Expanded(child: SizedBox()),
+                    _destination(
+                      destination: MainDestination.customers,
+                      icon: Symbols.group_rounded,
+                      label: 'Customers',
+                      route: AppRoutes.customers,
+                    ),
+                    _destination(
+                      destination: MainDestination.more,
+                      icon: Symbols.widgets_rounded,
+                      label: 'More',
+                      route: AppRoutes.more,
+                    ),
+                  ],
+                ),
+              ),
             ),
-            _destination(
-              destination: MainDestination.invoices,
-              icon: Symbols.receipt_long_rounded,
-              label: 'Invoices',
-              route: AppRoutes.invoices,
-            ),
-            Expanded(child: _createButton(context)),
-            _destination(
-              destination: MainDestination.customers,
-              icon: Symbols.group_rounded,
-              label: 'Customers',
-              route: AppRoutes.customers,
-            ),
-            _destination(
-              destination: MainDestination.more,
-              icon: Symbols.widgets_rounded,
-              label: 'More',
-              route: AppRoutes.more,
-            ),
+            _createButton(context),
           ],
         ),
       ),
@@ -87,89 +101,86 @@ class AppMainNavigation extends StatelessWidget {
         child: InkWell(
           onTap: selected ? null : () => _openDestination(route),
           borderRadius: BorderRadius.circular(15),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                width: 31,
-                height: 29,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: selected ? AppColors.primaryLight : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 21,
-                  fill: selected ? 1 : 0,
-                  weight: selected ? 650 : 450,
-                  opticalSize: 24,
-                ),
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected ? AppColors.primaryLight : Colors.transparent,
+                borderRadius: BorderRadius.circular(13),
               ),
-              const SizedBox(height: 2),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.fade,
-                softWrap: false,
-                style: AppTextStyles.caption.copyWith(
-                  color: color,
-                  fontSize: 8.5,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 23,
+                fill: selected ? 1 : 0,
+                weight: selected ? 650 : 450,
+                opticalSize: 24,
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _createButton(BuildContext context) => Semantics(
-    button: true,
-    label: 'Create new',
-    child: InkWell(
-      onTap: () => _showCreateSheet(context),
-      borderRadius: BorderRadius.circular(15),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 39,
-            height: 39,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.secondary],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+  Widget _createButton(BuildContext context) => SizedBox(
+    width: 68,
+    height: 70,
+    child: Semantics(
+      button: true,
+      label: 'Create new',
+      child: InkWell(
+        onTap: () => _showCreateSheet(context),
+        customBorder: const CircleBorder(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                shape: BoxShape.circle,
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x3D7B2F68),
+                    blurRadius: 15,
+                    offset: Offset(0, 6),
+                  ),
+                ],
               ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0x3D7B2F68),
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.secondary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
                 ),
-              ],
+                child: const Icon(
+                  Symbols.add_rounded,
+                  color: Colors.white,
+                  size: 28,
+                  weight: 650,
+                ),
+              ),
             ),
-            child: const Icon(
-              Symbols.add_rounded,
-              color: Colors.white,
-              size: 25,
-              weight: 650,
+            const SizedBox(height: 4),
+            Container(
+              width: 5,
+              height: 5,
+              decoration: const BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+              ),
             ),
-          ),
-          Text(
-            'Create',
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.primary,
-              fontSize: 8,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
   );

@@ -310,7 +310,7 @@ transfer automatically.
 As of 2026-08-13:
 
 - Flutter analysis: no issues
-- Automated suite: all 112 tests passing
+- Automated suite: all 114 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -337,16 +337,44 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 - Rebuilt invoice rows around a compact customer avatar, invoice/customer/date
   hierarchy, theme-colored status treatment, and right-aligned billed/due
   amounts based on the supplied reference.
-- Added a responsive overview showing received, pending, overdue, and this
-  month's invoice count. It subscribes to the complete invoice collection so
-  list search and filters do not distort the totals.
+- Added a responsive overview showing received, pending, and overdue totals. It
+  subscribes to the complete invoice collection so list search and filters do
+  not distort the totals. Current and historical section headers carry their
+  invoice count in parentheses instead of repeating a fourth summary metric or
+  a separate count line below the filters.
 - Important files: invoice list controller/screen, invoice overview widget,
   shared invoice summary card, widget tests, and this handoff.
 - Verification: formatting, static analysis, narrow-phone overview/card tests,
   and complete Flutter test suite.
-- Follow-up polish aligns the date and payment-status badge at the far right of
-  the invoice-number row, leaving the customer and billed amount together on
-  the second row and the outstanding balance directly below the amount.
+- Follow-up polish keeps payment status at the far right of the invoice-number
+  row, customer and billed amount on the second row, and moves the date beside
+  the outstanding balance on the final row for faster scanning. Fully paid
+  cards omit the now-irrelevant date row and remain a compact two-row card.
+- Invoice and customer AppBars show their complete active-record count in a
+  smaller parenthesized suffix. The headline count stays stable while search or
+  status filters narrow the visible list.
+- Invoice and customer tabs no longer repeat a floating add button because the
+  central Create destination already exposes every creation flow. Its larger
+  gradient control sits slightly above the other bottom-navigation destinations
+  for a distinct, modern primary-action hierarchy.
+- The main bottom navigation uses a floating icon-only pill: destination names
+  remain available to accessibility services but are visually removed, while
+  the Create action sits in a raised, surface-ringed gradient circle with a
+  small active dot below it.
+- The customer tab now opens with total-customer, amount-due, and paid-amount
+  metrics, then separates balance-bearing accounts under Needs attention from
+  settled/new accounts under All customers. Cards use status-colored accents,
+  larger initials, concise invoice state, and billed/due amount hierarchy with
+  no trailing arrow; tap opens details, swipe edits/deletes, and long-press
+  retains the complete action sheet.
+- Customer Due/Paid badges are content-sized and right-aligned above their
+  amount rather than stretching across the financial column.
+- Customer cards prefix mobile numbers with a compact phone icon; company-only
+  contacts use a business icon instead.
+- Changing an invoice or quotation issued date now shifts its due date by the
+  same payment-term interval in both create and edit flows. Default terms still
+  follow Invoice Defaults, while a manually selected 15-day term remains 15
+  days after the newly selected issued date.
 
 ### 2026-08-13 — Scan into add-item forms
 

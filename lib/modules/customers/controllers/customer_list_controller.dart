@@ -16,6 +16,8 @@ class CustomerListController extends GetxController {
   final InvoiceRepository _invoices;
   final BusinessRepository _business;
   final customers = <CustomerModel>[].obs;
+  final allCustomers = <CustomerModel>[].obs;
+  final totalCustomerCount = 0.obs;
   final isLoading = true.obs;
   final searchQuery = ''.obs;
   final billedByCustomer = <int, int>{}.obs;
@@ -23,6 +25,7 @@ class CustomerListController extends GetxController {
   final invoiceCountByCustomer = <int, int>{}.obs;
   final currencySymbol = '₹'.obs;
   StreamSubscription<List<CustomerModel>>? _subscription;
+  StreamSubscription<List<CustomerModel>>? _totalSubscription;
   StreamSubscription<List<InvoiceSummaryModel>>? _invoiceSubscription;
   Worker? _searchWorker;
 
@@ -30,6 +33,10 @@ class CustomerListController extends GetxController {
   void onInit() {
     super.onInit();
     _bindCustomers();
+    _totalSubscription = _repository.watchCustomers().listen((items) {
+      allCustomers.assignAll(items);
+      totalCustomerCount.value = items.length;
+    });
     _business.getProfile().then(
       (profile) => currencySymbol.value = profile?.currencySymbol ?? '₹',
     );
@@ -56,6 +63,24 @@ class CustomerListController extends GetxController {
   int invoiceCountFor(CustomerModel customer) =>
       invoiceCountByCustomer[customer.id] ?? 0;
 
+  int get totalAmountDueMinor =>
+      allCustomers.fold(0, (sum, customer) => sum + balanceFor(customer));
+
+  int get totalPaidAmountMinor => allCustomers.fold(0, (sum, customer) {
+    final paid = billedFor(customer) - balanceFor(customer);
+    return sum + (paid < 0 ? 0 : paid);
+  });
+
+  int get dueCustomerCount =>
+      allCustomers.where((customer) => balanceFor(customer) > 0).length;
+
+  int get paidCustomerCount => allCustomers
+      .where(
+        (customer) =>
+            invoiceCountFor(customer) > 0 && balanceFor(customer) == 0,
+      )
+      .length;
+
   void _aggregateInvoices(List<InvoiceSummaryModel> values) {
     final billed = <int, int>{};
     final balance = <int, int>{};
@@ -79,7 +104,6 @@ class CustomerListController extends GetxController {
   void _bindCustomers() {
     isLoading.value = true;
     _subscription?.cancel();
-    _invoiceSubscription?.cancel();
     _subscription = _repository.watchCustomers(query: searchQuery.value).listen(
       (items) {
         customers.assignAll(items);
@@ -92,6 +116,8 @@ class CustomerListController extends GetxController {
   void onClose() {
     _searchWorker?.dispose();
     _subscription?.cancel();
+    _totalSubscription?.cancel();
+    _invoiceSubscription?.cancel();
     super.onClose();
   }
 }

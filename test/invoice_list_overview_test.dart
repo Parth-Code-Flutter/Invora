@@ -62,8 +62,7 @@ void main() {
     expect(find.text('₹18,760'), findsOneWidget);
     expect(find.text('Overdue'), findsOneWidget);
     expect(find.text('₹8,580'), findsOneWidget);
-    expect(find.text('This month'), findsOneWidget);
-    expect(find.text('3'), findsOneWidget);
+    expect(find.text('This month'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

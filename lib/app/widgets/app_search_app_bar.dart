@@ -10,6 +10,7 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
     required this.hint,
     required this.onChanged,
     this.leading,
+    this.titleSuffix,
     this.actions = const [],
     super.key,
   });
@@ -18,6 +19,7 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String hint;
   final ValueChanged<String> onChanged;
   final Widget? leading;
+  final Widget? titleSuffix;
   final List<Widget> actions;
 
   @override
@@ -115,7 +117,23 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
                   ),
                 ),
               )
-            : Text(widget.title, key: const ValueKey('app-bar-title')),
+            : Row(
+                key: const ValueKey('app-bar-title'),
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      widget.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (widget.titleSuffix != null) ...[
+                    const SizedBox(width: 5),
+                    widget.titleSuffix!,
+                  ],
+                ],
+              ),
       ),
       actions: [
         IconButton(

@@ -81,52 +81,24 @@ class AppInvoiceSummaryCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    SizedBox(
-                      width: 132,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Icon(
-                            Icons.calendar_today_outlined,
-                            size: 11,
-                            color: statusColor,
-                          ),
-                          const SizedBox(width: 3),
-                          Flexible(
-                            child: Text(
-                              dateHint,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.right,
-                              style: AppTextStyles.caption.copyWith(
-                                color: overdue ? AppColors.error : statusColor,
-                                fontSize: 9,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: statusColor.withValues(
-                                alpha: isDark ? 0.22 : 0.11,
-                              ),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              _statusLabel(status),
-                              style: AppTextStyles.caption.copyWith(
-                                color: statusColor,
-                                fontSize: 8.5,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(
+                          alpha: isDark ? 0.22 : 0.11,
+                        ),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        _statusLabel(status),
+                        style: AppTextStyles.caption.copyWith(
+                          color: statusColor,
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
@@ -156,28 +128,50 @@ class AppInvoiceSummaryCard extends StatelessWidget {
                         symbol: currencySymbol,
                         textAlign: TextAlign.end,
                         color: paid ? secondary : null,
-                        style: AppTextStyles.listAmount,
+                        style: AppTextStyles.listAmount.copyWith(fontSize: 12),
                       ),
                     ),
                   ],
                 ),
-                if (invoice.balanceMinor > 0) ...[
-                  const SizedBox(height: 4),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: SizedBox(
-                      width: 112,
-                      child: AppAmountText(
-                        amountMinor: invoice.balanceMinor,
-                        symbol: currencySymbol,
-                        suffix: ' due',
-                        textAlign: TextAlign.end,
+                if (status != InvoiceStatus.paid) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        size: 11,
                         color: statusColor,
-                        style: AppTextStyles.caption.copyWith(
-                          fontWeight: FontWeight.w700,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          dateHint,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption.copyWith(
+                            color: overdue ? AppColors.error : statusColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
+                      if (invoice.balanceMinor > 0) ...[
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 132,
+                          child: AppAmountText(
+                            amountMinor: invoice.balanceMinor,
+                            symbol: currencySymbol,
+                            suffix: ' due',
+                            textAlign: TextAlign.end,
+                            color: statusColor,
+                            style: AppTextStyles.caption.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ],
