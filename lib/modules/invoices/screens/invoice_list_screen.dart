@@ -14,6 +14,7 @@ import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_list_motion.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/invoice_list_controller.dart';
+import '../widgets/invoice_list_overview.dart';
 
 class InvoiceListScreen extends StatefulWidget {
   const InvoiceListScreen({this.quotation = false, super.key});
@@ -111,6 +112,15 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
             ),
             child: Column(
               children: [
+                if (!quotation) ...[
+                  Obx(
+                    () => InvoiceListOverview(
+                      invoices: controller.summaryInvoices.toList(),
+                      currencySymbol: controller.currencySymbol.value,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 SizedBox(
                   height: 42,
                   child: Obx(
@@ -150,7 +160,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 7),
                 Obx(
                   () => Align(
                     alignment: Alignment.centerLeft,

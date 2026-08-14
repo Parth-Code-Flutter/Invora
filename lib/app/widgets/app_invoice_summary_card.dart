@@ -39,100 +39,165 @@ class AppInvoiceSummaryCard extends StatelessWidget {
     final secondary = isDark
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
+    final initials = _initials(customerName);
     return AppGroupedTile(
       position: position,
       onTap: onTap,
       accentColor: statusColor,
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  invoice.invoiceNumber,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    color: secondary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+          Container(
+            width: 42,
+            height: 42,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: isDark ? 0.22 : 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              initials,
+              style: AppTextStyles.body.copyWith(
+                color: statusColor,
+                fontWeight: FontWeight.w700,
               ),
-              const SizedBox(width: 8),
-              Text(
-                dateHint,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.caption.copyWith(
-                  color: overdue ? AppColors.error : secondary,
-                  fontWeight: overdue ? FontWeight.w700 : FontWeight.w500,
-                ),
-              ),
-            ],
+            ),
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  customerName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.listName,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        invoice.invoiceNumber,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.listName,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    SizedBox(
+                      width: 132,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Icon(
+                            Icons.calendar_today_outlined,
+                            size: 11,
+                            color: statusColor,
+                          ),
+                          const SizedBox(width: 3),
+                          Flexible(
+                            child: Text(
+                              dateHint,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.right,
+                              style: AppTextStyles.caption.copyWith(
+                                color: overdue ? AppColors.error : statusColor,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: statusColor.withValues(
+                                alpha: isDark ? 0.22 : 0.11,
+                              ),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              _statusLabel(status),
+                              style: AppTextStyles.caption.copyWith(
+                                color: statusColor,
+                                fontSize: 8.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                _statusLabel(status),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.caption.copyWith(
-                  color: statusColor,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                const SizedBox(height: 7),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.person_outline_rounded,
+                      size: 13,
+                      color: secondary,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        customerName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption.copyWith(color: secondary),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      width: 132,
+                      child: AppAmountText(
+                        amountMinor: invoice.grandTotalMinor,
+                        symbol: currencySymbol,
+                        textAlign: TextAlign.end,
+                        color: paid ? secondary : null,
+                        style: AppTextStyles.listAmount,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                child: AppAmountText(
-                  amountMinor: invoice.grandTotalMinor,
-                  symbol: currencySymbol,
-                  textAlign: TextAlign.start,
-                  color: paid
-                      ? (isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textTertiary)
-                      : null,
-                  style: AppTextStyles.listAmount,
-                ),
-              ),
-              if (invoice.balanceMinor > 0) ...[
-                const SizedBox(width: 10),
-                Expanded(
-                  child: AppAmountText(
-                    amountMinor: invoice.balanceMinor,
-                    symbol: currencySymbol,
-                    suffix: ' due',
-                    textAlign: TextAlign.end,
-                    color: statusColor,
-                    style: AppTextStyles.caption.copyWith(
-                      fontWeight: FontWeight.w700,
+                if (invoice.balanceMinor > 0) ...[
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: SizedBox(
+                      width: 112,
+                      child: AppAmountText(
+                        amountMinor: invoice.balanceMinor,
+                        symbol: currencySymbol,
+                        suffix: ' due',
+                        textAlign: TextAlign.end,
+                        color: statusColor,
+                        style: AppTextStyles.caption.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+String _initials(String value) {
+  final words = value
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((word) => word.isNotEmpty)
+      .toList();
+  if (words.isEmpty) return '?';
+  if (words.length == 1) return words.first.substring(0, 1).toUpperCase();
+  return '${words.first[0]}${words.last[0]}'.toUpperCase();
 }
 
 Color _statusColor(InvoiceStatus status) => switch (status) {

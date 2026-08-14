@@ -175,14 +175,15 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   skeleton rows and apply a subtle staggered fade/translate/scale entrance as
   rows are built during initial display and scrolling. System reduced-motion
   settings bypass the entrance animation.
-- Shared invoice summary cards use three rows: invoice number with date on the
-  right, customer name with payment status on the right, and billed amount with
-  due amount on the right when a balance remains. A status-colored vertical
-  bar sits on the left edge of every card. Each invoice is its own rounded
-  card with 10px space between rows. Date-sorted lists still group under This
-  month / Last month / August 2026. The Invoice list has a dedicated create
-  `+` FAB in addition to the center dock. Amounts still shrink to fit 7–10
-  digit rupee values.
+- The invoice list begins with a responsive, theme-aware business summary for
+  received, pending, overdue, and current-month invoice totals. Summary values
+  always use the complete invoice collection and remain stable while users
+  search or filter the visible list. Compact customer-led invoice cards use an
+  initial avatar, invoice/customer/date hierarchy, a status badge and colored
+  edge, with billed and due amounts aligned on the right. Date-sorted lists
+  still group under This month / Last month / August 2026. The Invoice list has
+  a dedicated create `+` FAB in addition to the center dock. Amounts shrink to
+  fit narrow phones and large rupee values.
 
 ### Documents and reporting
 
@@ -221,7 +222,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 
 ## Persisted data notes
 
-- Database schema version 8 classifies `invoice_payments` entries and links
+- Database schema version 9 includes product/invoice attribute snapshots; its
+  version 8 migration classifies `invoice_payments` entries and links
   reversals to original payments. The v7 migration preserves every older
   non-zero cumulative payment as a dated `Previous payment` entry.
 - Invoice numbers have a unique database index.
@@ -308,7 +310,7 @@ transfer automatically.
 As of 2026-08-13:
 
 - Flutter analysis: no issues
-- Automated suite: all 96 tests passing
+- Automated suite: all 112 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -329,6 +331,22 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-14 — Responsive invoice list and financial summary
+
+- Rebuilt invoice rows around a compact customer avatar, invoice/customer/date
+  hierarchy, theme-colored status treatment, and right-aligned billed/due
+  amounts based on the supplied reference.
+- Added a responsive overview showing received, pending, overdue, and this
+  month's invoice count. It subscribes to the complete invoice collection so
+  list search and filters do not distort the totals.
+- Important files: invoice list controller/screen, invoice overview widget,
+  shared invoice summary card, widget tests, and this handoff.
+- Verification: formatting, static analysis, narrow-phone overview/card tests,
+  and complete Flutter test suite.
+- Follow-up polish aligns the date and payment-status badge at the far right of
+  the invoice-number row, leaving the customer and billed amount together on
+  the second row and the outstanding balance directly below the amount.
 
 ### 2026-08-13 — Scan into add-item forms
 

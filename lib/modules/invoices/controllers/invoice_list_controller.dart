@@ -19,12 +19,14 @@ class InvoiceListController extends GetxController {
   final BusinessRepository _businessRepository;
   final DocumentType documentType;
   final invoices = <InvoiceSummaryModel>[].obs;
+  final summaryInvoices = <InvoiceSummaryModel>[].obs;
   final searchQuery = ''.obs;
   final selectedFilter = InvoiceListFilter.all.obs;
   final selectedSort = InvoiceSort.newest.obs;
   final currencySymbol = '₹'.obs;
   final isLoading = true.obs;
   StreamSubscription<List<InvoiceSummaryModel>>? _subscription;
+  StreamSubscription<List<InvoiceSummaryModel>>? _summarySubscription;
   Worker? _searchWorker;
   Worker? _filterWorker;
   Worker? _sortWorker;
@@ -64,6 +66,7 @@ class InvoiceListController extends GetxController {
     final previous = _subscription;
     _subscription = null;
     await previous?.cancel();
+    await _summarySubscription?.cancel();
     if (generation != _bindingGeneration || isClosed) return;
     _subscription = _repository
         .watchSummaries(
@@ -83,12 +86,23 @@ class InvoiceListController extends GetxController {
             isLoading.value = false;
           },
         );
+    _summarySubscription = _repository
+        .watchSummaries(
+          filter: InvoiceListFilter.all,
+          sort: InvoiceSort.newest,
+          documentType: documentType,
+        )
+        .listen((values) {
+          if (generation != _bindingGeneration || isClosed) return;
+          summaryInvoices.assignAll(values);
+        });
   }
 
   @override
   void onClose() {
     _bindingGeneration++;
     _subscription?.cancel();
+    _summarySubscription?.cancel();
     _searchWorker?.dispose();
     _filterWorker?.dispose();
     _sortWorker?.dispose();

@@ -24,7 +24,7 @@ void main() {
               invoiceNumber: 'INV-0002',
               customerName: 'Rinkal Ben',
               invoiceDate: DateTime(2026, 8, 11),
-              dueDate: DateTime(2026, 8, 13),
+              dueDate: DateTime(2099, 8, 13),
               status: InvoiceStatus.unpaid,
               grandTotalMinor: 177200,
               balanceMinor: 177200,
@@ -37,9 +37,9 @@ void main() {
     );
 
     expect(find.text('INV-0002'), findsOneWidget);
-    expect(find.textContaining('Due 13 Aug'), findsOneWidget);
+    expect(find.textContaining('Due 13 Aug 2099'), findsOneWidget);
     expect(find.textContaining('Issued'), findsNothing);
-    expect(tester.widget<Text>(find.text('Rinkal Ben')).style?.fontSize, 14);
+    expect(tester.widget<Text>(find.text('Rinkal Ben')).style?.fontSize, 12);
     expect(find.text('Unpaid'), findsOneWidget);
     expect(find.text('₹1,772'), findsOneWidget);
     expect(find.textContaining('₹1,772 due'), findsOneWidget);
