@@ -151,6 +151,12 @@ void main() {
     expect(find.textContaining('₹12,345,678.90 due'), findsOneWidget);
     expect(find.text('Partial'), findsOneWidget);
     expect(find.textContaining('Due 31 Jan 2099'), findsOneWidget);
+    expect(
+      tester
+          .widget<Expanded>(find.byKey(const ValueKey('invoice-customer-name')))
+          .flex,
+      7,
+    );
     expect(tester.takeException(), isNull);
   });
 }

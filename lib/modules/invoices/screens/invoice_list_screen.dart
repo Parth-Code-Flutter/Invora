@@ -250,7 +250,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                   }
                   final invoice = entry.invoice!;
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: AppListEntrance(
                       index: index,
                       child: AppScrollMotion(

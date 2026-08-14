@@ -195,10 +195,12 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   always use the complete invoice collection and remain stable while users
   search or filter the visible list. Compact customer-led invoice cards use an
   initial avatar, invoice/customer/date hierarchy, a status badge and colored
-  edge, with billed and due amounts aligned on the right. Date-sorted lists
-  still group under This month / Last month / August 2026. The Invoice list has
-  a dedicated create `+` FAB in addition to the center dock. Amounts shrink to
-  fit narrow phones and large rupee values.
+  edge, with billed and due amounts aligned on the right. The customer name
+  keeps about 70% of the text row so longer names stay readable; amounts use
+  the remaining 30% and still shrink to fit. Date-sorted lists still group
+  under This month / Last month / August 2026. The Invoice list has a dedicated
+  create `+` FAB in addition to the center dock. Amounts shrink to fit narrow
+  phones and large rupee values.
 
 ### Documents and reporting
 
@@ -346,6 +348,14 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-15 — Give invoice customer names more width
+
+- Invoice list cards now give the customer name about 70% of the text row and
+  keep billed/due amounts in the remaining 30%. Names were truncating early
+  because the amount column was a fixed 132px.
+- Important files: invoice summary card, card tests, and this handoff.
+- Verification: invoice summary card tests, formatting, and static analysis.
 
 ### 2026-08-15 — Smooth post-restore dashboard handoff
 
