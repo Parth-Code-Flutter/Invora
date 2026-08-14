@@ -433,6 +433,7 @@ const Map<String, String> appHindiCoverageTranslations = {
       'मात्रा, कर और कुल अपने आप अपडेट होते हैं',
   'Add first item': 'पहला आइटम जोड़ें',
   'NO ITEMS YET': 'अभी कोई आइटम नहीं',
+  'Edit item details': 'आइटम विवरण संपादित करें',
   'Business category, fields and invoice display':
       'व्यवसाय श्रेणी, फ़ील्ड और चालान प्रदर्शन',
   'Customer name *': 'ग्राहक का नाम *',
@@ -933,6 +934,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'જથ્થો, કર અને કુલ આપમેળે અપડેટ થાય છે',
   'Add first item': 'પહેલી આઇટમ ઉમેરો',
   'NO ITEMS YET': 'હજુ કોઈ આઇટમ નથી',
+  'Edit item details': 'આઇટમ વિગતોમાં ફેરફાર કરો',
   'Business category, fields and invoice display':
       'વ્યવસાય શ્રેણી, ફીલ્ડ અને ઇન્વૉઇસ દેખાવ',
   'Customer name *': 'ગ્રાહકનું નામ *',

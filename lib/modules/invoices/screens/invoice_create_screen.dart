@@ -625,51 +625,19 @@ class _InvoiceForm extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          PopupMenuButton<String>(
-                            tooltip: l10n('Item actions'),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                              minWidth: 180,
-                              maxWidth: 220,
+                          IconButton(
+                            tooltip: l10n('Edit item details'),
+                            onPressed: () => _editItem(
+                              context,
+                              index: entry.key,
+                              item: item,
                             ),
-                            iconSize: 20,
-                            onSelected: (action) {
-                              if (action == 'edit') {
-                                _editItem(
-                                  context,
-                                  index: entry.key,
-                                  item: item,
-                                );
-                              } else if (action == 'delete') {
-                                controller.removeItem(entry.key);
-                              }
-                            },
-                            itemBuilder: (_) => const [
-                              PopupMenuItem(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.edit_outlined, size: 20),
-                                    SizedBox(width: 12),
-                                    Text('Edit details'),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.delete_outline,
-                                      color: AppColors.error,
-                                      size: 20,
-                                    ),
-                                    SizedBox(width: 12),
-                                    Text('Remove item'),
-                                  ],
-                                ),
-                              ),
-                            ],
+                            icon: const Icon(Icons.edit_outlined, size: 18),
+                            style: IconButton.styleFrom(
+                              backgroundColor: AppColors.primaryLight,
+                              foregroundColor: AppColors.primary,
+                              minimumSize: const Size(36, 36),
+                            ),
                           ),
                         ],
                       ),

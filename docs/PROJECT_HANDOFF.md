@@ -338,6 +338,17 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-14 — One-tap invoice line-item actions
+
+- Removed the extra popup/bottom-sheet step from invoice line items. Each card
+  now exposes a clear pencil action that opens the existing editor immediately,
+  while the quantity control keeps its direct trash action for removal.
+- The faster controls preserve all existing item calculations and storage
+  behavior, and use compact branded touch targets without crowding item text.
+- Important files: invoice composer, Hindi/Gujarati localization maps, and this
+  handoff. No database or migration changes.
+- Verification: formatting, static analysis, and the full automated suite.
+
 ### 2026-08-14 — Purposeful empty invoice composer
 
 - Replaced the small, floating empty line-item control with a complete first
