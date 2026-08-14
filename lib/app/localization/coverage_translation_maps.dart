@@ -424,6 +424,15 @@ const Map<String, String> appHindiCoverageTranslations = {
   'e.g. 18': 'जैसे 18',
   'e.g. Brand consultation': 'जैसे ब्रांड परामर्श',
   'e.g. Creovo Studio': 'जैसे Creovo Studio',
+  'Add your first line item': 'अपना पहला आइटम जोड़ें',
+  'Choose a saved product or add a custom service for this invoice.':
+      'सहेजा उत्पाद चुनें या इस चालान के लिए कस्टम सेवा जोड़ें।',
+  'Custom item': 'कस्टम आइटम',
+  'Scan item': 'आइटम स्कैन करें',
+  'Quantity, tax and totals update automatically':
+      'मात्रा, कर और कुल अपने आप अपडेट होते हैं',
+  'Add first item': 'पहला आइटम जोड़ें',
+  'NO ITEMS YET': 'अभी कोई आइटम नहीं',
   'Business category, fields and invoice display':
       'व्यवसाय श्रेणी, फ़ील्ड और चालान प्रदर्शन',
   'Customer name *': 'ग्राहक का नाम *',
@@ -915,6 +924,15 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'e.g. 18': 'દા.ત. 18',
   'e.g. Brand consultation': 'દા.ત. બ્રાન્ડ સલાહ',
   'e.g. Creovo Studio': 'દા.ત. Creovo Studio',
+  'Add your first line item': 'તમારી પહેલી આઇટમ ઉમેરો',
+  'Choose a saved product or add a custom service for this invoice.':
+      'સાચવેલું ઉત્પાદન પસંદ કરો અથવા આ ઇન્વૉઇસ માટે કસ્ટમ સેવા ઉમેરો.',
+  'Custom item': 'કસ્ટમ આઇટમ',
+  'Scan item': 'આઇટમ સ્કેન કરો',
+  'Quantity, tax and totals update automatically':
+      'જથ્થો, કર અને કુલ આપમેળે અપડેટ થાય છે',
+  'Add first item': 'પહેલી આઇટમ ઉમેરો',
+  'NO ITEMS YET': 'હજુ કોઈ આઇટમ નથી',
   'Business category, fields and invoice display':
       'વ્યવસાય શ્રેણી, ફીલ્ડ અને ઇન્વૉઇસ દેખાવ',
   'Customer name *': 'ગ્રાહકનું નામ *',

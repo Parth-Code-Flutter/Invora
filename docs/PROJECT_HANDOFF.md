@@ -338,6 +338,22 @@ e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
 
+### 2026-08-14 — Purposeful empty invoice composer
+
+- Replaced the small, floating empty line-item control with a complete first
+  item workspace: clear illustration and guidance, a primary saved-catalog
+  action, secondary custom-item and barcode-scan actions, and automatic-total
+  guidance. The layout uses the existing Creovo surfaces and remains compact
+  enough for small phones.
+- The sticky footer now changes to `Add first item` while the invoice is empty
+  and opens the established add-item chooser. Once an item exists it returns
+  to Review invoice/estimate, so users no longer hit validation from an
+  apparently active review button on an empty document.
+- Important files: invoice composer, localization maps, invoice composer
+  widget coverage, and this handoff. No persistence or migration changes.
+- Verification: formatting, static analysis, focused narrow-phone widget
+  tests, and the full automated suite.
+
 ### 2026-08-14 — Complete interface-copy localization audit
 
 - Closed the remaining mixed-language gaps across Hindi and Gujarati,

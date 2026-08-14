@@ -80,6 +80,7 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
               border: const Border(top: BorderSide(color: AppColors.border)),
             ),
             child: Obx(() {
+              final hasItems = controller.items.isNotEmpty;
               final actionWidth = (MediaQuery.sizeOf(context).width * .56)
                   .clamp(210.0, 300.0)
                   .toDouble();
@@ -91,8 +92,11 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          controller.calculation.value?.balanceDueMinor == 0 &&
-                                  controller.items.isNotEmpty
+                          !hasItems
+                              ? 'NO ITEMS YET'
+                              : controller.calculation.value?.balanceDueMinor ==
+                                        0 &&
+                                    hasItems
                               ? 'READY TO REVIEW'
                               : 'INVOICE TOTAL',
                           style: AppTextStyles.caption.copyWith(
@@ -101,10 +105,19 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          CurrencyUtils.formatMinor(
-                            controller.calculation.value?.grandTotalMinor ?? 0,
-                            symbol: controller.currencySymbol.value,
-                          ),
+                          hasItems
+                              ? CurrencyUtils.formatMinor(
+                                  controller
+                                          .calculation
+                                          .value
+                                          ?.grandTotalMinor ??
+                                      0,
+                                  symbol: controller.currencySymbol.value,
+                                )
+                              : CurrencyUtils.formatMinor(
+                                  0,
+                                  symbol: controller.currencySymbol.value,
+                                ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.sectionTitle,
@@ -116,9 +129,16 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
                   SizedBox(
                     width: actionWidth,
                     child: AppButton(
-                      onPressed: controller.preview,
-                      trailingIcon: Icons.arrow_forward_rounded,
-                      label: controller.isQuotation
+                      onPressed: hasItems
+                          ? controller.preview
+                          : () => _selectFirstProduct(context),
+                      icon: hasItems ? null : Icons.add_rounded,
+                      trailingIcon: hasItems
+                          ? Icons.arrow_forward_rounded
+                          : null,
+                      label: !hasItems
+                          ? 'Add first item'
+                          : controller.isQuotation
                           ? 'Review estimate'
                           : 'Review invoice',
                     ),
@@ -164,6 +184,18 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
           );
         }),
       ),
+    );
+  }
+
+  Future<void> _selectFirstProduct(BuildContext context) async {
+    final selected = await Get.toNamed<dynamic>(
+      AppRoutes.invoiceItemPicker,
+      arguments: const InvoiceItemPickerArgs(alreadyAddedIds: {}),
+    );
+    if (!context.mounted || selected is! InvoiceItemPickerResult) return;
+    controller.applyCatalogSelection(
+      added: selected.added,
+      removedProductIds: selected.removedIds,
     );
   }
 }
@@ -348,71 +380,123 @@ class _InvoiceForm extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           if (controller.items.isEmpty)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight.withValues(alpha: .42),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: .14),
-                ),
-              ),
+            AppCard(
+              padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.darkSurface
+                  : const Color(0xFFFFFBFA),
+              borderColor: AppColors.primary.withValues(alpha: .16),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Icon(
-                          Icons.receipt_long_outlined,
+                  Container(
+                    width: 68,
+                    height: 68,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.primary.withValues(alpha: .16),
+                          AppColors.secondary.withValues(alpha: .12),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(
+                          Icons.receipt_long_rounded,
                           color: AppColors.primary,
+                          size: 30,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'What are you billing for?',
-                              style: AppTextStyles.cardTitle,
+                        Positioned(
+                          right: 7,
+                          bottom: 7,
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            decoration: const BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
                             ),
-                            const SizedBox(height: 3),
-                            Text(
-                              'Add a saved or one-time item.',
-                              style: AppTextStyles.small.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
+                            child: const Icon(
+                              Icons.add_rounded,
+                              color: Colors.white,
+                              size: 15,
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 14),
+                  Text(
+                    'Add your first line item',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.sectionTitle,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Choose a saved product or add a custom service for this invoice.',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textSecondary,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () => _selectProduct(context),
+                      icon: const Icon(Icons.inventory_2_outlined, size: 18),
+                      label: const Text('Choose saved item'),
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       Expanded(
-                        child: FilledButton.icon(
-                          onPressed: () => _selectProduct(context),
-                          icon: const Icon(
-                            Icons.inventory_2_outlined,
-                            size: 18,
-                          ),
-                          label: const Text('Saved item'),
+                        child: OutlinedButton.icon(
+                          onPressed: () => _editItem(context),
+                          icon: const Icon(Icons.edit_note_rounded, size: 18),
+                          label: const Text('Custom item'),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () => _editItem(context),
-                          icon: const Icon(Icons.add_rounded, size: 18),
-                          label: const Text('One-time'),
+                          onPressed: () => _scanProducts(context),
+                          icon: const Icon(
+                            Icons.qr_code_scanner_rounded,
+                            size: 18,
+                          ),
+                          label: const Text('Scan item'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 13),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.auto_awesome_outlined,
+                        size: 14,
+                        color: AppColors.textTertiary,
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          'Quantity, tax and totals update automatically',
+                          textAlign: TextAlign.center,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textTertiary,
+                          ),
                         ),
                       ),
                     ],
