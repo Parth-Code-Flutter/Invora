@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -197,14 +199,14 @@ class _ExportTile extends StatelessWidget {
             )
           else ...[
             IconButton(
-              tooltip: 'Share CSV',
+              tooltip: l10n('Share CSV'),
               onPressed: disabled
                   ? null
                   : () => controller.exportCsv(type, share: true),
               icon: const Icon(Icons.ios_share_rounded),
             ),
             IconButton(
-              tooltip: 'Save CSV',
+              tooltip: l10n('Save CSV'),
               onPressed: disabled
                   ? null
                   : () => controller.exportCsv(type, share: false),

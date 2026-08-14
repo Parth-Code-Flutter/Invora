@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 
 import 'app/bindings/initial_binding.dart';
 import 'app/constants/app_constants.dart';
 import 'app/constants/app_storage_key_const.dart';
+import 'app/localization/app_localization.dart';
 import 'app/routes/route_generator.dart';
 import 'app/themes/app_theme.dart';
 import 'data/services/app_database.dart';
@@ -41,6 +43,15 @@ class CreovoInvoiceApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: _initialThemeMode,
+      translations: AppTranslations(),
+      locale: AppLanguage.fromCode(
+        appStorage.getString(AppStorageKeyConst.languageCode),
+      ).locale,
+      fallbackLocale: AppLanguage.english.locale,
+      supportedLocales: AppLanguage.values
+          .map((language) => language.locale)
+          .toList(growable: false),
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
     );
   }
 

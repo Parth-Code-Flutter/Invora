@@ -30,6 +30,12 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - First-launch onboarding and business setup
 - Business profile, logo, signature, payment QR, bank, and UPI information
 - Responsive phone/tablet layouts and dark mode
+- App-wide interface localization with English as the default and selectable
+  Hindi or Gujarati under Settings > Appearance. The selected language is
+  stored in `AppStorage`, applies immediately, and survives restart. Shared
+  text, form fields, validation copy, dropdowns, search, notifications,
+  tooltips, dialogs, navigation, and empty states use the localization layer;
+  customer, product, business, and invoice values remain unchanged.
 - Theme mode is owned by `GetMaterialApp`; the Navigator/Overlay tree remains
   stable when changing appearance while a dialog, sheet, or route is open
 - Shared `AppFocus` coordination settles keyboard/caret work before focused
@@ -307,10 +313,10 @@ transfer automatically.
 
 ## Verification baseline
 
-As of 2026-08-13:
+As of 2026-08-14:
 
 - Flutter analysis: no issues
-- Automated suite: all 120 tests passing
+- Automated suite: all 124 tests passing
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
@@ -331,6 +337,23 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-14 — English, Hindi, and Gujarati localization
+
+- Added app-wide localization with English as the default plus Hindi and
+  Gujarati. Users can change language from App Settings > Appearance; the UI
+  updates immediately and the choice persists across restarts.
+- Added localized Material/Cupertino framework copy, a safe text adapter that
+  translates known interface phrases while leaving user-entered business data
+  untouched, and localization for shared fields, validation messages,
+  dropdowns, search, tooltips, notifications, menus, dialogs, navigation, and
+  empty states across all modules.
+- Important files: `main.dart`, `app_controller.dart`, `app_localization.dart`,
+  localization maps, shared UI widgets, module screens, localization tests,
+  `pubspec.yaml`, and this handoff. Storage adds only the
+  `language_code` preference; there is no database migration.
+- Verification: formatting, static analysis, localization unit tests, and the
+  full automated suite.
 
 ### 2026-08-14 — Zoomable invoice PDF preview
 

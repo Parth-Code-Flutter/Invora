@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -56,7 +58,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
           ),
           actions: [
             IconButton(
-              tooltip: 'Scan barcode',
+              tooltip: l10n('Scan barcode'),
               onPressed: () => _scanIntoForm(context, controller),
               icon: const Icon(Icons.qr_code_scanner_rounded),
             ),

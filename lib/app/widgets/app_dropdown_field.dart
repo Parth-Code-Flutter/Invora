@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_colors.dart';
+import '../localization/app_localization.dart';
 import '../themes/app_text_styles.dart';
 
 class AppDropdownOption<T> {
@@ -48,8 +51,8 @@ class AppDropdownField<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: label,
-      value: _selected.label,
+      label: AppLocalizer.text(label),
+      value: AppLocalizer.text(_selected.label),
       enabled: enabled,
       child: InkWell(
         onTap: enabled ? () => _showOptions(context) : null,
@@ -60,12 +63,12 @@ class AppDropdownField<T> extends StatelessWidget {
           isHovering: false,
           decoration: InputDecoration(
             enabled: enabled,
-            labelText: label,
+            labelText: AppLocalizer.text(label),
             prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
             suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
           ),
           child: Text(
-            _selected.label,
+            AppLocalizer.text(_selected.label),
             style: enabled
                 ? null
                 : AppTextStyles.body.copyWith(color: AppColors.textTertiary),
@@ -79,7 +82,7 @@ class AppDropdownField<T> extends StatelessWidget {
     FocusManager.instance.primaryFocus?.unfocus();
     final selected = await showAppDropdownSheet<T>(
       context: context,
-      title: sheetTitle ?? 'Select $label',
+      title: AppLocalizer.text(sheetTitle ?? 'Select $label'),
       value: value,
       options: options,
       searchable: searchable,
@@ -163,9 +166,9 @@ class _DropdownSheetState<T> extends State<_DropdownSheet<T>> {
             TextField(
               autofocus: false,
               onChanged: (value) => setState(() => query = value.trim()),
-              decoration: const InputDecoration(
-                hintText: 'Search categories',
-                prefixIcon: Icon(Icons.search_rounded),
+              decoration: InputDecoration(
+                hintText: AppLocalizer.text('Search categories'),
+                prefixIcon: const Icon(Icons.search_rounded),
               ),
             ),
           ],

@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -41,7 +43,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         ),
         actions: [
           IconButton(
-            tooltip: 'Preview PDF',
+            tooltip: l10n('Preview PDF'),
             onPressed: controller.openPreview,
             icon: const Icon(Icons.picture_as_pdf_outlined),
           ),
@@ -803,14 +805,14 @@ class _PaymentHistoryRow extends StatelessWidget {
                   children: [
                     if (onReceipt != null)
                       IconButton(
-                        tooltip: 'Open receipt',
+                        tooltip: l10n('Open receipt'),
                         visualDensity: VisualDensity.compact,
                         onPressed: onReceipt,
                         icon: const Icon(Icons.receipt_long_outlined, size: 18),
                       ),
                     if (onReverse != null)
                       IconButton(
-                        tooltip: 'Reverse payment',
+                        tooltip: l10n('Reverse payment'),
                         visualDensity: VisualDensity.compact,
                         onPressed: onReverse,
                         icon: const Icon(Icons.undo_rounded, size: 18),
@@ -884,8 +886,8 @@ class _PaymentReversalDialogState extends State<_PaymentReversalDialog> {
           maxLines: 2,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
-            labelText: 'Reversal reason *',
-            hintText: 'e.g. Payment entered twice',
+            labelText: l10n('Reversal reason *'),
+            hintText: l10n('e.g. Payment entered twice'),
             errorText: error,
           ),
         ),
@@ -981,10 +983,11 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               ),
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
-                labelText: 'Amount received now',
+                labelText: l10n('Amount received now'),
                 prefixText: '$symbol ',
-                helperText:
-                    'Remaining: ${CurrencyUtils.formatMinor(invoice.calculation.balanceDueMinor, symbol: symbol)}',
+                helperText: l10n(
+                  'Remaining: ${CurrencyUtils.formatMinor(invoice.calculation.balanceDueMinor, symbol: symbol)}',
+                ),
                 errorText: error,
               ),
               onSubmitted: (_) => _save(),
@@ -1035,8 +1038,8 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               controller: reference,
               enabled: !isSaving,
               textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(
-                labelText: 'Reference number (optional)',
+              decoration: InputDecoration(
+                labelText: l10n('Reference number (optional)'),
                 prefixIcon: Icon(Icons.tag_rounded),
               ),
             ),
@@ -1045,8 +1048,8 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               controller: note,
               enabled: !isSaving,
               textInputAction: TextInputAction.done,
-              decoration: const InputDecoration(
-                labelText: 'Note (optional)',
+              decoration: InputDecoration(
+                labelText: l10n('Note (optional)'),
                 prefixIcon: Icon(Icons.notes_rounded),
               ),
               onSubmitted: (_) => _save(),

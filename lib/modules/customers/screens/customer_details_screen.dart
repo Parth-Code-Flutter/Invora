@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -23,7 +25,7 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
         title: const Text('Customer details'),
         actions: [
           IconButton(
-            tooltip: 'Edit customer',
+            tooltip: l10n('Edit customer'),
             onPressed: () async {
               await Get.toNamed<void>(
                 AppRoutes.customerEdit,

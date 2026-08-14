@@ -1,6 +1,8 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -208,7 +210,7 @@ class _BusinessHeader extends StatelessWidget {
             ),
           ),
           IconButton.filled(
-            tooltip: 'Edit business profile',
+            tooltip: l10n('Edit business profile'),
             onPressed: controller.editBusiness,
             style: IconButton.styleFrom(
               backgroundColor: Colors.white.withValues(alpha: .1),

@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../constants/app_colors.dart';
@@ -94,7 +96,7 @@ abstract final class AppNotification {
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Dismiss',
+                  tooltip: l10n('Dismiss'),
                   onPressed: messenger.hideCurrentSnackBar,
                   icon: const Icon(Icons.close_rounded, size: 19),
                   color: isDark

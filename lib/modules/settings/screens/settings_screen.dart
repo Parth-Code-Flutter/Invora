@@ -1,8 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../../app/constants/app_colors.dart';
+import '../../../app/localization/app_localization.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_menu_group.dart';
@@ -67,6 +70,14 @@ class SettingsScreen extends GetView<SettingsController> {
                   ),
                 ),
               ),
+              Obx(
+                () => AppMenuTile(
+                  icon: Icons.language_rounded,
+                  title: 'Language',
+                  subtitle: controller.appController.language.value.nativeName,
+                  onTap: () => _showLanguageDialog(context),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -114,4 +125,56 @@ class SettingsScreen extends GetView<SettingsController> {
     padding: const EdgeInsets.only(left: 4, bottom: 8),
     child: Text(value.toUpperCase(), style: AppTextStyles.small),
   );
+
+  Future<void> _showLanguageDialog(BuildContext context) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 22, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('Choose language', style: AppTextStyles.sectionTitle),
+              const SizedBox(height: 6),
+              Text(
+                'You can change the app language anytime.',
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              for (final language in AppLanguage.values)
+                Obx(
+                  () => ListTile(
+                    leading: Icon(
+                      controller.appController.language.value == language
+                          ? Icons.check_circle_rounded
+                          : Icons.circle_outlined,
+                      color: controller.appController.language.value == language
+                          ? AppColors.primary
+                          : AppColors.textTertiary,
+                    ),
+                    title: Text(language.nativeName),
+                    subtitle: language.nativeName == language.englishName
+                        ? null
+                        : Text(language.englishName),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    onTap: () async {
+                      await controller.appController.setLanguage(language);
+                      if (dialogContext.mounted) Navigator.pop(dialogContext);
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

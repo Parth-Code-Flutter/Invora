@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/enums/item_type.dart';
@@ -25,7 +27,7 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
         title: const Text('Item details'),
         actions: [
           IconButton(
-            tooltip: 'Edit item',
+            tooltip: l10n('Edit item'),
             onPressed: () async {
               await Get.toNamed<void>(
                 AppRoutes.productEdit,

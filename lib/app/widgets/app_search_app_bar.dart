@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_colors.dart';
 import '../themes/app_text_styles.dart';
@@ -84,12 +86,12 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 decoration: InputDecoration(
-                  hintText: widget.hint,
+                  hintText: l10n(widget.hint),
                   prefixIcon: const Icon(Icons.search_rounded, size: 20),
                   suffixIcon: _controller.text.isEmpty
                       ? null
                       : IconButton(
-                          tooltip: 'Clear search',
+                          tooltip: l10n('Clear search'),
                           onPressed: () {
                             _controller.clear();
                             widget.onChanged('');
@@ -137,7 +139,7 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
       ),
       actions: [
         IconButton(
-          tooltip: _searching ? 'Close search' : 'Search',
+          tooltip: l10n(_searching ? 'Close search' : 'Search'),
           onPressed: _searching ? _closeSearch : _openSearch,
           style: IconButton.styleFrom(
             backgroundColor: _searching

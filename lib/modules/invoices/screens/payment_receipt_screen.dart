@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 import 'package:printing/printing.dart';
 
@@ -19,7 +21,7 @@ class PaymentReceiptScreen extends GetView<PaymentReceiptController> {
       title: const Text('Payment receipt'),
       actions: [
         IconButton(
-          tooltip: 'Receipt actions',
+          tooltip: l10n('Receipt actions'),
           onPressed: () => _showActions(context),
           icon: const Icon(Icons.more_horiz_rounded),
         ),

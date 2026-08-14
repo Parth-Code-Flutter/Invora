@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -233,7 +235,7 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
                 controller: input,
                 autofocus: true,
                 decoration: InputDecoration(
-                  labelText: 'Field name *',
+                  labelText: l10n('Field name *'),
                   errorText: error,
                 ),
               ),
@@ -636,7 +638,7 @@ class _CustomFieldRow extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Delete ${field.label}',
+            tooltip: l10n('Delete ${field.label}'),
             onPressed: onDelete,
             icon: const Icon(Icons.delete_outline_rounded, size: 20),
           ),

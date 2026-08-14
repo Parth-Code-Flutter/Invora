@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../../data/services/unit_service.dart';
 import '../constants/app_colors.dart';
@@ -233,9 +235,9 @@ class _CreateUnitDialogState extends State<_CreateUnitDialog> {
       maxLength: 20,
       textCapitalization: TextCapitalization.none,
       textInputAction: TextInputAction.done,
-      decoration: const InputDecoration(
-        labelText: 'Unit name',
-        hintText: 'e.g. bundle, plate, session',
+      decoration: InputDecoration(
+        labelText: l10n('Unit name'),
+        hintText: l10n('e.g. bundle, plate, session'),
       ),
       onSubmitted: (_) => _submit(),
     ),

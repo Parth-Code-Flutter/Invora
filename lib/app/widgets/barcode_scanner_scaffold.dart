@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../constants/app_colors.dart';
@@ -50,7 +52,7 @@ class BarcodeScannerScaffold extends StatelessWidget {
                       : Colors.black.withValues(alpha: 0.45),
                   shape: const CircleBorder(),
                   child: IconButton(
-                    tooltip: 'Torch',
+                    tooltip: l10n('Torch'),
                     onPressed: controller.toggleTorch,
                     icon: Icon(
                       on ? Icons.flash_on_rounded : Icons.flash_off_rounded,

@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -20,7 +22,7 @@ class ReportScreen extends GetView<ReportController> {
       title: const Text('Reports'),
       actions: [
         IconButton(
-          tooltip: 'Export report',
+          tooltip: l10n('Export report'),
           onPressed: () => Get.toNamed<void>(AppRoutes.dataExport),
           icon: const Icon(Icons.ios_share_rounded),
         ),
@@ -179,7 +181,7 @@ class _MonthSelector extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     children: [
       IconButton.filledTonal(
-        tooltip: 'Previous month',
+        tooltip: l10n('Previous month'),
         onPressed: controller.previousMonth,
         icon: const Icon(Icons.chevron_left_rounded),
       ),
@@ -191,7 +193,7 @@ class _MonthSelector extends StatelessWidget {
         ),
       ),
       IconButton.filledTonal(
-        tooltip: 'Next month',
+        tooltip: l10n('Next month'),
         onPressed: controller.canMoveNext ? controller.nextMonth : null,
         icon: const Icon(Icons.chevron_right_rounded),
       ),

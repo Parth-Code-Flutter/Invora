@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants/app_colors.dart';
+import '../localization/app_localization.dart';
 
 class AppTextField extends StatelessWidget {
   const AppTextField({
@@ -42,7 +43,9 @@ class AppTextField extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextFormField(
       controller: controller,
-      validator: validator,
+      validator: validator == null
+          ? null
+          : (value) => AppLocalizer.text(validator!(value)),
       keyboardType: keyboardType,
       textInputAction: textInputAction,
       inputFormatters: inputFormatters,
@@ -52,8 +55,8 @@ class AppTextField extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted,
       enabled: enabled,
       decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
+        labelText: AppLocalizer.text(label),
+        hintText: AppLocalizer.text(hint),
         alignLabelWithHint: maxLines > 1,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
         prefixIconConstraints: const BoxConstraints(minWidth: 50),

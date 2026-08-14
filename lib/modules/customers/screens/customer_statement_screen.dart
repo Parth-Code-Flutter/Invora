@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 import 'package:printing/printing.dart';
 
@@ -22,17 +24,17 @@ class CustomerStatementScreen extends GetView<CustomerStatementController> {
         IconButton(
           onPressed: controller.save,
           icon: const Icon(Icons.download_outlined),
-          tooltip: 'Save PDF',
+          tooltip: l10n('Save PDF'),
         ),
         IconButton(
           onPressed: controller.share,
           icon: const Icon(Icons.share_outlined),
-          tooltip: 'Share PDF',
+          tooltip: l10n('Share PDF'),
         ),
         IconButton(
           onPressed: controller.print,
           icon: const Icon(Icons.print_outlined),
-          tooltip: 'Print',
+          tooltip: l10n('Print'),
         ),
       ],
     ),

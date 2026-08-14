@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -250,8 +252,8 @@ class _UnitEditorDialogState extends State<_UnitEditorDialog> {
       textCapitalization: TextCapitalization.none,
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(
-        labelText: 'Unit name',
-        hintText: 'e.g. bundle',
+        labelText: l10n('Unit name'),
+        hintText: l10n('e.g. bundle'),
         errorText: error,
       ),
       onSubmitted: (_) => _save(),
@@ -328,7 +330,7 @@ class _UnitTile extends StatelessWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Actions for $unit',
+              tooltip: l10n('Actions for $unit'),
               onPressed: onActions,
               visualDensity: VisualDensity.compact,
               icon: Icon(

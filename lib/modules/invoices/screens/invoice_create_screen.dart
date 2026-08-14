@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -540,7 +542,7 @@ class _InvoiceForm extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           PopupMenuButton<String>(
-                            tooltip: 'Item actions',
+                            tooltip: l10n('Item actions'),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(
                               minWidth: 180,
@@ -721,11 +723,12 @@ class _InvoiceForm extends StatelessWidget {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Opening payment',
-                        hintText: '0.00',
-                        helperText:
-                            'Optional payment received when creating this invoice.',
+                      decoration: InputDecoration(
+                        labelText: l10n('Opening payment'),
+                        hintText: l10n('0.00'),
+                        helperText: l10n(
+                          'Optional payment received when creating this invoice.',
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -758,14 +761,14 @@ class _InvoiceForm extends StatelessWidget {
                   TextField(
                     controller: controller.notesController,
                     maxLines: 2,
-                    decoration: const InputDecoration(labelText: 'Notes'),
+                    decoration: InputDecoration(labelText: l10n('Notes')),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: controller.termsController,
                     maxLines: 2,
-                    decoration: const InputDecoration(
-                      labelText: 'Terms & conditions',
+                    decoration: InputDecoration(
+                      labelText: l10n('Terms & conditions'),
                     ),
                   ),
                 ],
@@ -1267,7 +1270,7 @@ class _QuantityStepper extends StatelessWidget {
         ),
         Container(width: 1, height: 22, color: AppColors.border),
         IconButton(
-          tooltip: 'Increase quantity',
+          tooltip: l10n('Increase quantity'),
           onPressed: onIncrease,
           constraints: const BoxConstraints.tightFor(width: 32, height: 32),
           padding: EdgeInsets.zero,
@@ -1345,7 +1348,7 @@ class _QuantityEditorSheetState extends State<_QuantityEditorSheet> {
             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
           ],
           decoration: InputDecoration(
-            labelText: 'Quantity *',
+            labelText: l10n('Quantity *'),
             suffixText: widget.unit,
             errorText: error,
             prefixIcon: const Icon(Icons.numbers_rounded),
@@ -1508,12 +1511,12 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
                     controller: search,
                     onChanged: (value) => setState(() => query = value),
                     decoration: InputDecoration(
-                      hintText: 'Search ${widget.itemLabel}',
+                      hintText: l10n('Search ${widget.itemLabel}'),
                       prefixIcon: const Icon(Icons.search_rounded),
                       suffixIcon: query.isEmpty
                           ? null
                           : IconButton(
-                              tooltip: 'Clear search',
+                              tooltip: l10n('Clear search'),
                               onPressed: () {
                                 search.clear();
                                 setState(() => query = '');
@@ -1833,9 +1836,9 @@ class _InvoicePriceSheetState extends State<_InvoicePriceSheet> {
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => _save(),
           decoration: InputDecoration(
-            labelText: 'Invoice price *',
+            labelText: l10n('Invoice price *'),
             prefixText: '${widget.currencySymbol} ',
-            hintText: '0.00',
+            hintText: l10n('0.00'),
           ),
         ),
         const SizedBox(height: 18),
@@ -1959,9 +1962,9 @@ class _ItemSheetState extends State<_ItemSheet> {
             TextField(
               controller: name,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Item name *',
-                hintText: 'e.g. Website design',
+              decoration: InputDecoration(
+                labelText: l10n('Item name *'),
+                hintText: l10n('e.g. Website design'),
               ),
             ),
             const SizedBox(height: 12),
@@ -1973,9 +1976,9 @@ class _ItemSheetState extends State<_ItemSheet> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    decoration: const InputDecoration(
-                      labelText: 'Quantity *',
-                      hintText: '1',
+                    decoration: InputDecoration(
+                      labelText: l10n('Quantity *'),
+                      hintText: l10n('1'),
                     ),
                   ),
                 ),
@@ -1995,9 +1998,9 @@ class _ItemSheetState extends State<_ItemSheet> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(
-                labelText: 'Rate *',
-                hintText: '0.00',
+              decoration: InputDecoration(
+                labelText: l10n('Rate *'),
+                hintText: l10n('0.00'),
               ),
             ),
             const SizedBox(height: 12),
@@ -2006,7 +2009,7 @@ class _ItemSheetState extends State<_ItemSheet> {
                 Expanded(
                   child: TextField(
                     controller: hsn,
-                    decoration: const InputDecoration(labelText: 'HSN/SAC'),
+                    decoration: InputDecoration(labelText: l10n('HSN/SAC')),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -2050,9 +2053,9 @@ class _ItemSheetState extends State<_ItemSheet> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(
-                  labelText: 'Custom GST percentage *',
-                  hintText: 'Enter a rate from 0 to 100',
+                decoration: InputDecoration(
+                  labelText: l10n('Custom GST percentage *'),
+                  hintText: l10n('Enter a rate from 0 to 100'),
                   prefixIcon: Icon(Icons.percent_rounded),
                 ),
               ),
@@ -2090,7 +2093,7 @@ class _ItemSheetState extends State<_ItemSheet> {
                   labelText: discountType == DiscountType.fixed
                       ? 'Discount amount'
                       : 'Discount %',
-                  hintText: '0',
+                  hintText: l10n('0'),
                 ),
               ),
             ],
@@ -2268,9 +2271,9 @@ class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
           autofocus: true,
           textCapitalization: TextCapitalization.words,
           textInputAction: TextInputAction.next,
-          decoration: const InputDecoration(
-            labelText: 'Charge title',
-            hintText: 'e.g. Delivery',
+          decoration: InputDecoration(
+            labelText: l10n('Charge title'),
+            hintText: l10n('e.g. Delivery'),
           ),
         ),
         const SizedBox(height: 12),
@@ -2279,7 +2282,10 @@ class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => _submit(),
-          decoration: InputDecoration(labelText: 'Amount', errorText: error),
+          decoration: InputDecoration(
+            labelText: l10n('Amount'),
+            errorText: error,
+          ),
         ),
       ],
     ),

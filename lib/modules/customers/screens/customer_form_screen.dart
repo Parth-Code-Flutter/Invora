@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -261,7 +263,7 @@ class _MobileField extends StatelessWidget {
     return Obx(
       () => field(
         suffixIcon: IconButton(
-          tooltip: 'Import from phone contacts',
+          tooltip: l10n('Import from phone contacts'),
           onPressed: controller.isImportingContact.value
               ? null
               : controller.importPhoneContact,

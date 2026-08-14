@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -148,7 +150,7 @@ class _ProductScanScreenState extends State<ProductScanScreen> {
                         icon: on
                             ? Icons.flash_on_rounded
                             : Icons.flash_off_rounded,
-                        tooltip: 'Torch',
+                        tooltip: l10n('Torch'),
                         selected: on,
                         onTap: _scanner.toggleTorch,
                       );
@@ -388,7 +390,7 @@ class _ScannedLineTile extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Increase quantity',
+                  tooltip: l10n('Increase quantity'),
                   onPressed: onIncrease,
                   constraints: const BoxConstraints.tightFor(
                     width: 32,

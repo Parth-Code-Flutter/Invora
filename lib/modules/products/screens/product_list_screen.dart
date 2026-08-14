@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -24,7 +26,7 @@ class ProductListScreen extends GetView<ProductListController> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Add product or service',
+        tooltip: l10n('Add product or service'),
         onPressed: () => Get.toNamed<void>(AppRoutes.productAdd),
         child: const Icon(Icons.add_rounded),
       ),
@@ -33,7 +35,7 @@ class ProductListScreen extends GetView<ProductListController> {
         title: const Text('Products & services'),
         actions: [
           IconButton(
-            tooltip: 'Scan barcode',
+            tooltip: l10n('Scan barcode'),
             onPressed: () => Get.toNamed<void>(AppRoutes.catalogScan),
             icon: const Icon(Icons.qr_code_scanner_rounded),
           ),
@@ -282,7 +284,7 @@ class _ItemCard extends StatelessWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Item actions',
+            tooltip: l10n('Item actions'),
             onPressed: () => _showActions(context),
             icon: const Icon(Icons.more_horiz_rounded),
           ),

@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -79,9 +81,9 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
                     TextField(
                       controller: controller.customDueDays,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Custom days *',
-                        hintText: '1–365',
+                      decoration: InputDecoration(
+                        labelText: l10n('Custom days *'),
+                        hintText: l10n('1–365'),
                         suffixText: 'days',
                       ),
                     ),
@@ -170,9 +172,9 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
                   minLines: 2,
                   maxLines: 3,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(
-                    labelText: 'Default notes',
-                    hintText: 'e.g. Thank you for your business.',
+                  decoration: InputDecoration(
+                    labelText: l10n('Default notes'),
+                    hintText: l10n('e.g. Thank you for your business.'),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -181,9 +183,11 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
                   minLines: 2,
                   maxLines: 4,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(
-                    labelText: 'Default terms & conditions',
-                    hintText: 'e.g. Payment is due within the selected period.',
+                  decoration: InputDecoration(
+                    labelText: l10n('Default terms & conditions'),
+                    hintText: l10n(
+                      'e.g. Payment is due within the selected period.',
+                    ),
                   ),
                 ),
               ],

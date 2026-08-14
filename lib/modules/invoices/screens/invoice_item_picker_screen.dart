@@ -1,6 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -85,12 +87,12 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
         title: const Text('Add saved items'),
         actions: [
           IconButton(
-            tooltip: 'Scan barcodes',
+            tooltip: l10n('Scan barcodes'),
             onPressed: _scanItems,
             icon: const Icon(Icons.qr_code_scanner_rounded),
           ),
           IconButton(
-            tooltip: 'Create product or service',
+            tooltip: l10n('Create product or service'),
             onPressed: _createItem,
             icon: const Icon(Icons.add_rounded),
           ),
@@ -161,12 +163,12 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                       },
                       textInputAction: TextInputAction.search,
                       decoration: InputDecoration(
-                        hintText: 'Search name, description or HSN/SAC',
+                        hintText: l10n('Search name, description or HSN/SAC'),
                         prefixIcon: const Icon(Icons.search_rounded),
                         suffixIcon: _search.text.isEmpty
                             ? null
                             : IconButton(
-                                tooltip: 'Clear search',
+                                tooltip: l10n('Clear search'),
                                 onPressed: () {
                                   _searchDebounce?.cancel();
                                   _search.clear();
