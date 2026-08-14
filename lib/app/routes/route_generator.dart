@@ -31,6 +31,7 @@ import '../../modules/reports/bindings/report_binding.dart';
 import '../../modules/reports/screens/report_screen.dart';
 import '../../modules/backup_restore/bindings/backup_binding.dart';
 import '../../modules/backup_restore/screens/backup_screen.dart';
+import '../../modules/backup_restore/screens/restore_status_screen.dart';
 import '../../modules/settings/bindings/settings_binding.dart';
 import '../../modules/settings/screens/settings_screen.dart';
 import '../../modules/settings/screens/invoice_defaults_screen.dart';
@@ -190,6 +191,10 @@ abstract final class AppRouter {
       name: AppRoutes.backup,
       page: BackupScreen.new,
       binding: BackupBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.restoreStatus,
+      page: () => RestoreStatusScreen(path: Get.arguments as String),
     ),
     GetPage(
       name: AppRoutes.reports,

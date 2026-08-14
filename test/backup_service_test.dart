@@ -141,10 +141,40 @@ void main() {
       databaseBytes: replacement,
     );
 
-    await service.restore(backup);
+    final result = await service.restore(backup);
 
     expect(await target.readAsBytes(), replacement);
+    expect(result.mediaPaths.values, everyElement(isNull));
     expect(storage.getBool(AppStorageKeyConst.restoreCompleted), isTrue);
+  });
+
+  test('restores portable media into current device asset paths', () async {
+    final target = File('${temporaryDirectory.path}/active.sqlite');
+    await target.writeAsBytes(_sqliteBytes('old'));
+    service = BackupService(
+      database,
+      BusinessRepository(database),
+      await AppStorage.create(),
+      databaseFileProvider: () async => target,
+    );
+    final backup = await _backupFile(
+      temporaryDirectory,
+      schemaVersion: 8,
+      databaseBytes: _sqliteBytes('restored'),
+      media: {
+        'logo.jpg': [1, 2, 3],
+        'payment_qr.png': [4, 5],
+      },
+    );
+
+    final result = await service.restore(backup);
+
+    final logo = File(result.mediaPaths['logo']!);
+    final qr = File(result.mediaPaths['payment_qr']!);
+    expect(logo.path, contains('business_assets'));
+    expect(await logo.readAsBytes(), [1, 2, 3]);
+    expect(await qr.readAsBytes(), [4, 5]);
+    expect(result.mediaPaths['signature'], isNull);
   });
 
   test('stores a validated local reminder interval', () async {
@@ -164,6 +194,7 @@ Future<File> _backupFile(
   required int schemaVersion,
   required List<int> databaseBytes,
   List<int>? settingsBytes,
+  Map<String, List<int>> media = const {},
 }) async {
   final archive = Archive()
     ..addFile(
@@ -183,6 +214,11 @@ Future<File> _backupFile(
         databaseBytes,
       ),
     );
+  for (final entry in media.entries) {
+    archive.addFile(
+      ArchiveFile('media/${entry.key}', entry.value.length, entry.value),
+    );
+  }
   if (settingsBytes != null) {
     archive.addFile(
       ArchiveFile('settings.json', settingsBytes.length, settingsBytes),

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../constants/app_storage_key_const.dart';
 import '../../data/services/app_database.dart';
 import '../../data/services/app_storage.dart';
 import '../../data/services/local_database_service.dart';
@@ -16,6 +17,8 @@ import '../../data/repositories/business_repository.dart';
 import '../../data/repositories/customer_repository.dart';
 import '../../data/repositories/product_repository.dart';
 import '../../data/repositories/invoice_repository.dart';
+import '../../modules/dashboard/controllers/dashboard_controller.dart';
+import '../../modules/invoices/controllers/invoice_list_controller.dart';
 import '../controllers/app_controller.dart';
 
 class InitialBinding extends Bindings {
@@ -29,24 +32,7 @@ class InitialBinding extends Bindings {
     Get.put<AppStorage>(appStorage, permanent: true);
     final appLockService = AppLockService(appStorage)..load();
     Get.put<AppLockService>(appLockService, permanent: true);
-    Get.put<AppDatabase>(databaseService.database, permanent: true);
-    Get.put<LocalDatabaseService>(databaseService, permanent: true);
-    Get.put<BusinessRepository>(
-      BusinessRepository(databaseService.database),
-      permanent: true,
-    );
-    Get.put<CustomerRepository>(
-      CustomerRepository(databaseService.database),
-      permanent: true,
-    );
-    Get.put<ProductRepository>(
-      ProductRepository(databaseService.database),
-      permanent: true,
-    );
-    Get.put<InvoiceRepository>(
-      InvoiceRepository(databaseService.database),
-      permanent: true,
-    );
+    _registerDatabaseRuntime(databaseService, appStorage);
     Get.put<InvoiceCalculationService>(
       const InvoiceCalculationService(),
       permanent: true,
@@ -68,6 +54,64 @@ class InitialBinding extends Bindings {
       InvoiceDefaultsService(appStorage),
       permanent: true,
     );
+    Get.put<AppController>(
+      AppController(Get.find<AppStorage>()),
+      permanent: true,
+    );
+  }
+
+  static Future<void> reloadDatabaseRuntime(
+    AppStorage storage, {
+    LocalDatabaseService? replacement,
+  }) async {
+    await _deleteDataController<DashboardController>();
+    await _deleteDataController<InvoiceListController>();
+    await _deleteDataController<InvoiceListController>(
+      tag: InvoiceListController.quotationTag,
+    );
+    await Get.delete<DataExportService>(force: true);
+    await Get.delete<BackupService>(force: true);
+    await Get.delete<InvoiceRepository>(force: true);
+    await Get.delete<ProductRepository>(force: true);
+    await Get.delete<CustomerRepository>(force: true);
+    await Get.delete<BusinessRepository>(force: true);
+    await Get.delete<LocalDatabaseService>(force: true);
+    await Get.delete<AppDatabase>(force: true);
+
+    final nextRuntime = replacement ?? LocalDatabaseService(AppDatabase());
+    await nextRuntime.initialize();
+    _registerDatabaseRuntime(nextRuntime, storage);
+    await storage.remove(AppStorageKeyConst.restoreCompleted);
+  }
+
+  static Future<void> _deleteDataController<T>({String? tag}) async {
+    if (Get.isRegistered<T>(tag: tag)) {
+      await Get.delete<T>(tag: tag, force: true);
+    }
+  }
+
+  static void _registerDatabaseRuntime(
+    LocalDatabaseService databaseService,
+    AppStorage storage,
+  ) {
+    Get.put<AppDatabase>(databaseService.database, permanent: true);
+    Get.put<LocalDatabaseService>(databaseService, permanent: true);
+    Get.put<BusinessRepository>(
+      BusinessRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<CustomerRepository>(
+      CustomerRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<ProductRepository>(
+      ProductRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<InvoiceRepository>(
+      InvoiceRepository(databaseService.database),
+      permanent: true,
+    );
     Get.put<DataExportService>(
       DataExportService(
         Get.find<CustomerRepository>(),
@@ -80,12 +124,8 @@ class InitialBinding extends Bindings {
       BackupService(
         databaseService.database,
         Get.find<BusinessRepository>(),
-        appStorage,
+        storage,
       ),
-      permanent: true,
-    );
-    Get.put<AppController>(
-      AppController(Get.find<AppStorage>()),
       permanent: true,
     );
   }

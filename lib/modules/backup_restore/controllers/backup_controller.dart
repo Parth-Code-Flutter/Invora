@@ -61,14 +61,4 @@ class BackupController extends GetxController {
     if (!validation.isValid) return validation.message;
     return file.path;
   }
-
-  Future<bool> restore(String path) async {
-    isWorking.value = true;
-    try {
-      await _service.restore(File(path));
-      return true;
-    } finally {
-      isWorking.value = false;
-    }
-  }
 }

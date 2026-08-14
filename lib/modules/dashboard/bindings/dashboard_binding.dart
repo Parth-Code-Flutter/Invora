@@ -8,12 +8,15 @@ import '../controllers/dashboard_controller.dart';
 class DashboardBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<DashboardController>(
-      () => DashboardController(
-        Get.find<BusinessRepository>(),
-        Get.find<InvoiceRepository>(),
-        Get.find<BackupService>(),
-      ),
-    );
+    if (!Get.isRegistered<DashboardController>()) {
+      Get.put<DashboardController>(
+        DashboardController(
+          Get.find<BusinessRepository>(),
+          Get.find<InvoiceRepository>(),
+          Get.find<BackupService>(),
+        ),
+        permanent: true,
+      );
+    }
   }
 }

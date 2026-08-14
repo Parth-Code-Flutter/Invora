@@ -2,6 +2,7 @@ import 'package:creovo_invoice/app/constants/app_storage_key_const.dart';
 import 'package:creovo_invoice/data/services/app_lock_service.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/modules/settings/screens/app_lock_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -73,5 +74,36 @@ void main() {
 
     expect(service.isEnabled, isTrue);
     expect(find.text('App lock is on'), findsOneWidget);
+  });
+
+  testWidgets('locked cold start renders above the navigator without errors', (
+    tester,
+  ) async {
+    final storage = await AppStorage.create();
+    final service = AppLockService(storage)..load();
+    await service.setPin('1234');
+    service.lock();
+    Get.put<AppLockService>(service);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) => AppLockGate(
+          service: service,
+          child: child ?? const SizedBox.shrink(),
+        ),
+        home: const SizedBox.shrink(),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics && widget.properties.label == 'Delete digit',
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
   });
 }

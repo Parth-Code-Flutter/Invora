@@ -23,6 +23,8 @@ class DashboardController extends GetxController {
   final report = const ReportSummaryModel().obs;
   final recentInvoices = <InvoiceSummaryModel>[].obs;
   final backupDue = false.obs;
+  final reportLoading = true.obs;
+  final recentLoading = true.obs;
   StreamSubscription<ReportSummaryModel>? _reportSubscription;
   StreamSubscription<List<InvoiceSummaryModel>>? _recentSubscription;
 
@@ -31,12 +33,18 @@ class DashboardController extends GetxController {
     super.onInit();
     _loadProfile();
     refreshBackupStatus();
-    _reportSubscription = _invoiceRepository.watchCurrentMonthReport().listen(
-      (value) => report.value = value,
-    );
+    _reportSubscription = _invoiceRepository.watchCurrentMonthReport().listen((
+      value,
+    ) {
+      report.value = value;
+      reportLoading.value = false;
+    }, onError: (_) => reportLoading.value = false);
     _recentSubscription = _invoiceRepository
         .watchSummaries(sort: InvoiceSort.newest)
-        .listen((values) => recentInvoices.assignAll(values.take(5)));
+        .listen((values) {
+          recentInvoices.assignAll(values.take(5));
+          recentLoading.value = false;
+        }, onError: (_) => recentLoading.value = false);
   }
 
   void refreshBackupStatus() => backupDue.value = _backupService.isBackupDue;

@@ -679,6 +679,7 @@ class _ImagePickerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final validPath = path != null && File(path!).existsSync();
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
@@ -689,7 +690,7 @@ class _ImagePickerCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppColors.border),
         ),
-        child: path == null
+        child: !validPath
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -735,6 +736,7 @@ class _LogoPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final validPath = path != null && File(path!).existsSync();
     return Center(
       child: InkWell(
         onTap: onTap,
@@ -756,7 +758,7 @@ class _LogoPicker extends StatelessWidget {
                     border: Border.all(color: AppColors.border, width: 1.5),
                   ),
                   child: ClipOval(
-                    child: path == null
+                    child: !validPath
                         ? const ColoredBox(
                             color: Colors.white,
                             child: Icon(
@@ -787,7 +789,7 @@ class _LogoPicker extends StatelessWidget {
                       ],
                     ),
                     child: Icon(
-                      path == null ? Icons.add_rounded : Icons.edit_rounded,
+                      validPath ? Icons.edit_rounded : Icons.add_rounded,
                       color: Colors.white,
                       size: 17,
                     ),

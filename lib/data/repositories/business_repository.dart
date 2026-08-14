@@ -52,6 +52,20 @@ class BusinessRepository extends BaseRepository {
     return _toModel(saved);
   }
 
+  Future<void> updateMediaPaths({
+    required String? logoPath,
+    required String? paymentQrPath,
+    required String? signaturePath,
+  }) => database
+      .update(database.businessProfiles)
+      .write(
+        BusinessProfilesCompanion(
+          logoPath: Value(logoPath),
+          paymentQrPath: Value(paymentQrPath),
+          signaturePath: Value(signaturePath),
+        ),
+      );
+
   BusinessProfileModel _toModel(BusinessProfile row) {
     return BusinessProfileModel(
       id: row.id,

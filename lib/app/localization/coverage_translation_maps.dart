@@ -327,6 +327,17 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Create sensitive-data backup?': 'संवेदनशील डेटा का बैकअप बनाएँ?',
   'Replace local data?': 'स्थानीय डेटा बदलें?',
   'Restore complete': 'पुनर्स्थापना पूर्ण',
+  'Restoring your data': 'आपका डेटा पुनर्स्थापित हो रहा है',
+  'Restore needs attention': 'पुनर्स्थापना पर ध्यान देना आवश्यक है',
+  'Close app': 'ऐप बंद करें',
+  'Keep Creovo Billing open while your validated backup is restored.':
+      'सत्यापित बैकअप पुनर्स्थापित होने तक Creovo Billing खुला रखें।',
+  'Your backup was restored safely and is ready to use.':
+      'आपका बैकअप सुरक्षित रूप से पुनर्स्थापित हो गया और उपयोग के लिए तैयार है।',
+  'Creovo Billing could not finish the restore. Your current data is ready, so you can continue and try again.':
+      'Creovo Billing पुनर्स्थापना पूरी नहीं कर सका। आपका वर्तमान डेटा तैयार है, इसलिए आप जारी रखकर फिर प्रयास कर सकते हैं।',
+  'Creovo Billing could not reload its database. Close and reopen the app before trying again.':
+      'Creovo Billing अपना डेटाबेस दोबारा लोड नहीं कर सका। फिर प्रयास करने से पहले ऐप बंद करके दोबारा खोलें।',
   'I’ll restart now': 'मैं अभी पुनः शुरू करूँगा',
   'Enter a valid 10 digit mobile number.':
       'मान्य 10 अंकों का मोबाइल नंबर दर्ज करें।',
@@ -862,6 +873,17 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Create sensitive-data backup?': 'સંવેદનશીલ ડેટાનો બૅકઅપ બનાવવો?',
   'Replace local data?': 'સ્થાનિક ડેટા બદલવો?',
   'Restore complete': 'પુનઃસ્થાપન પૂર્ણ',
+  'Restoring your data': 'તમારો ડેટા પુનઃસ્થાપિત થઈ રહ્યો છે',
+  'Restore needs attention': 'પુનઃસ્થાપન પર ધ્યાન આપવું જરૂરી છે',
+  'Close app': 'ઍપ બંધ કરો',
+  'Keep Creovo Billing open while your validated backup is restored.':
+      'ચકાસાયેલ બૅકઅપ પુનઃસ્થાપિત થાય ત્યાં સુધી Creovo Billing ખુલ્લું રાખો.',
+  'Your backup was restored safely and is ready to use.':
+      'તમારો બૅકઅપ સુરક્ષિત રીતે પુનઃસ્થાપિત થયો અને ઉપયોગ માટે તૈયાર છે.',
+  'Creovo Billing could not finish the restore. Your current data is ready, so you can continue and try again.':
+      'Creovo Billing પુનઃસ્થાપન પૂર્ણ કરી શક્યું નથી. તમારો હાલનો ડેટા તૈયાર છે, તેથી તમે આગળ વધીને ફરી પ્રયાસ કરી શકો છો.',
+  'Creovo Billing could not reload its database. Close and reopen the app before trying again.':
+      'Creovo Billing તેનો ડેટાબેસ ફરી લોડ કરી શક્યું નથી. ફરી પ્રયાસ કરતાં પહેલાં ઍપ બંધ કરીને ફરી ખોલો.',
   'I’ll restart now': 'હું હમણાં ફરી શરૂ કરીશ',
   'Enter a valid 10 digit mobile number.':
       'માન્ય 10 અંકનો મોબાઇલ નંબર દાખલ કરો.',

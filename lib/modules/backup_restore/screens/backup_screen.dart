@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_button.dart';
@@ -202,16 +203,8 @@ class BackupScreen extends GetView<BackupController> {
       confirmLabel: 'Restore',
     );
     if (!confirmed) return;
-    final restored = await controller.restore(result);
-    if (!restored || !context.mounted) return;
-    await showAppNoticeDialog(
-      context: context,
-      barrierDismissible: false,
-      title: 'Restore complete',
-      message:
-          'Your backup was restored safely. Close and reopen Creovo Billing now to load the restored records.',
-      actionLabel: 'I’ll restart now',
-    );
+    if (!context.mounted) return;
+    Get.offAllNamed<void>(AppRoutes.restoreStatus, arguments: result);
   }
 }
 

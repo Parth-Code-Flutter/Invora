@@ -80,8 +80,12 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   SQLite signature before replacing application data
 - Backup workspace warns that ZIP exports are sensitive and unencrypted, shows
   the last successful device backup, supports 7/14/30-day or disabled local
-  reminders, and gives explicit restart guidance after restore. Due reminders
-  also appear on the dashboard.
+  reminders, and moves restore work onto a dedicated database-free status route
+  before replacing the Drift database. It rebuilds the database-bound runtime
+  after replacement and only then allows navigation to resume, preventing live
+  controllers from querying a closed isolate. Restored logo, signature, and QR
+  assets are remapped to current-device paths instead of retaining absolute
+  paths from the source installation. Due reminders also appear on the dashboard.
 
 ### Customers
 
@@ -342,6 +346,95 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-15 — Smooth post-restore dashboard handoff
+
+- Removed the post-restore zero-value flash shown in the supplied recording.
+  Dashboard report and recent-invoice surfaces now retain an explicit loading
+  state until their first restored-database stream values arrive instead of
+  presenting temporary `₹0` totals and “No invoices” as real data.
+- Runtime rebinding now explicitly disposes any surviving dashboard controller
+  and the permanent invoice-list controller (including its quotation tag)
+  before replacing repositories. This prevents controllers from retaining
+  subscriptions to the closed pre-restore Drift connection.
+- The dashboard is now a persistent main-tab controller like the invoice list,
+  so returning from Invoices or switching tabs reuses its already-loaded report
+  streams instead of replaying the loading surface for several seconds. Restore
+  remains the deliberate exception and replaces that controller exactly once.
+- Added runtime regression coverage proving that a permanent invoice-list
+  controller is removed during restore reconnection. No schema, storage, or
+  backup-format changes.
+- Important files: initial binding, dashboard controller/screen, runtime reload
+  test, and this handoff.
+- Verification: recording review, formatting, static analysis, focused restore
+  and dashboard tests, and the full automated suite.
+
+### 2026-08-15 — Portable restored business media
+
+- Fixed restored profiles retaining absolute logo, signature, and payment-QR
+  paths from the device or simulator that created the backup. Media entries are
+  now extracted into the current installation's `business_assets` directory,
+  and the restored business profile is updated with those new local paths after
+  the database runtime reconnects.
+- Missing media entries explicitly clear stale database paths, while business
+  setup image widgets also verify file existence before constructing a
+  `FileImage`. This prevents `PathNotFoundException` even for older incomplete
+  backups.
+- Backup ZIP format and database schema are unchanged; existing backups remain
+  compatible.
+- Important files: backup service, restore status screen, business repository,
+  business setup screen, backup tests, and this handoff.
+- Verification: formatting, static analysis, focused media/restore tests, and
+  the full automated suite.
+
+### 2026-08-15 — In-app restore completion
+
+- Replaced the ineffective iOS `Close app` action with a working `Continue`
+  flow. iOS does not permit an app to terminate itself, so successful restore
+  now rebuilds the Drift database connection, repositories, export service,
+  and backup service before returning through startup routing.
+- Restore failures also attempt to reload the current or rolled-back database;
+  navigation is only enabled when that recovery succeeds. This keeps users off
+  data-driven screens whenever no usable database connection is available.
+- Updated English/Hindi/Gujarati completion and recovery copy and expanded the
+  restore status regression to verify runtime reload and the Continue action.
+- No schema or backup archive changes; the device-local restart marker is
+  cleared after the replacement runtime opens successfully.
+- Important files: initial binding, restore status screen/tests, localization
+  maps, and this handoff.
+- Verification: formatting, static analysis, focused restore/runtime tests,
+  and the full automated suite.
+
+### 2026-08-15 — App-lock cold-start overlay fix
+
+- Fixed the PIN keypad throwing `No Overlay widget found` after an enabled app
+  lock was restored on cold start. The lock gate intentionally renders above
+  the root Navigator, so its delete control now uses a direct semantics label
+  instead of constructing a Navigator-dependent tooltip.
+- Added a widget regression that recreates the production builder hierarchy,
+  starts with the PIN lock enabled and locked, verifies the unlock screen and
+  accessible delete action, and asserts that rendering raises no exception.
+- No database, storage, PIN format, hashing, or backup changes.
+- Important files: app-lock screen, app-lock tests, and this handoff.
+- Verification: formatting, static analysis, focused app-lock tests, and the
+  full automated suite.
+
+### 2026-08-15 — Restart-safe database restore
+
+- Fixed restore closing/replacing the Drift database while invoice, customer,
+  dashboard, or other live controllers could still query its isolate, which
+  produced `Tried to send Request ... but connection was closed` exceptions.
+- Restore confirmation now removes all data-backed routes first and opens a
+  dedicated non-dismissible status screen. After route disposal, that screen
+  validates and restores the backup, then rebuilds all database-bound services
+  before allowing the user to continue.
+- Added localized restoring, completion, failure, and close-app states plus
+  widget coverage for successful and failed restore handoffs. Existing backup
+  archives, validation, rollback, schema, and storage formats are unchanged.
+- Important files: backup screen/controller, restore status screen, app routes,
+  localization coverage maps, restore status tests, and this handoff.
+- Verification: formatting, static analysis, focused backup/restore tests, and
+  the full automated suite.
 
 ### 2026-08-15 — Explicitly optional business email
 

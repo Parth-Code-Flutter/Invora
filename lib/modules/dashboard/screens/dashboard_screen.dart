@@ -78,8 +78,14 @@ class DashboardScreen extends GetView<DashboardController> {
                 return ListView(
                   padding: const EdgeInsets.only(bottom: AppSpacing.xl),
                   children: [
-                    _businessOverview(context),
-                    if (controller.backupDue.value) ...[
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 220),
+                      child: controller.reportLoading.value
+                          ? const _DashboardOverviewLoadingCard()
+                          : _businessOverview(context),
+                    ),
+                    if (!controller.reportLoading.value &&
+                        controller.backupDue.value) ...[
                       const SizedBox(height: AppSpacing.sm),
                       _BackupReminderPrompt(
                         onTap: () async {
@@ -88,7 +94,8 @@ class DashboardScreen extends GetView<DashboardController> {
                         },
                       ),
                     ],
-                    if (controller.report.value.outstandingMinor > 0) ...[
+                    if (!controller.reportLoading.value &&
+                        controller.report.value.outstandingMinor > 0) ...[
                       const SizedBox(height: AppSpacing.sm),
                       _OutstandingPrompt(
                         amount: controller.report.value.outstandingMinor,
@@ -139,14 +146,18 @@ class DashboardScreen extends GetView<DashboardController> {
                     const SizedBox(height: AppSpacing.xl),
                     _SectionHeader(
                       title: 'Recent invoices',
-                      subtitle: controller.recentInvoices.isEmpty
+                      subtitle: controller.recentLoading.value
+                          ? 'Loading billing activity'
+                          : controller.recentInvoices.isEmpty
                           ? 'Latest billing activity'
                           : '${controller.recentInvoices.length} most recent',
                       actionLabel: 'View all',
                       onAction: () => Get.toNamed<void>(AppRoutes.invoices),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    if (controller.recentInvoices.isEmpty)
+                    if (controller.recentLoading.value)
+                      const _RecentInvoicesLoading()
+                    else if (controller.recentInvoices.isEmpty)
                       AppCard(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -418,6 +429,58 @@ class DashboardOverviewCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DashboardOverviewLoadingCard extends StatelessWidget {
+  const _DashboardOverviewLoadingCard();
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    key: const ValueKey('dashboard-overview-loading'),
+    color: Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF3B2038)
+        : const Color(0xFFFCFAFF),
+    padding: const EdgeInsets.all(20),
+    child: const SizedBox(
+      height: 220,
+      child: Center(
+        child: SizedBox(
+          width: 30,
+          height: 30,
+          child: CircularProgressIndicator(strokeWidth: 2.5),
+        ),
+      ),
+    ),
+  );
+}
+
+class _RecentInvoicesLoading extends StatelessWidget {
+  const _RecentInvoicesLoading();
+
+  @override
+  Widget build(BuildContext context) => Column(
+    key: const ValueKey('dashboard-recent-loading'),
+    children: List.generate(
+      2,
+      (index) => Padding(
+        padding: EdgeInsets.only(bottom: index == 0 ? 10 : 0),
+        child: AppCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          child: const SizedBox(
+            height: 44,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _SectionHeader extends StatelessWidget {

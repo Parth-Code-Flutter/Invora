@@ -414,10 +414,13 @@ class _PinKeypad extends StatelessWidget {
             SizedBox(
               width: 70,
               height: 62,
-              child: IconButton(
-                tooltip: 'Delete digit',
-                onPressed: onDelete,
-                icon: const Icon(Icons.backspace_outlined),
+              child: Semantics(
+                button: true,
+                label: l10n('Delete digit'),
+                child: IconButton(
+                  onPressed: onDelete,
+                  icon: const Icon(Icons.backspace_outlined),
+                ),
               ),
             ),
           ],

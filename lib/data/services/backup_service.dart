@@ -251,7 +251,7 @@ class BackupService {
     return true;
   }
 
-  Future<void> restore(File file) async {
+  Future<BackupRestoreResult> restore(File file) async {
     final validation = await validate(file);
     if (!validation.isValid) throw StateError(validation.message);
     final archive = validation.archive!;
@@ -267,9 +267,10 @@ class BackupService {
         databaseEntry.content as List<int>,
         flush: true,
       );
-      await _restoreMedia(archive, target.parent);
+      final mediaPaths = await _restoreMedia(archive, target.parent);
       await _restoreSettings(archive);
       await _storage.setBool(AppStorageKeyConst.restoreCompleted, true);
+      return BackupRestoreResult(mediaPaths);
     } catch (_) {
       if (await rollback.exists()) await rollback.copy(target.path);
       rethrow;
@@ -278,13 +279,33 @@ class BackupService {
     }
   }
 
-  Future<void> _restoreMedia(Archive archive, Directory support) async {
+  Future<Map<String, String?>> _restoreMedia(
+    Archive archive,
+    Directory support,
+  ) async {
+    final restored = <String, String?>{
+      'logo': null,
+      'signature': null,
+      'payment_qr': null,
+    };
+    final assets = Directory(p.join(support.path, 'business_assets'));
+    await assets.create(recursive: true);
     for (final file in archive.files.where(
       (entry) => entry.isFile && entry.name.startsWith('media/'),
     )) {
-      final output = File(p.join(support.path, p.basename(file.name)));
+      final key = p.basenameWithoutExtension(file.name);
+      if (!restored.containsKey(key)) continue;
+      final extension = p.extension(file.name).toLowerCase();
+      final output = File(
+        p.join(
+          assets.path,
+          'restored_$key${extension.isEmpty ? '.jpg' : extension}',
+        ),
+      );
       await output.writeAsBytes(file.content as List<int>, flush: true);
+      restored[key] = output.path;
     }
+    return restored;
   }
 
   Future<void> _restoreSettings(Archive archive) async {
@@ -306,6 +327,12 @@ class BackupService {
       }
     }
   }
+}
+
+class BackupRestoreResult {
+  const BackupRestoreResult(this.mediaPaths);
+
+  final Map<String, String?> mediaPaths;
 }
 
 class BackupValidation {
