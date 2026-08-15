@@ -75,26 +75,16 @@ class ProductFormScreen extends GetView<ProductFormController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (!controller.isEditing.value) ...[
-                                Text(
-                                  'Name and price are enough to reuse this on invoices.',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.textSecondary,
-                                    height: 1.35,
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpacing.sm),
-                              ],
+                              _FormPurpose(
+                                isEditing: controller.isEditing.value,
+                                type: controller.type.value,
+                              ),
+                              const SizedBox(height: AppSpacing.sm),
                               _TypeSelector(
                                 value: controller.type.value,
                                 onChanged: controller.selectType,
                               ),
                               const SizedBox(height: AppSpacing.md),
-                              _CatalogSectionHeader(
-                                title: 'Essentials',
-                                action: _RequiredBadge(),
-                              ),
-                              const SizedBox(height: AppSpacing.xs),
                               AppCard(
                                 padding: const EdgeInsets.fromLTRB(
                                   14,
@@ -104,6 +94,13 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                 ),
                                 child: Column(
                                   children: [
+                                    _FormSectionHeading(
+                                      icon: Icons.sell_outlined,
+                                      title: 'Essentials',
+                                      subtitle: 'Required to save this item',
+                                      action: _RequiredBadge(),
+                                    ),
+                                    const SizedBox(height: AppSpacing.sm),
                                     _ResponsiveFields(
                                       children: [
                                         AppTextField(
@@ -152,10 +149,6 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                   controller.fieldEnabled('hsnSac') ||
                                   controller.fieldEnabled('tax')) ...[
                                 const SizedBox(height: AppSpacing.md),
-                                const _CatalogSectionHeader(
-                                  title: 'Invoice essentials',
-                                ),
-                                const SizedBox(height: AppSpacing.xs),
                                 AppCard(
                                   padding: const EdgeInsets.fromLTRB(
                                     14,
@@ -167,6 +160,13 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      const _FormSectionHeading(
+                                        icon: Icons.receipt_long_outlined,
+                                        title: 'Invoice essentials',
+                                        subtitle:
+                                            'Defaults used when adding this item',
+                                      ),
+                                      const SizedBox(height: AppSpacing.sm),
                                       _ResponsiveFields(
                                         children: [
                                           if (controller.fieldEnabled('unit'))
@@ -253,32 +253,6 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                 ),
                               ],
                               const SizedBox(height: AppSpacing.md),
-                              _CatalogSectionHeader(
-                                title: 'Product details',
-                                action: TextButton.icon(
-                                  onPressed: () => _manageFields(context),
-                                  style: TextButton.styleFrom(
-                                    visualDensity: VisualDensity.compact,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  icon: const Icon(
-                                    Icons.tune_rounded,
-                                    size: 16,
-                                  ),
-                                  label: const Text('Manage fields'),
-                                ),
-                              ),
-                              Text(
-                                '${controller.productSettings.category.label} recommendations · all optional',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.xs),
                               AppCard(
                                 padding: const EdgeInsets.fromLTRB(
                                   14,
@@ -296,23 +270,54 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                           ),
                                         )
                                         .toList(growable: false);
-                                    if (fields.isEmpty) {
-                                      return Text(
-                                        'No optional product fields are enabled. Use Manage fields to add what you need.',
-                                        style: AppTextStyles.caption.copyWith(
-                                          color: AppColors.textSecondary,
-                                          height: 1.4,
-                                        ),
-                                      );
-                                    }
                                     return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
                                       children: [
+                                        _FormSectionHeading(
+                                          icon: Icons.tune_rounded,
+                                          title: 'Product details',
+                                          subtitle:
+                                              '${controller.productSettings.category.label} recommendations · optional',
+                                          action: TextButton(
+                                            onPressed: () =>
+                                                _manageFields(context),
+                                            style: TextButton.styleFrom(
+                                              visualDensity:
+                                                  VisualDensity.compact,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                  ),
+                                              tapTargetSize:
+                                                  MaterialTapTargetSize
+                                                      .shrinkWrap,
+                                            ),
+                                            child: const Text('Manage'),
+                                          ),
+                                        ),
+                                        if (fields.isEmpty) ...[
+                                          const SizedBox(height: AppSpacing.sm),
+                                          Text(
+                                            'No optional fields are enabled. Add only the details your business uses.',
+                                            style: AppTextStyles.caption
+                                                .copyWith(
+                                                  color:
+                                                      AppColors.textSecondary,
+                                                  height: 1.4,
+                                                ),
+                                          ),
+                                        ],
                                         for (
                                           var i = 0;
                                           i < fields.length;
                                           i++
                                         ) ...[
-                                          if (i > 0)
+                                          if (i == 0)
+                                            const SizedBox(
+                                              height: AppSpacing.sm,
+                                            )
+                                          else
                                             const SizedBox(
                                               height: AppSpacing.sm,
                                             ),
@@ -425,17 +430,113 @@ class ProductFormScreen extends GetView<ProductFormController> {
   }
 }
 
-class _CatalogSectionHeader extends StatelessWidget {
-  const _CatalogSectionHeader({required this.title, this.action});
+class _FormPurpose extends StatelessWidget {
+  const _FormPurpose({required this.isEditing, required this.type});
 
+  final bool isEditing;
+  final ItemType type;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final itemLabel = type == ItemType.product ? 'product' : 'service';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight,
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: Icon(
+              isEditing ? Icons.edit_outlined : Icons.bolt_rounded,
+              size: 18,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isEditing
+                      ? 'Update $itemLabel'
+                      : 'Create once, invoice faster',
+                  style: AppTextStyles.listName,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isEditing
+                      ? 'Changes apply the next time you use this item.'
+                      : 'Name and price are enough. Add other details only when needed.',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FormSectionHeading extends StatelessWidget {
+  const _FormSectionHeading({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.action,
+  });
+
+  final IconData icon;
   final String title;
+  final String subtitle;
   final Widget? action;
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(child: Text(title, style: AppTextStyles.listName)),
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.primaryLight,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 16, color: AppColors.primary),
+        ),
+        const SizedBox(width: 9),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: AppTextStyles.listName),
+              const SizedBox(height: 1),
+              Text(
+                subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        ),
         ?action,
       ],
     );

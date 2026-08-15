@@ -30,6 +30,10 @@ void main() {
 
     expect((await repository.watchCustomers(query: 'Traders').first).length, 1);
     expect((await repository.watchCustomers(query: '9876').first).length, 1);
+    expect(
+      (await repository.watchCustomers(query: 'aar 1234f1').first).single.id,
+      saved.id,
+    );
 
     final edited = await repository.save(
       CustomerModel(

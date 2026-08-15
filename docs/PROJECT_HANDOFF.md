@@ -69,9 +69,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   Products & services lists; search stays out of the content area until
   requested. The expanded field is a compact 46px contained input with an
   in-field clear control (no sibling close chip) and plum/muted chrome.
-  Customers and Invoices/Quotations can scan a barcode or QR into the
-  existing list query; Products & services keeps its catalog open-or-create
-  scan action.
+  Customer and invoice searches accept partial, case-insensitive words across
+  their identifying fields. Barcode scanning stays specific to Products &
+  services and item entry rather than appearing in customer/invoice search.
 - More and App Settings use fully visible grouped destination rows with a
   shared icon, subtitle, divider, and disclosure treatment; secondary tools no
   longer require horizontal discovery scrolling
@@ -95,8 +95,7 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 ### Customers
 
 - Create, search, edit, view, and soft-delete customers. List search matches
-  name, company, mobile, or GSTIN, and a scan action fills that same query
-  from a barcode or QR.
+  partial words across name, company, mobile, email, and GSTIN.
 - Mobile length/format and email regex validation
 - Customer name and valid 10-digit Indian mobile number are required
 - GSTIN, address, company, and optional notes support
@@ -118,9 +117,10 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Shared saved-unit picker plus a central manager for add, rename, delete, and
   app-wide default selection; new items prefill the selected default
 - Catalog add/edit is a compact catalog form: equal-width Product/Service
-  segmented control, required name and price, visible unit/HSN/GST when those
-  fields are enabled, optional product fields with Manage fields, and a sticky
-  save. Create mode shows one caption line; edit does not show a promo banner.
+  segmented control, a compact purpose guide, card-contained section headings,
+  required name and price, visible unit/HSN/GST when those fields are enabled,
+  optional product fields with Manage, and a sticky save. The form uses the
+  shared app typography scale and responsive padding on Android and iOS.
 - Product/service forms keep a live invoice-line preview for name, price, and
   unit. AppBar barcode scan still prefills name, price, tax, and SKU.
 - Optional business-category presets recommend useful product fields and units
@@ -149,8 +149,8 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 ### Invoices and quotations
 
 - Create, edit, duplicate, list, search, filter, cancel, and delete.
-  Invoice/quotation list search matches number, customer, or company, and a
-  scan action fills that same query from a barcode or QR.
+  Invoice/quotation list search matches one or more partial words across
+  document number, customer, and company.
 - Draft, unpaid, partially paid, paid, overdue, sent, accepted, rejected, and
   cancelled lifecycle states where applicable
 - Historical customer and line-item snapshots
@@ -376,6 +376,36 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-15 — Focused customer and invoice search
+
+- Removed barcode/QR actions from customer and invoice/quotation search so the
+  field keeps one obvious trailing action: a clear cross whenever text exists.
+  Product and line-item barcode workflows are unchanged.
+- Search now treats space-separated input as partial, case-insensitive terms.
+  Invoice terms can match across document number, customer, and company;
+  customer terms can match across name, company, mobile, email, and GSTIN.
+- Important files: customer/invoice list screens and repositories, repository
+  tests, and this handoff. No schema, storage, backup, or migration changes.
+- Verification: formatting, clean analysis, repository tests, design-system
+  search tests, and the full automated suite.
+
+### 2026-08-15 — Responsive catalog item form hierarchy
+
+- Refined Add/Edit item into three clearly grouped cards: required essentials,
+  invoice defaults, and optional product details. Each section now has a compact
+  icon-led heading and supporting copy while preserving every existing field.
+- Added a concise create/edit purpose guide, shortened the optional-fields
+  action, and retained the existing Product/Service selector, barcode scan,
+  field manager, invoice preview, validation, unsaved-change protection, and
+  sticky save behavior.
+- Typography exclusively uses the shared Plus Jakarta Sans style scale; spacing
+  and width continue through the responsive helpers for Android, iOS, and
+  tablet layouts.
+- Important file: `product_form_screen.dart`; no database, storage, backup, or
+  migration changes.
+- Verification: formatting, static analysis, focused responsive/design tests,
+  and product settings/form tests.
 
 ### 2026-08-15 — Proper list search field and scan-to-search
 

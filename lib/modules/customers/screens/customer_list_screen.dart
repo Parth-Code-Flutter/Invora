@@ -16,7 +16,6 @@ import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_list_motion.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_model.dart';
-import '../../scan/barcode_capture_screen.dart';
 import '../controllers/customer_list_controller.dart';
 import '../widgets/customer_list_overview.dart';
 
@@ -42,7 +41,6 @@ class CustomerListScreen extends GetView<CustomerListController> {
         ),
         hint: 'Name, mobile or GSTIN',
         onChanged: controller.updateSearch,
-        onScan: BarcodeCaptureScreen.captureQuery,
       ),
       bottomNavigationBar: const AppMainNavigation(
         current: MainDestination.customers,

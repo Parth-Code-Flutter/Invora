@@ -54,6 +54,12 @@ void main() {
       'INV-0001',
     );
     expect(
+      (await repository.watchSummaries(query: '0001 shah').first)
+          .single
+          .invoiceNumber,
+      'INV-0001',
+    );
+    expect(
       (await repository.watchSummaries(filter: InvoiceListFilter.overdue).first)
           .single
           .customerName,

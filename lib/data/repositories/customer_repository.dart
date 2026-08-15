@@ -11,19 +11,28 @@ class CustomerRepository extends BaseRepository {
     final statement = database.select(database.customers)
       ..where((table) => table.isDeleted.equals(false))
       ..orderBy([(table) => OrderingTerm.asc(table.name)]);
-    final search = query.trim();
-    if (search.isNotEmpty) {
-      statement.where(
-        (table) =>
-            table.name.contains(search) |
-            table.companyName.contains(search) |
-            table.mobile.contains(search) |
-            table.gstin.contains(search),
-      );
-    }
-    return statement.watch().map(
-      (rows) => rows.map(_toModel).toList(growable: false),
-    );
+    final searchTerms = query
+        .trim()
+        .toLowerCase()
+        .split(RegExp(r'\s+'))
+        .where((term) => term.isNotEmpty)
+        .toList(growable: false);
+    return statement.watch().map((rows) {
+      final customers = rows.map(_toModel);
+      if (searchTerms.isEmpty) return customers.toList(growable: false);
+      return customers
+          .where((customer) {
+            final searchableText = [
+              customer.name,
+              customer.companyName ?? '',
+              customer.mobile,
+              customer.email ?? '',
+              customer.gstin ?? '',
+            ].join(' ').toLowerCase();
+            return searchTerms.every(searchableText.contains);
+          })
+          .toList(growable: false);
+    });
   }
 
   Future<CustomerModel?> getById(int id) async {

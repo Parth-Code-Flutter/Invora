@@ -95,7 +95,12 @@ class InvoiceRepository extends BaseRepository {
     final statement = database.select(database.invoices)
       ..where((table) => table.documentType.equals(documentType.name));
     return statement.watch().map((rows) {
-      final search = query.trim().toLowerCase();
+      final searchTerms = query
+          .trim()
+          .toLowerCase()
+          .split(RegExp(r'\s+'))
+          .where((term) => term.isNotEmpty)
+          .toList(growable: false);
       final now = DateTime.now();
       final results = rows
           .map(
@@ -113,11 +118,12 @@ class InvoiceRepository extends BaseRepository {
             ),
           )
           .where((invoice) {
-            final matchesSearch =
-                search.isEmpty ||
-                invoice.invoiceNumber.toLowerCase().contains(search) ||
-                invoice.customerName.toLowerCase().contains(search) ||
-                (invoice.companyName?.toLowerCase().contains(search) ?? false);
+            final searchableText = [
+              invoice.invoiceNumber,
+              invoice.customerName,
+              invoice.companyName ?? '',
+            ].join(' ').toLowerCase();
+            final matchesSearch = searchTerms.every(searchableText.contains);
             if (!matchesSearch) return false;
             final status = invoice.effectiveStatus(now);
             return switch (filter) {

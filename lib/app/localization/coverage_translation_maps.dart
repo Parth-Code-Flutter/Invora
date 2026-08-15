@@ -48,6 +48,19 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Essentials': 'आवश्यक जानकारी',
   'Name and price are enough to reuse this on invoices.':
       'नाम और कीमत काफी हैं — इसे चालान पर दोबारा इस्तेमाल करें।',
+  'Create once, invoice faster': 'एक बार बनाएँ, तेज़ी से चालान बनाएँ',
+  'Name and price are enough. Add other details only when needed.':
+      'नाम और कीमत पर्याप्त हैं। अन्य विवरण केवल आवश्यकता होने पर जोड़ें।',
+  'Update product': 'उत्पाद अपडेट करें',
+  'Update service': 'सेवा अपडेट करें',
+  'Changes apply the next time you use this item.':
+      'बदलाव अगली बार इस आइटम का उपयोग करने पर लागू होंगे।',
+  'Required to save this item': 'इस आइटम को सहेजने के लिए आवश्यक',
+  'Defaults used when adding this item':
+      'इस आइटम को जोड़ते समय उपयोग होने वाले डिफ़ॉल्ट',
+  'Manage': 'प्रबंधित करें',
+  'No optional fields are enabled. Add only the details your business uses.':
+      'कोई वैकल्पिक फ़ील्ड चालू नहीं है। केवल वही विवरण जोड़ें जिनका आपका व्यवसाय उपयोग करता है।',
   'Product details': 'उत्पाद विवरण',
   'Item information': 'आइटम जानकारी',
   'Create item': 'आइटम बनाएँ',
@@ -629,6 +642,18 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Essentials': 'જરૂરી વિગતો',
   'Name and price are enough to reuse this on invoices.':
       'નામ અને કિંમત પૂરતાં છે — આને ઇન્વૉઇસ પર ફરી વાપરો.',
+  'Create once, invoice faster': 'એક વાર બનાવો, ઝડપથી ઇન્વૉઇસ બનાવો',
+  'Name and price are enough. Add other details only when needed.':
+      'નામ અને કિંમત પૂરતી છે. બીજા વિગત માત્ર જરૂર હોય ત્યારે ઉમેરો.',
+  'Update product': 'ઉત્પાદન અપડેટ કરો',
+  'Update service': 'સેવા અપડેટ કરો',
+  'Changes apply the next time you use this item.':
+      'ફેરફારો આ આઇટમનો આગામી વખત ઉપયોગ કરતી વખતે લાગુ થશે.',
+  'Required to save this item': 'આ આઇટમ સાચવવા માટે જરૂરી',
+  'Defaults used when adding this item': 'આ આઇટમ ઉમેરતી વખતે વપરાતા ડિફૉલ્ટ',
+  'Manage': 'વ્યવસ્થાપિત કરો',
+  'No optional fields are enabled. Add only the details your business uses.':
+      'કોઈ વૈકલ્પિક ફીલ્ડ ચાલુ નથી. તમારો વ્યવસાય જે વિગત વાપરે છે તે જ ઉમેરો.',
   'Product details': 'ઉત્પાદન વિગતો',
   'Item information': 'આઇટમ માહિતી',
   'Create item': 'આઇટમ બનાવો',

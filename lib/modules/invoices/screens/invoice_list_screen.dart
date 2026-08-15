@@ -15,7 +15,6 @@ import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_list_motion.dart';
 import '../../../data/models/invoice_model.dart';
-import '../../scan/barcode_capture_screen.dart';
 import '../controllers/invoice_list_controller.dart';
 import '../widgets/invoice_list_overview.dart';
 
@@ -74,7 +73,6 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
         ),
         hint: quotation ? 'Quote or customer' : 'Invoice or customer',
         onChanged: controller.updateSearch,
-        onScan: BarcodeCaptureScreen.captureQuery,
         actions: [
           Obx(
             () => PopupMenuButton<InvoiceSort>(
