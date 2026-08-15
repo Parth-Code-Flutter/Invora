@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-08-13
+Last updated: 2026-08-15
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -142,6 +142,15 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   appear consistently in invoice editing, details, and every PDF template when
   enabled.
 - Saved catalog items and one-time custom items
+- An empty invoice shows one add action that opens the scan / saved / custom
+  chooser. Tax, discount and notes appear after the first line is added.
+- Invoice details reads like an open document: the AppBar shows the invoice
+  number, and a compact status-aware hero holds billed-to (tappable), tax
+  mode, item count, issued/due dates, and a due countdown. Payment totals live
+  in Payment activity as Total, Paid, and Remaining cards plus the payment
+  timeline. Line items include a GST/totals footer, and Record payment / Share
+  stay pinned in a sticky footer. PDF, edit, duplicate, reverse, cancel, and
+  quotation actions stay in the AppBar.
 - Line-item edit, duplicate, and remove actions
 - Re-selecting the same saved catalog item increases its existing quantity;
   selected-item cards expose direct minus/plus quantity controls and line
@@ -348,6 +357,48 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-15 — Compact invoice details identity
+
+- Invoice and quotation numbers now sit in the AppBar. The hero is tighter,
+  with billed-to name, phone, and status on the gradient card; tapping the
+  customer still opens the customer workspace. Fonts and padding follow the
+  same list-scale sizes used elsewhere in the app.
+- Important files: invoice details screen and this handoff. No schema or
+  storage changes.
+- Verification: formatting and static analysis.
+
+### 2026-08-15 — Invoice details payment cards and identity hero
+
+- Moved Total, Paid, and Remaining off the invoice hero and into Payment
+  activity, using the soft teal/orange summary cards. Unpaid invoices now
+  show this section even before the first payment is recorded.
+- The hero is document identity only: number, status, tax mode, item count,
+  frosted issued/due chips, and a due countdown. No paid/balance amounts.
+- Important files: invoice details screen, localization maps, and this
+  handoff. No schema or storage changes.
+- Verification: formatting and static analysis.
+
+### 2026-08-15 — Invoice details as a document, not a stack of boxes
+
+- Reworked invoice and quotation details so the screen feels like an open
+  bill: a quieter status-aware hero, billed-to and line-item sections, a real
+  GST/totals footer, and payment/share actions in the thumb-zone footer.
+  Payment activity no longer repeats paid/remaining amounts already shown in
+  the hero. Saved customer snapshots still open the customer workspace.
+- Important files: invoice details screen, localization maps, and this
+  handoff. No schema or storage changes.
+- Verification: formatting and static analysis.
+
+### 2026-08-15 — Quieter empty invoice item state
+
+- The empty invoice composer now has one add path instead of four competing
+  buttons. A short empty card explains the next step and opens the existing
+  add-item sheet; the sticky footer uses the same chooser. Tax, discount and
+  notes stay hidden until the first line exists.
+- Important files: invoice composer empty card, add-item helpers,
+  localization maps, and this handoff.
+- Verification: formatting, static analysis, and invoice create tests.
 
 ### 2026-08-15 — Give invoice customer names more width
 

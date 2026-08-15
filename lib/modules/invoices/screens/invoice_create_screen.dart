@@ -131,7 +131,7 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
                     child: AppButton(
                       onPressed: hasItems
                           ? controller.preview
-                          : () => _selectFirstProduct(context),
+                          : () => _showAddItemOptions(context, controller),
                       icon: hasItems ? null : Icons.add_rounded,
                       trailingIcon: hasItems
                           ? Icons.arrow_forward_rounded
@@ -184,18 +184,6 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
           );
         }),
       ),
-    );
-  }
-
-  Future<void> _selectFirstProduct(BuildContext context) async {
-    final selected = await Get.toNamed<dynamic>(
-      AppRoutes.invoiceItemPicker,
-      arguments: const InvoiceItemPickerArgs(alreadyAddedIds: {}),
-    );
-    if (!context.mounted || selected is! InvoiceItemPickerResult) return;
-    controller.applyCatalogSelection(
-      added: selected.added,
-      removedProductIds: selected.removedIds,
     );
   }
 }
@@ -368,7 +356,7 @@ class _InvoiceForm extends StatelessWidget {
               ),
               if (controller.items.isNotEmpty)
                 FilledButton.tonalIcon(
-                  onPressed: () => _showAddItemOptions(context),
+                  onPressed: () => _showAddItemOptions(context, controller),
                   icon: const Icon(Icons.add_rounded, size: 19),
                   label: const Text('Add'),
                   style: FilledButton.styleFrom(
@@ -380,129 +368,8 @@ class _InvoiceForm extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           if (controller.items.isEmpty)
-            AppCard(
-              padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.darkSurface
-                  : const Color(0xFFFFFBFA),
-              borderColor: AppColors.primary.withValues(alpha: .16),
-              child: Column(
-                children: [
-                  Container(
-                    width: 68,
-                    height: 68,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.primary.withValues(alpha: .16),
-                          AppColors.secondary.withValues(alpha: .12),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        const Icon(
-                          Icons.receipt_long_rounded,
-                          color: AppColors.primary,
-                          size: 30,
-                        ),
-                        Positioned(
-                          right: 7,
-                          bottom: 7,
-                          child: Container(
-                            width: 20,
-                            height: 20,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.add_rounded,
-                              color: Colors.white,
-                              size: 15,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    'Add your first line item',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.sectionTitle,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Choose a saved product or add a custom service for this invoice.',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.textSecondary,
-                      height: 1.45,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: () => _selectProduct(context),
-                      icon: const Icon(Icons.inventory_2_outlined, size: 18),
-                      label: const Text('Choose saved item'),
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => _editItem(context),
-                          icon: const Icon(Icons.edit_note_rounded, size: 18),
-                          label: const Text('Custom item'),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => _scanProducts(context),
-                          icon: const Icon(
-                            Icons.qr_code_scanner_rounded,
-                            size: 18,
-                          ),
-                          label: const Text('Scan item'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 13),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.auto_awesome_outlined,
-                        size: 14,
-                        color: AppColors.textTertiary,
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          'Quantity, tax and totals update automatically',
-                          textAlign: TextAlign.center,
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            _InvoiceEmptyItemsCard(
+              onAdd: () => _showAddItemOptions(context, controller),
             )
           else
             ...controller.items.asMap().entries.map((entry) {
@@ -679,153 +546,154 @@ class _InvoiceForm extends StatelessWidget {
               );
             }),
           const SizedBox(height: 8),
-          if (!ResponsiveUtils.isTablet(context) && controller.items.isNotEmpty)
-            const SizedBox(height: 2),
-          OutlinedButton.icon(
-            onPressed: controller.toggleMoreOptions,
-            icon: Icon(
-              controller.showMoreOptions.value
-                  ? Icons.expand_less_rounded
-                  : Icons.tune_rounded,
+          if (controller.items.isNotEmpty) ...[
+            if (!ResponsiveUtils.isTablet(context)) const SizedBox(height: 2),
+            OutlinedButton.icon(
+              onPressed: controller.toggleMoreOptions,
+              icon: Icon(
+                controller.showMoreOptions.value
+                    ? Icons.expand_less_rounded
+                    : Icons.tune_rounded,
+              ),
+              label: Text(
+                controller.showMoreOptions.value
+                    ? 'Hide more options'
+                    : 'Tax, discount & more',
+              ),
             ),
-            label: Text(
-              controller.showMoreOptions.value
-                  ? 'Hide more options'
-                  : 'Tax, discount & more',
-            ),
-          ),
-          if (controller.showMoreOptions.value) ...[
-            const SizedBox(height: 12),
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Taxes & adjustments',
-                    style: AppTextStyles.sectionTitle,
-                  ),
-                  const SizedBox(height: 12),
-                  AppDropdownField<TaxType>(
-                    label: l10n('Tax mode'),
-                    sheetTitle: 'Choose tax mode',
-                    prefixIcon: Icons.account_balance_outlined,
-                    value: controller.taxType.value,
-                    options: [
-                      AppDropdownOption(
-                        value: TaxType.none,
-                        label: l10n('No tax'),
-                        icon: Icons.money_off_csred_outlined,
-                      ),
-                      AppDropdownOption(
-                        value: TaxType.cgstSgst,
-                        label: l10n('CGST + SGST'),
-                        icon: Icons.call_split_rounded,
-                      ),
-                      AppDropdownOption(
-                        value: TaxType.igst,
-                        label: l10n('IGST'),
-                        icon: Icons.arrow_forward_rounded,
-                      ),
-                    ],
-                    onChanged: controller.setTaxType,
-                  ),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text('Invoice discount'),
-                    subtitle: Text(
-                      _discountLabel(
-                        controller.invoiceDiscount.value,
-                        controller.currencySymbol.value,
-                      ),
+            if (controller.showMoreOptions.value) ...[
+              const SizedBox(height: 12),
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Taxes & adjustments',
+                      style: AppTextStyles.sectionTitle,
                     ),
-                    trailing: const Icon(Icons.edit_outlined),
-                    onTap: () => _editDiscount(context),
-                  ),
-                  ...controller.charges.asMap().entries.map(
-                    (entry) => ListTile(
+                    const SizedBox(height: 12),
+                    AppDropdownField<TaxType>(
+                      label: l10n('Tax mode'),
+                      sheetTitle: 'Choose tax mode',
+                      prefixIcon: Icons.account_balance_outlined,
+                      value: controller.taxType.value,
+                      options: [
+                        AppDropdownOption(
+                          value: TaxType.none,
+                          label: l10n('No tax'),
+                          icon: Icons.money_off_csred_outlined,
+                        ),
+                        AppDropdownOption(
+                          value: TaxType.cgstSgst,
+                          label: l10n('CGST + SGST'),
+                          icon: Icons.call_split_rounded,
+                        ),
+                        AppDropdownOption(
+                          value: TaxType.igst,
+                          label: l10n('IGST'),
+                          icon: Icons.arrow_forward_rounded,
+                        ),
+                      ],
+                      onChanged: controller.setTaxType,
+                    ),
+                    ListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: Text(entry.value.title),
+                      title: const Text('Invoice discount'),
                       subtitle: Text(
-                        CurrencyUtils.formatMinor(
-                          entry.value.amountMinor,
-                          symbol: controller.currencySymbol.value,
+                        _discountLabel(
+                          controller.invoiceDiscount.value,
+                          controller.currencySymbol.value,
                         ),
                       ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => controller.removeCharge(entry.key),
-                      ),
+                      trailing: const Icon(Icons.edit_outlined),
+                      onTap: () => _editDiscount(context),
                     ),
-                  ),
-                  TextButton.icon(
-                    onPressed: () => _addCharge(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Additional charge'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            AppCard(
-              child: Column(
-                children: [
-                  if (!controller.isEditing && !controller.isQuotation) ...[
-                    TextField(
-                      controller: controller.paidController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: l10n('Opening payment'),
-                        hintText: l10n('0.00'),
-                        helperText: l10n(
-                          'Optional payment received when creating this invoice.',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  if (controller.hasRecordedPayments) ...[
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.warningLight,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.lock_clock_outlined,
-                            color: AppColors.warning,
+                    ...controller.charges.asMap().entries.map(
+                      (entry) => ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(entry.value.title),
+                        subtitle: Text(
+                          CurrencyUtils.formatMinor(
+                            entry.value.amountMinor,
+                            symbol: controller.currencySymbol.value,
                           ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              'Payments are managed from Invoice details. Keep the revised total at or above the amount already paid.',
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => controller.removeCharge(entry.key),
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => _addCharge(context),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Additional charge'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              AppCard(
+                child: Column(
+                  children: [
+                    if (!controller.isEditing && !controller.isQuotation) ...[
+                      TextField(
+                        controller: controller.paidController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: l10n('Opening payment'),
+                          hintText: l10n('0.00'),
+                          helperText: l10n(
+                            'Optional payment received when creating this invoice.',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    if (controller.hasRecordedPayments) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.warningLight,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.lock_clock_outlined,
+                              color: AppColors.warning,
                             ),
-                          ),
-                        ],
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Payments are managed from Invoice details. Keep the revised total at or above the amount already paid.',
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(height: 12),
+                    ],
+                    TextField(
+                      controller: controller.notesController,
+                      maxLines: 2,
+                      decoration: InputDecoration(labelText: l10n('Notes')),
                     ),
                     const SizedBox(height: 12),
-                  ],
-                  TextField(
-                    controller: controller.notesController,
-                    maxLines: 2,
-                    decoration: InputDecoration(labelText: l10n('Notes')),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: controller.termsController,
-                    maxLines: 2,
-                    decoration: InputDecoration(
-                      labelText: l10n('Terms & conditions'),
+                    TextField(
+                      controller: controller.termsController,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        labelText: l10n('Terms & conditions'),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
           ],
         ],
       ),
@@ -870,105 +738,12 @@ class _InvoiceForm extends StatelessWidget {
     }
   }
 
-  Future<void> _selectProduct(BuildContext context) async {
-    final selected = await Get.toNamed<dynamic>(
-      AppRoutes.invoiceItemPicker,
-      arguments: InvoiceItemPickerArgs(
-        alreadyAddedIds: controller.items
-            .map((item) => item.productId)
-            .whereType<int>()
-            .toSet(),
-      ),
-    );
-    if (!context.mounted || selected is! InvoiceItemPickerResult) return;
-    controller.applyCatalogSelection(
-      added: selected.added,
-      removedProductIds: selected.removedIds,
-    );
-  }
-
-  Future<void> _scanProducts(BuildContext context) async {
-    final result = await Get.toNamed<dynamic>(
-      AppRoutes.productScan,
-      arguments: ProductScanArgs(quotation: controller.isQuotation),
-    );
-    if (!context.mounted || result is! List<ScannedInvoiceLine>) return;
-    controller.applyScannedLines(result);
-  }
-
-  Future<void> _showAddItemOptions(BuildContext context) async {
-    final choice = await showModalBottomSheet<_AddItemChoice>(
-      context: context,
-      showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Add an item', style: AppTextStyles.sectionTitle),
-              const SizedBox(height: 6),
-              Text(
-                'Choose how you want to add this invoice line.',
-                style: AppTextStyles.body.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _AddItemOption(
-                icon: Icons.qr_code_scanner_rounded,
-                title: 'Scan barcodes',
-                subtitle: 'Add saved products by scanning their codes',
-                onTap: () => Navigator.pop(sheetContext, _AddItemChoice.scan),
-              ),
-              const SizedBox(height: 10),
-              _AddItemOption(
-                icon: Icons.inventory_2_outlined,
-                title: 'Choose saved item',
-                subtitle: 'Use a product or service from your catalog',
-                onTap: () => Navigator.pop(sheetContext, _AddItemChoice.saved),
-              ),
-              const SizedBox(height: 10),
-              _AddItemOption(
-                icon: Icons.edit_note_rounded,
-                title: 'Create custom item',
-                subtitle: 'Enter a one-time item for this invoice',
-                onTap: () => Navigator.pop(sheetContext, _AddItemChoice.custom),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    if (!context.mounted) return;
-    if (choice == _AddItemChoice.scan) {
-      await _scanProducts(context);
-    } else if (choice == _AddItemChoice.saved) {
-      await _selectProduct(context);
-    } else if (choice == _AddItemChoice.custom) {
-      await _editItem(context);
-    }
-  }
-
   Future<void> _editItem(
     BuildContext context, {
     int? index,
     InvoiceItemModel? item,
   }) async {
-    final result = await showModalBottomSheet<InvoiceItemModel>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      showDragHandle: true,
-      builder: (_) => _ItemSheet(item: item),
-    );
-    if (result == null) return;
-    if (index == null) {
-      controller.addItem(result);
-    } else {
-      controller.replaceItem(index, result);
-    }
+    await _editInvoiceItem(context, controller, index: index, item: item);
   }
 
   Future<void> _editItemRate(
@@ -1005,6 +780,172 @@ class _InvoiceForm extends StatelessWidget {
       builder: (_) => const _AdditionalChargeDialog(),
     );
     if (result != null) controller.addCharge(result);
+  }
+}
+
+Future<void> _showAddItemOptions(
+  BuildContext context,
+  InvoiceCreateController controller,
+) async {
+  final choice = await showModalBottomSheet<_AddItemChoice>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheetContext) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Add an item', style: AppTextStyles.sectionTitle),
+            const SizedBox(height: 6),
+            Text(
+              'Choose how you want to add this invoice line.',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _AddItemOption(
+              icon: Icons.qr_code_scanner_rounded,
+              title: 'Scan barcodes',
+              subtitle: 'Add saved products by scanning their codes',
+              onTap: () => Navigator.pop(sheetContext, _AddItemChoice.scan),
+            ),
+            const SizedBox(height: 10),
+            _AddItemOption(
+              icon: Icons.inventory_2_outlined,
+              title: 'Choose saved item',
+              subtitle: 'Use a product or service from your catalog',
+              onTap: () => Navigator.pop(sheetContext, _AddItemChoice.saved),
+            ),
+            const SizedBox(height: 10),
+            _AddItemOption(
+              icon: Icons.edit_note_rounded,
+              title: 'Create custom item',
+              subtitle: 'Enter a one-time item for this invoice',
+              onTap: () => Navigator.pop(sheetContext, _AddItemChoice.custom),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+  if (!context.mounted || choice == null) return;
+  if (choice == _AddItemChoice.scan) {
+    await _scanProductsForInvoice(context, controller);
+  } else if (choice == _AddItemChoice.saved) {
+    await _selectProductForInvoice(context, controller);
+  } else if (choice == _AddItemChoice.custom) {
+    await _editInvoiceItem(context, controller);
+  }
+}
+
+Future<void> _selectProductForInvoice(
+  BuildContext context,
+  InvoiceCreateController controller,
+) async {
+  final selected = await Get.toNamed<dynamic>(
+    AppRoutes.invoiceItemPicker,
+    arguments: InvoiceItemPickerArgs(
+      alreadyAddedIds: controller.items
+          .map((item) => item.productId)
+          .whereType<int>()
+          .toSet(),
+    ),
+  );
+  if (!context.mounted || selected is! InvoiceItemPickerResult) return;
+  controller.applyCatalogSelection(
+    added: selected.added,
+    removedProductIds: selected.removedIds,
+  );
+}
+
+Future<void> _scanProductsForInvoice(
+  BuildContext context,
+  InvoiceCreateController controller,
+) async {
+  final result = await Get.toNamed<dynamic>(
+    AppRoutes.productScan,
+    arguments: ProductScanArgs(quotation: controller.isQuotation),
+  );
+  if (!context.mounted || result is! List<ScannedInvoiceLine>) return;
+  controller.applyScannedLines(result);
+}
+
+Future<void> _editInvoiceItem(
+  BuildContext context,
+  InvoiceCreateController controller, {
+  int? index,
+  InvoiceItemModel? item,
+}) async {
+  final result = await showModalBottomSheet<InvoiceItemModel>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    showDragHandle: true,
+    builder: (_) => _ItemSheet(item: item),
+  );
+  if (result == null) return;
+  if (index == null) {
+    controller.addItem(result);
+  } else {
+    controller.replaceItem(index, result);
+  }
+}
+
+/// Calm first-item prompt. One action opens the existing add-item chooser.
+class _InvoiceEmptyItemsCard extends StatelessWidget {
+  const _InvoiceEmptyItemsCard({required this.onAdd});
+
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(20, 28, 20, 22),
+      color: isDark ? AppColors.darkSurface : const Color(0xFFFFFBFA),
+      borderColor: AppColors.primary.withValues(alpha: .14),
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: isDark ? .22 : .12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.receipt_long_rounded,
+              color: AppColors.primary,
+              size: 26,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No items yet',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.sectionTitle,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Add a saved product, scan a barcode, or enter a one-time item.',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 20),
+          AppButton(
+            label: 'Add an item',
+            icon: Icons.add_rounded,
+            onPressed: onAdd,
+          ),
+        ],
+      ),
+    );
   }
 }
 
