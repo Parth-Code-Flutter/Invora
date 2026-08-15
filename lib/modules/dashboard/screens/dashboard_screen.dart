@@ -13,6 +13,7 @@ import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_workspace_switch.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/report_summary_model.dart';
@@ -66,6 +67,13 @@ class DashboardScreen extends GetView<DashboardController> {
             ],
           ),
         ),
+        actions: [
+          IconButton(
+            tooltip: l10n('Switch workspace'),
+            onPressed: () => showWorkspaceSwitcher(context),
+            icon: const Icon(Icons.swap_horiz_rounded),
+          ),
+        ],
       ),
       body: Row(
         children: [

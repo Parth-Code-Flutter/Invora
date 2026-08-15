@@ -97,6 +97,12 @@ class BackupService {
       AppStorageKeyConst.businessSetupCompleted: _storage.getBool(
         AppStorageKeyConst.businessSetupCompleted,
       ),
+      AppStorageKeyConst.defaultWorkspace: _storage.getString(
+        AppStorageKeyConst.defaultWorkspace,
+      ),
+      AppStorageKeyConst.activeWorkspace: _storage.getString(
+        AppStorageKeyConst.activeWorkspace,
+      ),
       AppStorageKeyConst.selectedInvoiceTemplate: _storage.getString(
         AppStorageKeyConst.selectedInvoiceTemplate,
       ),

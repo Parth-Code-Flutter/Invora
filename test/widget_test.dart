@@ -37,6 +37,10 @@ void main() {
     await tester.tap(find.text('Skip for now'));
     await tester.pumpAndSettle();
 
+    expect(find.text('What do you manage most?'), findsOneWidget);
+    await tester.tap(find.text('Continue with Sales'));
+    await tester.pumpAndSettle();
+
     expect(find.text('Let’s make it yours'), findsOneWidget);
 
     final context = tester.element(find.text('Let’s make it yours'));

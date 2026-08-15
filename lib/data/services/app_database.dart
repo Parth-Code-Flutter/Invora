@@ -177,6 +177,64 @@ class InvoicePayments extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+@TableIndex(name: 'suppliers_name', columns: {#name})
+class Suppliers extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get companyName => text().nullable()();
+  TextColumn get mobile => text().nullable()();
+  TextColumn get email => text().nullable()();
+  TextColumn get gstin => text().nullable()();
+  TextColumn get address => text().nullable()();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@TableIndex(name: 'purchase_bills_number', columns: {#billNumber})
+class PurchaseBills extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get billNumber => text()();
+  IntColumn get supplierId => integer().references(Suppliers, #id)();
+  TextColumn get supplierName => text()();
+  DateTimeColumn get billDate => dateTime()();
+  DateTimeColumn get dueDate => dateTime().nullable()();
+  IntColumn get subtotalMinor => integer()();
+  IntColumn get taxMinor => integer().withDefault(const Constant(0))();
+  IntColumn get totalMinor => integer()();
+  IntColumn get paidMinor => integer().withDefault(const Constant(0))();
+  IntColumn get balanceMinor => integer()();
+  TextColumn get status => text().withDefault(const Constant('unpaid'))();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class PurchaseItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get purchaseBillId =>
+      integer().references(PurchaseBills, #id, onDelete: KeyAction.cascade)();
+  TextColumn get name => text()();
+  IntColumn get quantityScaled => integer()();
+  TextColumn get unit => text()();
+  IntColumn get rateMinor => integer()();
+  IntColumn get taxRateBasisPoints =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get totalMinor => integer()();
+  IntColumn get sortOrder => integer()();
+}
+
+class PurchasePayments extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get purchaseBillId =>
+      integer().references(PurchaseBills, #id, onDelete: KeyAction.cascade)();
+  IntColumn get amountMinor => integer()();
+  TextColumn get method => text().nullable()();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get paidAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 @DriftDatabase(
   tables: [
     DatabaseMetadata,
@@ -187,6 +245,10 @@ class InvoicePayments extends Table {
     InvoiceItems,
     InvoiceCharges,
     InvoicePayments,
+    Suppliers,
+    PurchaseBills,
+    PurchaseItems,
+    PurchasePayments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -263,6 +325,12 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from >= 5 && from < 9 && existingTables.contains('invoice_items')) {
         await migrator.addColumn(invoiceItems, invoiceItems.attributesJson);
+      }
+      if (from < 10) {
+        await migrator.createTable(suppliers);
+        await migrator.createTable(purchaseBills);
+        await migrator.createTable(purchaseItems);
+        await migrator.createTable(purchasePayments);
       }
     },
   );

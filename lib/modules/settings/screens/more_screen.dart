@@ -9,9 +9,11 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_purchase_navigation.dart';
 import '../../../app/widgets/app_menu_group.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/business_profile_model.dart';
+import '../../../data/services/business_workspace_service.dart';
 import '../controllers/more_controller.dart';
 
 class MoreScreen extends GetView<MoreController> {
@@ -20,12 +22,46 @@ class MoreScreen extends GetView<MoreController> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('More')),
-    bottomNavigationBar: const AppMainNavigation(current: MainDestination.more),
+    bottomNavigationBar: Obx(
+      () => Get.find<BusinessWorkspaceService>().isPurchases
+          ? const AppPurchaseNavigation(current: PurchaseDestination.more)
+          : const AppMainNavigation(current: MainDestination.more),
+    ),
     body: ResponsiveContent(
       tabletMaxWidth: 720,
       child: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
+          AppMenuGroup(
+            children: [
+              Obx(() {
+                final workspace = Get.find<BusinessWorkspaceService>();
+                return AppMenuTile(
+                  icon: workspace.isSales
+                      ? Icons.shopping_bag_outlined
+                      : Icons.trending_up_rounded,
+                  title: workspace.isSales ? 'Open Purchases' : 'Open Sales',
+                  subtitle: workspace.isSales
+                      ? 'Suppliers, purchase bills and payables'
+                      : 'Customers, invoices and receivables',
+                  color: AppColors.secondary,
+                  background: AppColors.secondaryLight,
+                  onTap: () async {
+                    final next = workspace.isSales
+                        ? BusinessWorkspace.purchases
+                        : BusinessWorkspace.sales;
+                    await workspace.select(next);
+                    Get.offAllNamed<void>(
+                      next == BusinessWorkspace.sales
+                          ? AppRoutes.dashboard
+                          : AppRoutes.purchases,
+                    );
+                  },
+                );
+              }),
+            ],
+          ),
+          const SizedBox(height: 20),
           Obx(
             () => _BusinessHeader(
               controller: controller,

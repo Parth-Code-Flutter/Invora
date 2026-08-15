@@ -2,7 +2,14 @@ abstract final class AppRoutes {
   static const splash = '/splash';
   static const onboarding = '/onboarding';
   static const businessSetup = '/business-setup';
+  static const workspaceSetup = '/workspace-setup';
   static const dashboard = '/dashboard';
+  static const purchases = '/purchases';
+  static const purchaseBills = '/purchases/bills';
+  static const purchaseBillCreate = '/purchases/bills/create';
+  static const purchaseBillDetails = '/purchases/bills/details';
+  static const suppliers = '/purchases/suppliers';
+  static const supplierAdd = '/purchases/suppliers/add';
   static const customers = '/customers';
   static const customerAdd = '/customer/add';
   static const customerEdit = '/customer/edit';

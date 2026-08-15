@@ -13,10 +13,12 @@ import '../../data/services/payment_receipt_pdf_service.dart';
 import '../../data/services/backup_service.dart';
 import '../../data/services/unit_service.dart';
 import '../../data/services/app_lock_service.dart';
+import '../../data/services/business_workspace_service.dart';
 import '../../data/repositories/business_repository.dart';
 import '../../data/repositories/customer_repository.dart';
 import '../../data/repositories/product_repository.dart';
 import '../../data/repositories/invoice_repository.dart';
+import '../../data/repositories/purchase_repository.dart';
 import '../../modules/dashboard/controllers/dashboard_controller.dart';
 import '../../modules/invoices/controllers/invoice_list_controller.dart';
 import '../controllers/app_controller.dart';
@@ -30,6 +32,10 @@ class InitialBinding extends Bindings {
   @override
   void dependencies() {
     Get.put<AppStorage>(appStorage, permanent: true);
+    Get.put<BusinessWorkspaceService>(
+      BusinessWorkspaceService(appStorage),
+      permanent: true,
+    );
     final appLockService = AppLockService(appStorage)..load();
     Get.put<AppLockService>(appLockService, permanent: true);
     _registerDatabaseRuntime(databaseService, appStorage);
@@ -72,6 +78,7 @@ class InitialBinding extends Bindings {
     await Get.delete<DataExportService>(force: true);
     await Get.delete<BackupService>(force: true);
     await Get.delete<InvoiceRepository>(force: true);
+    await Get.delete<PurchaseRepository>(force: true);
     await Get.delete<ProductRepository>(force: true);
     await Get.delete<CustomerRepository>(force: true);
     await Get.delete<BusinessRepository>(force: true);
@@ -81,6 +88,9 @@ class InitialBinding extends Bindings {
     final nextRuntime = replacement ?? LocalDatabaseService(AppDatabase());
     await nextRuntime.initialize();
     _registerDatabaseRuntime(nextRuntime, storage);
+    if (Get.isRegistered<BusinessWorkspaceService>()) {
+      Get.find<BusinessWorkspaceService>().reload();
+    }
     await storage.remove(AppStorageKeyConst.restoreCompleted);
   }
 
@@ -110,6 +120,10 @@ class InitialBinding extends Bindings {
     );
     Get.put<InvoiceRepository>(
       InvoiceRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<PurchaseRepository>(
+      PurchaseRepository(databaseService.database),
       permanent: true,
     );
     Get.put<DataExportService>(

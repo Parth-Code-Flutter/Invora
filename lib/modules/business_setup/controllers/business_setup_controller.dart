@@ -9,6 +9,7 @@ import '../../../data/models/business_profile_model.dart';
 import '../../../data/models/business_category_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/services/app_storage.dart';
+import '../../../data/services/business_workspace_service.dart';
 import '../../../data/services/image_storage_service.dart';
 import '../../../data/services/product_settings_service.dart';
 
@@ -237,7 +238,12 @@ class BusinessSetupController extends GetxController {
       if (wasEditing) {
         Get.back<void>();
       } else {
-        Get.offAllNamed<void>(AppRoutes.dashboard);
+        final workspace = Get.isRegistered<BusinessWorkspaceService>()
+            ? Get.find<BusinessWorkspaceService>()
+            : BusinessWorkspaceService(_storage);
+        Get.offAllNamed<void>(
+          workspace.isPurchases ? AppRoutes.purchases : AppRoutes.dashboard,
+        );
       }
     } finally {
       isSaving.value = false;

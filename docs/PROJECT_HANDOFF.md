@@ -28,6 +28,27 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 ### Application foundation
 
 - First-launch onboarding and business setup
+- One-time onboarding workspace choice between Sales and Purchases. Existing
+  installations default safely to Sales; the initial choice and most recently
+  active workspace persist locally. Users can switch from the dashboard, the
+  isolated Purchase workspace, or the first More tile without converting,
+  deleting, or mixing sales records.
+- Purchase is a complete, separate offline workspace rather than a placeholder:
+  it has a purchase overview, searchable suppliers, searchable purchase bills,
+  supplier-bill creation/editing with GST line items, bill details, payable
+  balances, supplier-payment history, and its own Home/Bills/Create/Suppliers/
+  More navigation. A labelled Sales/Purchases control switches workspaces;
+  sales customers/invoices and purchase suppliers/bills use separate tables.
+  Supplier creation supports the same native phone-contact import behavior and
+  contact validation as customer creation. New purchase bills require supplier
+  selection before bill fields are shown, then enforce unique bill number,
+  valid date order, required line items, positive quantity/rate, bounded GST,
+  and payment-within-balance rules.
+  Purchase line-item creation/editing now uses a tall branded sheet instead of
+  a platform alert, shares the saved-unit picker (including custom units), and
+  exposes compact edit/remove actions from each item. Purchase-bill edit/delete
+  and supplier-payment entry use the same modern action-sheet language and
+  validated payment controls as the Sales workspace.
 - Business profile, logo, signature, payment QR, bank, and UPI information
 - Responsive phone/tablet layouts and dark mode
 - Optional four-digit app lock under Settings > Security. PIN setup requires
@@ -353,30 +374,104 @@ transfer automatically.
 
 ## Verification baseline
 
-As of 2026-08-14:
+As of 2026-08-15:
 
 - Flutter analysis: no issues
-- Automated suite: all 125 tests passing
+- Automated suite: all 146 tests passing
+- Android debug APK builds successfully
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
 
-1. Configure secure Android release signing; release still references debug
+1. Add purchase-specific reporting/export and optional purchase-PDF attachment
+   capture after the core supplier/bill/payment workflow has been field tested.
+2. Configure secure Android release signing; release still references debug
    signing.
-2. Verify Android AAB and iOS archive release builds.
-3. Complete native Android/iOS picker, share, print, restore/restart, gesture,
+3. Verify Android AAB and iOS archive release builds.
+4. Complete native Android/iOS picker, share, print, restore/restart, gesture,
    and high-volume checks in `docs/QA_CHECKLIST.md`.
-4. Consider password-encrypted backup exports after V1; core compatibility,
+5. Consider password-encrypted backup exports after V1; core compatibility,
    database rollback, and corruption coverage are implemented.
-5. Complete store privacy declarations and iOS privacy-manifest review.
-6. Test all PDFs with long, multi-page, and Unicode content.
-7. Complete accessibility, tablet, landscape, and physical-device QA.
-8. Add CI for formatting, analysis, tests, and release validation.
+6. Complete store privacy declarations and iOS privacy-manifest review.
+7. Test all PDFs with long, multi-page, and Unicode content.
+8. Complete accessibility, tablet, landscape, and physical-device QA.
+9. Add CI for formatting, analysis, tests, and release validation.
 
 Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-15 — Purchase internal-screen UX alignment
+
+- Replaced the framework-default purchased-item dialog with a responsive 72%
+  branded editor, clearer field grouping, sticky primary action, and the shared
+  saved/custom unit selector.
+- Added in-place purchase item editing plus compact edit/remove action sheets;
+  purchase-bill edit/delete and supplier-payment entry now use consistent app
+  sheets instead of popup menus and raw alerts.
+- Payment entry validates positive values and the current payable balance before
+  closing, while repository validation remains the final data-integrity guard.
+- Important files: `purchase_screens.dart` and this handoff document.
+- Verification: Dart formatting and `flutter analyze` complete with no issues;
+  the full automated suite passes (146/146).
+
+### 2026-08-15 — Supplier-first purchasing and shared safeguards
+
+- Added create-only native phone-contact import to Add supplier, including
+  permission, Indian-mobile normalization, loading state, and modern success/
+  warning/error feedback matching customer import.
+- New purchase bills now begin with a dedicated supplier-selection step. Bill
+  fields are revealed only after selection; users can create a supplier from
+  the same step.
+- Added optional mobile/email/GSTIN validation for suppliers; unique required
+  bill number, due-date ordering, required items, positive quantity/price,
+  0–100 GST, payment balance limits, and a destructive delete confirmation.
+- Important files: `purchase_screens.dart`, `purchase_repository.dart`,
+  purchase tests, localization coverage, and this handoff.
+- Verification covers supplier-first responsive flow, duplicate bill-number
+  protection, excessive-payment rejection, clean analysis, full tests, and an
+  Android debug build.
+
+### 2026-08-15 — Complete offline Purchase workspace
+
+- Replaced the purchase placeholder with a full Purchase Home, purchase-bill
+  list/detail/create/edit flow, supplier list/create/edit flow, payable totals,
+  supplier-payment recording/history, search, empty states, and purchase-aware
+  More navigation.
+- Added a dedicated purchase bottom navigation matching the Sales interaction
+  model, plus a labelled Purchases/Sales switch so the workspace action is
+  understandable without guessing an icon.
+- Added Drift schema v10 tables for suppliers, purchase bills, purchase items,
+  and purchase payments. Purchase data is isolated from customers, sales
+  invoices, invoice items, and customer payments; backups continue to include
+  the whole local SQLite database and workspace preference.
+- Important files: `app_database.dart`, `app_database.g.dart`,
+  `purchase_repository.dart`, `purchase_models.dart`,
+  `purchase_workspace_screen.dart`, `purchase_screens.dart`,
+  `app_purchase_navigation.dart`, routes, initial binding, and More.
+- Verification: generated Drift code, clean `flutter analyze`, repository
+  lifecycle/isolation coverage, responsive purchase workspace coverage, full
+  automated suite, and Android debug build.
+
+### 2026-08-15 — Sales/Purchases workspace foundation
+
+- Added a one-time onboarding choice for the starting Sales or Purchases
+  workspace. The choice is stored only after selection; skipping the intro no
+  longer bypasses it. Existing users with no preference remain in Sales.
+- Added a persisted in-app workspace switch on Sales Home, the Purchase shell,
+  and the first More tile. Launch and post-business-setup routing respect the
+  last active workspace. Backup/restore includes both workspace preferences and
+  refreshes the live service after restore.
+- Added an isolated Purchase workspace shell that explicitly does not reuse
+  customers or sales invoices. Supplier and purchase-bill CRUD remains the next
+  implementation phase, avoiding premature schema coupling or fake accounting.
+- Added Hindi/Gujarati workspace copy and automated persistence/onboarding
+  coverage. Important files: workspace service/switch, onboarding controller
+  and choice screen, Purchase workspace screen, splash/business routing,
+  backup service, route table, tests, and this handoff.
+- No database schema or sales-record changes. Verified with clean analysis,
+  all 144 automated tests, and an Android debug APK build.
 
 ### 2026-08-15 — Separate list scan action
 

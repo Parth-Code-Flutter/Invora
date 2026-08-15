@@ -4,6 +4,9 @@ import '../../modules/splash/screens/splash_screen.dart';
 import '../../modules/splash/bindings/splash_binding.dart';
 import '../../modules/onboarding/bindings/onboarding_binding.dart';
 import '../../modules/onboarding/screens/onboarding_screen.dart';
+import '../../modules/onboarding/screens/workspace_setup_screen.dart';
+import '../../modules/purchases/screens/purchase_workspace_screen.dart';
+import '../../modules/purchases/screens/purchase_screens.dart';
 import '../../modules/business_setup/bindings/business_setup_binding.dart';
 import '../../modules/business_setup/screens/business_setup_screen.dart';
 import '../../modules/dashboard/bindings/dashboard_binding.dart';
@@ -62,6 +65,38 @@ abstract final class AppRouter {
       page: BusinessSetupScreen.new,
       binding: BusinessSetupBinding(),
     ),
+    GetPage(
+      name: AppRoutes.workspaceSetup,
+      page: WorkspaceSetupScreen.new,
+      binding: OnboardingBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.purchases,
+      page: PurchaseWorkspaceScreen.new,
+      transition: Transition.noTransition,
+      transitionDuration: Duration.zero,
+    ),
+    GetPage(
+      name: AppRoutes.purchaseBills,
+      page: PurchaseBillListScreen.new,
+      transition: Transition.noTransition,
+      transitionDuration: Duration.zero,
+    ),
+    GetPage(
+      name: AppRoutes.purchaseBillCreate,
+      page: PurchaseBillFormScreen.new,
+    ),
+    GetPage(
+      name: AppRoutes.purchaseBillDetails,
+      page: PurchaseBillDetailsScreen.new,
+    ),
+    GetPage(
+      name: AppRoutes.suppliers,
+      page: SupplierListScreen.new,
+      transition: Transition.noTransition,
+      transitionDuration: Duration.zero,
+    ),
+    GetPage(name: AppRoutes.supplierAdd, page: SupplierFormScreen.new),
     GetPage(
       name: AppRoutes.dashboard,
       page: DashboardScreen.new,

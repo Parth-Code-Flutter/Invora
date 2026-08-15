@@ -4,6 +4,7 @@ import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/services/app_storage.dart';
+import '../../../data/services/business_workspace_service.dart';
 
 class SplashController extends GetxController {
   SplashController(this._storage, this._businessRepository);
@@ -40,6 +41,9 @@ class SplashController extends GetxController {
       return;
     }
     await minimumSplashTime;
-    Get.offAllNamed<void>(AppRoutes.dashboard);
+    final workspace = Get.find<BusinessWorkspaceService>();
+    Get.offAllNamed<void>(
+      workspace.isPurchases ? AppRoutes.purchases : AppRoutes.dashboard,
+    );
   }
 }
