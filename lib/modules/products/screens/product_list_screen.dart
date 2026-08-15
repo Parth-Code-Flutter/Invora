@@ -7,15 +7,16 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/enums/item_type.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
-import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
+import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
-import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
-import '../../../app/widgets/app_search_field.dart';
+import '../../../app/widgets/app_grouped_tile.dart';
+import '../../../app/widgets/app_list_motion.dart';
+import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../data/models/product_service_model.dart';
 import '../controllers/product_list_controller.dart';
 
@@ -30,9 +31,23 @@ class ProductListScreen extends GetView<ProductListController> {
         onPressed: () => Get.toNamed<void>(AppRoutes.productAdd),
         child: const Icon(Icons.add_rounded),
       ),
-      appBar: AppBar(
+      appBar: AppSearchAppBar(
         leading: const AppBackButton(),
-        title: const Text('Products & services'),
+        title: 'Products & services',
+        titleSuffix: Obx(
+          () => Text(
+            '(${controller.items.length})',
+            style: AppTextStyles.caption.copyWith(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.textSecondary,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        hint: 'Search products or services',
+        onChanged: controller.updateSearch,
         actions: [
           IconButton(
             tooltip: l10n('Scan barcode'),
@@ -46,70 +61,49 @@ class ProductListScreen extends GetView<ProductListController> {
           Padding(
             padding: EdgeInsets.fromLTRB(
               ResponsiveUtils.horizontalPadding(context),
-              ResponsiveUtils.height(context, 8),
+              8,
               ResponsiveUtils.horizontalPadding(context),
-              ResponsiveUtils.height(context, 8),
+              10,
             ),
-            child: Column(
-              children: [
-                AppSearchField(
-                  onChanged: controller.updateSearch,
-                  hint: 'Search products or services',
-                ),
-                ResponsiveUtils.verticalGap(context, 10),
-                Obx(
-                  () => SizedBox(
-                    height: 48,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        AppFilterChip(
-                          label: 'All',
-                          icon: Icons.grid_view_rounded,
-                          selected: controller.selectedType.value == null,
-                          onSelected: (_) => controller.selectType(null),
-                        ),
-                        ResponsiveUtils.horizontalGap(context, 8),
-                        AppFilterChip(
-                          label: 'Products',
-                          icon: Icons.inventory_2_outlined,
-                          selected:
-                              controller.selectedType.value == ItemType.product,
-                          onSelected: (_) =>
-                              controller.selectType(ItemType.product),
-                        ),
-                        ResponsiveUtils.horizontalGap(context, 8),
-                        AppFilterChip(
-                          label: 'Services',
-                          icon: Icons.design_services_outlined,
-                          selected:
-                              controller.selectedType.value == ItemType.service,
-                          onSelected: (_) =>
-                              controller.selectType(ItemType.service),
-                        ),
-                      ],
+            child: SizedBox(
+              height: 42,
+              child: Obx(
+                () => ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    AppFilterChip(
+                      label: 'All',
+                      icon: Icons.grid_view_rounded,
+                      selected: controller.selectedType.value == null,
+                      onSelected: (_) => controller.selectType(null),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Obx(
-                  () => Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '${controller.items.length} saved items',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    ResponsiveUtils.horizontalGap(context, 8),
+                    AppFilterChip(
+                      label: 'Products',
+                      icon: Icons.inventory_2_outlined,
+                      selected:
+                          controller.selectedType.value == ItemType.product,
+                      onSelected: (_) =>
+                          controller.selectType(ItemType.product),
                     ),
-                  ),
+                    ResponsiveUtils.horizontalGap(context, 8),
+                    AppFilterChip(
+                      label: 'Services',
+                      icon: Icons.design_services_outlined,
+                      selected:
+                          controller.selectedType.value == ItemType.service,
+                      onSelected: (_) =>
+                          controller.selectType(ItemType.service),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return const AppListSkeleton();
               }
               if (controller.items.isEmpty) {
                 return AppEmptyState(
@@ -130,34 +124,55 @@ class ProductListScreen extends GetView<ProductListController> {
               }
               final columns = ResponsiveUtils.gridColumns(context);
               final horizontal = ResponsiveUtils.horizontalPadding(context);
-              if (columns == 1) {
-                return ListView.separated(
-                  padding: EdgeInsets.fromLTRB(horizontal, 8, horizontal, 100),
-                  itemCount: controller.items.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) => _ItemCard(
-                    item: controller.items[index],
-                    currencySymbol: controller.currencySymbol.value,
-                    onDelete: () =>
-                        _confirmDelete(context, controller.items[index]),
-                  ),
-                );
-              }
-              return GridView.builder(
-                padding: EdgeInsets.fromLTRB(horizontal, 8, horizontal, 100),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: columns,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  mainAxisExtent: ResponsiveUtils.height(context, 174),
-                ),
-                itemCount: controller.items.length,
-                itemBuilder: (context, index) => _ItemCard(
+              final showType = controller.selectedType.value == null;
+              Widget tile(int index) => AppListEntrance(
+                index: index,
+                child: _ProductCatalogTile(
                   item: controller.items[index],
                   currencySymbol: controller.currencySymbol.value,
+                  showType: showType,
                   onDelete: () =>
                       _confirmDelete(context, controller.items[index]),
                 ),
+              );
+              if (columns == 1) {
+                return ListView.separated(
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
+                  padding: EdgeInsets.fromLTRB(horizontal, 2, horizontal, 100),
+                  itemCount: controller.items.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (_, index) => tile(index),
+                );
+              }
+              return ListView(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                padding: EdgeInsets.fromLTRB(horizontal, 2, horizontal, 100),
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      const gap = 8.0;
+                      final width =
+                          (constraints.maxWidth - gap * (columns - 1)) /
+                          columns;
+                      return Wrap(
+                        spacing: gap,
+                        runSpacing: gap,
+                        children: [
+                          for (
+                            var index = 0;
+                            index < controller.items.length;
+                            index++
+                          )
+                            SizedBox(width: width, child: tile(index)),
+                        ],
+                      );
+                    },
+                  ),
+                ],
               );
             }),
           ),
@@ -182,110 +197,106 @@ class ProductListScreen extends GetView<ProductListController> {
   }
 }
 
-class _ItemCard extends StatelessWidget {
-  const _ItemCard({
+class _ProductCatalogTile extends StatelessWidget {
+  const _ProductCatalogTile({
     required this.item,
     required this.currencySymbol,
+    required this.showType,
     required this.onDelete,
   });
+
   final ProductServiceModel item;
   final String currencySymbol;
+  final bool showType;
   final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      padding: const EdgeInsets.all(12),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+    final tertiary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textTertiary;
+    final meta = [
+      if (showType) item.type.label,
+      item.unit,
+      'GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}',
+    ].join(' · ');
+    final attributes = item.attributes.isEmpty
+        ? null
+        : item.attributes.take(3).map((value) => value.value).join(' · ');
+
+    return AppGroupedTile(
+      padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
       onTap: () =>
           Get.toNamed<void>(AppRoutes.productDetails, arguments: item.id),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: item.type == ItemType.product
-                  ? AppColors.primaryLight
-                  : AppColors.secondaryLight,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Icon(
-              item.type == ItemType.product
-                  ? Icons.inventory_2_outlined
-                  : Icons.design_services_outlined,
-              color: item.type == ItemType.product
-                  ? AppColors.primary
-                  : AppColors.secondary,
-            ),
-          ),
-          const SizedBox(width: 11),
           Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Expanded(
-                      child: Text(item.name, style: AppTextStyles.cardTitle),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 7,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: item.type == ItemType.product
-                            ? AppColors.primaryLight
-                            : AppColors.secondaryLight,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
                       child: Text(
-                        item.type.label,
-                        style: AppTextStyles.caption.copyWith(
-                          color: item.type == ItemType.product
-                              ? AppColors.primary
-                              : AppColors.secondary,
-                        ),
+                        item.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.listName,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 108),
+                      child: AppAmountText(
+                        amountMinor: item.salePriceMinor,
+                        symbol: currencySymbol,
+                        style: AppTextStyles.listAmount,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '${item.unit} • GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}',
-                  style: AppTextStyles.small.copyWith(
-                    color: AppColors.textSecondary,
+                  meta,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: secondary,
+                    fontSize: 11,
                   ),
                 ),
-                if (item.attributes.isNotEmpty) ...[
-                  const SizedBox(height: 3),
+                if (attributes != null) ...[
+                  const SizedBox(height: 2),
                   Text(
-                    item.attributes
-                        .take(3)
-                        .map((value) => value.value)
-                        .join(' • '),
+                    attributes,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textSecondary,
+                      color: tertiary,
+                      fontSize: 11,
                     ),
                   ),
                 ],
-                const SizedBox(height: 8),
-                Text(
-                  CurrencyUtils.formatMinor(
-                    item.salePriceMinor,
-                    symbol: currencySymbol,
-                  ),
-                  style: AppTextStyles.cardTitle,
-                ),
               ],
             ),
           ),
           IconButton(
             tooltip: l10n('Item actions'),
             onPressed: () => _showActions(context),
+            iconSize: 20,
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            style: IconButton.styleFrom(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              foregroundColor: secondary,
+            ),
             icon: const Icon(Icons.more_horiz_rounded),
           ),
         ],

@@ -16,6 +16,7 @@ import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_list_motion.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_model.dart';
+import '../../scan/barcode_capture_screen.dart';
 import '../controllers/customer_list_controller.dart';
 import '../widgets/customer_list_overview.dart';
 
@@ -41,6 +42,7 @@ class CustomerListScreen extends GetView<CustomerListController> {
         ),
         hint: 'Name, mobile or GSTIN',
         onChanged: controller.updateSearch,
+        onScan: BarcodeCaptureScreen.captureQuery,
       ),
       bottomNavigationBar: const AppMainNavigation(
         current: MainDestination.customers,
@@ -286,30 +288,30 @@ class CustomerSummaryCard extends StatelessWidget {
         child: AppGroupedTile(
           position: position,
           accentColor: statusColor,
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
           onTap: () => Get.toNamed<void>(
             AppRoutes.customerDetails,
             arguments: customer.id,
           ),
           child: Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: isDark ? 0.22 : 0.11),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Text(
-                  customer.name.characters.first.toUpperCase(),
-                  style: AppTextStyles.listName.copyWith(
-                    color: statusColor,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
+              // Container(
+              //   width: 48,
+              //   height: 48,
+              //   alignment: Alignment.center,
+              //   decoration: BoxDecoration(
+              //     color: statusColor.withValues(alpha: isDark ? 0.22 : 0.11),
+              //     borderRadius: BorderRadius.circular(15),
+              //   ),
+              //   child: Text(
+              //     customer.name.characters.first.toUpperCase(),
+              //     style: AppTextStyles.listName.copyWith(
+              //       color: statusColor,
+              //       fontSize: 16,
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -394,7 +396,7 @@ class CustomerSummaryCard extends StatelessWidget {
                                       : AppColors.textTertiary)
                                 : null,
                             style: AppTextStyles.listAmount.copyWith(
-                              fontSize: 13,
+                              fontSize: 12,
                             ),
                           ),
                         ),

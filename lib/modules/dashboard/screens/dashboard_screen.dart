@@ -7,7 +7,6 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
-import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_button.dart';
@@ -15,6 +14,7 @@ import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/responsive_content.dart';
+import '../../../data/models/invoice_model.dart';
 import '../../../data/models/report_summary_model.dart';
 import '../controllers/dashboard_controller.dart';
 
@@ -75,6 +75,10 @@ class DashboardScreen extends GetView<DashboardController> {
               tabletMaxWidth: 840,
               paddingTop: AppSpacing.xs,
               child: Obx(() {
+                final overdue = controller.overdueInvoices();
+                final dueSoon = controller.dueSoonInvoices();
+                final followUp = controller.followUpInvoices();
+                final showFollowUp = followUp.isNotEmpty;
                 return ListView(
                   padding: const EdgeInsets.only(bottom: AppSpacing.xl),
                   children: [
@@ -82,8 +86,33 @@ class DashboardScreen extends GetView<DashboardController> {
                       duration: const Duration(milliseconds: 220),
                       child: controller.reportLoading.value
                           ? const _DashboardOverviewLoadingCard()
-                          : _businessOverview(context),
+                          : DashboardOverviewCard(
+                              report: controller.report.value,
+                              symbol: _symbol,
+                              onOutstandingTap: () => controller
+                                  .openInvoiceList(InvoiceListFilter.unpaid),
+                            ),
                     ),
+                    if (!controller.recentLoading.value &&
+                        (overdue.isNotEmpty || dueSoon.isNotEmpty)) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      _AttentionCard(
+                        overdueCount: overdue.length,
+                        overdueAmount: controller.overdueAmount(),
+                        dueSoonCount: dueSoon.length,
+                        dueSoonAmount: controller.dueSoonAmount(),
+                        oldestName: overdue.isNotEmpty
+                            ? overdue.first.customerName
+                            : dueSoon.first.customerName,
+                        symbol: _symbol,
+                        onOverdue: () => controller.openInvoiceList(
+                          InvoiceListFilter.overdue,
+                        ),
+                        onDueSoon: () => controller.openInvoiceList(
+                          InvoiceListFilter.unpaid,
+                        ),
+                      ),
+                    ],
                     if (!controller.reportLoading.value &&
                         controller.backupDue.value) ...[
                       const SizedBox(height: AppSpacing.sm),
@@ -94,16 +123,7 @@ class DashboardScreen extends GetView<DashboardController> {
                         },
                       ),
                     ],
-                    if (!controller.reportLoading.value &&
-                        controller.report.value.outstandingMinor > 0) ...[
-                      const SizedBox(height: AppSpacing.sm),
-                      _OutstandingPrompt(
-                        amount: controller.report.value.outstandingMinor,
-                        symbol: _symbol,
-                        onTap: () => Get.toNamed<void>(AppRoutes.invoices),
-                      ),
-                    ],
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.md),
                     _SectionHeader(
                       title: 'Quick actions',
                       subtitle: 'Create and manage your business',
@@ -129,13 +149,13 @@ class DashboardScreen extends GetView<DashboardController> {
                           onTap: () =>
                               Get.toNamed<void>(AppRoutes.quotationCreate),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         _QuickAction(
                           label: 'Customer',
                           icon: Icons.person_add_alt_1_outlined,
                           onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         _QuickAction(
                           label: 'Product',
                           icon: Icons.add_box_outlined,
@@ -143,73 +163,105 @@ class DashboardScreen extends GetView<DashboardController> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: AppSpacing.lg),
                     _SectionHeader(
-                      title: 'Recent invoices',
+                      title: showFollowUp
+                          ? 'Needs follow-up'
+                          : 'Recent invoices',
                       subtitle: controller.recentLoading.value
                           ? 'Loading billing activity'
+                          : showFollowUp
+                          ? '${followUp.length} ${followUp.length == 1 ? 'invoice' : 'invoices'} to collect'
                           : controller.recentInvoices.isEmpty
                           ? 'Latest billing activity'
                           : '${controller.recentInvoices.length} most recent',
                       actionLabel: 'View all',
-                      onAction: () => Get.toNamed<void>(AppRoutes.invoices),
+                      onAction: () => controller.openInvoiceList(
+                        overdue.isNotEmpty
+                            ? InvoiceListFilter.overdue
+                            : showFollowUp
+                            ? InvoiceListFilter.unpaid
+                            : InvoiceListFilter.all,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     if (controller.recentLoading.value)
                       const _RecentInvoicesLoading()
-                    else if (controller.recentInvoices.isEmpty)
+                    else if (!showFollowUp && controller.recentInvoices.isEmpty)
                       AppCard(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 18,
+                          horizontal: 14,
+                          vertical: 16,
                         ),
                         child: Row(
                           children: [
                             Container(
-                              width: 46,
-                              height: 46,
+                              width: 40,
+                              height: 40,
                               decoration: BoxDecoration(
                                 color: AppColors.primaryLight,
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
                                 Icons.receipt_long_outlined,
                                 color: AppColors.primary,
+                                size: 20,
                               ),
                             ),
-                            const SizedBox(width: 14),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'No invoices yet',
-                                    style: AppTextStyles.cardTitle,
+                                    style: AppTextStyles.listName,
                                   ),
-                                  const SizedBox(height: 3),
-                                  const Text(
-                                    'Your latest invoices will appear here.',
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Create an invoice to see activity here.',
+                                    style: AppTextStyles.small.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ...[
-                      for (var i = 0; i < controller.recentInvoices.length; i++)
+                      )
+                    else ...[
+                      for (
+                        var i = 0;
+                        i <
+                            (showFollowUp
+                                ? followUp.length
+                                : controller.recentInvoices.length);
+                        i++
+                      )
                         Padding(
                           padding: EdgeInsets.only(
-                            bottom: i == controller.recentInvoices.length - 1
+                            bottom:
+                                i ==
+                                    (showFollowUp
+                                            ? followUp.length
+                                            : controller
+                                                  .recentInvoices
+                                                  .length) -
+                                        1
                                 ? 0
-                                : 10,
+                                : 8,
                           ),
                           child: AppInvoiceSummaryCard(
-                            invoice: controller.recentInvoices[i],
+                            invoice: showFollowUp
+                                ? followUp[i]
+                                : controller.recentInvoices[i],
                             currencySymbol: _symbol,
                             onTap: () => Get.toNamed<void>(
                               AppRoutes.invoiceDetails,
-                              arguments: controller.recentInvoices[i].id,
+                              arguments: showFollowUp
+                                  ? followUp[i].id
+                                  : controller.recentInvoices[i].id,
                             ),
                           ),
                         ),
@@ -231,14 +283,7 @@ class DashboardScreen extends GetView<DashboardController> {
     return name.isEmpty ? 'C' : name.characters.first.toUpperCase();
   }
 
-  Widget _businessOverview(BuildContext context) {
-    return DashboardOverviewCard(
-      report: controller.report.value,
-      symbol: _symbol,
-    );
-  }
-
-  NavigationRail _navigationRail() => NavigationRail(
+  Widget _navigationRail() => NavigationRail(
     selectedIndex: 0,
     labelType: NavigationRailLabelType.all,
     onDestinationSelected: (index) {
@@ -282,145 +327,74 @@ class DashboardOverviewCard extends StatelessWidget {
   const DashboardOverviewCard({
     required this.report,
     required this.symbol,
+    this.onOutstandingTap,
     super.key,
   });
 
   final ReportSummaryModel report;
   final String symbol;
+  final VoidCallback? onOutstandingTap;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final collected = report.totalSalesMinor <= 0
-        ? 0
-        : ((report.totalReceivedMinor / report.totalSalesMinor) * 100)
-              .clamp(0, 100)
-              .round();
     return AppCard(
       color: isDark ? const Color(0xFF3B2038) : const Color(0xFFFCFAFF),
       borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.secondary, AppColors.primary],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.auto_graph_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 11),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Business overview', style: AppTextStyles.cardTitle),
-                    const SizedBox(height: 1),
-                    Text(
-                      '${_monthName(DateTime.now().month)} cash flow',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+                child: Text('This month', style: AppTextStyles.listName),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${report.invoiceCount} ${report.invoiceCount == 1 ? 'invoice' : 'invoices'}',
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w700,
-                  ),
+              Text(
+                '${report.invoiceCount} ${report.invoiceCount == 1 ? 'invoice' : 'invoices'}',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          Text(
-            'Invoiced this month',
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          AppAmountText(
-            amountMinor: report.totalSalesMinor,
-            symbol: symbol,
-            hero: true,
-            textAlign: TextAlign.start,
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            key: const ValueKey('dashboard-cash-flow'),
-            height: 56,
-            width: double.infinity,
-            child: CustomPaint(
-              painter: _CashFlowPainter(
-                report.monthlySales.map((point) => point.amountMinor).toList(),
-                isDark: isDark,
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Divider(color: isDark ? AppColors.darkBorder : AppColors.border),
           const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
                 child: _OverviewMetric(
-                  icon: Icons.south_rounded,
-                  label: 'Received',
-                  value: CurrencyUtils.formatMinor(
-                    report.totalReceivedMinor,
-                    symbol: symbol,
-                  ),
-                  color: AppColors.success,
-                  background: AppColors.successLight,
-                ),
-              ),
-              const _OverviewDivider(),
-              Expanded(
-                child: _OverviewMetric(
-                  icon: Icons.schedule_rounded,
-                  label: 'Outstanding',
-                  value: CurrencyUtils.formatMinor(
-                    report.outstandingMinor,
-                    symbol: symbol,
-                  ),
-                  color: AppColors.warning,
-                  background: AppColors.warningLight,
-                ),
-              ),
-              const _OverviewDivider(),
-              Expanded(
-                child: _OverviewMetric(
-                  icon: Icons.percent_rounded,
-                  label: 'Collected',
-                  value: '$collected%',
+                  label: 'Invoiced',
+                  amountMinor: report.totalSalesMinor,
+                  symbol: symbol,
                   color: AppColors.secondary,
-                  background: AppColors.secondaryLight,
+                ),
+              ),
+              const _OverviewDivider(),
+              Expanded(
+                child: _OverviewMetric(
+                  label: 'Received',
+                  amountMinor: report.totalReceivedMinor,
+                  symbol: symbol,
+                  color: AppColors.success,
+                ),
+              ),
+              const _OverviewDivider(),
+              Expanded(
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: report.outstandingMinor > 0
+                        ? onOutstandingTap
+                        : null,
+                    borderRadius: BorderRadius.circular(8),
+                    child: _OverviewMetric(
+                      label: 'Outstanding',
+                      amountMinor: report.outstandingMinor,
+                      symbol: symbol,
+                      color: AppColors.warning,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -440,13 +414,13 @@ class _DashboardOverviewLoadingCard extends StatelessWidget {
     color: Theme.of(context).brightness == Brightness.dark
         ? const Color(0xFF3B2038)
         : const Color(0xFFFCFAFF),
-    padding: const EdgeInsets.all(20),
+    padding: const EdgeInsets.all(14),
     child: const SizedBox(
-      height: 220,
+      height: 72,
       child: Center(
         child: SizedBox(
-          width: 30,
-          height: 30,
+          width: 24,
+          height: 24,
           child: CircularProgressIndicator(strokeWidth: 2.5),
         ),
       ),
@@ -506,7 +480,7 @@ class _SectionHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: AppTextStyles.sectionTitle),
+            Text(title, style: AppTextStyles.listName.copyWith(fontSize: 15)),
             const SizedBox(height: 2),
             Text(subtitle, style: AppTextStyles.small),
           ],
@@ -525,54 +499,43 @@ class _SectionHeader extends StatelessWidget {
 
 class _OverviewMetric extends StatelessWidget {
   const _OverviewMetric({
-    required this.icon,
     required this.label,
-    required this.value,
+    required this.amountMinor,
+    required this.symbol,
     required this.color,
-    required this.background,
   });
-  final IconData icon;
+
   final String label;
-  final String value;
+  final int amountMinor;
+  final String symbol;
   final Color color;
-  final Color background;
 
   @override
-  Widget build(BuildContext context) => Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(
-        width: 30,
-        height: 30,
-        decoration: BoxDecoration(color: background, shape: BoxShape.circle),
-        child: Icon(icon, color: color, size: 17),
-      ),
-      const SizedBox(height: 5),
-      Text(
-        label,
-        maxLines: 1,
-        style: AppTextStyles.caption.copyWith(
-          color: AppColors.textSecondary,
-          fontSize: 10,
-        ),
-      ),
-      const SizedBox(height: 5),
-      SizedBox(
-        width: double.infinity,
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            value,
-            maxLines: 1,
-            softWrap: false,
-            style: AppTextStyles.small.copyWith(
-              color: color,
-              fontWeight: FontWeight.w800,
-            ),
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 2),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.textSecondary,
+            fontSize: 10,
           ),
         ),
-      ),
-    ],
+        const SizedBox(height: 4),
+        AppAmountText(
+          amountMinor: amountMinor,
+          symbol: symbol,
+          color: color,
+          textAlign: TextAlign.start,
+          style: AppTextStyles.listAmount.copyWith(fontSize: 13, color: color),
+        ),
+      ],
+    ),
   );
 }
 
@@ -582,97 +545,12 @@ class _OverviewDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: 1,
-    height: 62,
-    margin: const EdgeInsets.symmetric(horizontal: 6),
+    height: 38,
+    margin: const EdgeInsets.symmetric(horizontal: 8),
     color: Theme.of(context).brightness == Brightness.dark
         ? AppColors.darkBorder
         : AppColors.border,
   );
-}
-
-String _monthName(int month) => const [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-][month - 1];
-
-class _CashFlowPainter extends CustomPainter {
-  const _CashFlowPainter(this.values, {required this.isDark});
-
-  final List<int> values;
-  final bool isDark;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final points = values.isEmpty ? const <int>[0, 0, 0, 0, 0, 0] : values;
-    final maximum = points.fold<int>(
-      1,
-      (max, value) => value > max ? value : max,
-    );
-    final path = Path();
-    final fill = Path();
-    for (var index = 0; index < points.length; index++) {
-      final x = points.length == 1
-          ? size.width
-          : size.width * index / (points.length - 1);
-      final normalized = points[index] / maximum;
-      final y = size.height - 7 - (normalized * (size.height - 16));
-      if (index == 0) {
-        path.moveTo(x, y);
-        fill.moveTo(x, size.height);
-        fill.lineTo(x, y);
-      } else {
-        path.lineTo(x, y);
-        fill.lineTo(x, y);
-      }
-      if (index == points.length - 1) {
-        fill.lineTo(x, y);
-        fill.lineTo(x, size.height);
-        fill.close();
-      }
-    }
-    canvas.drawPath(
-      fill,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppColors.secondary.withValues(alpha: .18),
-            AppColors.secondary.withValues(alpha: 0),
-          ],
-        ).createShader(Offset.zero & size),
-    );
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = isDark ? AppColors.accent : AppColors.secondary
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round,
-    );
-    final lastY =
-        size.height - 7 - ((points.last / maximum) * (size.height - 16));
-    canvas.drawCircle(
-      Offset(size.width, lastY),
-      3.5,
-      Paint()..color = isDark ? AppColors.accent : AppColors.secondary,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _CashFlowPainter oldDelegate) =>
-      oldDelegate.values != values || oldDelegate.isDark != isDark;
 }
 
 class _QuickAction extends StatelessWidget {
@@ -696,21 +574,21 @@ class _QuickAction extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 38,
-                height: 38,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: AppColors.primary, size: 20),
+                child: Icon(icon, color: AppColors.primary, size: 18),
               ),
-              const SizedBox(height: 7),
+              const SizedBox(height: 5),
               Text(label, style: AppTextStyles.caption),
             ],
           ),
@@ -720,69 +598,145 @@ class _QuickAction extends StatelessWidget {
   );
 }
 
-class _OutstandingPrompt extends StatelessWidget {
-  const _OutstandingPrompt({
-    required this.amount,
+class _AttentionCard extends StatelessWidget {
+  const _AttentionCard({
+    required this.overdueCount,
+    required this.overdueAmount,
+    required this.dueSoonCount,
+    required this.dueSoonAmount,
+    required this.oldestName,
     required this.symbol,
-    required this.onTap,
+    required this.onOverdue,
+    required this.onDueSoon,
   });
 
-  final int amount;
+  final int overdueCount;
+  final int overdueAmount;
+  final int dueSoonCount;
+  final int dueSoonAmount;
+  final String oldestName;
+  final String symbol;
+  final VoidCallback onOverdue;
+  final VoidCallback onDueSoon;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      child: Column(
+        children: [
+          if (overdueCount > 0)
+            _AttentionRow(
+              icon: Icons.error_outline_rounded,
+              color: AppColors.error,
+              fill: AppColors.errorLight,
+              title: overdueCount == 1
+                  ? '1 invoice overdue'
+                  : '$overdueCount invoices overdue',
+              subtitle: oldestName.trim().isEmpty ? null : oldestName,
+              amountMinor: overdueAmount,
+              symbol: symbol,
+              onTap: onOverdue,
+            ),
+          if (overdueCount > 0 && dueSoonCount > 0) const Divider(height: 1),
+          if (dueSoonCount > 0)
+            _AttentionRow(
+              icon: Icons.event_available_outlined,
+              color: AppColors.warning,
+              fill: AppColors.warningLight,
+              title: dueSoonCount == 1
+                  ? '1 due this week'
+                  : '$dueSoonCount due this week',
+              amountMinor: dueSoonAmount,
+              symbol: symbol,
+              onTap: onDueSoon,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AttentionRow extends StatelessWidget {
+  const _AttentionRow({
+    required this.icon,
+    required this.color,
+    required this.fill,
+    required this.title,
+    required this.amountMinor,
+    required this.symbol,
+    required this.onTap,
+    this.subtitle,
+  });
+
+  final IconData icon;
+  final Color color;
+  final Color fill;
+  final String title;
+  final String? subtitle;
+  final int amountMinor;
   final String symbol;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: Theme.of(context).colorScheme.surface,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(17),
-      side: BorderSide(color: AppColors.warning.withValues(alpha: .30)),
-    ),
-    clipBehavior: Clip.antiAlias,
-    child: InkWell(
+  Widget build(BuildContext context) {
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 34,
+              height: 34,
               decoration: BoxDecoration(
-                color: AppColors.warning.withValues(alpha: .10),
-                borderRadius: BorderRadius.circular(13),
+                color: fill,
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
-                Icons.schedule_send_outlined,
-                color: AppColors.warning,
-                size: 21,
-              ),
+              child: Icon(icon, color: color, size: 18),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Follow up on payments', style: AppTextStyles.cardTitle),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${CurrencyUtils.formatMinor(amount, symbol: symbol)} is still waiting to be collected',
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.small.copyWith(
-                      color: AppColors.textSecondary,
+                  Text(title, style: AppTextStyles.listName),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 1),
+                    Text(
+                      subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward_rounded, color: AppColors.warning),
+            AppAmountColumn(
+              maxWidth: 110,
+              children: [
+                AppAmountText(
+                  amountMinor: amountMinor,
+                  symbol: symbol,
+                  color: color,
+                  style: AppTextStyles.listAmount.copyWith(
+                    fontSize: 13,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+            Icon(Icons.chevron_right_rounded, color: color, size: 20),
           ],
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _BackupReminderPrompt extends StatelessWidget {

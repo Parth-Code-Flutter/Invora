@@ -108,7 +108,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Creovo QA'), findsOneWidget);
-    expect(find.text('Business overview'), findsOneWidget);
+    expect(find.text('This month'), findsOneWidget);
     expect(find.byIcon(Icons.settings_outlined), findsNothing);
     expect(Get.find<AppController>().themeMode.value, ThemeMode.dark);
     await tester.drag(find.byType(ListView), const Offset(0, -320));

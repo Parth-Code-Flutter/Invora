@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../app/routes/app_routes.dart';
 import '../../app/widgets/barcode_scanner_scaffold.dart';
 import '../../data/models/barcode_capture_result.dart';
 import '../../data/repositories/product_repository.dart';
@@ -13,6 +14,17 @@ import '../../data/services/barcode_catalog_lookup.dart';
 /// Used by forms that want to fill fields and let the user edit before saving.
 class BarcodeCaptureScreen extends StatefulWidget {
   const BarcodeCaptureScreen({super.key});
+
+  /// Opens capture and returns the decoded value for list search.
+  static Future<String?> captureQuery() async {
+    final result = await Get.toNamed<dynamic>(
+      AppRoutes.barcodeCapture,
+      arguments: 'Align the barcode inside the frame to search.',
+    );
+    if (result is! BarcodeCaptureResult) return null;
+    final code = result.code.trim();
+    return code.isEmpty ? null : code;
+  }
 
   @override
   State<BarcodeCaptureScreen> createState() => _BarcodeCaptureScreenState();
@@ -69,7 +81,13 @@ class _BarcodeCaptureScreenState extends State<BarcodeCaptureScreen> {
       controller: _scanner,
       onDetect: _onDetect,
       title: 'Scan barcode',
-      hint: 'Align the barcode inside the frame to fill this form.',
+      hint: _hint,
     );
+  }
+
+  String get _hint {
+    final args = Get.arguments;
+    if (args is String && args.trim().isNotEmpty) return args;
+    return 'Align the barcode inside the frame to fill this form.';
   }
 }

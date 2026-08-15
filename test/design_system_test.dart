@@ -296,18 +296,72 @@ void main() {
     );
 
     expect(find.text('Customers'), findsOneWidget);
+    expect(find.byTooltip('Scan to search'), findsNothing);
     await tester.tap(find.byTooltip('Search'));
     await tester.pumpAndSettle();
     expect(find.byType(TextField), findsOneWidget);
+    expect(tester.getSize(find.byType(TextField)).height, 46);
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.decoration?.fillColor, AppColors.surfaceMuted);
+    final focused = field.decoration?.focusedBorder as OutlineInputBorder;
+    expect(focused.borderSide.color, AppColors.secondary);
+    expect(focused.borderRadius.topLeft.x, 12);
 
     await tester.enterText(find.byType(TextField), 'Asha');
+    await tester.pump();
     expect(queries.last, 'Asha');
+    expect(find.byTooltip('Clear search'), findsOneWidget);
+    await tester.tap(find.byTooltip('Clear search'));
+    await tester.pump();
+    expect(find.byType(TextField), findsOneWidget);
+    expect(queries.last, isEmpty);
+
+    await tester.enterText(find.byType(TextField), 'Asha');
     await tester.tap(find.byTooltip('Close search'));
     await tester.pumpAndSettle();
 
     expect(find.text('Customers'), findsOneWidget);
     expect(queries.last, isEmpty);
   });
+
+  testWidgets(
+    'AppBar scan fills the search query without a sibling close chip',
+    (tester) async {
+      final queries = <String>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(
+            appBar: AppSearchAppBar(
+              title: 'Invoices',
+              hint: 'Invoice or customer',
+              onChanged: queries.add,
+              onScan: () async => 'INV-204',
+              actions: [
+                IconButton(
+                  tooltip: 'Sort invoices',
+                  onPressed: () {},
+                  icon: const Icon(Icons.swap_vert_rounded),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byTooltip('Scan to search'), findsOneWidget);
+      await tester.tap(find.byTooltip('Scan to search'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.text('INV-204'), findsOneWidget);
+      expect(queries.last, 'INV-204');
+      expect(find.byTooltip('Clear search'), findsOneWidget);
+      expect(find.byTooltip('Close search'), findsOneWidget);
+      expect(find.byTooltip('Sort invoices'), findsOneWidget);
+      expect(find.byTooltip('Search'), findsNothing);
+    },
+  );
 
   testWidgets('focused text overlay closes after caret work is settled', (
     tester,

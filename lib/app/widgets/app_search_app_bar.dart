@@ -3,8 +3,10 @@ import 'package:flutter/material.dart' hide Text;
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_colors.dart';
+import '../constants/app_spacing.dart';
 import '../themes/app_text_styles.dart';
 import '../utils/app_focus.dart';
+import 'app_back_button.dart';
 
 class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   const AppSearchAppBar({
@@ -14,6 +16,8 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.leading,
     this.titleSuffix,
     this.actions = const [],
+    this.onScan,
+    this.scanTooltip = 'Scan to search',
     super.key,
   });
 
@@ -23,6 +27,13 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   final Widget? leading;
   final Widget? titleSuffix;
   final List<Widget> actions;
+
+  /// Opens a scanner and returns decoded text to apply as the search query.
+  ///
+  /// Leave null when the host screen owns a different scan action, such as
+  /// catalog open-or-create on Products & services.
+  final Future<String?> Function()? onScan;
+  final String scanTooltip;
 
   @override
   Size get preferredSize => const Size.fromHeight(64);
@@ -51,6 +62,33 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
     setState(() => _searching = false);
   }
 
+  void _clearQuery() {
+    _controller.clear();
+    widget.onChanged('');
+    _focusNode.requestFocus();
+    setState(() {});
+  }
+
+  Future<void> _handleScan() async {
+    final onScan = widget.onScan;
+    if (onScan == null) return;
+    await AppFocus.dismissKeyboard();
+    if (!mounted) return;
+    final value = await onScan();
+    if (!mounted || value == null) return;
+    final query = value.trim();
+    if (query.isEmpty) return;
+    _controller.value = TextEditingValue(
+      text: query,
+      selection: TextSelection.collapsed(offset: query.length),
+    );
+    widget.onChanged(query);
+    setState(() => _searching = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focusNode.requestFocus();
+    });
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -61,8 +99,19 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
     return AppBar(
-      leading: widget.leading,
+      automaticallyImplyLeading: widget.leading == null && !_searching,
+      leading: _searching
+          ? AppBackButton(
+              tooltip: l10n('Close search'),
+              onPressed: () {
+                _closeSearch();
+              },
+            )
+          : widget.leading,
       titleSpacing: _searching
           ? 8
           : widget.leading == null
@@ -73,51 +122,21 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         child: _searching
-            ? TextField(
-                key: const ValueKey('app-bar-search-field'),
+            ? _SearchField(
                 controller: _controller,
                 focusNode: _focusNode,
+                hint: widget.hint,
+                isDark: isDark,
+                iconColor: iconColor,
+                showScan: widget.onScan != null,
+                scanTooltip: widget.scanTooltip,
                 onChanged: (value) {
                   widget.onChanged(value);
                   setState(() {});
                 },
-                textInputAction: TextInputAction.search,
-                style: AppTextStyles.body.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                decoration: InputDecoration(
-                  hintText: l10n(widget.hint),
-                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                  suffixIcon: _controller.text.isEmpty
-                      ? null
-                      : IconButton(
-                          tooltip: l10n('Clear search'),
-                          onPressed: () {
-                            _controller.clear();
-                            widget.onChanged('');
-                            setState(() {});
-                          },
-                          icon: const Icon(Icons.close_rounded, size: 18),
-                        ),
-                  filled: true,
-                  fillColor: isDark
-                      ? AppColors.darkSurfaceVariant
-                      : AppColors.surfaceSoft,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: isDark ? AppColors.darkBorder : AppColors.border,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: AppColors.primary,
-                      width: 1.5,
-                    ),
-                  ),
-                ),
+                onClear: _clearQuery,
+                onScan: _handleScan,
+                onSubmitted: (_) => _focusNode.unfocus(),
               )
             : Row(
                 key: const ValueKey('app-bar-title'),
@@ -138,27 +157,169 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
               ),
       ),
       actions: [
-        IconButton(
-          tooltip: l10n(_searching ? 'Close search' : 'Search'),
-          onPressed: _searching ? _closeSearch : _openSearch,
-          style: IconButton.styleFrom(
-            backgroundColor: _searching
-                ? AppColors.primaryLight
-                : Colors.transparent,
-            foregroundColor: _searching
-                ? AppColors.primaryDark
-                : Theme.of(context).colorScheme.onSurface,
+        if (!_searching)
+          IconButton(
+            tooltip: l10n('Search'),
+            onPressed: _openSearch,
+            icon: const Icon(Icons.search_rounded),
           ),
-          icon: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 180),
-            child: Icon(
-              _searching ? Icons.close_rounded : Icons.search_rounded,
-              key: ValueKey(_searching),
-            ),
+        if (!_searching && widget.onScan != null)
+          IconButton(
+            tooltip: l10n(widget.scanTooltip),
+            onPressed: _handleScan,
+            icon: const Icon(Icons.qr_code_scanner_rounded),
           ),
-        ),
         ...widget.actions,
       ],
+    );
+  }
+}
+
+class _SearchField extends StatelessWidget {
+  const _SearchField({
+    required this.controller,
+    required this.focusNode,
+    required this.hint,
+    required this.isDark,
+    required this.iconColor,
+    required this.showScan,
+    required this.scanTooltip,
+    required this.onChanged,
+    required this.onClear,
+    required this.onScan,
+    required this.onSubmitted,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String hint;
+  final bool isDark;
+  final Color iconColor;
+  final bool showScan;
+  final String scanTooltip;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+  final VoidCallback onScan;
+  final ValueChanged<String> onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
+      borderSide: BorderSide(
+        color: isDark ? AppColors.darkBorder : AppColors.border,
+      ),
+    );
+    final focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
+      borderSide: BorderSide(
+        color: isDark ? AppColors.darkTextSecondary : AppColors.secondary,
+        width: 1.2,
+      ),
+    );
+    final showClear = controller.text.isNotEmpty;
+    return SizedBox(
+      key: const ValueKey('app-bar-search-field'),
+      height: 46,
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        onChanged: onChanged,
+        onSubmitted: onSubmitted,
+        onTapOutside: (_) => focusNode.unfocus(),
+        textInputAction: TextInputAction.search,
+        keyboardType: TextInputType.text,
+        style: AppTextStyles.body.copyWith(
+          color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
+          fontSize: 14,
+        ),
+        cursorColor: AppColors.secondary,
+        decoration: InputDecoration(
+          isDense: true,
+          hintText: l10n(hint),
+          hintStyle: AppTextStyles.body.copyWith(
+            color: isDark
+                ? AppColors.darkTextSecondary
+                : AppColors.textTertiary,
+            fontSize: 14,
+          ),
+          prefixIcon: Icon(Icons.search_rounded, size: 20, color: iconColor),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 40,
+            minHeight: 40,
+          ),
+          suffixIcon: showClear || showScan
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (showClear)
+                      _SearchFieldIcon(
+                        tooltip: l10n('Clear search'),
+                        icon: Icons.close_rounded,
+                        color: iconColor,
+                        onPressed: onClear,
+                      ),
+                    if (showScan)
+                      _SearchFieldIcon(
+                        tooltip: l10n(scanTooltip),
+                        icon: Icons.qr_code_scanner_rounded,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.secondary,
+                        onPressed: onScan,
+                      ),
+                    const SizedBox(width: 2),
+                  ],
+                )
+              : null,
+          suffixIconConstraints: BoxConstraints(
+            minWidth: showClear && showScan ? 76 : 40,
+            minHeight: 40,
+          ),
+          filled: true,
+          fillColor: isDark
+              ? AppColors.darkSurfaceVariant
+              : AppColors.surfaceMuted,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 10,
+          ),
+          border: border,
+          enabledBorder: border,
+          focusedBorder: focusedBorder,
+        ),
+      ),
+    );
+  }
+}
+
+class _SearchFieldIcon extends StatelessWidget {
+  const _SearchFieldIcon({
+    required this.tooltip,
+    required this.icon,
+    required this.color,
+    required this.onPressed,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      style: IconButton.styleFrom(
+        minimumSize: const Size(36, 36),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        foregroundColor: color,
+      ),
+      icon: Icon(icon, size: 18),
     );
   }
 }

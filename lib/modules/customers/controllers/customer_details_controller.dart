@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../../../app/enums/invoice_status.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/repositories/business_repository.dart';
@@ -23,6 +24,9 @@ class CustomerDetailsController extends GetxController {
   int get billedMinor =>
       invoices.fold(0, (sum, item) => sum + item.grandTotalMinor);
   int get paidMinor => billedMinor - outstandingMinor;
+  bool get hasOverdue => invoices.any(
+    (item) => item.effectiveStatus(DateTime.now()) == InvoiceStatus.overdue,
+  );
 
   @override
   void onInit() {

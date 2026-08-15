@@ -6,11 +6,13 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
-import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
+import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
-import '../../../app/widgets/app_status_chip.dart';
+import '../../../app/widgets/app_invoice_summary_card.dart';
+import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/customer_details_controller.dart';
 
@@ -22,7 +24,17 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('Customer details'),
+        title: Obx(() {
+          final name = controller.customer.value?.name.trim();
+          if (name == null || name.isEmpty) {
+            return const Text('Customer details');
+          }
+          return FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(name),
+          );
+        }),
         actions: [
           IconButton(
             tooltip: l10n('Edit customer'),
@@ -47,96 +59,93 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
           return const Center(child: Text('Customer not found.'));
         }
         final symbol = controller.currencySymbol.value;
-        final infoRows = <({IconData icon, String label, String? value})>[
-          (icon: Icons.phone_outlined, label: 'Mobile', value: customer.mobile),
-          (icon: Icons.email_outlined, label: 'Email', value: customer.email),
-          (
-            icon: Icons.location_on_outlined,
-            label: 'Billing address',
-            value: [
-              customer.address,
-              customer.city,
-              customer.state,
-              customer.pinCode,
-            ].whereType<String>().join(', '),
-          ),
-          (
-            icon: Icons.business_outlined,
-            label: 'Company',
-            value: customer.companyName,
-          ),
-          (
-            icon: Icons.receipt_long_outlined,
-            label: 'GSTIN',
-            value: customer.gstin,
-          ),
-          (icon: Icons.notes_rounded, label: 'Notes', value: customer.notes),
-        ].where((row) => row.value?.trim().isNotEmpty ?? false).toList();
+        final hasDue = controller.outstandingMinor > 0;
+        final billed = controller.billedMinor;
+        final company = customer.companyName?.trim();
+        final heroContact = [
+          if (company != null && company.isNotEmpty) company,
+          if (controller.invoices.isNotEmpty)
+            '${controller.invoices.length} ${controller.invoices.length == 1 ? 'invoice' : 'invoices'}',
+        ].join(' • ');
+        final infoRows = _contactRows(
+          customer,
+          hideCompany: company != null && company.isNotEmpty,
+        );
         return Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: ResponsiveUtils.contentMaxWidth(context),
+              maxWidth: ResponsiveUtils.isTablet(context) ? 820 : 680,
             ),
             child: ListView(
               padding: EdgeInsets.fromLTRB(
                 ResponsiveUtils.horizontalPadding(context),
-                12,
+                8,
                 ResponsiveUtils.horizontalPadding(context),
-                32,
+                16,
               ),
               children: [
                 _CustomerHero(
                   name: customer.name,
-                  subtitle:
-                      customer.companyName ??
-                      customer.mobile ??
-                      'No contact details',
-                  billed: CurrencyUtils.formatMinor(
-                    controller.billedMinor,
-                    symbol: symbol,
-                  ),
-                  paid: CurrencyUtils.formatMinor(
-                    controller.paidMinor,
-                    symbol: symbol,
-                  ),
-                  due: CurrencyUtils.formatMinor(
-                    controller.outstandingMinor,
-                    symbol: symbol,
-                  ),
-                  hasDue: controller.outstandingMinor > 0,
+                  contact: heroContact,
+                  billedMinor: billed,
+                  paidMinor: controller.paidMinor,
+                  dueMinor: controller.outstandingMinor,
+                  symbol: symbol,
+                  hasDue: hasDue,
+                  hasOverdue: controller.hasOverdue,
                 ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => Get.toNamed<void>(
-                    AppRoutes.customerStatement,
-                    arguments: customer.id,
-                  ),
-                  icon: const Icon(Icons.account_balance_wallet_outlined),
-                  label: const Text('View customer statement'),
+                const SizedBox(height: 10),
+                AppButton(
+                  label: controller.invoices.isEmpty
+                      ? 'New invoice'
+                      : hasDue
+                      ? 'Collect outstanding'
+                      : 'View customer statement',
+                  icon: controller.invoices.isEmpty
+                      ? Icons.add_rounded
+                      : Icons.account_balance_wallet_outlined,
+                  onPressed: () {
+                    if (controller.invoices.isEmpty) {
+                      Get.toNamed<void>(
+                        AppRoutes.invoiceCreate,
+                        arguments: InvoiceEditorArgs(customerId: customer.id),
+                      );
+                      return;
+                    }
+                    Get.toNamed<void>(
+                      AppRoutes.customerStatement,
+                      arguments: customer.id,
+                    );
+                  },
                 ),
-                const SizedBox(height: 20),
-                Text('Contact & billing', style: AppTextStyles.sectionTitle),
-                const SizedBox(height: 9),
-                AppCard(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 5,
+                if (infoRows.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    'Contact & billing',
+                    style: AppTextStyles.listName.copyWith(fontSize: 15),
                   ),
-                  child: Column(
-                    children: [
-                      for (final (index, row) in infoRows.indexed) ...[
-                        _InfoTile(
-                          icon: row.icon,
-                          label: row.label,
-                          value: row.value!,
-                        ),
-                        if (index != infoRows.length - 1)
-                          const Divider(height: 1, indent: 47),
+                  const SizedBox(height: 8),
+                  AppCard(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 2,
+                    ),
+                    child: Column(
+                      children: [
+                        for (final (index, row) in infoRows.indexed) ...[
+                          _InfoTile(
+                            icon: row.icon,
+                            label: row.label,
+                            value: row.value,
+                          ),
+                          if (index != infoRows.length - 1)
+                            const Divider(height: 1, indent: 26),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                ],
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
@@ -145,51 +154,69 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                         children: [
                           Text(
                             'Invoice history',
-                            style: AppTextStyles.sectionTitle,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${controller.invoices.length} ${controller.invoices.length == 1 ? 'invoice' : 'invoices'} • Full details and actions',
-                            style: AppTextStyles.small.copyWith(
-                              color: AppColors.textSecondary,
+                            style: AppTextStyles.listName.copyWith(
+                              fontSize: 15,
                             ),
                           ),
+                          if (controller.invoices.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              '${controller.invoices.length} ${controller.invoices.length == 1 ? 'invoice' : 'invoices'}',
+                              style: AppTextStyles.caption.copyWith(
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
-                    FilledButton.tonalIcon(
-                      onPressed: () => Get.toNamed<void>(
-                        AppRoutes.invoiceCreate,
-                        arguments: InvoiceEditorArgs(customerId: customer.id),
+                    if (controller.invoices.isNotEmpty)
+                      FilledButton.tonalIcon(
+                        onPressed: () => Get.toNamed<void>(
+                          AppRoutes.invoiceCreate,
+                          arguments: InvoiceEditorArgs(customerId: customer.id),
+                        ),
+                        icon: const Icon(Icons.add_rounded, size: 18),
+                        label: const Text('New invoice'),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 36),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          textStyle: AppTextStyles.caption.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
-                      icon: const Icon(Icons.add_rounded, size: 18),
-                      label: const Text('New invoice'),
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size(0, 42),
-                        padding: const EdgeInsets.symmetric(horizontal: 13),
-                      ),
-                    ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 if (controller.invoices.isEmpty)
                   AppCard(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
                     child: Column(
                       children: [
                         const Icon(
                           Icons.receipt_long_outlined,
                           color: AppColors.primary,
-                          size: 30,
+                          size: 26,
                         ),
                         const SizedBox(height: 8),
-                        Text('No invoices yet', style: AppTextStyles.cardTitle),
+                        Text(
+                          'No invoices yet',
+                          style: AppTextStyles.listName.copyWith(fontSize: 15),
+                        ),
                         const SizedBox(height: 3),
                         Text(
                           'Create the first invoice for this customer.',
                           textAlign: TextAlign.center,
-                          style: AppTextStyles.small.copyWith(
-                            color: AppColors.textSecondary,
+                          style: AppTextStyles.caption.copyWith(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -198,10 +225,11 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                 else
                   ...controller.invoices.map(
                     (invoice) => Padding(
-                      padding: const EdgeInsets.only(bottom: 9),
-                      child: _InvoiceHistoryTile(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: AppInvoiceSummaryCard(
                         invoice: invoice,
-                        symbol: symbol,
+                        currencySymbol: symbol,
+                        showCustomer: false,
                         onTap: () => Get.toNamed<void>(
                           AppRoutes.invoiceDetails,
                           arguments: invoice.id,
@@ -218,156 +246,253 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
   }
 }
 
+List<({IconData icon, String label, String value})> _contactRows(
+  CustomerModel customer, {
+  required bool hideCompany,
+}) {
+  final address = [
+    customer.address,
+    customer.city,
+    customer.state,
+    customer.pinCode,
+  ].where((part) => part?.trim().isNotEmpty ?? false).join(', ');
+  return <({IconData icon, String label, String? value})>[
+        (icon: Icons.phone_outlined, label: 'Mobile', value: customer.mobile),
+        (icon: Icons.email_outlined, label: 'Email', value: customer.email),
+        (
+          icon: Icons.location_on_outlined,
+          label: 'Billing address',
+          value: address,
+        ),
+        if (!hideCompany)
+          (
+            icon: Icons.business_outlined,
+            label: 'Company',
+            value: customer.companyName,
+          ),
+        (
+          icon: Icons.receipt_long_outlined,
+          label: 'GSTIN',
+          value: customer.gstin,
+        ),
+        (icon: Icons.notes_rounded, label: 'Notes', value: customer.notes),
+      ]
+      .where((row) => row.value?.trim().isNotEmpty ?? false)
+      .map(
+        (row) => (icon: row.icon, label: row.label, value: row.value!.trim()),
+      )
+      .toList();
+}
+
 class _CustomerHero extends StatelessWidget {
   const _CustomerHero({
     required this.name,
-    required this.subtitle,
-    required this.billed,
-    required this.paid,
-    required this.due,
+    required this.contact,
+    required this.billedMinor,
+    required this.paidMinor,
+    required this.dueMinor,
+    required this.symbol,
     required this.hasDue,
+    required this.hasOverdue,
   });
 
   final String name;
-  final String subtitle;
-  final String billed;
-  final String paid;
-  final String due;
+  final String contact;
+  final int billedMinor;
+  final int paidMinor;
+  final int dueMinor;
+  final String symbol;
   final bool hasDue;
+  final bool hasOverdue;
+
+  List<Color> get _colors {
+    if (hasOverdue) return const [AppColors.secondary, AppColors.error];
+    if (hasDue) return const [AppColors.secondary, AppColors.warning];
+    if (billedMinor > 0) return const [AppColors.secondary, AppColors.success];
+    return const [AppColors.secondary, AppColors.primary];
+  }
+
+  String? get _statusLabel {
+    if (hasDue) return 'Outstanding';
+    if (billedMinor > 0) return 'Paid in full';
+    return null;
+  }
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(18),
-    decoration: BoxDecoration(
-      gradient: const LinearGradient(
-        colors: [AppColors.secondary, AppColors.primary, Color(0xFF2DAFA3)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      borderRadius: BorderRadius.circular(22),
-      boxShadow: [
-        BoxShadow(
-          color: AppColors.secondary.withValues(alpha: .18),
-          blurRadius: 20,
-          offset: const Offset(0, 8),
+  Widget build(BuildContext context) {
+    final colors = _colors;
+    final statusLabel = _statusLabel;
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: colors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-      ],
-    ),
-    child: Column(
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 54,
-              height: 54,
-              alignment: Alignment.center,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: .14)),
+        boxShadow: [
+          BoxShadow(
+            color: colors.first.withValues(alpha: .2),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -24,
+            top: -40,
+            child: Container(
+              width: 110,
+              height: 110,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .16),
-                borderRadius: BorderRadius.circular(17),
-                border: Border.all(color: Colors.white.withValues(alpha: .2)),
-              ),
-              child: Text(
-                name.trim().isEmpty ? '?' : name.characters.first.toUpperCase(),
-                style: AppTextStyles.pageTitle.copyWith(color: Colors.white),
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: .1),
               ),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          Column(
+            children: [
+              Row(
                 children: [
-                  Text(
-                    'CUSTOMER ACCOUNT',
-                    style: AppTextStyles.caption.copyWith(
-                      color: Colors.white.withValues(alpha: .76),
-                      fontWeight: FontWeight.w700,
+                  Container(
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: .16),
+                      borderRadius: BorderRadius.circular(11),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: .2),
+                      ),
+                    ),
+                    child: Text(
+                      _initials(name),
+                      style: AppTextStyles.listName.copyWith(
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.pageTitle.copyWith(
-                      color: Colors.white,
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: contact.isEmpty
+                        ? const SizedBox.shrink()
+                        : Text(
+                            contact,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.caption.copyWith(
+                              color: Colors.white.withValues(alpha: .84),
+                              fontSize: 12,
+                            ),
+                          ),
+                  ),
+                  if (statusLabel != null) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: .16),
+                        borderRadius: BorderRadius.circular(99),
+                      ),
+                      child: Text(
+                        statusLabel,
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 10),
+              Container(height: 1, color: Colors.white.withValues(alpha: .18)),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: _HeroMetric(
+                      label: 'Billed',
+                      amountMinor: billedMinor,
+                      symbol: symbol,
                     ),
                   ),
-                  const SizedBox(height: 1),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.small.copyWith(
-                      color: Colors.white.withValues(alpha: .84),
+                  const _HeroMetricDivider(),
+                  Expanded(
+                    child: _HeroMetric(
+                      label: 'Paid',
+                      amountMinor: paidMinor,
+                      symbol: symbol,
+                      color: const Color(0xFFA8F3D5),
+                    ),
+                  ),
+                  const _HeroMetricDivider(),
+                  Expanded(
+                    child: _HeroMetric(
+                      label: 'Due',
+                      amountMinor: dueMinor,
+                      symbol: symbol,
+                      emphasized: true,
+                      color: hasDue
+                          ? const Color(0xFFFFD99A)
+                          : const Color(0xFFA8F3D5),
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(height: 1, color: Colors.white.withValues(alpha: .18)),
-        const SizedBox(height: 13),
-        Row(
-          children: [
-            Expanded(
-              child: _HeroMetric(label: 'Billed', value: billed),
-            ),
-            const _HeroMetricDivider(),
-            Expanded(
-              child: _HeroMetric(
-                label: 'Paid',
-                value: paid,
-                valueColor: const Color(0xFFA8F3D5),
-              ),
-            ),
-            const _HeroMetricDivider(),
-            Expanded(
-              child: _HeroMetric(
-                label: 'Due',
-                value: due,
-                valueColor: hasDue
-                    ? const Color(0xFFFFD99A)
-                    : const Color(0xFFA8F3D5),
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _HeroMetric extends StatelessWidget {
   const _HeroMetric({
     required this.label,
-    required this.value,
-    this.valueColor,
+    required this.amountMinor,
+    required this.symbol,
+    this.color,
+    this.emphasized = false,
   });
 
   final String label;
-  final String value;
-  final Color? valueColor;
+  final int amountMinor;
+  final String symbol;
+  final Color? color;
+  final bool emphasized;
 
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      Text(
-        value,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      AppAmountText(
+        amountMinor: amountMinor,
+        symbol: symbol,
         textAlign: TextAlign.center,
-        style: AppTextStyles.cardTitle.copyWith(
-          color: valueColor ?? Colors.white,
+        color: color ?? Colors.white,
+        style: AppTextStyles.listAmount.copyWith(
+          color: color ?? Colors.white,
+          fontSize: emphasized ? 15 : 13,
+          fontWeight: emphasized ? FontWeight.w800 : FontWeight.w700,
         ),
       ),
-      const SizedBox(height: 3),
+      const SizedBox(height: 2),
       Text(
         label,
         maxLines: 1,
         style: AppTextStyles.caption.copyWith(
           color: Colors.white.withValues(alpha: .72),
+          fontSize: 10,
         ),
       ),
     ],
@@ -380,7 +505,7 @@ class _HeroMetricDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: 1,
-    height: 32,
+    height: 28,
     color: Colors.white.withValues(alpha: .18),
   );
 }
@@ -398,21 +523,17 @@ class _InfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 11),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(11),
-            ),
-            child: Icon(icon, size: 18, color: AppColors.primary),
-          ),
-          const SizedBox(width: 11),
+          Icon(icon, size: 16, color: AppColors.primary),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -420,105 +541,17 @@ class _InfoTile extends StatelessWidget {
                 Text(
                   label,
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
+                    color: secondary,
+                    fontSize: 10,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(value, style: AppTextStyles.body),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InvoiceHistoryTile extends StatelessWidget {
-  const _InvoiceHistoryTile({
-    required this.invoice,
-    required this.symbol,
-    required this.onTap,
-  });
-
-  final InvoiceSummaryModel invoice;
-  final String symbol;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final status = invoice.effectiveStatus(DateTime.now());
-    return AppCard(
-      onTap: onTap,
-      padding: const EdgeInsets.fromLTRB(13, 13, 10, 13),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: const Icon(
-              Icons.receipt_long_outlined,
-              size: 20,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(width: 11),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(invoice.invoiceNumber, style: AppTextStyles.cardTitle),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 Text(
-                  'Issued ${_date(invoice.invoiceDate)}',
-                  style: AppTextStyles.small.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+                  value,
+                  style: AppTextStyles.listName.copyWith(fontSize: 14),
                 ),
-                if (invoice.balanceMinor > 0) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    '${CurrencyUtils.formatMinor(invoice.balanceMinor, symbol: symbol)} remaining',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.warning,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              AppStatusChip(status: status),
-              const SizedBox(height: 7),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    CurrencyUtils.formatMinor(
-                      invoice.grandTotalMinor,
-                      symbol: symbol,
-                    ),
-                    style: AppTextStyles.cardTitle,
-                  ),
-                  const SizedBox(width: 3),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    size: 20,
-                    color: AppColors.textTertiary,
-                  ),
-                ],
-              ),
-            ],
           ),
         ],
       ),
@@ -526,5 +559,13 @@ class _InvoiceHistoryTile extends StatelessWidget {
   }
 }
 
-String _date(DateTime value) =>
-    '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}';
+String _initials(String value) {
+  final words = value
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((word) => word.isNotEmpty)
+      .toList();
+  if (words.isEmpty) return '?';
+  if (words.length == 1) return words.first.substring(0, 1).toUpperCase();
+  return '${words.first[0]}${words.last[0]}'.toUpperCase();
+}

@@ -46,6 +46,8 @@ const Map<String, String> appHindiCoverageTranslations = {
   'No optional product fields are enabled. Use Manage fields to add what you need.':
       'कोई वैकल्पिक उत्पाद फ़ील्ड चालू नहीं है। आवश्यक फ़ील्ड जोड़ने के लिए फ़ील्ड प्रबंधित करें का उपयोग करें।',
   'Essentials': 'आवश्यक जानकारी',
+  'Name and price are enough to reuse this on invoices.':
+      'नाम और कीमत काफी हैं — इसे चालान पर दोबारा इस्तेमाल करें।',
   'Product details': 'उत्पाद विवरण',
   'Item information': 'आइटम जानकारी',
   'Create item': 'आइटम बनाएँ',
@@ -111,6 +113,7 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Account activity': 'खाता गतिविधि',
   'Invoice history': 'चालान इतिहास',
   'View customer statement': 'ग्राहक विवरण-पत्र देखें',
+  'Collect outstanding': 'बकाया वसूलें',
   'Preview statement PDF': 'विवरण-पत्र PDF पूर्वावलोकन',
   'No account activity in this date range.':
       'इस दिनांक सीमा में कोई खाता गतिविधि नहीं है।',
@@ -200,6 +203,7 @@ const Map<String, String> appHindiCoverageTranslations = {
       'कोई अन्य नाम, संख्या या विवरण आज़माएँ।',
   'Scan barcode': 'बारकोड स्कैन करें',
   'Scan barcodes': 'बारकोड स्कैन करें',
+  'Scan to search': 'स्कैन करके खोजें',
   'Scan items': 'आइटम स्कैन करें',
   'Scanned items': 'स्कैन किए गए आइटम',
   'Remove item': 'आइटम हटाएँ',
@@ -411,6 +415,8 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Create invoice with this item': 'इस आइटम से चालान बनाएँ',
   'Align the barcode inside the frame to fill this form.':
       'फ़ॉर्म भरने के लिए बारकोड को फ्रेम में रखें।',
+  'Align the barcode inside the frame to search.':
+      'खोजने के लिए बारकोड को फ़्रेम के अंदर रखें।',
   'Align the barcode inside the frame to open or create a product.':
       'उत्पाद खोलने या बनाने के लिए बारकोड को फ्रेम में रखें।',
   'Create new customer': 'नया ग्राहक बनाएँ',
@@ -559,6 +565,15 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Highest amount': 'सबसे बड़ी राशि',
   'Lowest amount': 'सबसे छोटी राशि',
   'This month': 'इस महीने',
+  'Invoiced': 'बिल किया',
+  'Needs follow-up': 'फॉलो-अप ज़रूरी',
+  '1 invoice overdue': '1 चालान अतिदेय',
+  'invoices overdue': 'चालान अतिदेय',
+  'due this week': 'इस सप्ताह देय',
+  'invoice to collect': 'चालान वसूलना है',
+  'invoices to collect': 'चालान वसूलने हैं',
+  'Create an invoice to see activity here.':
+      'यहाँ गतिविधि देखने के लिए चालान बनाएँ।',
   'Last month': 'पिछले महीने',
   'e.g. 10 × 6 × 6 inch': 'जैसे 10 × 6 × 6 इंच',
   'e.g. 500 g': 'जैसे 500 ग्राम',
@@ -612,6 +627,8 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'No optional product fields are enabled. Use Manage fields to add what you need.':
       'કોઈ વૈકલ્પિક ઉત્પાદન ફીલ્ડ ચાલુ નથી. જરૂરી ફીલ્ડ ઉમેરવા ફીલ્ડ મેનેજ કરો વાપરો.',
   'Essentials': 'જરૂરી વિગતો',
+  'Name and price are enough to reuse this on invoices.':
+      'નામ અને કિંમત પૂરતાં છે — આને ઇન્વૉઇસ પર ફરી વાપરો.',
   'Product details': 'ઉત્પાદન વિગતો',
   'Item information': 'આઇટમ માહિતી',
   'Create item': 'આઇટમ બનાવો',
@@ -677,6 +694,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Account activity': 'ખાતા પ્રવૃત્તિ',
   'Invoice history': 'ઇન્વૉઇસ ઇતિહાસ',
   'View customer statement': 'ગ્રાહક સ્ટેટમેન્ટ જુઓ',
+  'Collect outstanding': 'બાકી વસૂલો',
   'Preview statement PDF': 'સ્ટેટમેન્ટ PDF પૂર્વદર્શન',
   'No account activity in this date range.':
       'આ તારીખ શ્રેણીમાં કોઈ ખાતા પ્રવૃત્તિ નથી.',
@@ -767,6 +785,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'બીજું નામ, નંબર અથવા વિગત અજમાવો.',
   'Scan barcode': 'બારકોડ સ્કેન કરો',
   'Scan barcodes': 'બારકોડ સ્કેન કરો',
+  'Scan to search': 'સ્કેન કરીને શોધો',
   'Scan items': 'આઇટમ સ્કેન કરો',
   'Scanned items': 'સ્કેન કરેલી આઇટમ',
   'Remove item': 'આઇટમ દૂર કરો',
@@ -978,6 +997,8 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Create invoice with this item': 'આ આઇટમથી ઇન્વૉઇસ બનાવો',
   'Align the barcode inside the frame to fill this form.':
       'ફોર્મ ભરવા બારકોડને ફ્રેમમાં ગોઠવો.',
+  'Align the barcode inside the frame to search.':
+      'શોધવા માટે બારકોડને ફ્રેમની અંદર રાખો.',
   'Align the barcode inside the frame to open or create a product.':
       'ઉત્પાદન ખોલવા અથવા બનાવવા બારકોડને ફ્રેમમાં ગોઠવો.',
   'Create new customer': 'નવો ગ્રાહક બનાવો',
@@ -1124,6 +1145,15 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Highest amount': 'સૌથી મોટી રકમ',
   'Lowest amount': 'સૌથી નાની રકમ',
   'This month': 'આ મહિને',
+  'Invoiced': 'બિલ થયું',
+  'Needs follow-up': 'ફોલો-અપ જરૂરી',
+  '1 invoice overdue': '1 ઇન્વૉઇસ વિલંબિત',
+  'invoices overdue': 'ઇન્વૉઇસ વિલંબિત',
+  'due this week': 'આ અઠવાડિયે ચૂકવવાનું',
+  'invoice to collect': 'ઇન્વૉઇસ વસૂલવાનું છે',
+  'invoices to collect': 'ઇન્વૉઇસ વસૂલવાના છે',
+  'Create an invoice to see activity here.':
+      'અહીં પ્રવૃત્તિ જોવા ઇન્વૉઇસ બનાવો.',
   'Last month': 'પાછલા મહિને',
   'e.g. 10 × 6 × 6 inch': 'દા.ત. 10 × 6 × 6 ઇંચ',
   'e.g. 500 g': 'દા.ત. 500 ગ્રામ',

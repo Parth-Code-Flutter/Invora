@@ -65,8 +65,13 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   quotation workspaces distinct task-focused identities
 - Shared icon-led filter pills, expressive segmented options, and branded
   rounded back controls across nested routes
-- Expandable AppBar search on the Customers and Invoices/Quotations lists;
-  search stays out of the content area until requested
+- Expandable AppBar search on the Customers, Invoices/Quotations, and
+  Products & services lists; search stays out of the content area until
+  requested. The expanded field is a compact 46px contained input with an
+  in-field clear control (no sibling close chip) and plum/muted chrome.
+  Customers and Invoices/Quotations can scan a barcode or QR into the
+  existing list query; Products & services keeps its catalog open-or-create
+  scan action.
 - More and App Settings use fully visible grouped destination rows with a
   shared icon, subtitle, divider, and disclosure treatment; secondary tools no
   longer require horizontal discovery scrolling
@@ -89,7 +94,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 
 ### Customers
 
-- Create, search, edit, view, and soft-delete customers
+- Create, search, edit, view, and soft-delete customers. List search matches
+  name, company, mobile, or GSTIN, and a scan action fills that same query
+  from a barcode or QR.
 - Mobile length/format and email regex validation
 - Customer name and valid 10-digit Indian mobile number are required
 - GSTIN, address, company, and optional notes support
@@ -110,10 +117,12 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
 - Price, description, HSN/SAC, GST rate, type, and unit support
 - Shared saved-unit picker plus a central manager for add, rename, delete, and
   app-wide default selection; new items prefill the selected default
-- Catalog-first add/edit flow keeps type, name, price, and description in the
-  main path while progressively disclosing unit, tax, and HSN/SAC details
-- Product/service forms use an expressive compact type picker, cohesive
-  essentials card, and live invoice-line preview for name, price, and unit
+- Catalog add/edit is a compact catalog form: equal-width Product/Service
+  segmented control, required name and price, visible unit/HSN/GST when those
+  fields are enabled, optional product fields with Manage fields, and a sticky
+  save. Create mode shows one caption line; edit does not show a promo banner.
+- Product/service forms keep a live invoice-line preview for name, price, and
+  unit. AppBar barcode scan still prefills name, price, tax, and SKU.
 - Optional business-category presets recommend useful product fields and units
   for 15 business types without locking the catalog to a template. Category
   can be selected during business setup or changed under Product Settings.
@@ -130,10 +139,18 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   scan action that fills name, price, tax, and SKU so values can be edited
   before saving. The catalog list has a scan action to open or create an
   item. Lookup is local-only against SKU/barcode attributes.
+- Catalog list rows match invoice/customer density: 14px name, 11px unit/GST
+  (plus a quiet Product/Service caption only when All is selected), one
+  ellipsized attribute line, and price on the right via `AppAmountText`.
+  Search lives in the AppBar. The peach type icon and repeated Product/
+  Service pills are gone. Overflow stays as a quiet 20px menu. All /
+  Products / Services filters and the add FAB remain.
 
 ### Invoices and quotations
 
-- Create, edit, duplicate, list, search, filter, cancel, and delete
+- Create, edit, duplicate, list, search, filter, cancel, and delete.
+  Invoice/quotation list search matches number, customer, or company, and a
+  scan action fills that same query from a barcode or QR.
 - Draft, unpaid, partially paid, paid, overdue, sent, accepted, rejected, and
   cancelled lifecycle states where applicable
 - Historical customer and line-item snapshots
@@ -183,10 +200,15 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   with debounced search, Product/Service filters, persistent checkboxes,
   tri-state visible selection, editable on-invoice states, create-item access,
   result and selection counts, and one apply-changes action
-- Customer details is an account-style workspace with lifetime billed, paid,
-  and due metrics, structured contact/billing information, and complete invoice
-  history. History opens the standard invoice workspace with status-appropriate
-  edit, payment, duplicate, cancel/delete, and PDF export operations.
+- Customer details is a compact account workspace. The customer name sits in
+  the AppBar so it does not truncate in the hero. The status-aware plum hero
+  shows an initial, one-line company or invoice count, and billed/paid/due
+  amounts that shrink to fit. Phone appears only in Contact & billing. Due
+  customers get a Collect outstanding primary action to the statement;
+  paid-in-full accounts use View customer statement; empty accounts use New
+  invoice. History reuses the invoice list card without repeating the customer
+  name. Edit, statement, new invoice, and invoice-details navigation are
+  unchanged.
 - Customer Details opens a date-range statement workspace with opening,
   invoiced, received, and closing metrics; chronological invoice/payment/
   reversal activity; and offline PDF preview/save/share/print actions.
@@ -229,17 +251,14 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   amounts, and explicit status/tax/payment fields. Date-range sales summaries
   export as CSV or a Unicode A4 PDF and are also reachable from Reports.
 - Dashboard totals and basic reports
-- Dashboard prioritizes current-month cash flow and collection progress, an
-  actionable outstanding-payment reminder, quick creation, and shared recent
-  invoice cards
-- Dashboard header is a compact greeting/business identity without a Settings
-  shortcut (Settings remains under More). Its professional light account card
-  shows current-month invoiced value and invoice count, a real six-month sales
-  sparkline reserved below the hero amount, and icon-led received, outstanding,
-  and collected metrics with dark-mode support. Hero and metric amounts shrink
-  to fit; they never clip into the chart. Phone Home omits the duplicate
-  full-width Create invoice button because the center dock already creates
-  invoices; tablets keep the button because they use a navigation rail.
+- Dashboard Home is an action surface: a compact this-month Invoiced /
+  Received / Outstanding card, overdue and due-this-week follow-up rows
+  instead of repeating the outstanding rupee amount, backup when due, quick
+  create actions, and either invoices that need collection or the latest five.
+  Tapping overdue/outstanding opens the invoice list on the matching filter.
+  Phone Home omits the duplicate full-width Create invoice button because the
+  center dock already creates invoices; tablets keep the button because they
+  use a navigation rail.
 - Automated whole-flow QA covers the offline GST lifecycle from business,
   customer, and catalog data through invoice payments/reversal, quotation
   conversion, PDF generation, and backup validation. Native picker/share/print
@@ -357,6 +376,74 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-15 — Proper list search field and scan-to-search
+
+- Customers and Invoices/Quotations expandable search is now one compact
+  contained field: search icon, input, in-field clear when text is present,
+  and an optional scan control. The coral halo, oversized pill, and sibling
+  circular close chip are gone. Sort remains a separate AppBar action.
+- Scan opens the existing barcode capture screen and applies the decoded
+  value to the current list query (customers: name/mobile/GSTIN; invoices:
+  number/customer). Product catalog scan stays on Products & services via
+  its own AppBar action; shared `AppSearchAppBar` scan is opt-in (`onScan`).
+- Important files: search AppBar, customer/invoice lists, barcode capture
+  screen, coverage translation maps, design-system tests, and this handoff.
+  No schema or storage changes. Product list was not rewritten.
+- Verification: formatting, static analysis, and AppSearchAppBar widget
+  tests.
+
+### 2026-08-15 — Compact catalog Add item form
+
+- Replaced the promotional “Build it once” banner and large Product/Service
+  tiles with a professional catalog form. Type is an equal-width segmented
+  control. Name and price stay required and always visible. Unit, HSN/SAC, and
+  GST sit in a visible Invoice essentials card instead of a collapsed mystery
+  section. Optional product fields keep Manage fields and category
+  recommendations behind a tighter header.
+- Create mode keeps one caption line. Edit mode has no “build it once” copy.
+  AppBar scan, sticky Save product/service, unsaved-change protection, and
+  type-specific fields are unchanged. Prefix icons were omitted on this form
+  only; shared text fields were not restyled.
+- Important files: product form screen, coverage translation maps, and this
+  handoff. No schema or storage changes. Product list was not rewritten.
+- Verification: formatting and static analysis on touched files; existing
+  product-form controller tests.
+
+### 2026-08-15 — Compact customer account workspace
+
+- Redesigned Customer details as an account workspace: name in the AppBar,
+  compact status-aware hero (due / paid / default), shrink-to-fit billed /
+  paid / due metrics, phone listed once in Contact & billing, and a strong
+  primary action (collect outstanding, statement, or new invoice). Invoice
+  history now uses the shared invoice summary card.
+- Important files: customer details screen/controller, invoice summary card,
+  localization maps, customer details tests, and this handoff. No schema or
+  storage changes.
+- Verification: formatting, static analysis, customer details tests, and
+  invoice summary card tests.
+
+### 2026-08-15 — Compact professional catalog list
+
+- Products & services listing is now a dense catalog, not tall marketing
+  cards. Rows use `AppGroupedTile` with list-scale type, price on the right,
+  and no repeating peach icon or Product/Service badge. Type appears as a
+  small caption only on the All filter. Search moved into the shared
+  expandable AppBar; scan and add stay available.
+- Important files: product list screen and this handoff. No schema, storage,
+  or shared-widget API changes.
+- Verification: formatting and static analysis on touched files. No existing
+  product-list widget tests asserted the old badge layout.
+
+### 2026-08-15 — Action-first dashboard Home
+
+- Replaced the large month overview and duplicate outstanding reminder with a
+  compact this-month Invoiced / Received / Outstanding card. Overdue and
+  due-this-week counts open the invoice list on the matching filter, and the
+  list below shows invoices to collect when any are waiting.
+- Important files: dashboard controller/screen, invoice list filter handoff,
+  overview tests, localization maps, and this handoff. No schema changes.
+- Verification: formatting, static analysis, and dashboard/responsive tests.
 
 ### 2026-08-15 — Compact invoice details identity
 

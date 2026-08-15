@@ -15,6 +15,7 @@ class AppInvoiceSummaryCard extends StatelessWidget {
     required this.currencySymbol,
     required this.onTap,
     this.position = AppGroupedPosition.single,
+    this.showCustomer = true,
     super.key,
   });
 
@@ -22,6 +23,7 @@ class AppInvoiceSummaryCard extends StatelessWidget {
   final String currencySymbol;
   final VoidCallback onTap;
   final AppGroupedPosition position;
+  final bool showCustomer;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +43,8 @@ class AppInvoiceSummaryCard extends StatelessWidget {
     final secondary = isDark
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
+    // Kept for the optional avatar block above.
+    // ignore: unused_local_variable
     final initials = _initials(customerName);
     return AppGroupedTile(
       position: position,
@@ -112,23 +116,36 @@ class AppInvoiceSummaryCard extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      key: const ValueKey('invoice-customer-name'),
+                      key: ValueKey(
+                        showCustomer
+                            ? 'invoice-customer-name'
+                            : 'invoice-date-hint',
+                      ),
                       flex: 7,
                       child: Row(
                         children: [
                           Icon(
-                            Icons.person_outline_rounded,
+                            showCustomer
+                                ? Icons.person_outline_rounded
+                                : Icons.calendar_today_outlined,
                             size: 13,
-                            color: secondary,
+                            color: showCustomer
+                                ? secondary
+                                : (overdue ? AppColors.error : statusColor),
                           ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              customerName,
+                              showCustomer ? customerName : dateHint,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.caption.copyWith(
-                                color: secondary,
+                                color: showCustomer
+                                    ? secondary
+                                    : (overdue ? AppColors.error : statusColor),
+                                fontWeight: showCustomer
+                                    ? FontWeight.w500
+                                    : FontWeight.w600,
                               ),
                             ),
                           ),
@@ -148,7 +165,7 @@ class AppInvoiceSummaryCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (status != InvoiceStatus.paid) ...[
+                if (status != InvoiceStatus.paid && showCustomer) ...[
                   const SizedBox(height: 6),
                   Row(
                     children: [
@@ -196,6 +213,19 @@ class AppInvoiceSummaryCard extends StatelessWidget {
                         ),
                       ],
                     ],
+                  ),
+                ] else if (status != InvoiceStatus.paid &&
+                    invoice.balanceMinor > 0) ...[
+                  const SizedBox(height: 6),
+                  AppAmountText(
+                    amountMinor: invoice.balanceMinor,
+                    symbol: currencySymbol,
+                    suffix: ' due',
+                    textAlign: TextAlign.end,
+                    color: statusColor,
+                    style: AppTextStyles.caption.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ],

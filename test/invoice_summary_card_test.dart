@@ -159,4 +159,44 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'customer history card hides the repeated name and keeps due visible',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AppInvoiceSummaryCard(
+              invoice: InvoiceSummaryModel(
+                id: 8,
+                customerId: 2,
+                invoiceNumber: 'INV-0008',
+                customerName: 'Chetan Bhai Freelance',
+                invoiceDate: DateTime(2026, 8, 11),
+                dueDate: DateTime(2099, 8, 13),
+                status: InvoiceStatus.unpaid,
+                grandTotalMinor: 1060000,
+                balanceMinor: 1060000,
+              ),
+              currencySymbol: '₹',
+              showCustomer: false,
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('INV-0008'), findsOneWidget);
+      expect(find.text('Chetan Bhai Freelance'), findsNothing);
+      expect(find.textContaining('Due 13 Aug 2099'), findsOneWidget);
+      expect(find.text('₹10,600'), findsOneWidget);
+      expect(find.textContaining('₹10,600 due'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
