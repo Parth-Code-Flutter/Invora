@@ -70,8 +70,9 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   requested. The expanded field is a compact 46px contained input with an
   in-field clear control (no sibling close chip) and plum/muted chrome.
   Customer and invoice searches accept partial, case-insensitive words across
-  their identifying fields. Barcode scanning stays specific to Products &
-  services and item entry rather than appearing in customer/invoice search.
+  their identifying fields. Their scan-to-search action sits beside Search in
+  the collapsed AppBar and never enters the text field; product and line-item
+  barcode workflows remain separate.
 - More and App Settings use fully visible grouped destination rows with a
   shared icon, subtitle, divider, and disclosure treatment; secondary tools no
   longer require horizontal discovery scrolling
@@ -376,6 +377,17 @@ Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
 
 ## Implementation log
+
+### 2026-08-15 — Separate list scan action
+
+- Restored scan-to-search for Customers and Invoices/Quotations as a separate
+  AppBar icon directly beside Search. Scanning applies the decoded value and
+  expands the existing search state.
+- The expanded field never contains a scanner: its only trailing action is the
+  clear cross when text exists. Product and line-item scanning are unchanged.
+- Important files: shared search AppBar, customer/invoice list screens,
+  design-system test, and this handoff. No schema or storage changes.
+- Verification: formatting, analysis, search widget tests, and full suite.
 
 ### 2026-08-15 — Focused customer and invoice search
 

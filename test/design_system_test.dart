@@ -325,7 +325,7 @@ void main() {
   });
 
   testWidgets(
-    'AppBar scan fills the search query without a sibling close chip',
+    'AppBar scan sits beside search and never enters the text field',
     (tester) async {
       final queries = <String>[];
       await tester.pumpWidget(
@@ -357,6 +357,7 @@ void main() {
       expect(find.text('INV-204'), findsOneWidget);
       expect(queries.last, 'INV-204');
       expect(find.byTooltip('Clear search'), findsOneWidget);
+      expect(find.byTooltip('Scan to search'), findsNothing);
       expect(find.byTooltip('Close search'), findsOneWidget);
       expect(find.byTooltip('Sort invoices'), findsOneWidget);
       expect(find.byTooltip('Search'), findsNothing);

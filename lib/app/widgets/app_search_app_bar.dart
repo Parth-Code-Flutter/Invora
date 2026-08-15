@@ -128,14 +128,11 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
                 hint: widget.hint,
                 isDark: isDark,
                 iconColor: iconColor,
-                showScan: widget.onScan != null,
-                scanTooltip: widget.scanTooltip,
                 onChanged: (value) {
                   widget.onChanged(value);
                   setState(() {});
                 },
                 onClear: _clearQuery,
-                onScan: _handleScan,
                 onSubmitted: (_) => _focusNode.unfocus(),
               )
             : Row(
@@ -182,11 +179,8 @@ class _SearchField extends StatelessWidget {
     required this.hint,
     required this.isDark,
     required this.iconColor,
-    required this.showScan,
-    required this.scanTooltip,
     required this.onChanged,
     required this.onClear,
-    required this.onScan,
     required this.onSubmitted,
   });
 
@@ -195,11 +189,8 @@ class _SearchField extends StatelessWidget {
   final String hint;
   final bool isDark;
   final Color iconColor;
-  final bool showScan;
-  final String scanTooltip;
   final ValueChanged<String> onChanged;
   final VoidCallback onClear;
-  final VoidCallback onScan;
   final ValueChanged<String> onSubmitted;
 
   @override
@@ -248,32 +239,16 @@ class _SearchField extends StatelessWidget {
             minWidth: 40,
             minHeight: 40,
           ),
-          suffixIcon: showClear || showScan
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (showClear)
-                      _SearchFieldIcon(
-                        tooltip: l10n('Clear search'),
-                        icon: Icons.close_rounded,
-                        color: iconColor,
-                        onPressed: onClear,
-                      ),
-                    if (showScan)
-                      _SearchFieldIcon(
-                        tooltip: l10n(scanTooltip),
-                        icon: Icons.qr_code_scanner_rounded,
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.secondary,
-                        onPressed: onScan,
-                      ),
-                    const SizedBox(width: 2),
-                  ],
+          suffixIcon: showClear
+              ? _SearchFieldIcon(
+                  tooltip: l10n('Clear search'),
+                  icon: Icons.close_rounded,
+                  color: iconColor,
+                  onPressed: onClear,
                 )
               : null,
-          suffixIconConstraints: BoxConstraints(
-            minWidth: showClear && showScan ? 76 : 40,
+          suffixIconConstraints: const BoxConstraints(
+            minWidth: 40,
             minHeight: 40,
           ),
           filled: true,
