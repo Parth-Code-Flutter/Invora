@@ -1,9 +1,10 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-08-15
+Last updated: 2026-08-17
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
+Licensing and demo APK (design only): [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md)
 
 ## Purpose
 
@@ -16,6 +17,10 @@ every material code change.
 Creovo Billing is a Flutter Android and iOS app for fast, privacy-first,
 offline invoicing. It has no backend, authentication, cloud dependency, ads,
 subscriptions, payment gateway, inventory accounting, or multi-user system.
+Paid unlock, store billing, license keys, and time-limited demo APKs are
+planned in [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md) and are not in the
+live app. That design keeps invoice data offline and keeps entitlement out of
+backups.
 
 - Flutter and Dart
 - GetX for routing, dependency injection, and reactive state
@@ -44,6 +49,10 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   selection before bill fields are shown, then enforce unique bill number,
   valid date order, required line items, positive quantity/rate, bounded GST,
   and payment-within-balance rules.
+  Purchase screens follow the same classic grouped treatment as Sales lists:
+  compact overview metrics (Paid / Payable / Overdue), AppBar search on bills
+  and suppliers, grouped bill/supplier rows, a quieter bill-details identity
+  with Total / Paid / Remaining cards, and a sticky record-payment action.
   Purchase line-item creation/editing now uses a tall branded sheet instead of
   a platform alert, shares the saved-unit picker (including custom units), and
   exposes compact edit/remove actions from each item. Purchase-bill edit/delete
@@ -94,9 +103,14 @@ subscriptions, payment gateway, inventory accounting, or multi-user system.
   their identifying fields. Their scan-to-search action sits beside Search in
   the collapsed AppBar and never enters the text field; product and line-item
   barcode workflows remain separate.
-- More and App Settings use fully visible grouped destination rows with a
-  shared icon, subtitle, divider, and disclosure treatment; secondary tools no
-  longer require horizontal discovery scrolling
+- More and App Settings use classic grouped settings panels: one bordered
+  card per section, inset hairline dividers, compact 14px rows, plum icon
+  wells, and a chevron instead of a circular arrow. More leads with a quiet
+  business identity card (name plus owner/mobile/GSTIN, tap or Edit to open
+  the profile) and a Change workspace list with named Sales and Purchases
+  choices (check marks the active mode) that does not leave the screen. The privacy line is a caption, not a
+  tinted banner. Secondary tools no longer require horizontal discovery
+  scrolling.
 - App Settings includes a focused Invoice Defaults workspace for immediate,
   7/15/30-day, or custom due periods; tax mode and GST rate; document notes and
   terms; and payment method. New documents/custom items/payment entries inherit
@@ -396,11 +410,60 @@ As of 2026-08-15:
 7. Test all PDFs with long, multi-page, and Unicode content.
 8. Complete accessibility, tablet, landscape, and physical-device QA.
 9. Add CI for formatting, analysis, tests, and release validation.
+10. Licensing / monetization is design-only. When picked up, follow
+    [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md): store builds use
+    RevenueCat/Play/App Store billing; direct APKs use GSTIN-bound keys;
+    client demos use a dated `demo` flavor kill switch, not a first-launch
+    timer in local storage. Do not put Pro or demo expiry in the backup ZIP.
 
 Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
+Store/IAP and signed license keys for selling the app itself are the exception
+documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-17 — Purchase workspace classic UI pass
+
+- Restyled every purchase screen to match Sales: quieter home overview with
+  Paid/Payable/Overdue metrics, New bill/Supplier actions, grouped recent
+  bills, AppBar search on bill and supplier lists, compact status-accent rows,
+  quieter supplier/bill forms, and bill details with number in the AppBar,
+  Total/Paid/Remaining cards, grouped items/payments, and a sticky payment
+  action. Workspace switch on purchase screens is an icon, like Sales Home.
+- Bill details now load once and refresh after edit/payment instead of
+  recreating a FutureBuilder on every rebuild. Form and payment controllers
+  are disposed.
+- Important files: `purchase_workspace_screen.dart`, `purchase_screens.dart`,
+  workspace widget test, this handoff.
+- Verification: Dart formatting, `flutter analyze`, and purchase widget tests.
+
+### 2026-08-17 — More screen classic grouped settings
+
+- Replaced the stacked destination cards and circular arrows on More with
+  grouped settings panels, a quieter business identity header, and a
+  Change workspace list that names Sales and Purchases with a check on the
+  active mode. Switching workspace from More stays on More and only updates
+  the bottom navigation. Duplicate
+  Business profile row was removed because the identity card already opens it.
+- Shared `AppMenuGroup`/`AppMenuTile` now render as a single bordered panel
+  with inset dividers, so App Settings matches the same quieter treatment.
+- Important files: `app_menu_group.dart`, `more_screen.dart`, this handoff.
+- Verification: Dart formatting and `flutter analyze`; widget tests that
+  cover settings destinations still apply.
+
+### 2026-08-17 — Licensing and demo APK design captured
+
+- Wrote the planned paid-unlock and client-demo design so later sessions can
+  implement it after other app work. No runtime license, flavor, or kill
+  switch was added.
+- Agreed constraints: entitlement must not live in Drift or backup
+  `settings.json`; Play/App Store builds use store billing (RevenueCat);
+  WhatsApp/direct APKs use GSTIN-bound keys; demo APKs expire on a baked-in
+  calendar date and then block all features with “Please contact sales
+  person.”
+- Important files: `docs/LICENSING_AND_DEMO.md` and this handoff document.
+- Verification: documentation only.
 
 ### 2026-08-15 — Purchase internal-screen UX alignment
 

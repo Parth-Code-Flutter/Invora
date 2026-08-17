@@ -6,6 +6,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/constants/app_spacing.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_main_navigation.dart';
@@ -30,158 +31,126 @@ class MoreScreen extends GetView<MoreController> {
     body: ResponsiveContent(
       tabletMaxWidth: 720,
       child: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(top: 4, bottom: 12),
         children: [
-          AppMenuGroup(
-            children: [
-              Obx(() {
-                final workspace = Get.find<BusinessWorkspaceService>();
-                return AppMenuTile(
-                  icon: workspace.isSales
-                      ? Icons.shopping_bag_outlined
-                      : Icons.trending_up_rounded,
-                  title: workspace.isSales ? 'Open Purchases' : 'Open Sales',
-                  subtitle: workspace.isSales
-                      ? 'Suppliers, purchase bills and payables'
-                      : 'Customers, invoices and receivables',
-                  color: AppColors.secondary,
-                  background: AppColors.secondaryLight,
-                  onTap: () async {
-                    final next = workspace.isSales
-                        ? BusinessWorkspace.purchases
-                        : BusinessWorkspace.sales;
-                    await workspace.select(next);
-                    Get.offAllNamed<void>(
-                      next == BusinessWorkspace.sales
-                          ? AppRoutes.dashboard
-                          : AppRoutes.purchases,
-                    );
-                  },
-                );
-              }),
-            ],
-          ),
-          const SizedBox(height: 20),
           Obx(
             () => _BusinessHeader(
               controller: controller,
               profile: controller.profile.value,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
+          const _SectionLabel('Change workspace'),
+          Obx(() {
+            final workspace = Get.find<BusinessWorkspaceService>();
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppMenuGroup(
+                  children: [
+                    AppMenuTile(
+                      icon: Icons.trending_up_rounded,
+                      title: 'Sales',
+                      subtitle: 'Invoices, customers and money to receive',
+                      selected: workspace.isSales,
+                      onTap: () => workspace.select(BusinessWorkspace.sales),
+                    ),
+                    AppMenuTile(
+                      icon: Icons.shopping_bag_outlined,
+                      title: 'Purchases',
+                      subtitle: 'Supplier bills and money to pay',
+                      selected: workspace.isPurchases,
+                      onTap: () =>
+                          workspace.select(BusinessWorkspace.purchases),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Text(
+                    'Tap Sales or Purchases to change mode. Records stay separate.',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.textTertiary,
+                      fontWeight: FontWeight.w400,
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }),
+          const SizedBox(height: 22),
           const _SectionLabel('Customization'),
-          const SizedBox(height: 9),
           AppMenuGroup(
             children: [
               AppMenuTile(
                 icon: Icons.tune_rounded,
                 title: 'Product settings',
                 subtitle: 'Business category, fields and invoice display',
-                color: AppColors.primary,
-                background: AppColors.primaryLight,
                 onTap: () => Get.toNamed<void>(AppRoutes.productSettings),
               ),
               AppMenuTile(
                 icon: Icons.straighten_rounded,
                 title: 'Set default unit',
                 subtitle: 'Manage units and choose the default for new items',
-                color: AppColors.secondary,
-                background: AppColors.secondaryLight,
                 onTap: () => Get.toNamed<void>(AppRoutes.unitSettings),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
           const _SectionLabel('Create & manage'),
-          const SizedBox(height: 9),
           AppMenuGroup(
             children: [
               AppMenuTile(
                 icon: Icons.inventory_2_outlined,
                 title: 'Products & services',
                 subtitle: 'Saved items, pricing, tax and units',
-                color: AppColors.primary,
-                background: AppColors.primaryLight,
                 onTap: () => Get.toNamed<void>(AppRoutes.products),
               ),
               AppMenuTile(
                 icon: Icons.request_quote_outlined,
                 title: 'Estimates',
                 subtitle: 'Create and manage client quotations',
-                color: AppColors.secondary,
-                background: AppColors.secondaryLight,
                 onTap: () => Get.toNamed<void>(AppRoutes.quotations),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
           const _SectionLabel('Insights & data'),
-          const SizedBox(height: 9),
           AppMenuGroup(
             children: [
               AppMenuTile(
                 icon: Icons.insert_chart_outlined_rounded,
                 title: 'Reports',
                 subtitle: 'Review sales, receipts and outstanding totals',
-                color: AppColors.primary,
-                background: AppColors.primaryLight,
                 onTap: () => Get.toNamed<void>(AppRoutes.reports),
               ),
               AppMenuTile(
                 icon: Icons.settings_backup_restore_rounded,
                 title: 'Backup & restore',
                 subtitle: 'Export or restore your offline records',
-                color: AppColors.secondary,
-                background: AppColors.secondaryLight,
                 onTap: () => Get.toNamed<void>(AppRoutes.backup),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
           const _SectionLabel('Preferences'),
-          const SizedBox(height: 9),
           AppMenuGroup(
             children: [
               AppMenuTile(
-                icon: Icons.storefront_outlined,
-                title: 'Business profile',
-                subtitle: 'Identity, tax and payment details',
-                onTap: controller.editBusiness,
-              ),
-              AppMenuTile(
                 icon: Icons.tune_rounded,
                 title: 'App settings',
-                subtitle: 'Appearance and preferences',
+                subtitle: 'Appearance, language and security',
                 onTap: () => Get.toNamed<void>(AppRoutes.settings),
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight.withValues(alpha: .65),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.lock_outline_rounded,
-                  size: 20,
-                  color: AppColors.primary,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Private by design • Your data stays on this device',
-                    style: AppTextStyles.secondaryBody.copyWith(
-                      color: AppColors.primaryDark,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          const SizedBox(height: 20),
+          const _PrivacyNote(),
         ],
       ),
     ),
@@ -195,68 +164,72 @@ class _BusinessHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final name = profile?.businessName ?? 'Your business';
-    final detail =
-        profile?.ownerName ??
-        profile?.mobile ??
-        'Complete your business profile';
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.secondary, AppColors.primaryDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    final detail = _detailLine(profile);
+    return Material(
+      color: isDark ? AppColors.darkSurface : AppColors.surfaceSoft,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        side: BorderSide(
+          color: isDark ? AppColors.darkBorder : AppColors.border,
         ),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x2517172B),
-            blurRadius: 18,
-            offset: Offset(0, 7),
-          ),
-        ],
       ),
-      child: Row(
-        children: [
-          _BusinessLogo(path: profile?.logoPath, name: name),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.sectionTitle.copyWith(
-                    color: Colors.white,
-                  ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: controller.editBusiness,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 14, 10, 14),
+          child: Row(
+            children: [
+              _BusinessLogo(path: profile?.logoPath, name: name),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.sectionTitle,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      detail,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.textSecondary,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  detail,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.secondaryBody.copyWith(
-                    color: Colors.white60,
-                  ),
-                ),
-              ],
-            ),
+              ),
+              TextButton(
+                onPressed: controller.editBusiness,
+                child: const Text('Edit'),
+              ),
+            ],
           ),
-          IconButton.filled(
-            tooltip: l10n('Edit business profile'),
-            onPressed: controller.editBusiness,
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.white.withValues(alpha: .1),
-              foregroundColor: Colors.white,
-            ),
-            icon: const Icon(Icons.edit_outlined, size: 19),
-          ),
-        ],
+        ),
       ),
     );
+  }
+
+  String _detailLine(BusinessProfileModel? profile) {
+    if (profile == null) return 'Complete your business profile';
+    final parts = <String>[
+      if (profile.ownerName?.trim().isNotEmpty == true)
+        profile.ownerName!.trim(),
+      if (profile.mobile?.trim().isNotEmpty == true) profile.mobile!.trim(),
+      if (profile.gstin?.trim().isNotEmpty == true) profile.gstin!.trim(),
+    ];
+    if (parts.isEmpty) return 'Complete your business profile';
+    return parts.join(' · ');
   }
 }
 
@@ -269,21 +242,21 @@ class _BusinessLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final validPath = path != null && File(path!).existsSync();
     return Container(
-      width: 50,
-      height: 50,
+      width: 48,
+      height: 48,
       clipBehavior: Clip.antiAlias,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: validPath
-          ? Image.file(File(path!), fit: BoxFit.cover, width: 50, height: 50)
+          ? Image.file(File(path!), fit: BoxFit.cover, width: 48, height: 48)
           : Text(
               name.trim().isEmpty
                   ? 'I'
                   : name.trim().characters.first.toUpperCase(),
-              style: AppTextStyles.pageTitle.copyWith(color: Colors.white),
+              style: AppTextStyles.sectionTitle.copyWith(color: Colors.white),
             ),
     );
   }
@@ -294,12 +267,44 @@ class _SectionLabel extends StatelessWidget {
   final String value;
 
   @override
-  Widget build(BuildContext context) => Text(
-    value,
-    style: AppTextStyles.caption.copyWith(
-      color: Theme.of(context).colorScheme.onSurface,
-      fontWeight: FontWeight.w700,
-      letterSpacing: .1,
-    ),
-  );
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        value.toUpperCase(),
+        style: AppTextStyles.small.copyWith(
+          color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.7,
+        ),
+      ),
+    );
+  }
+}
+
+class _PrivacyNote extends StatelessWidget {
+  const _PrivacyNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = isDark ? AppColors.darkTextSecondary : AppColors.textTertiary;
+    return Row(
+      children: [
+        Icon(Icons.lock_outline_rounded, size: 15, color: color),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            'Private by design. Your data stays on this device.',
+            style: AppTextStyles.caption.copyWith(
+              color: color,
+              fontWeight: FontWeight.w400,
+              height: 1.35,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

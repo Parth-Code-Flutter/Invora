@@ -3,27 +3,46 @@ import 'package:flutter/material.dart' hide Text;
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_colors.dart';
+import '../constants/app_spacing.dart';
 import '../themes/app_text_styles.dart';
-import 'app_card.dart';
 
-/// A vertically discoverable group of modern destination tiles.
+/// A single bordered panel of destination rows, in the classic settings style.
 class AppMenuGroup extends StatelessWidget {
   const AppMenuGroup({super.key, required this.children});
 
   final List<Widget> children;
 
   @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      for (var index = 0; index < children.length; index++) ...[
-        children[index],
-        if (index != children.length - 1) const SizedBox(height: 10),
-      ],
-    ],
-  );
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final border = isDark ? AppColors.darkBorder : AppColors.border;
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        side: BorderSide(color: border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (var index = 0; index < children.length; index++) ...[
+            children[index],
+            if (index != children.length - 1)
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                indent: 64,
+                endIndent: 16,
+                color: border,
+              ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
-/// A consistent destination row with enough context to scan before opening it.
+/// A compact destination row for grouped settings panels.
 class AppMenuTile extends StatelessWidget {
   const AppMenuTile({
     super.key,
@@ -31,9 +50,10 @@ class AppMenuTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.onTap,
-    this.color = AppColors.primary,
-    this.background = AppColors.primaryLight,
+    this.color = AppColors.secondary,
+    this.background = AppColors.secondaryLight,
     this.trailing,
+    this.selected,
   });
 
   final IconData icon;
@@ -44,61 +64,76 @@ class AppMenuTile extends StatelessWidget {
   final Color background;
   final Widget? trailing;
 
+  /// When set, this row is a choice instead of a destination: a check marks
+  /// the active option and an empty circle marks the other.
+  final bool? selected;
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isSelected = selected == true;
     final iconSurface = isDark ? color.withValues(alpha: .16) : background;
-    return AppCard(
+    final muted = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+    final markColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textTertiary;
+    return InkWell(
       onTap: onTap,
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: iconSurface,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: 13),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTextStyles.cardTitle),
-                const SizedBox(height: 3),
-                Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: .66),
-                    height: 1.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          trailing ??
+      child: ColoredBox(
+        color: isSelected
+            ? (isDark
+                  ? color.withValues(alpha: .12)
+                  : AppColors.secondaryLight.withValues(alpha: .65))
+            : Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
               Container(
-                width: 34,
-                height: 34,
+                width: 38,
+                height: 38,
                 decoration: BoxDecoration(
                   color: iconSurface,
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(11),
                 ),
-                child: Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 17,
-                  color: color,
+                child: Icon(icon, color: color, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: AppTextStyles.listName),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: muted,
+                        height: 1.3,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-        ],
+              const SizedBox(width: 8),
+              trailing ??
+                  Icon(
+                    selected == null
+                        ? Icons.chevron_right_rounded
+                        : isSelected
+                        ? Icons.check_circle_rounded
+                        : Icons.circle_outlined,
+                    size: 22,
+                    color: isSelected ? color : markColor,
+                  ),
+            ],
+          ),
+        ),
       ),
     );
   }

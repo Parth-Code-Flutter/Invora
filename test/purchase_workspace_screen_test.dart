@@ -32,8 +32,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Purchase overview'), findsOneWidget);
-    expect(find.text('Suppliers'), findsOneWidget);
-    expect(find.text('Purchase bills'), findsOneWidget);
+    expect(find.text('New bill'), findsOneWidget);
+    expect(find.text('Supplier'), findsOneWidget);
     expect(find.text('Record your first purchase bill'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
