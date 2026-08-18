@@ -113,6 +113,33 @@ class _ProductScanScreenState extends State<ProductScanScreen> {
     return result is ProductServiceModel ? result : null;
   }
 
+  Future<void> _confirmScanDecrease(BuildContext context, int index) async {
+    final lines = _controller.lines;
+    if (index < 0 || index >= lines.length) return;
+    final line = lines[index];
+    if (line.quantityScaled > 1000) {
+      _controller.decrementAt(index);
+      return;
+    }
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      destructive: true,
+      icon: Icons.delete_outline_rounded,
+      title: 'Remove item?',
+      message: _quotation
+          ? 'This item will be removed from this quotation.'
+          : 'This item will be removed from this invoice.',
+      confirmLabel: 'Remove item',
+      cancelLabel: 'Keep item',
+    );
+    if (!confirmed || !mounted) return;
+    final current = _controller.lines.indexWhere(
+      (entry) =>
+          entry.barcode == line.barcode && entry.product.id == line.product.id,
+    );
+    if (current >= 0) _controller.decrementAt(current);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -234,7 +261,7 @@ class _ProductScanScreenState extends State<ProductScanScreen> {
                                 onIncrease: () =>
                                     _controller.incrementAt(index),
                                 onDecrease: () =>
-                                    _controller.decrementAt(index),
+                                    _confirmScanDecrease(context, index),
                               ),
                             ),
                     ),

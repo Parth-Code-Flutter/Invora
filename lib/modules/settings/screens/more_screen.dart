@@ -9,6 +9,7 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_purchase_navigation.dart';
 import '../../../app/widgets/app_menu_group.dart';
@@ -22,7 +23,7 @@ class MoreScreen extends GetView<MoreController> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('More')),
+    appBar: AppBar(title: const AppBarTitle('More')),
     bottomNavigationBar: Obx(
       () => Get.find<BusinessWorkspaceService>().isPurchases
           ? const AppPurchaseNavigation(current: PurchaseDestination.more)

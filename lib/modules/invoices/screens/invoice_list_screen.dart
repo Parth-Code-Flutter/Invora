@@ -54,9 +54,16 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: AppMainNavigation(
-        current: quotation ? MainDestination.more : MainDestination.invoices,
-      ),
+      bottomNavigationBar: quotation
+          ? null
+          : const AppMainNavigation(current: MainDestination.invoices),
+      floatingActionButton: quotation
+          ? FloatingActionButton(
+              tooltip: l10n('Create quotation'),
+              onPressed: () => Get.toNamed<void>(AppRoutes.quotationCreate),
+              child: const Icon(Icons.add_rounded),
+            )
+          : null,
       appBar: AppSearchAppBar(
         leading: quotation ? const AppBackButton() : null,
         title: quotation ? 'Quotations' : 'Invoices',
@@ -192,7 +199,11 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     controller.selectedFilter.value != InvoiceListFilter.all;
                 return AppEmptyState(
                   icon: Icons.receipt_long_outlined,
-                  title: searching ? 'No invoices found' : 'No invoices yet',
+                  title: searching
+                      ? (quotation
+                            ? 'No quotations found'
+                            : 'No invoices found')
+                      : (quotation ? 'No quotations yet' : 'No invoices yet'),
                   message: searching
                       ? 'Try a different search or status filter.'
                       : 'Create your first offline ${quotation ? 'quotation' : 'invoice'} to see it here.',
@@ -298,11 +309,11 @@ class _HeaderActionIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      width: 44,
-      height: 44,
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.surfaceSoft,
-        borderRadius: BorderRadius.circular(14),
+        color: isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceSoft,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark ? AppColors.darkBorder : AppColors.border,
         ),
@@ -310,7 +321,7 @@ class _HeaderActionIcon extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Icon(icon, size: 23, color: Theme.of(context).colorScheme.onSurface),
+          Icon(icon, size: 20, color: AppColors.secondary),
           if (showIndicator)
             Positioned(
               top: 7,

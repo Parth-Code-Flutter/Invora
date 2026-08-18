@@ -19,7 +19,7 @@ class SettingsScreen extends GetView<SettingsController> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: const AppBackButton(),
-      title: const Text('Settings'),
+      title: const AppBarTitle('Settings'),
     ),
     body: ResponsiveContent(
       child: ListView(

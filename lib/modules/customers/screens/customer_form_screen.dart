@@ -24,7 +24,10 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
       child: Scaffold(
         appBar: AppBar(
           leading: const AppBackButton(),
-          title: Text(controller.isEditing ? 'Edit customer' : 'New customer'),
+          title: AppBarTitle(
+            controller.isEditing ? 'Edit customer' : 'New customer',
+            subtitle: 'Customer',
+          ),
         ),
         body: Obx(
           () => controller.isLoading.value

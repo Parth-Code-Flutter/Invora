@@ -27,16 +27,12 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
         title: Obx(() {
           final name = controller.customer.value?.name.trim();
           if (name == null || name.isEmpty) {
-            return const Text('Customer details');
+            return const AppBarTitle('Customer details');
           }
-          return FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(name),
-          );
+          return AppBarTitle(name, subtitle: 'Customer');
         }),
         actions: [
-          IconButton(
+          AppBarIconButton(
             tooltip: l10n('Edit customer'),
             onPressed: () async {
               await Get.toNamed<void>(
@@ -45,9 +41,8 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
               );
               await controller.refreshCustomer();
             },
-            icon: const Icon(Icons.edit_outlined),
+            icon: Icons.edit_outlined,
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: Obx(() {

@@ -68,7 +68,14 @@ class QuotationCreateBinding extends Bindings {
 class InvoiceDetailsBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => InvoiceDetailsController(Get.find(), Get.find()));
+    Get.lazyPut(
+      () => InvoiceDetailsController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
+    );
   }
 }
 

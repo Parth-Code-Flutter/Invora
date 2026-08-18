@@ -61,6 +61,14 @@ class CustomerStatementController extends GetxController {
     await reload();
   }
 
+  Future<void> setRange(DateTime start, DateTime end) async {
+    final fromDay = DateTime(start.year, start.month, start.day);
+    final toDay = DateTime(end.year, end.month, end.day);
+    from.value = fromDay.isAfter(toDay) ? toDay : fromDay;
+    to.value = toDay.isBefore(from.value) ? from.value : toDay;
+    await reload();
+  }
+
   Future<Uint8List> buildPdf() => _pdf.build(statement.value!);
   Future<void> share() => _pdf.shareStatement(statement.value!);
   Future<void> print() => _pdf.printStatement(statement.value!);

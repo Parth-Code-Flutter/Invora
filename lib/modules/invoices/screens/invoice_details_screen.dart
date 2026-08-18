@@ -39,28 +39,33 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         leading: const AppBackButton(),
         title: Obx(() {
           final invoice = controller.invoice.value;
-          return Text(
-            invoice?.invoiceNumber ??
-                (invoice?.documentType == DocumentType.quotation
-                    ? 'Quotation details'
-                    : 'Invoice details'),
+          final number = invoice?.invoiceNumber;
+          final isQuotation = invoice?.documentType == DocumentType.quotation;
+          if (number == null || number.isEmpty) {
+            return AppBarTitle(
+              isQuotation ? 'Quotation details' : 'Invoice details',
+            );
+          }
+          return AppBarTitle(
+            number,
+            subtitle: isQuotation ? 'Quotation' : 'Invoice',
           );
         }),
         actions: [
-          IconButton(
+          AppBarIconButton(
             tooltip: l10n('Preview PDF'),
             onPressed: controller.openPreview,
-            icon: const Icon(Icons.picture_as_pdf_outlined),
+            icon: Icons.picture_as_pdf_outlined,
           ),
           Obx(() {
             final isQuotation =
                 controller.invoice.value?.documentType ==
                 DocumentType.quotation;
-            return IconButton(
+            return AppBarIconButton(
               tooltip: isQuotation ? 'Quotation actions' : 'Invoice actions',
               onPressed: () =>
                   _showDocumentActions(context, isQuotation: isQuotation),
-              icon: const Icon(Icons.more_vert_rounded),
+              icon: Icons.more_vert_rounded,
             );
           }),
         ],
@@ -73,7 +78,8 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         return _InvoiceDetailsFooter(
           invoice: invoice,
           onRecordPayment: () => _showPaymentDialog(context),
-          onShare: controller.openPreview,
+          onShare: controller.share,
+          onShareOrPrint: () => _showSharePrint(context),
         );
       }),
       body: Obx(() {
@@ -87,7 +93,6 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         final symbol = controller.currencySymbol.value;
         final sections = [
           _InvoiceDetailsHero(invoice: invoice),
-          _InvoiceItemsCard(invoice: invoice, symbol: symbol),
           if (invoice.documentType == DocumentType.invoice)
             _PaymentHistoryCard(
               payments: controller.payments,
@@ -104,6 +109,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                 ),
               ),
             ),
+          _InvoiceItemsCard(invoice: invoice, symbol: symbol),
           if (invoice.notes != null || invoice.terms != null)
             AppCard(
               child: Column(
@@ -204,6 +210,45 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         );
         if (confirmed) await controller.delete();
         return;
+    }
+  }
+
+  Future<void> _showSharePrint(BuildContext context) async {
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      useSafeArea: true,
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Share / print', style: AppTextStyles.sectionTitle),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.ios_share_rounded),
+              title: const Text('Share PDF'),
+              subtitle: const Text(
+                'Send this invoice from the device share sheet.',
+              ),
+              onTap: () => Navigator.pop(sheetContext, 'share'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.print_outlined),
+              title: const Text('Print'),
+              subtitle: const Text('Send this invoice to a printer.'),
+              onTap: () => Navigator.pop(sheetContext, 'print'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!context.mounted || selected == null) return;
+    if (selected == 'share') {
+      await controller.share();
+    } else {
+      await controller.print();
     }
   }
 
@@ -316,11 +361,13 @@ class _InvoiceDetailsFooter extends StatelessWidget {
     required this.invoice,
     required this.onRecordPayment,
     required this.onShare,
+    required this.onShareOrPrint,
   });
 
   final InvoiceModel invoice;
   final VoidCallback onRecordPayment;
   final VoidCallback onShare;
+  final VoidCallback onShareOrPrint;
 
   bool get _canRecordPayment =>
       invoice.documentType == DocumentType.invoice &&
@@ -361,7 +408,7 @@ class _InvoiceDetailsFooter extends StatelessWidget {
                   : AppButton(
                       label: l10n('Share / print'),
                       icon: Icons.ios_share_rounded,
-                      onPressed: onShare,
+                      onPressed: onShareOrPrint,
                     ),
             ),
           ],

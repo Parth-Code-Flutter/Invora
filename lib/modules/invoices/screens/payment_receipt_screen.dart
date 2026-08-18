@@ -18,12 +18,12 @@ class PaymentReceiptScreen extends GetView<PaymentReceiptController> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: const AppBackButton(),
-      title: const Text('Payment receipt'),
+      title: const AppBarTitle('Payment receipt', subtitle: 'Invoice'),
       actions: [
-        IconButton(
+        AppBarIconButton(
           tooltip: l10n('Receipt actions'),
           onPressed: () => _showActions(context),
-          icon: const Icon(Icons.more_horiz_rounded),
+          icon: Icons.more_horiz_rounded,
         ),
       ],
     ),

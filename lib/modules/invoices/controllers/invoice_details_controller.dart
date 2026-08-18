@@ -3,17 +3,28 @@ import 'package:get/get.dart';
 import '../../../app/enums/invoice_status.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/invoice_payment_model.dart';
+import '../../../data/models/business_profile_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
+import '../../../data/services/app_storage.dart';
+import '../../../data/services/invoice_pdf_service.dart';
 import '../../../data/services/invoice_validation_service.dart';
+import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/widgets/app_notification.dart';
 
 class InvoiceDetailsController extends GetxController {
-  InvoiceDetailsController(this._repository, this._businessRepository);
+  InvoiceDetailsController(
+    this._repository,
+    this._businessRepository,
+    this._pdf,
+    this._storage,
+  );
   final InvoiceRepository _repository;
   final BusinessRepository _businessRepository;
+  final InvoicePdfService _pdf;
+  final AppStorage _storage;
   static const _validator = InvoiceValidationService();
   final invoice = Rxn<InvoiceModel>();
   final currencySymbol = '₹'.obs;
@@ -75,6 +86,78 @@ class InvoiceDetailsController extends GetxController {
       return;
     }
     await Get.toNamed<void>(AppRoutes.invoicePreview, arguments: value.id);
+  }
+
+  Future<void> share() => _exportPdf(
+    (invoice, business, template) => _pdf.shareInvoice(
+      invoice: invoice,
+      business: business,
+      template: template,
+    ),
+    failureTitle: 'Unable to share',
+    failureMessage: 'The PDF could not be shared.',
+  );
+
+  Future<void> print() => _exportPdf(
+    (invoice, business, template) => _pdf.printInvoice(
+      invoice: invoice,
+      business: business,
+      template: template,
+    ),
+    failureTitle: 'Unable to print',
+    failureMessage: 'The PDF could not be printed.',
+  );
+
+  Future<void> _exportPdf(
+    Future<void> Function(
+      InvoiceModel invoice,
+      BusinessProfileModel business,
+      InvoiceTemplate template,
+    )
+    action, {
+    required String failureTitle,
+    required String failureMessage,
+  }) async {
+    final value = invoice.value;
+    if (value?.id == null) {
+      AppNotification.error(
+        'Invoice unavailable',
+        'The invoice could not be loaded.',
+      );
+      return;
+    }
+    final validation = _validator.validateRequired(value!);
+    if (validation != null) {
+      AppNotification.warning('Complete required details', validation);
+      return;
+    }
+    final business = await _businessRepository.getProfile();
+    if (business == null || business.businessName.trim().isEmpty) {
+      AppNotification.warning(
+        'Complete required details',
+        'Complete business setup before continuing.',
+      );
+      return;
+    }
+    if (isWorking.value) return;
+    isWorking.value = true;
+    try {
+      await action(value, business, _selectedTemplate);
+    } catch (_) {
+      AppNotification.error(failureTitle, failureMessage);
+    } finally {
+      isWorking.value = false;
+    }
+  }
+
+  InvoiceTemplate get _selectedTemplate {
+    final saved = _storage.getString(
+      AppStorageKeyConst.selectedInvoiceTemplate,
+    );
+    return InvoiceTemplate.values.firstWhere(
+      (value) => value.name == saved,
+      orElse: () => InvoiceTemplate.professional,
+    );
   }
 
   Future<void> duplicate() async {

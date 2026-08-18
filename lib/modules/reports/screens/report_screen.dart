@@ -19,12 +19,12 @@ class ReportScreen extends GetView<ReportController> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: const AppBackButton(),
-      title: const Text('Reports'),
+      title: const AppBarTitle('Reports'),
       actions: [
-        IconButton(
+        AppBarIconButton(
           tooltip: l10n('Export report'),
           onPressed: () => Get.toNamed<void>(AppRoutes.dataExport),
-          icon: const Icon(Icons.ios_share_rounded),
+          icon: Icons.ios_share_rounded,
         ),
       ],
     ),

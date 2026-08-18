@@ -30,14 +30,7 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
       child: Scaffold(
         appBar: AppBar(
           leading: const AppBackButton(),
-          title: const Text(
-            'Product settings',
-            style: TextStyle(
-              fontFamily: _systemFont,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -.3,
-            ),
-          ),
+          title: const AppBarTitle('Product settings'),
         ),
         body: ResponsiveContent(
           tabletMaxWidth: 720,

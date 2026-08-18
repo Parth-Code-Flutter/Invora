@@ -9,6 +9,7 @@ import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
@@ -68,10 +69,10 @@ class DashboardScreen extends GetView<DashboardController> {
           ),
         ),
         actions: [
-          IconButton(
+          AppBarIconButton(
             tooltip: l10n('Switch workspace'),
             onPressed: () => showWorkspaceSwitcher(context),
-            icon: const Icon(Icons.swap_horiz_rounded),
+            icon: Icons.swap_horiz_rounded,
           ),
         ],
       ),

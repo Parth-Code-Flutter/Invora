@@ -24,9 +24,9 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('Item details'),
+        title: const AppBarTitle('Item details', subtitle: 'Catalog'),
         actions: [
-          IconButton(
+          AppBarIconButton(
             tooltip: l10n('Edit item'),
             onPressed: () async {
               await Get.toNamed<void>(
@@ -35,7 +35,7 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
               );
               await controller.refreshItem();
             },
-            icon: const Icon(Icons.edit_outlined),
+            icon: Icons.edit_outlined,
           ),
         ],
       ),

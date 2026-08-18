@@ -57,7 +57,9 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
       child: Scaffold(
         appBar: AppBar(
           leading: const AppBackButton(),
-          title: Text(controller.isQuotation ? 'New estimate' : 'New invoice'),
+          title: AppBarTitle(
+            controller.isQuotation ? 'New estimate' : 'New invoice',
+          ),
           actions: [
             Obx(
               () => TextButton.icon(
@@ -518,7 +520,10 @@ class _InvoiceForm extends StatelessWidget {
                             canDecrease: item.quantityScaled > 1000,
                             onDecrease: () =>
                                 controller.decrementQuantity(entry.key),
-                            onRemove: () => controller.removeItem(entry.key),
+                            onRemove: () => _confirmRemoveItem(
+                              context,
+                              onConfirm: () => controller.removeItem(entry.key),
+                            ),
                             onIncrease: () =>
                                 controller.incrementQuantity(entry.key),
                             onEdit: () => _editQuantity(
@@ -703,6 +708,24 @@ class _InvoiceForm extends StatelessWidget {
       padding: EdgeInsets.all(ResponsiveUtils.horizontalPadding(context)),
       child: content,
     );
+  }
+
+  Future<void> _confirmRemoveItem(
+    BuildContext context, {
+    required VoidCallback onConfirm,
+  }) async {
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      destructive: true,
+      icon: Icons.delete_outline_rounded,
+      title: 'Remove item?',
+      message: controller.isQuotation
+          ? 'This item will be removed from this quotation.'
+          : 'This item will be removed from this invoice.',
+      confirmLabel: 'Remove item',
+      cancelLabel: 'Keep item',
+    );
+    if (confirmed) onConfirm();
   }
 
   Future<void> _editQuantity(

@@ -21,7 +21,7 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: const AppBackButton(),
-      title: const Text('Invoice defaults'),
+      title: const AppBarTitle('Invoice defaults'),
     ),
     body: ResponsiveContent(
       tabletMaxWidth: 720,

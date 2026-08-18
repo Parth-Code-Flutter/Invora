@@ -56,6 +56,9 @@ class InvoicePreviewController extends GetxController {
       invoice.value = argument;
     } else if (argument is int) {
       invoice.value = await _invoices.getById(argument);
+      // Saved documents are view-only here. Share and print use native sheets;
+      // swipe-to-save belongs to the composer Review flow.
+      isReadOnly.value = true;
     }
     business.value = await _business.getProfile();
     validationError.value = _requiredValidation();

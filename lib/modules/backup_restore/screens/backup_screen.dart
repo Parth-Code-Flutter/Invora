@@ -21,7 +21,7 @@ class BackupScreen extends GetView<BackupController> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: const AppBackButton(),
-      title: const Text('Backup & restore'),
+      title: const AppBarTitle('Backup & restore'),
     ),
     body: ResponsiveContent(
       child: ListView(

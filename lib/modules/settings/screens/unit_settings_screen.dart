@@ -17,7 +17,7 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: const AppBackButton(),
-      title: const Text('Set default unit'),
+      title: const AppBarTitle('Set default unit'),
     ),
     body: ResponsiveContent(
       tabletMaxWidth: 720,

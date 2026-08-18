@@ -80,7 +80,7 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
       leading: _mode == _LockSettingsMode.overview
           ? const AppBackButton()
           : AppBackButton(onPressed: _reset),
-      title: Text(_title),
+      title: AppBarTitle(_title),
     ),
     body: AnimatedSwitcher(
       duration: const Duration(milliseconds: 220),

@@ -44,13 +44,16 @@ class ProductFormScreen extends GetView<ProductFormController> {
         appBar: AppBar(
           leading: const AppBackButton(),
           title: Obx(
-            () => Text(controller.isEditing.value ? 'Edit item' : 'Add item'),
+            () => AppBarTitle(
+              controller.isEditing.value ? 'Edit item' : 'Add item',
+              subtitle: 'Catalog',
+            ),
           ),
           actions: [
-            IconButton(
+            AppBarIconButton(
               tooltip: l10n('Scan barcode'),
               onPressed: () => _scanIntoForm(context, controller),
-              icon: const Icon(Icons.qr_code_scanner_rounded),
+              icon: Icons.qr_code_scanner_rounded,
             ),
           ],
         ),

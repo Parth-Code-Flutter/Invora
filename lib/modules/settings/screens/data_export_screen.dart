@@ -18,7 +18,7 @@ class DataExportScreen extends GetView<DataExportController> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: const AppBackButton(),
-      title: const Text('Export data'),
+      title: const AppBarTitle('Export data'),
     ),
     body: ResponsiveContent(
       tabletMaxWidth: 760,

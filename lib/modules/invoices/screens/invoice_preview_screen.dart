@@ -19,24 +19,25 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
       appBar: AppBar(
         leading: const AppBackButton(),
         title: Obx(
-          () => Text(
+          () => AppBarTitle(
             controller.isReadOnly.value ? 'Generated PDF' : 'Invoice preview',
+            subtitle: 'Document',
           ),
         ),
         actions: [
-          IconButton(
+          AppBarIconButton(
             onPressed: controller.savePdf,
-            icon: const Icon(Icons.download_outlined),
+            icon: Icons.download_outlined,
             tooltip: l10n('Save PDF'),
           ),
-          IconButton(
+          AppBarIconButton(
             onPressed: controller.share,
-            icon: const Icon(Icons.share_outlined),
+            icon: Icons.share_outlined,
             tooltip: l10n('Share PDF'),
           ),
-          IconButton(
+          AppBarIconButton(
             onPressed: controller.print,
-            icon: const Icon(Icons.print_outlined),
+            icon: Icons.print_outlined,
             tooltip: l10n('Print'),
           ),
         ],
