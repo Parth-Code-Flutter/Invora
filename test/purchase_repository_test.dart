@@ -76,6 +76,13 @@ void main() {
       expect(await repository.watchPayments(billId).first, hasLength(1));
       expect(await database.select(database.invoices).get(), isEmpty);
       expect(await database.select(database.customers).get(), isEmpty);
+      expect(
+        (await repository.watchBills().first).single.supplierId,
+        supplier.id,
+      );
+      await repository.deleteSupplier(supplier.id!);
+      expect(await repository.watchSuppliers().first, isEmpty);
+      expect(await repository.watchBills().first, isNotEmpty);
       await database.close();
     },
   );

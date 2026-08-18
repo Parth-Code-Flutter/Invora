@@ -259,6 +259,16 @@ class PurchaseRepository extends BaseRepository {
     database.purchaseBills,
   )..where((t) => t.id.equals(id))).go();
 
+  Future<void> deleteSupplier(int id) =>
+      (database.update(
+        database.suppliers,
+      )..where((t) => t.id.equals(id))).write(
+        SuppliersCompanion(
+          isDeleted: const Value(true),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+
   String _status(int balance, DateTime? dueDate) {
     if (balance <= 0) return 'paid';
     final today = DateTime.now();
@@ -284,6 +294,7 @@ class PurchaseRepository extends BaseRepository {
   PurchaseBillSummary _summary(PurchaseBill b) => PurchaseBillSummary(
     id: b.id,
     billNumber: b.billNumber,
+    supplierId: b.supplierId,
     supplierName: b.supplierName,
     billDate: b.billDate,
     dueDate: b.dueDate,

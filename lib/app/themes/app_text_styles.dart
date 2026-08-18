@@ -14,6 +14,12 @@ abstract final class AppTextStyles {
     fontWeight: FontWeight.w700,
     letterSpacing: -0.35,
   );
+  static const appBarTitle = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.35,
+  );
   static const sectionTitle = TextStyle(
     fontFamily: fontFamily,
     fontSize: 17,

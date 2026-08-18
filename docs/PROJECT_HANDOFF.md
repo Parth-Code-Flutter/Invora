@@ -49,15 +49,19 @@ backups.
   selection before bill fields are shown, then enforce unique bill number,
   valid date order, required line items, positive quantity/rate, bounded GST,
   and payment-within-balance rules.
-  Purchase screens follow the same classic grouped treatment as Sales lists:
-  compact overview metrics (Paid / Payable / Overdue), AppBar search on bills
-  and suppliers, grouped bill/supplier rows, a quieter bill-details identity
-  with Total / Paid / Remaining cards, and a sticky record-payment action.
-  Purchase line-item creation/editing now uses a tall branded sheet instead of
-  a platform alert, shares the saved-unit picker (including custom units), and
-  exposes compact edit/remove actions from each item. Purchase-bill edit/delete
-  and supplier-payment entry use the same modern action-sheet language and
-  validated payment controls as the Sales workspace.
+  The purchase composer now matches Sales create invoice for catalog work:
+  Add item opens Scan barcodes / Choose saved item / Create custom item, saved
+  products keep quantity steppers with confirm-before-remove, and Generate PDF
+  is available from the composer and bill details. Supplier cards show payable
+  status, bill totals, swipe edit/delete, and New bill from a long-press sheet.
+  Purchase screens follow the same classic grouped treatment as Sales:
+  white overview metrics with icon wells (Paid / Payable / Overdue), AppBar
+  search plus All/Unpaid/Overdue/Paid filters on bills, denser supplier and
+  bill rows with status pills, an invoice-style bill composer (supplier card,
+  date strip, catalog/scan/custom items with quantity steppers, sticky
+  Save/Update), PDF preview from composer and details, and bill details with
+  a status gradient hero, payment activity, grouped items, and a sticky
+  Record payment bar. Long footer labels stay short so they are not truncated.
 - Business profile, logo, signature, payment QR, bank, and UPI information
 - Responsive phone/tablet layouts and dark mode
 - Optional four-digit app lock under Settings > Security. PIN setup requires
@@ -100,7 +104,11 @@ backups.
 - Reusable gradient module banners give catalog, customer, invoice, and
   quotation workspaces distinct task-focused identities
 - Shared icon-led filter pills, expressive segmented options, and branded
-  rounded back controls across nested routes
+  AppBar chrome across Sales and Purchases: 18px titles, a hairline under the
+  bar, matching 40px plum-outlined action wells, and `AppBarTitle` captions on
+  document screens (Invoice, Customer, Purchase bill, Supplier). Nested back
+  controls use the same well as PDF, edit, search, and workspace-switch
+  actions.
 - Expandable AppBar search on the Customers, Invoices/Quotations, and
   Products & services lists; search stays out of the content area until
   requested. The expanded field is a compact 46px contained input with an
@@ -192,7 +200,9 @@ backups.
 
 - Create, edit, duplicate, list, search, filter, cancel, and delete.
   Invoice/quotation list search matches one or more partial words across
-  document number, customer, and company.
+  document number, customer, and company. Quotations opened from More is a
+  nested listing: back in the AppBar, no Sales bottom nav, and a create FAB.
+  The Invoices tab keeps the main navigation.
 - Draft, unpaid, partially paid, paid, overdue, sent, accepted, rejected, and
   cancelled lifecycle states where applicable
 - Historical customer and line-item snapshots
@@ -205,16 +215,21 @@ backups.
   chooser. Tax, discount and notes appear after the first line is added.
 - Invoice details reads like an open document: the AppBar shows the invoice
   number, and a compact status-aware hero holds billed-to (tappable), tax
-  mode, item count, issued/due dates, and a due countdown. Payment totals live
-  in Payment activity as Total, Paid, and Remaining cards plus the payment
-  timeline. Line items include a GST/totals footer, and Record payment / Share
-  stay pinned in a sticky footer. PDF, edit, duplicate, reverse, cancel, and
-  quotation actions stay in the AppBar.
+  mode, item count, issued/due dates, and a due countdown. Payment activity
+  (Total, Paid, Remaining, and the payment timeline) sits immediately under
+  that identity card, then line items with a GST/totals footer. Record
+  payment / Share stay pinned in a sticky footer. Share and Share / print open
+  native share or print sheets for a saved invoice; they do not open the
+  composer preview. The AppBar PDF icon opens a read-only generated PDF with
+  share, save, and print. Swipe-to-create/update stays on Review from the
+  invoice composer. Edit, duplicate, reverse, cancel, and quotation actions
+  stay in the AppBar overflow.
 - Line-item edit, duplicate, and remove actions
 - Re-selecting the same saved catalog item increases its existing quantity;
   selected-item cards expose direct minus/plus quantity controls and line
   total; the stepper displays quantity only while unit stays with the rate and
-  changes its decrement action to remove when quantity reaches one
+  changes its decrement action to a delete icon when quantity reaches one.
+  That delete asks for confirmation before the line is removed.
 - Populated invoice items use compact numbered rows with scan-friendly
   name/rate and line-total hierarchy, keeping long 20-item invoices manageable
 - Decimal quantity, rate, unit, HSN/SAC, GST, item/invoice discounts,
@@ -251,9 +266,13 @@ backups.
   invoice. History reuses the invoice list card without repeating the customer
   name. Edit, statement, new invoice, and invoice-details navigation are
   unchanged.
-- Customer Details opens a date-range statement workspace with opening,
-  invoiced, received, and closing metrics; chronological invoice/payment/
-  reversal activity; and offline PDF preview/save/share/print actions.
+- Customer Details opens a date-range statement workspace. The customer name
+  sits in the AppBar with a Statement caption. A compact status-aware hero
+  shows the selected period, then Closing / Invoiced / Received cards (Opening
+  as a quiet caption) sit immediately underneath. Period is one calendar-style
+  row (From → To) that opens a native date-range picker. Activity uses
+  accent-grouped ledger tiles, and Preview statement PDF stays pinned in a
+  sticky footer. Save and print remain in the AppBar overflow.
 - Invoice creation uses a focused composer hierarchy: compact customer/invoice
   header, equal-width metadata controls, count-labelled line items, secondary
   tax/discount disclosure, and a non-duplicated empty-item flow. Phone layouts
@@ -403,8 +422,9 @@ As of 2026-08-15:
 
 ## Known issues / next work
 
-1. Add purchase-specific reporting/export and optional purchase-PDF attachment
-   capture after the core supplier/bill/payment workflow has been field tested.
+1. Add purchase-specific reporting/export after the core supplier/bill/payment
+   workflow has been field tested. Purchase bills now generate, preview, share,
+   save, and print their own PDFs.
 2. Configure secure Android release signing; release still references debug
    signing.
 3. Verify Android AAB and iOS archive release builds.
@@ -429,6 +449,30 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
 
+### 2026-08-18 — Purchase composer uses catalog items and PDF
+
+- New purchase bills can add saved products or services the same way as Sales:
+  scan, choose from the catalog, or enter a custom item. Item cards use the
+  quantity stepper and confirm before removing the last unit. Composer and
+  bill details both offer Generate PDF (preview, share, save, print). Supplier
+  list cards now show payable/paid status, totals, swipe actions, and New bill.
+- Important files: `purchase_screens.dart`, `purchase_bill_pdf_service.dart`,
+  `purchase_bill_pdf_screen.dart`, `purchase_models.dart`, this handoff.
+- Verification: purchase widget/PDF/repository tests, Dart formatting,
+  `flutter analyze`.
+
+### 2026-08-18 — Purchase module UI matches Sales
+
+- Restyled the whole Purchase workspace: home overview uses the same white
+  metric card as invoice lists; bills listing adds Paid/Payable/Overdue plus
+  All/Unpaid/Overdue/Paid filters; supplier rows are denser; the bill composer
+  uses a supplier identity card, date strip, numbered item cards, and a sticky
+  Save/Update bar; bill details uses a status gradient hero and sticky Record
+  payment. Footer actions use short labels so they are not truncated.
+- Important files: `purchase_workspace_screen.dart`, `purchase_screens.dart`,
+  coverage translations, this handoff.
+- Verification: purchase widget tests, Dart formatting, `flutter analyze`.
+
 ### 2026-08-18 — Neutral dialog cards and full button labels
 
 - Dialog cards no longer pick up a light red/orange/teal wash from the icon
@@ -439,6 +483,22 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
   tests, this handoff.
 - Verification: package and app dialog widget tests, Dart formatting,
   `flutter analyze`.
+
+### 2026-08-18 — Statement period is a calendar range row
+
+- Customer statement From/To stacked rows are now one calendar-style range:
+  From → To in a single tap target that opens the native date-range picker.
+- Important files: `customer_statement_screen.dart`,
+  `customer_statement_controller.dart`, this handoff.
+- Verification: Dart formatting and `flutter analyze`.
+
+### 2026-08-18 — Quotations listing hides the main nav
+
+- The Quotations screen from More is a nested list: AppBar back, no Home/
+  Invoices/Customers/More bar, and a create FAB like Products & services.
+  Empty copy says quotations, not invoices. The Invoices tab is unchanged.
+- Important files: `invoice_list_screen.dart`, this handoff.
+- Verification: Dart formatting and `flutter analyze`.
 
 ### 2026-08-18 — Dialog actions match Creovo tones
 
@@ -453,6 +513,73 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 - Verification: package and app dialog widget tests, Dart formatting,
   `flutter analyze`.
 
+### 2026-08-18 — Confirm before removing an invoice line
+
+- The quantity-stepper delete icon on New invoice (and the same control on
+  scan) now asks "Remove item?" before dropping a line, so a mistaken tap
+  does not delete it. Decreasing quantity above 1 is unchanged.
+- Important files: `invoice_create_screen.dart`, `product_scan_screen.dart`,
+  coverage translations, this handoff.
+- Verification: Dart formatting and `flutter analyze`.
+
+### 2026-08-18 — Saved invoices share and print natively
+
+- Share, Share / print, and Print on a generated invoice now use the device
+  share sheet or print dialog. They no longer open the preview with
+  swipe-to-update. Opening PDF from details is read-only; the composer Review
+  flow still uses swipe-to-save for unsaved or in-progress documents.
+- Important files: invoice details controller/screen, invoice preview
+  controller, coverage translations, this handoff.
+- Verification: Dart formatting and `flutter analyze`.
+
+### 2026-08-18 — Fix purchase payment sheet controller dispose
+
+- Recording a supplier payment no longer disposes the amount field while the
+  sheet is still animating closed. The payment sheet now owns its
+  TextEditingController and disposes it with the widget.
+- Important files: `purchase_screens.dart`, this handoff.
+- Verification: Dart formatting and `flutter analyze`.
+
+### 2026-08-18 — Invoice details Share sends the PDF
+
+- The sticky Share action on invoice details now opens the native share sheet
+  for this invoice's PDF. It no longer routes through the preview template
+  picker. The AppBar PDF icon still opens preview, print, and template choice.
+- Important files: `invoice_details_controller.dart`, `invoice_details_screen.dart`,
+  invoice binding, this handoff.
+- Verification: Dart formatting and `flutter analyze`.
+
+### 2026-08-18 — Customer statement classic layout
+
+- Restyled the customer statement to match invoice and bill details: name in
+  the AppBar, compact period hero, Closing/Invoiced/Received pastel cards
+  directly under that identity, grouped From/To rows, accented activity tiles,
+  and a sticky PDF preview. Amounts shrink to fit instead of overlapping.
+- Important files: `customer_statement_screen.dart`, coverage translations,
+  this handoff.
+- Verification: Dart formatting and `flutter analyze`.
+
+### 2026-08-18 — Invoice details shows payment first
+
+- Payment activity (Total, Paid, Remaining, and the ledger) now sits
+  directly under the billed-to identity card so outstanding money is visible
+  before line items. Quotations still omit this block.
+- Important files: `invoice_details_screen.dart`, this handoff.
+- Verification: layout reorder only; no data or route changes.
+
+### 2026-08-18 — Unified classic AppBar chrome
+
+- Replaced the heavy 22px AppBar title and unmatched naked action icons with
+  shared chrome used on both Sales and Purchases: 18px title, hairline, and
+  40px plum-outlined wells for back, search, scan, PDF, edit, and workspace
+  switch. Document screens add a caption (Invoice, Customer, Purchase bill,
+  Supplier) so the title row is easier to scan.
+- Important files: app theme, `app_back_button.dart` (`AppBarIconButton`,
+  `AppBarTitle`), search AppBar, invoice/customer/product/purchase details,
+  dashboard and purchase home, this handoff.
+- Verification: Dart formatting, `flutter analyze`, design-system and
+  purchase widget tests.
+
 ### 2026-08-17 — Purchase workspace classic UI pass
 
 - Restyled every purchase screen to match Sales: quieter home overview with
@@ -462,8 +589,9 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
   Total/Paid/Remaining cards, grouped items/payments, and a sticky payment
   action. Workspace switch on purchase screens is an icon, like Sales Home.
 - Bill details now load once and refresh after edit/payment instead of
-  recreating a FutureBuilder on every rebuild. Form and payment controllers
-  are disposed.
+  recreating a FutureBuilder on every rebuild. Form fields dispose with their
+  screens. The supplier-payment sheet owns its amount controller so the field
+  is not disposed during the close animation.
 - Important files: `purchase_workspace_screen.dart`, `purchase_screens.dart`,
   workspace widget test, this handoff.
 - Verification: Dart formatting, `flutter analyze`, and purchase widget tests.

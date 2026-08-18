@@ -45,14 +45,30 @@ abstract final class AppTheme {
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: AppTextStyles.pageTitle.copyWith(
+        titleTextStyle: AppTextStyles.appBarTitle.copyWith(
           color: colorScheme.onSurface,
         ),
         toolbarHeight: 64,
-        leadingWidth: 52,
+        leadingWidth: 56,
+        titleSpacing: 8,
+        actionsPadding: const EdgeInsets.only(right: 8),
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
+        shadowColor: Colors.transparent,
+        iconTheme: IconThemeData(
+          color: isDark ? AppColors.darkTextPrimary : AppColors.secondary,
+          size: 20,
+        ),
+        actionsIconTheme: IconThemeData(
+          color: isDark ? AppColors.darkTextPrimary : AppColors.secondary,
+          size: 20,
+        ),
+        shape: Border(
+          bottom: BorderSide(
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+            width: 0.5,
+          ),
+        ),
       ),
       cardTheme: CardThemeData(
         color: colorScheme.surface,

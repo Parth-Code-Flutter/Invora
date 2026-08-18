@@ -128,6 +128,16 @@ const Map<String, String> appHindiCoverageTranslations = {
   'View customer statement': 'ग्राहक विवरण-पत्र देखें',
   'Collect outstanding': 'बकाया वसूलें',
   'Preview statement PDF': 'विवरण-पत्र PDF पूर्वावलोकन',
+  'Account summary': 'खाता सारांश',
+  'Opening': 'प्रारंभिक',
+  'Closing': 'अंतिम',
+  'Period': 'अवधि',
+  'Select period': 'अवधि चुनें',
+  'Statement': 'विवरण-पत्र',
+  'Statement actions': 'विवरण-पत्र क्रियाएँ',
+  'Keep a copy of this statement on the device.':
+      'इस विवरण-पत्र की प्रति इस डिवाइस पर सहेजें।',
+  'Send this statement to a printer.': 'इस विवरण-पत्र को प्रिंटर पर भेजें।',
   'No account activity in this date range.':
       'इस दिनांक सीमा में कोई खाता गतिविधि नहीं है।',
   'Reports & insights': 'रिपोर्ट और जानकारी',
@@ -220,6 +230,12 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Scan items': 'आइटम स्कैन करें',
   'Scanned items': 'स्कैन किए गए आइटम',
   'Remove item': 'आइटम हटाएँ',
+  'Remove item?': 'आइटम हटाएँ?',
+  'Keep item': 'आइटम रखें',
+  'This item will be removed from this invoice.':
+      'यह आइटम इस चालान से हटा दिया जाएगा।',
+  'This item will be removed from this quotation.':
+      'यह आइटम इस कोटेशन से हटा दिया जाएगा।',
   'Reverse payment': 'भुगतान वापस करें',
   'Reverse payment?': 'भुगतान वापस करें?',
   'Open receipt': 'रसीद खोलें',
@@ -300,6 +316,9 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Appearance and preferences': 'दिखावट और प्राथमिकताएँ',
   'Saved items, pricing, tax and units': 'सहेजे आइटम, कीमत, कर और इकाइयाँ',
   'Create and manage client quotations': 'ग्राहक कोटेशन बनाएँ और प्रबंधित करें',
+  'No quotations yet': 'अभी कोई कोटेशन नहीं',
+  'No quotations found': 'कोई कोटेशन नहीं मिला',
+  'Create quotation': 'कोटेशन बनाएँ',
   'Review sales, receipts and outstanding totals':
       'बिक्री, रसीद और बकाया कुल देखें',
   'Export or restore your offline records':
@@ -452,6 +471,11 @@ const Map<String, String> appHindiCoverageTranslations = {
       'इकाइयाँ प्रबंधित करें और नई आइटम के लिए डिफ़ॉल्ट चुनें',
   'Change price for this invoice': 'इस चालान की कीमत बदलें',
   'Share / print': 'साझा करें / प्रिंट करें',
+  'Send this invoice from the device share sheet.':
+      'इस चालान को डिवाइस शेयर शीट से भेजें।',
+  'Send this invoice to a printer.': 'इस चालान को प्रिंटर पर भेजें।',
+  'Unable to print': 'प्रिंट नहीं हो सका',
+  'The PDF could not be printed.': 'PDF प्रिंट नहीं हो सका।',
   'Back': 'वापस',
   'Keep scanning': 'स्कैन जारी रखें',
   'Keep typing': 'टाइप करना जारी रखें',
@@ -664,6 +688,50 @@ const Map<String, String> appHindiCoverageTranslations = {
   'This supplier bill number already exists.':
       'यह सप्लायर बिल नंबर पहले से मौजूद है।',
   'Delete purchase bill?': 'खरीद बिल हटाएँ?',
+  'Choose a supplier': 'सप्लायर चुनें',
+  'Required for this purchase bill': 'इस खरीद बिल के लिए आवश्यक',
+  'Save bill': 'बिल सहेजें',
+  'Update bill': 'बिल अपडेट करें',
+  'PURCHASE TOTAL': 'कुल खरीद',
+  'Add date': 'तारीख जोड़ें',
+  'Try a different bill number, supplier or status.':
+      'कोई दूसरा बिल नंबर, सप्लायर या स्थिति आज़माएँ।',
+  'Name, quantity, unit and supplier price.':
+      'नाम, मात्रा, इकाई और सप्लायर कीमत।',
+  'Create a supplier, then continue this bill.':
+      'पहले सप्लायर बनाएँ, फिर इस बिल को जारी रखें।',
+  'Create supplier': 'सप्लायर बनाएँ',
+  'Select supplier': 'सप्लायर चुनें',
+  'Choose how you want to add this purchase line.':
+      'यह खरीद पंक्ति कैसे जोड़नी है, चुनें।',
+  'Enter a one-time item for this purchase bill':
+      'इस खरीद बिल के लिए एक बार का आइटम दर्ज करें',
+  'This item will be removed from this purchase bill.':
+      'यह आइटम इस खरीद बिल से हटा दिया जाएगा।',
+  'On this bill': 'इस बिल पर',
+  'Delete supplier?': 'सप्लायर हटाएँ?',
+  'Delete supplier': 'सप्लायर हटाएँ',
+  'New bill': 'नया बिल',
+  'Start a purchase bill for this supplier':
+      'इस सप्लायर के लिए खरीद बिल शुरू करें',
+  'No bills': 'कोई बिल नहीं',
+  'Ready for a new bill': 'नए बिल के लिए तैयार',
+  'Update contact and GST details': 'संपर्क और GST विवरण अपडेट करें',
+  'Bills already recorded stay unchanged': 'पहले से दर्ज बिल अपरिवर्तित रहेंगे',
+  'Business details needed': 'व्यवसाय विवरण आवश्यक है',
+  'Complete business setup before generating a PDF.':
+      'PDF बनाने से पहले व्यवसाय सेटअप पूरा करें।',
+  'Generate PDF': 'PDF बनाएँ',
+  'Preview, share, save or print this purchase bill.':
+      'इस खरीद बिल का पूर्वावलोकन, साझा, सहेजना या प्रिंट करें।',
+  'Purchase bill PDF': 'खरीद बिल PDF',
+  'Could not save PDF': 'PDF सहेजा नहीं जा सका',
+  'Could not share PDF': 'PDF साझा नहीं हो सका',
+  'Could not print PDF': 'PDF प्रिंट नहीं हो सका',
+  'bill payable': 'बिल देय',
+  'bills payable': 'बिल देय',
+  'bill settled': 'बिल चुकाया',
+  'bills settled': 'बिल चुकाए',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -791,6 +859,16 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'View customer statement': 'ગ્રાહક સ્ટેટમેન્ટ જુઓ',
   'Collect outstanding': 'બાકી વસૂલો',
   'Preview statement PDF': 'સ્ટેટમેન્ટ PDF પૂર્વદર્શન',
+  'Account summary': 'ખાતાનો સારાંશ',
+  'Opening': 'શરૂઆત',
+  'Closing': 'અંત',
+  'Period': 'સમયગાળો',
+  'Select period': 'સમયગાળો પસંદ કરો',
+  'Statement': 'સ્ટેટમેન્ટ',
+  'Statement actions': 'સ્ટેટમેન્ટ ક્રિયાઓ',
+  'Keep a copy of this statement on the device.':
+      'આ સ્ટેટમેન્ટની કૉપિ આ ઉપકરણ પર સાચવો.',
+  'Send this statement to a printer.': 'આ સ્ટેટમેન્ટ પ્રિન્ટર પર મોકલો.',
   'No account activity in this date range.':
       'આ તારીખ શ્રેણીમાં કોઈ ખાતા પ્રવૃત્તિ નથી.',
   'Reports & insights': 'રિપોર્ટ અને માહિતી',
@@ -883,6 +961,12 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Scan items': 'આઇટમ સ્કેન કરો',
   'Scanned items': 'સ્કેન કરેલી આઇટમ',
   'Remove item': 'આઇટમ દૂર કરો',
+  'Remove item?': 'આઇટમ દૂર કરવી?',
+  'Keep item': 'આઇટમ રાખો',
+  'This item will be removed from this invoice.':
+      'આ આઇટમ આ ઇન્વૉઇસમાંથી દૂર થશે.',
+  'This item will be removed from this quotation.':
+      'આ આઇટમ આ કોટેશનમાંથી દૂર થશે.',
   'Reverse payment': 'ચુકવણી રિવર્સ કરો',
   'Reverse payment?': 'ચુકવણી રિવર્સ કરવી?',
   'Open receipt': 'રસીદ ખોલો',
@@ -963,6 +1047,9 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Appearance and preferences': 'દેખાવ અને પસંદગીઓ',
   'Saved items, pricing, tax and units': 'સાચવેલી આઇટમ, કિંમત, કર અને એકમો',
   'Create and manage client quotations': 'ગ્રાહક ક્વોટેશન બનાવો અને મેનેજ કરો',
+  'No quotations yet': 'હજુ કોઈ ક્વોટેશન નથી',
+  'No quotations found': 'કોઈ ક્વોટેશન મળ્યું નથી',
+  'Create quotation': 'ક્વોટેશન બનાવો',
   'Review sales, receipts and outstanding totals':
       'વેચાણ, રસીદ અને બાકી કુલ જુઓ',
   'Export or restore your offline records':
@@ -1115,6 +1202,11 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'એકમો મેનેજ કરો અને નવી આઇટમ માટે ડિફૉલ્ટ પસંદ કરો',
   'Change price for this invoice': 'આ ઇન્વૉઇસની કિંમત બદલો',
   'Share / print': 'શેર કરો / પ્રિન્ટ કરો',
+  'Send this invoice from the device share sheet.':
+      'આ ઇન્વૉઇસ ઉપકરણ શેર શીટથી મોકલો.',
+  'Send this invoice to a printer.': 'આ ઇન્વૉઇસ પ્રિન્ટર પર મોકલો.',
+  'Unable to print': 'પ્રિન્ટ ન થઈ શક્યું',
+  'The PDF could not be printed.': 'PDF પ્રિન્ટ ન થઈ શક્યું.',
   'Back': 'પાછા',
   'Keep scanning': 'સ્કેન ચાલુ રાખો',
   'Keep typing': 'ટાઇપ કરવાનું ચાલુ રાખો',
@@ -1325,4 +1417,47 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'This supplier bill number already exists.':
       'આ સપ્લાયર બિલ નંબર પહેલેથી હાજર છે.',
   'Delete purchase bill?': 'ખરીદ બિલ કાઢી નાખવું?',
+  'Choose a supplier': 'સપ્લાયર પસંદ કરો',
+  'Required for this purchase bill': 'આ ખરીદ બિલ માટે જરૂરી',
+  'Save bill': 'બિલ સાચવો',
+  'Update bill': 'બિલ અપડેટ કરો',
+  'PURCHASE TOTAL': 'કુલ ખરીદી',
+  'Add date': 'તારીખ ઉમેરો',
+  'Try a different bill number, supplier or status.':
+      'અલગ બિલ નંબર, સપ્લાયર અથવા સ્થિતિ અજમાવો.',
+  'Name, quantity, unit and supplier price.':
+      'નામ, જથ્થો, એકમ અને સપ્લાયર કિંમત.',
+  'Create a supplier, then continue this bill.':
+      'પહેલા સપ્લાયર બનાવો, પછી આ બિલ ચાલુ રાખો.',
+  'Create supplier': 'સપ્લાયર બનાવો',
+  'Select supplier': 'સપ્લાયર પસંદ કરો',
+  'Choose how you want to add this purchase line.':
+      'આ ખરીદ લાઇન કેવી રીતે ઉમેરવી તે પસંદ કરો.',
+  'Enter a one-time item for this purchase bill':
+      'આ ખરીદ બિલ માટે એકવારની આઇટમ દાખલ કરો',
+  'This item will be removed from this purchase bill.':
+      'આ આઇટમ આ ખરીદ બિલમાંથી દૂર થશે.',
+  'On this bill': 'આ બિલ પર',
+  'Delete supplier?': 'સપ્લાયર કાઢી નાખવો?',
+  'Delete supplier': 'સપ્લાયર કાઢી નાખો',
+  'New bill': 'નવું બિલ',
+  'Start a purchase bill for this supplier': 'આ સપ્લાયર માટે ખરીદ બિલ શરૂ કરો',
+  'No bills': 'કોઈ બિલ નથી',
+  'Ready for a new bill': 'નવા બિલ માટે તૈયાર',
+  'Update contact and GST details': 'સંપર્ક અને GST વિગતો અપડેટ કરો',
+  'Bills already recorded stay unchanged': 'પહેલેથી નોંધાયેલા બિલ યથાવત રહેશે',
+  'Business details needed': 'વ્યવસાય વિગતો જરૂરી છે',
+  'Complete business setup before generating a PDF.':
+      'PDF બનાવતા પહેલાં વ્યવસાય સેટઅપ પૂર્ણ કરો.',
+  'Generate PDF': 'PDF બનાવો',
+  'Preview, share, save or print this purchase bill.':
+      'આ ખરીદ બિલનું પૂર્વાવલોકન, શેર, સાચવો અથવા પ્રિન્ટ કરો.',
+  'Purchase bill PDF': 'ખરીદ બિલ PDF',
+  'Could not save PDF': 'PDF સાચવી શકાયું નહીં',
+  'Could not share PDF': 'PDF શેર થઈ શક્યું નહીં',
+  'Could not print PDF': 'PDF પ્રિન્ટ થઈ શક્યું નહીં',
+  'bill payable': 'બિલ ચૂકવવાનું',
+  'bills payable': 'બિલ ચૂકવવાનાં',
+  'bill settled': 'બિલ ચૂકવાયું',
+  'bills settled': 'બિલ ચૂકવાયાં',
 };

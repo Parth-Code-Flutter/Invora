@@ -19,9 +19,13 @@ import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
 
 class InvoiceItemPickerArgs {
-  const InvoiceItemPickerArgs({this.alreadyAddedIds = const {}});
+  const InvoiceItemPickerArgs({
+    this.alreadyAddedIds = const {},
+    this.alreadyAddedLabel = 'On invoice',
+  });
 
   final Set<int> alreadyAddedIds;
+  final String alreadyAddedLabel;
 }
 
 class InvoiceItemPickerResult {
@@ -49,6 +53,7 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
   final Set<int> _selectedIds = {};
   final Map<int, ProductServiceModel> _knownItems = {};
   late final Set<int> _alreadyAdded;
+  late final String _alreadyAddedLabel;
   late Stream<List<ProductServiceModel>> _itemsStream;
   Timer? _searchDebounce;
   ItemType? _filter;
@@ -61,6 +66,9 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
     _alreadyAdded = args is InvoiceItemPickerArgs
         ? Set<int>.from(args.alreadyAddedIds)
         : <int>{};
+    _alreadyAddedLabel = args is InvoiceItemPickerArgs
+        ? args.alreadyAddedLabel
+        : 'On invoice';
     _selectedIds.addAll(_alreadyAdded);
     _itemsStream = _repository.watchItems();
     _loadCurrency();
@@ -84,19 +92,18 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('Add saved items'),
+        title: const AppBarTitle('Add saved items'),
         actions: [
-          IconButton(
+          AppBarIconButton(
             tooltip: l10n('Scan barcodes'),
             onPressed: _scanItems,
-            icon: const Icon(Icons.qr_code_scanner_rounded),
+            icon: Icons.qr_code_scanner_rounded,
           ),
-          IconButton(
+          AppBarIconButton(
             tooltip: l10n('Create product or service'),
             onPressed: _createItem,
-            icon: const Icon(Icons.add_rounded),
+            icon: Icons.add_rounded,
           ),
-          const SizedBox(width: 8),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -378,7 +385,7 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '${item.type.label} · ${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: _currency)} / ${item.unit}${item.taxRateBasisPoints > 0 ? ' · GST ${item.taxRateBasisPoints / 100}%' : ''}${alreadyAdded ? (selected ? ' · On invoice' : ' · Will remove') : ''}',
+                          '${item.type.label} · ${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: _currency)} / ${item.unit}${item.taxRateBasisPoints > 0 ? ' · GST ${item.taxRateBasisPoints / 100}%' : ''}${alreadyAdded ? (selected ? ' · $_alreadyAddedLabel' : ' · Will remove') : ''}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.small.copyWith(

@@ -155,16 +155,16 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
       ),
       actions: [
         if (!_searching)
-          IconButton(
+          AppBarIconButton(
             tooltip: l10n('Search'),
             onPressed: _openSearch,
-            icon: const Icon(Icons.search_rounded),
+            icon: Icons.search_rounded,
           ),
         if (!_searching && widget.onScan != null)
-          IconButton(
+          AppBarIconButton(
             tooltip: l10n(widget.scanTooltip),
             onPressed: _handleScan,
-            icon: const Icon(Icons.qr_code_scanner_rounded),
+            icon: Icons.qr_code_scanner_rounded,
           ),
         ...widget.actions,
       ],

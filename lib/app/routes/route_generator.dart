@@ -7,6 +7,7 @@ import '../../modules/onboarding/screens/onboarding_screen.dart';
 import '../../modules/onboarding/screens/workspace_setup_screen.dart';
 import '../../modules/purchases/screens/purchase_workspace_screen.dart';
 import '../../modules/purchases/screens/purchase_screens.dart';
+import '../../modules/purchases/screens/purchase_bill_pdf_screen.dart';
 import '../../modules/business_setup/bindings/business_setup_binding.dart';
 import '../../modules/business_setup/screens/business_setup_screen.dart';
 import '../../modules/dashboard/bindings/dashboard_binding.dart';
@@ -90,6 +91,7 @@ abstract final class AppRouter {
       name: AppRoutes.purchaseBillDetails,
       page: PurchaseBillDetailsScreen.new,
     ),
+    GetPage(name: AppRoutes.purchaseBillPdf, page: PurchaseBillPdfScreen.new),
     GetPage(
       name: AppRoutes.suppliers,
       page: SupplierListScreen.new,

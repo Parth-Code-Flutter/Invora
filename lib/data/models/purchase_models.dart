@@ -1,3 +1,5 @@
+import 'product_service_model.dart';
+
 class SupplierModel {
   const SupplierModel({
     this.id,
@@ -21,19 +23,52 @@ class SupplierModel {
 class PurchaseItemModel {
   const PurchaseItemModel({
     this.id,
+    this.productId,
     required this.name,
     required this.quantity,
     required this.unit,
     required this.rateMinor,
     this.taxRate = 0,
   });
+
+  factory PurchaseItemModel.fromCatalog(
+    ProductServiceModel product, {
+    double quantity = 1,
+  }) => PurchaseItemModel(
+    productId: product.id,
+    name: product.name,
+    quantity: quantity,
+    unit: product.unit,
+    rateMinor: product.salePriceMinor,
+    taxRate: product.taxRateBasisPoints / 100,
+  );
+
   final int? id;
+  final int? productId;
   final String name, unit;
   final double quantity, taxRate;
   final int rateMinor;
   int get subtotalMinor => (quantity * rateMinor).round();
   int get taxMinor => (subtotalMinor * taxRate / 100).round();
   int get totalMinor => subtotalMinor + taxMinor;
+
+  PurchaseItemModel copyWith({
+    int? id,
+    int? productId,
+    String? name,
+    double? quantity,
+    String? unit,
+    int? rateMinor,
+    double? taxRate,
+  }) => PurchaseItemModel(
+    id: id ?? this.id,
+    productId: productId ?? this.productId,
+    name: name ?? this.name,
+    quantity: quantity ?? this.quantity,
+    unit: unit ?? this.unit,
+    rateMinor: rateMinor ?? this.rateMinor,
+    taxRate: taxRate ?? this.taxRate,
+  );
 }
 
 class PurchaseBillModel {
@@ -68,6 +103,7 @@ class PurchaseBillSummary {
   const PurchaseBillSummary({
     required this.id,
     required this.billNumber,
+    required this.supplierId,
     required this.supplierName,
     required this.billDate,
     this.dueDate,
@@ -76,7 +112,7 @@ class PurchaseBillSummary {
     required this.balanceMinor,
     required this.status,
   });
-  final int id, totalMinor, paidMinor, balanceMinor;
+  final int id, supplierId, totalMinor, paidMinor, balanceMinor;
   final String billNumber, supplierName, status;
   final DateTime billDate;
   final DateTime? dueDate;

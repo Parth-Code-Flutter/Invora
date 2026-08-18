@@ -39,6 +39,15 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Supplier bill number *'), findsOneWidget);
       expect(find.text('Purchased items'), findsOneWidget);
+      expect(find.text('Choose a supplier'), findsNothing);
+      expect(find.text('Add item'), findsWidgets);
+      expect(find.text('NO ITEMS YET'), findsOneWidget);
+
+      await tester.tap(find.text('Add item').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Choose saved item'), findsOneWidget);
+      expect(find.text('Scan barcodes'), findsOneWidget);
+      expect(find.text('Create custom item'), findsOneWidget);
 
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump(const Duration(milliseconds: 1));

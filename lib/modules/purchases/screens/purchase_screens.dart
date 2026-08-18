@@ -8,6 +8,8 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
+import '../../../app/utils/quantity_utils.dart';
+import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/validation_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
@@ -17,15 +19,23 @@ import '../../../app/widgets/app_bottom_sheet.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_empty_state.dart';
+import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
+import '../../../app/widgets/app_list_motion.dart';
 import '../../../app/widgets/app_purchase_navigation.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_unit_field.dart';
 import '../../../app/widgets/app_workspace_switch.dart';
 import '../../../app/widgets/responsive_content.dart';
+import '../../../data/models/product_service_model.dart';
 import '../../../data/models/purchase_models.dart';
+import '../../../data/models/scanned_invoice_line.dart';
+import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/purchase_repository.dart';
 import '../../../data/services/unit_service.dart';
+import '../../invoices/screens/invoice_item_picker_screen.dart';
+import '../../invoices/scan/product_scan_screen.dart';
+import 'purchase_bill_pdf_screen.dart';
 
 String _money(int minor) => CurrencyUtils.formatMinor(minor, symbol: '₹');
 String _date(DateTime value) =>
@@ -33,14 +43,45 @@ String _date(DateTime value) =>
 String _qty(double value) => value == value.roundToDouble()
     ? value.toInt().toString()
     : value.toStringAsFixed(2);
+String _shortDate(DateTime value) =>
+    '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}';
+String _compactDate(DateTime value) {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return '${value.day} ${months[value.month - 1]}';
+}
+
+Color _billStatusColor(String status) => switch (status) {
+  'paid' => AppColors.success,
+  'overdue' => AppColors.error,
+  _ => AppColors.warning,
+};
+
+String _billStatusLabel(String status) => switch (status) {
+  'paid' => 'Paid',
+  'overdue' => 'Overdue',
+  _ => 'Unpaid',
+};
 
 class WorkspaceSwitchButton extends StatelessWidget {
   const WorkspaceSwitchButton({super.key});
   @override
-  Widget build(BuildContext context) => IconButton(
+  Widget build(BuildContext context) => AppBarIconButton(
     tooltip: l10n('Switch workspace'),
     onPressed: () => showWorkspaceSwitcher(context),
-    icon: const Icon(Icons.swap_horiz_rounded),
+    icon: Icons.swap_horiz_rounded,
   );
 }
 
@@ -52,52 +93,127 @@ class PurchaseBillListScreen extends StatefulWidget {
 
 class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
   String query = '';
+  String filter = 'all';
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppSearchAppBar(
-      title: 'Purchase bills',
-      hint: 'Bill number or supplier',
-      onChanged: (value) => setState(() => query = value),
-      actions: const [WorkspaceSwitchButton()],
-    ),
-    bottomNavigationBar: const AppPurchaseNavigation(
-      current: PurchaseDestination.bills,
-    ),
-    body: ResponsiveContent(
-      tabletMaxWidth: 760,
-      child: StreamBuilder<List<PurchaseBillSummary>>(
-        stream: Get.find<PurchaseRepository>().watchBills(query: query),
-        builder: (context, snapshot) {
-          final bills = snapshot.data;
-          if (bills == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (bills.isEmpty) {
-            return AppEmptyState(
-              icon: Icons.receipt_long_outlined,
-              title: query.isEmpty
-                  ? 'No purchase bills yet'
-                  : 'No matching bills',
-              message: query.isEmpty
-                  ? 'Record supplier bills and track what you need to pay.'
-                  : 'Try a different bill number or supplier name.',
-              actionLabel: query.isEmpty ? 'Create purchase bill' : null,
-              onAction: query.isEmpty
-                  ? () => Get.toNamed<void>(AppRoutes.purchaseBillCreate)
-                  : null,
-            );
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.only(bottom: 20),
-            itemCount: bills.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
-            itemBuilder: (_, i) => PurchaseBillRow(bill: bills[i]),
+  Widget build(BuildContext context) {
+    final repo = Get.find<PurchaseRepository>();
+    return Scaffold(
+      appBar: AppSearchAppBar(
+        title: 'Purchase bills',
+        hint: 'Bill number or supplier',
+        onChanged: (value) => setState(() => query = value),
+        actions: const [WorkspaceSwitchButton()],
+      ),
+      bottomNavigationBar: const AppPurchaseNavigation(
+        current: PurchaseDestination.bills,
+      ),
+      body: StreamBuilder<PurchaseDashboardSummary>(
+        stream: repo.watchDashboard(),
+        builder: (context, dashboard) {
+          return StreamBuilder<List<PurchaseBillSummary>>(
+            stream: repo.watchBills(query: query),
+            builder: (context, snapshot) {
+              final bills = snapshot.data;
+              if (bills == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final visible = filter == 'all'
+                  ? bills
+                  : bills.where((bill) => bill.status == filter).toList();
+              final searching = query.isNotEmpty || filter != 'all';
+              return Column(
+                children: [
+                  if (dashboard.data != null)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        ResponsiveUtils.horizontalPadding(context),
+                        10,
+                        ResponsiveUtils.horizontalPadding(context),
+                        0,
+                      ),
+                      child: PurchaseOverviewCard(
+                        data: dashboard.data!,
+                        compact: true,
+                      ),
+                    ),
+                  SizedBox(
+                    height: 52,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.fromLTRB(
+                        ResponsiveUtils.horizontalPadding(context),
+                        10,
+                        ResponsiveUtils.horizontalPadding(context),
+                        4,
+                      ),
+                      children: [
+                        for (final option in const [
+                          ('all', 'All'),
+                          ('unpaid', 'Unpaid'),
+                          ('overdue', 'Overdue'),
+                          ('paid', 'Paid'),
+                        ])
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: AppFilterChip(
+                              label: option.$2,
+                              selected: filter == option.$1,
+                              count: option.$1 == 'all'
+                                  ? bills.length
+                                  : bills
+                                        .where(
+                                          (bill) => bill.status == option.$1,
+                                        )
+                                        .length,
+                              onSelected: (_) =>
+                                  setState(() => filter = option.$1),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: visible.isEmpty
+                        ? AppEmptyState(
+                            icon: Icons.receipt_long_outlined,
+                            title: searching
+                                ? 'No matching bills'
+                                : 'No purchase bills yet',
+                            message: searching
+                                ? 'Try a different bill number, supplier or status.'
+                                : 'Record supplier bills and track what you need to pay.',
+                            actionLabel: searching
+                                ? null
+                                : 'Create purchase bill',
+                            onAction: searching
+                                ? null
+                                : () => Get.toNamed<void>(
+                                    AppRoutes.purchaseBillCreate,
+                                  ),
+                          )
+                        : ListView.separated(
+                            padding: EdgeInsets.fromLTRB(
+                              ResponsiveUtils.horizontalPadding(context),
+                              4,
+                              ResponsiveUtils.horizontalPadding(context),
+                              90,
+                            ),
+                            itemCount: visible.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(height: 8),
+                            itemBuilder: (_, i) =>
+                                PurchaseBillRow(bill: visible[i], index: i),
+                          ),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),
-    ),
-  );
+    );
+  }
 }
 
 class SupplierListScreen extends StatefulWidget {
@@ -120,95 +236,92 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
     bottomNavigationBar: const AppPurchaseNavigation(
       current: PurchaseDestination.suppliers,
     ),
-    body: ResponsiveContent(
-      tabletMaxWidth: 760,
-      child: StreamBuilder<List<SupplierModel>>(
-        stream: Get.find<PurchaseRepository>().watchSuppliers(query: query),
-        builder: (context, snapshot) {
-          final suppliers = snapshot.data;
-          if (suppliers == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (suppliers.isEmpty) {
-            return AppEmptyState(
-              icon: Icons.storefront_outlined,
-              title: query.isEmpty
-                  ? 'No suppliers yet'
-                  : 'No matching suppliers',
-              message: query.isEmpty
-                  ? 'Keep vendors separate from your sales customers.'
-                  : 'Try a different name, mobile or GSTIN.',
-              actionLabel: query.isEmpty ? 'Add supplier' : null,
-              onAction: query.isEmpty
-                  ? () => Get.toNamed<void>(AppRoutes.supplierAdd)
-                  : null,
-            );
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.only(bottom: 20),
-            itemCount: suppliers.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
-            itemBuilder: (_, index) {
-              final supplier = suppliers[index];
-              final caption = (supplier.companyName ?? '').trim().isNotEmpty
-                  ? supplier.companyName!
-                  : (supplier.mobile ?? supplier.gstin ?? 'Supplier');
-              return AppGroupedTile(
-                onTap: () => Get.toNamed<void>(
-                  AppRoutes.supplierAdd,
-                  arguments: supplier,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 38,
-                      height: 38,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryLight,
-                        borderRadius: BorderRadius.circular(11),
-                      ),
-                      child: Text(
-                        supplier.name.substring(0, 1).toUpperCase(),
-                        style: AppTextStyles.listName.copyWith(
-                          color: AppColors.secondary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            supplier.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.listName,
-                          ),
-                          Text(
-                            caption,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      Icons.chevron_right_rounded,
-                      color: AppColors.textTertiary,
-                    ),
-                  ],
-                ),
+    body: StreamBuilder<List<PurchaseBillSummary>>(
+      stream: Get.find<PurchaseRepository>().watchBills(),
+      builder: (context, billsSnapshot) {
+        return StreamBuilder<List<SupplierModel>>(
+          stream: Get.find<PurchaseRepository>().watchSuppliers(query: query),
+          builder: (context, snapshot) {
+            final suppliers = snapshot.data;
+            if (suppliers == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (suppliers.isEmpty) {
+              return AppEmptyState(
+                icon: Icons.storefront_outlined,
+                title: query.isEmpty
+                    ? 'No suppliers yet'
+                    : 'No matching suppliers',
+                message: query.isEmpty
+                    ? 'Keep vendors separate from your sales customers.'
+                    : 'Try a different name, mobile or GSTIN.',
+                actionLabel: query.isEmpty ? 'Add supplier' : null,
+                onAction: query.isEmpty
+                    ? () => Get.toNamed<void>(AppRoutes.supplierAdd)
+                    : null,
               );
-            },
-          );
-        },
-      ),
+            }
+            final bills = billsSnapshot.data ?? const <PurchaseBillSummary>[];
+            return ListView.separated(
+              padding: EdgeInsets.fromLTRB(
+                ResponsiveUtils.horizontalPadding(context),
+                12,
+                ResponsiveUtils.horizontalPadding(context),
+                90,
+              ),
+              itemCount: suppliers.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
+              itemBuilder: (_, index) {
+                final supplier = suppliers[index];
+                final own = bills
+                    .where((bill) => bill.supplierId == supplier.id)
+                    .toList(growable: false);
+                return AppListEntrance(
+                  index: index,
+                  child: SupplierSummaryCard(
+                    supplier: supplier,
+                    billCount: own.length,
+                    billedMinor: own.fold(
+                      0,
+                      (sum, bill) => sum + bill.totalMinor,
+                    ),
+                    payableMinor: own.fold(
+                      0,
+                      (sum, bill) => sum + bill.balanceMinor,
+                    ),
+                    onNewBill: () => Get.toNamed<void>(
+                      AppRoutes.purchaseBillCreate,
+                      arguments: supplier,
+                    ),
+                    onEdit: () => Get.toNamed<void>(
+                      AppRoutes.supplierAdd,
+                      arguments: supplier,
+                    ),
+                    onConfirmDelete: () =>
+                        _confirmDeleteSupplier(context, supplier),
+                    onDelete: () => Get.find<PurchaseRepository>()
+                        .deleteSupplier(supplier.id!),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
     ),
+  );
+
+  Future<bool> _confirmDeleteSupplier(
+    BuildContext context,
+    SupplierModel supplier,
+  ) => showAppConfirmDialog(
+    context: context,
+    destructive: true,
+    icon: Icons.storefront_outlined,
+    title: 'Delete supplier?',
+    message:
+        '${supplier.name} will be hidden from supplier lists. Historical purchase bills will remain unchanged.',
+    confirmLabel: 'Delete',
   );
 }
 
@@ -252,13 +365,32 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       leading: const AppBackButton(),
-      title: Text(existing == null ? 'Add supplier' : 'Edit supplier'),
+      title: AppBarTitle(
+        existing == null ? 'New supplier' : existing!.name,
+        subtitle: 'Supplier',
+      ),
+    ),
+    bottomNavigationBar: SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          border: const Border(top: BorderSide(color: AppColors.border)),
+        ),
+        child: AppButton(
+          label: existing == null ? 'Save supplier' : 'Update supplier',
+          icon: Icons.check_rounded,
+          onPressed: _save,
+        ),
+      ),
     ),
     body: ResponsiveContent(
       tabletMaxWidth: 660,
       child: Form(
         key: key,
         child: ListView(
+          padding: const EdgeInsets.only(bottom: 12),
           children: [
             const _Intro(
               icon: Icons.storefront_outlined,
@@ -266,64 +398,69 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
               subtitle: 'Used only for purchase bills and payables.',
             ),
             const SizedBox(height: 16),
-            _field(
-              name,
-              'Supplier name *',
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? 'Supplier name is required'
-                  : null,
-            ),
-            _field(company, 'Business / company name'),
-            _field(
-              mobile,
-              'Mobile number',
-              keyboard: TextInputType.phone,
-              validator: ValidationUtils.optionalIndianMobile,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(10),
-              ],
-              suffixIcon: existing == null
-                  ? IconButton(
-                      tooltip: 'Import from phone contacts',
-                      onPressed: isImportingContact ? null : _importContact,
-                      icon: isImportingContact
-                          ? const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(
-                              Icons.contacts_rounded,
-                              color: AppColors.secondary,
-                            ),
-                    )
-                  : null,
-            ),
-            _field(
-              email,
-              'Email address',
-              keyboard: TextInputType.emailAddress,
-              validator: ValidationUtils.optionalEmail,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(254),
-                FilteringTextInputFormatter.deny(RegExp(r'\s')),
-              ],
-            ),
-            _field(
-              gstin,
-              'GSTIN',
-              validator: _validateGstin,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(15),
-                FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z]')),
-              ],
-            ),
-            _field(address, 'Address', lines: 3),
-            const SizedBox(height: 20),
-            AppButton(
-              label: existing == null ? 'Save supplier' : 'Update supplier',
-              icon: Icons.check_rounded,
-              onPressed: _save,
+            AppCard(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+              child: Column(
+                children: [
+                  _field(
+                    name,
+                    'Supplier name *',
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Supplier name is required'
+                        : null,
+                  ),
+                  _field(company, 'Business / company name'),
+                  _field(
+                    mobile,
+                    'Mobile number',
+                    keyboard: TextInputType.phone,
+                    validator: ValidationUtils.optionalIndianMobile,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(10),
+                    ],
+                    suffixIcon: existing == null
+                        ? IconButton(
+                            tooltip: 'Import from phone contacts',
+                            onPressed: isImportingContact
+                                ? null
+                                : _importContact,
+                            icon: isImportingContact
+                                ? const SizedBox.square(
+                                    dimension: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.contacts_rounded,
+                                    color: AppColors.secondary,
+                                  ),
+                          )
+                        : null,
+                  ),
+                  _field(
+                    email,
+                    'Email address',
+                    keyboard: TextInputType.emailAddress,
+                    validator: ValidationUtils.optionalEmail,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(254),
+                      FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                    ],
+                  ),
+                  _field(
+                    gstin,
+                    'GSTIN',
+                    validator: _validateGstin,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(15),
+                      FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z]')),
+                    ],
+                  ),
+                  _field(address, 'Address', lines: 3),
+                ],
+              ),
             ),
           ],
         ),
@@ -468,219 +605,448 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
     } else {
       number.text =
           'PB-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+      if (arg is SupplierModel) supplier = arg;
     }
     if (mounted) setState(() => loading = false);
   }
 
   int get total => items.fold(0, (s, i) => s + i.totalMinor);
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      leading: const AppBackButton(),
-      title: Text(
-        existing == null ? 'New purchase bill' : 'Edit purchase bill',
+  Widget build(BuildContext context) {
+    final ready = !loading && (existing != null || supplier != null);
+    return Scaffold(
+      appBar: AppBar(
+        leading: const AppBackButton(),
+        title: AppBarTitle(
+          existing == null ? 'New purchase bill' : 'Edit purchase bill',
+          subtitle: 'Purchase',
+        ),
+        actions: [
+          AppBarIconButton(
+            tooltip: l10n('Preview PDF'),
+            onPressed: ready && items.isNotEmpty ? _previewPdf : null,
+            icon: Icons.picture_as_pdf_outlined,
+          ),
+        ],
       ),
-    ),
-    body: loading
-        ? const Center(child: CircularProgressIndicator())
-        : existing == null && supplier == null
-        ? _supplierSelectionStep()
-        : ResponsiveContent(
-            tabletMaxWidth: 720,
-            child: Form(
-              key: key,
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: 120),
-                children: [
-                  AppGroupedTile(
-                    onTap: _chooseSupplier,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondaryLight,
-                            borderRadius: BorderRadius.circular(11),
-                          ),
-                          child: const Icon(
-                            Icons.storefront_outlined,
-                            color: AppColors.secondary,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                supplier?.name ?? 'Select supplier *',
-                                style: AppTextStyles.listName,
+      bottomNavigationBar: ready ? _billFormFooter(context) : null,
+      body: loading
+          ? const Center(child: CircularProgressIndicator())
+          : existing == null && supplier == null
+          ? _supplierSelectionStep()
+          : ResponsiveContent(
+              tabletMaxWidth: 720,
+              child: Form(
+                key: key,
+                child: ListView(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  children: [
+                    AppCard(
+                      padding: EdgeInsets.zero,
+                      borderColor: AppColors.secondary.withValues(alpha: .16),
+                      child: Column(
+                        children: [
+                          InkWell(
+                            onTap: _chooseSupplier,
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.fromLTRB(
+                                14,
+                                14,
+                                14,
+                                14,
                               ),
-                              Text(
-                                supplier == null
-                                    ? 'Required for a purchase bill'
-                                    : supplier!.companyName ?? 'Supplier',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: AppColors.textSecondary,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColors.primary.withValues(alpha: .14),
+                                    AppColors.secondary.withValues(alpha: .10),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        const Icon(
-                          Icons.chevron_right_rounded,
-                          color: AppColors.textTertiary,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _field(
-                    number,
-                    'Supplier bill number *',
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? 'Bill number is required'
-                        : null,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _DateTile(
-                          label: 'Bill date',
-                          value: billDate,
-                          onTap: () async {
-                            final d = await showDatePicker(
-                              context: context,
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                              initialDate: billDate,
-                            );
-                            if (d != null) setState(() => billDate = d);
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _DateTile(
-                          label: 'Due date',
-                          value: dueDate,
-                          onTap: () async {
-                            final d = await showDatePicker(
-                              context: context,
-                              firstDate: billDate,
-                              lastDate: DateTime(2100),
-                              initialDate: dueDate ?? billDate,
-                            );
-                            if (d != null) setState(() => dueDate = d);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Purchased items',
-                          style: AppTextStyles.listName.copyWith(fontSize: 15),
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: _addItem,
-                        icon: const Icon(Icons.add_rounded),
-                        label: const Text('Add item'),
-                      ),
-                    ],
-                  ),
-                  if (items.isEmpty)
-                    AppGroupedTile(
-                      onTap: _addItem,
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 6),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.add_shopping_cart_rounded,
-                              color: AppColors.secondary,
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                'Add your first purchased item',
-                                style: AppTextStyles.listName,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  else
-                    for (var i = 0; i < items.length; i++) ...[
-                      if (i > 0) const SizedBox(height: 8),
-                      AppGroupedTile(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              child: Row(
                                 children: [
-                                  Text(
-                                    items[i].name,
-                                    style: AppTextStyles.listName,
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          AppColors.primary,
+                                          AppColors.secondary,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: supplier == null
+                                        ? const Icon(
+                                            Icons.storefront_outlined,
+                                            color: Colors.white,
+                                          )
+                                        : Text(
+                                            supplier!.name.characters.first
+                                                .toUpperCase(),
+                                            style: AppTextStyles.cardTitle
+                                                .copyWith(color: Colors.white),
+                                          ),
                                   ),
-                                  Text(
-                                    '${_qty(items[i].quantity)} ${items[i].unit} × ${_money(items[i].rateMinor)} · GST ${_qty(items[i].taxRate)}%',
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          supplier?.name ?? 'Choose a supplier',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: AppTextStyles.cardTitle,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          supplier == null
+                                              ? 'Required for this purchase bill'
+                                              : () {
+                                                  final caption =
+                                                      [
+                                                            supplier!
+                                                                .companyName,
+                                                            supplier!.mobile,
+                                                            supplier!.gstin,
+                                                          ]
+                                                          .whereType<String>()
+                                                          .where(
+                                                            (value) => value
+                                                                .trim()
+                                                                .isNotEmpty,
+                                                          )
+                                                          .join(' · ');
+                                                  return caption.isEmpty
+                                                      ? 'Supplier'
+                                                      : caption;
+                                                }(),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: AppTextStyles.small.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.surface,
+                                      borderRadius: BorderRadius.circular(99),
+                                      border: Border.all(
+                                        color: AppColors.secondary.withValues(
+                                          alpha: .18,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          supplier == null
+                                              ? 'Select'
+                                              : 'Change',
+                                          style: AppTextStyles.small.copyWith(
+                                            color: AppColors.secondary,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.chevron_right_rounded,
+                                          size: 18,
+                                          color: AppColors.secondary,
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Text(
-                              _money(items[i].totalMinor),
-                              style: AppTextStyles.listName,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                            child: Column(
+                              children: [
+                                _field(
+                                  number,
+                                  'Supplier bill number *',
+                                  validator: (v) =>
+                                      v == null || v.trim().isEmpty
+                                      ? 'Bill number is required'
+                                      : null,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfaceSoft,
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: _BillMetaCell(
+                                          icon: Icons.calendar_today_outlined,
+                                          label: 'Bill date',
+                                          value: _shortDate(billDate),
+                                          onTap: () async {
+                                            final d = await showDatePicker(
+                                              context: context,
+                                              firstDate: DateTime(2000),
+                                              lastDate: DateTime(2100),
+                                              initialDate: billDate,
+                                            );
+                                            if (d != null) {
+                                              setState(() => billDate = d);
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 1,
+                                        height: 32,
+                                        color: AppColors.border,
+                                      ),
+                                      Expanded(
+                                        child: _BillMetaCell(
+                                          icon: Icons.event_available_outlined,
+                                          label: 'Due date',
+                                          value: dueDate == null
+                                              ? 'Add date'
+                                              : _shortDate(dueDate!),
+                                          muted: dueDate == null,
+                                          onTap: () async {
+                                            final d = await showDatePicker(
+                                              context: context,
+                                              firstDate: billDate,
+                                              lastDate: DateTime(2100),
+                                              initialDate: dueDate ?? billDate,
+                                            );
+                                            if (d != null) {
+                                              setState(() => dueDate = d);
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                            IconButton(
-                              tooltip: 'Item actions',
-                              onPressed: () => _showItemActions(i),
-                              icon: const Icon(Icons.more_horiz_rounded),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  const SizedBox(height: 12),
-                  _field(notes, 'Notes', lines: 3),
-                  AppGroupedTile(
-                    child: Row(
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
                       children: [
-                        const Expanded(
-                          child: Text(
-                            'Purchase total',
-                            style: AppTextStyles.listName,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Text(
+                                'Purchased items',
+                                style: AppTextStyles.sectionTitle,
+                              ),
+                              if (items.isNotEmpty) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryLight,
+                                    borderRadius: BorderRadius.circular(99),
+                                  ),
+                                  child: Text(
+                                    '${items.length}',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
-                        Text(_money(total), style: AppTextStyles.sectionTitle),
+                        if (items.isNotEmpty)
+                          FilledButton.tonalIcon(
+                            onPressed: _showAddItemOptions,
+                            icon: const Icon(Icons.add_rounded, size: 19),
+                            label: const Text('Add'),
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(0, 40),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 13,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
+                    const SizedBox(height: 8),
+                    if (items.isEmpty)
+                      _PurchaseEmptyItemsCard(onAdd: _showAddItemOptions)
+                    else
+                      for (var i = 0; i < items.length; i++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: AppCard(
+                            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            items[i].name,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: AppTextStyles.cardTitle,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '${_money(items[i].rateMinor)} / ${items[i].unit}${items[i].taxRate > 0 ? ' • GST ${_qty(items[i].taxRate)}%' : ''}',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: AppTextStyles.small.copyWith(
+                                              color: AppColors.textSecondary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip: l10n('Edit item details'),
+                                      onPressed: () => _editItem(i),
+                                      icon: const Icon(
+                                        Icons.edit_outlined,
+                                        size: 18,
+                                      ),
+                                      style: IconButton.styleFrom(
+                                        backgroundColor: AppColors.primaryLight,
+                                        foregroundColor: AppColors.primary,
+                                        minimumSize: const Size(36, 36),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    _PurchaseQuantityStepper(
+                                      value: _qty(items[i].quantity),
+                                      canDecrease: items[i].quantity > 1,
+                                      onDecrease: () => _setItemQuantity(
+                                        i,
+                                        items[i].quantity <= 2
+                                            ? 1
+                                            : items[i].quantity - 1,
+                                      ),
+                                      onRemove: () => _confirmRemoveItem(i),
+                                      onIncrease: () => _setItemQuantity(
+                                        i,
+                                        items[i].quantity + 1,
+                                      ),
+                                      onEdit: () => _editItemQuantity(i),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      _money(items[i].totalMinor),
+                                      style: AppTextStyles.cardTitle.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    const SizedBox(height: 4),
+                    _field(notes, 'Notes', lines: 3),
+                  ],
+                ),
+              ),
+            ),
+    );
+  }
+
+  Widget _billFormFooter(BuildContext context) {
+    final actionWidth = (MediaQuery.sizeOf(context).width * .56)
+        .clamp(168.0, 240.0)
+        .toDouble();
+    return SafeArea(
+      top: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          border: const Border(top: BorderSide(color: AppColors.border)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    items.isEmpty ? 'NO ITEMS YET' : 'PURCHASE TOTAL',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
-                  const SizedBox(height: 18),
-                  AppButton(
-                    label: existing == null
-                        ? 'Save purchase bill'
-                        : 'Update purchase bill',
-                    icon: Icons.check_rounded,
-                    onPressed: _save,
+                  const SizedBox(height: 2),
+                  Text(
+                    _money(total),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.sectionTitle,
                   ),
                 ],
               ),
             ),
-          ),
-  );
+            const SizedBox(width: 12),
+            SizedBox(
+              width: actionWidth,
+              child: AppButton(
+                label: items.isEmpty
+                    ? 'Add item'
+                    : existing == null
+                    ? 'Save bill'
+                    : 'Update bill',
+                icon: items.isEmpty ? Icons.add_rounded : Icons.check_rounded,
+                onPressed: items.isEmpty ? _showAddItemOptions : _save,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _supplierSelectionStep() => ResponsiveContent(
     tabletMaxWidth: 720,
@@ -781,44 +1147,149 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
   );
 
   Future<void> _chooseSupplier() async {
-    final chosen = await showModalBottomSheet<SupplierModel>(
+    final chosen = await showAppBottomSheet<SupplierModel>(
       context: context,
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: SizedBox(
-          height: MediaQuery.sizeOf(context).height * .72,
-          child: StreamBuilder<List<SupplierModel>>(
-            stream: Get.find<PurchaseRepository>().watchSuppliers(),
-            builder: (_, snapshot) => Column(
+      title: 'Select supplier',
+      child: SizedBox(
+        height: MediaQuery.sizeOf(context).height * .62,
+        child: StreamBuilder<List<SupplierModel>>(
+          stream: Get.find<PurchaseRepository>().watchSuppliers(),
+          builder: (_, snapshot) {
+            final suppliers = snapshot.data ?? [];
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                suppliers.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return Column(
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(18),
-                  child: Text(
-                    'Select supplier',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                  ),
-                ),
                 Expanded(
-                  child: ListView(
-                    children: (snapshot.data ?? [])
-                        .map(
-                          (s) => ListTile(
-                            leading: const Icon(Icons.storefront_outlined),
-                            title: Text(s.name),
-                            subtitle: Text(s.companyName ?? s.mobile ?? ''),
-                            onTap: () => Navigator.pop(context, s),
-                          ),
+                  child: suppliers.isEmpty
+                      ? AppEmptyState(
+                          icon: Icons.storefront_outlined,
+                          title: 'No suppliers yet',
+                          message:
+                              'Create a supplier, then continue this bill.',
+                          actionLabel: 'Create supplier',
+                          onAction: () {
+                            Navigator.pop(context);
+                            Get.toNamed<void>(AppRoutes.supplierAdd);
+                          },
                         )
-                        .toList(),
-                  ),
+                      : ListView.separated(
+                          itemCount: suppliers.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 8),
+                          itemBuilder: (_, index) {
+                            final value = suppliers[index];
+                            return AppGroupedTile(
+                              onTap: () => Navigator.pop(context, value),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 38,
+                                    height: 38,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.secondaryLight,
+                                      borderRadius: BorderRadius.circular(11),
+                                    ),
+                                    child: Text(
+                                      value.name.substring(0, 1).toUpperCase(),
+                                      style: AppTextStyles.listName.copyWith(
+                                        color: AppColors.secondary,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          value.name,
+                                          style: AppTextStyles.listName,
+                                        ),
+                                        Text(
+                                          value.companyName ??
+                                              value.mobile ??
+                                              'Supplier',
+                                          style: AppTextStyles.caption.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                 ),
-                TextButton.icon(
+                const SizedBox(height: 8),
+                AppButton(
+                  label: 'Create supplier',
+                  icon: Icons.person_add_alt_1_rounded,
                   onPressed: () {
                     Navigator.pop(context);
                     Get.toNamed<void>(AppRoutes.supplierAdd);
                   },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Create supplier'),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+    if (chosen != null) setState(() => supplier = chosen);
+  }
+
+  Future<void> _showAddItemOptions() async {
+    final choice = await showModalBottomSheet<_PurchaseAddItemChoice>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('Add an item', style: AppTextStyles.sectionTitle),
+                const SizedBox(height: 6),
+                Text(
+                  'Choose how you want to add this purchase line.',
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _PurchaseAddItemOption(
+                  icon: Icons.qr_code_scanner_rounded,
+                  title: 'Scan barcodes',
+                  subtitle: 'Add saved products by scanning their codes',
+                  onTap: () =>
+                      Navigator.pop(sheetContext, _PurchaseAddItemChoice.scan),
+                ),
+                const SizedBox(height: 10),
+                _PurchaseAddItemOption(
+                  icon: Icons.inventory_2_outlined,
+                  title: 'Choose saved item',
+                  subtitle: 'Use a product or service from your catalog',
+                  onTap: () =>
+                      Navigator.pop(sheetContext, _PurchaseAddItemChoice.saved),
+                ),
+                const SizedBox(height: 10),
+                _PurchaseAddItemOption(
+                  icon: Icons.edit_note_rounded,
+                  title: 'Create custom item',
+                  subtitle: 'Enter a one-time item for this purchase bill',
+                  onTap: () => Navigator.pop(
+                    sheetContext,
+                    _PurchaseAddItemChoice.custom,
+                  ),
                 ),
               ],
             ),
@@ -826,10 +1297,76 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
         ),
       ),
     );
-    if (chosen != null) setState(() => supplier = chosen);
+    if (!mounted || choice == null) return;
+    switch (choice) {
+      case _PurchaseAddItemChoice.scan:
+        await _scanCatalogItems();
+      case _PurchaseAddItemChoice.saved:
+        await _selectSavedItems();
+      case _PurchaseAddItemChoice.custom:
+        await _addCustomItem();
+    }
   }
 
-  Future<void> _addItem() async {
+  Future<void> _selectSavedItems() async {
+    final selected = await Get.toNamed<dynamic>(
+      AppRoutes.invoiceItemPicker,
+      arguments: InvoiceItemPickerArgs(
+        alreadyAddedIds: items
+            .map((item) => item.productId)
+            .whereType<int>()
+            .toSet(),
+        alreadyAddedLabel: 'On this bill',
+      ),
+    );
+    if (!mounted || selected is! InvoiceItemPickerResult) return;
+    setState(() {
+      if (selected.removedIds.isNotEmpty) {
+        items.removeWhere(
+          (item) =>
+              item.productId != null &&
+              selected.removedIds.contains(item.productId),
+        );
+      }
+      for (final product in selected.added) {
+        _addOrIncrementCatalog(product);
+      }
+    });
+  }
+
+  Future<void> _scanCatalogItems() async {
+    final result = await Get.toNamed<dynamic>(
+      AppRoutes.productScan,
+      arguments: const ProductScanArgs(),
+    );
+    if (!mounted || result is! List<ScannedInvoiceLine>) return;
+    setState(() {
+      for (final line in result) {
+        _addOrIncrementCatalog(
+          line.product,
+          quantity: line.quantityScaled / QuantityUtils.scale,
+        );
+      }
+    });
+  }
+
+  void _addOrIncrementCatalog(
+    ProductServiceModel product, {
+    double quantity = 1,
+  }) {
+    final existingIndex = items.indexWhere(
+      (item) => product.id != null && item.productId == product.id,
+    );
+    if (existingIndex >= 0) {
+      items[existingIndex] = items[existingIndex].copyWith(
+        quantity: items[existingIndex].quantity + quantity,
+      );
+      return;
+    }
+    items.add(PurchaseItemModel.fromCatalog(product, quantity: quantity));
+  }
+
+  Future<void> _addCustomItem() async {
     final result = await showAppBottomSheet<PurchaseItemModel>(
       context: context,
       title: 'Add purchased item',
@@ -847,34 +1384,78 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
     if (result != null) setState(() => items[index] = result);
   }
 
-  Future<void> _showItemActions(int index) => showAppBottomSheet<void>(
-    context: context,
-    title: items[index].name,
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _ActionTile(
-          icon: Icons.edit_rounded,
-          title: 'Edit item',
-          subtitle: 'Change quantity, unit, price or GST.',
-          onTap: () {
-            Navigator.pop(context);
-            _editItem(index);
-          },
-        ),
-        _ActionTile(
-          icon: Icons.delete_outline_rounded,
-          title: 'Remove item',
-          subtitle: 'Remove this item from the purchase bill.',
-          destructive: true,
-          onTap: () {
-            Navigator.pop(context);
-            setState(() => items.removeAt(index));
-          },
-        ),
-      ],
-    ),
-  );
+  void _setItemQuantity(int index, double quantity) {
+    if (quantity <= 0) return;
+    setState(() => items[index] = items[index].copyWith(quantity: quantity));
+  }
+
+  Future<void> _editItemQuantity(int index) async {
+    final quantity = await showModalBottomSheet<double>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => _PurchaseQuantitySheet(
+        value: items[index].quantity,
+        unit: items[index].unit,
+      ),
+    );
+    if (quantity != null) _setItemQuantity(index, quantity);
+  }
+
+  Future<void> _confirmRemoveItem(int index) async {
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      destructive: true,
+      icon: Icons.delete_outline_rounded,
+      title: 'Remove item?',
+      message: 'This item will be removed from this purchase bill.',
+      confirmLabel: 'Remove item',
+      cancelLabel: 'Keep item',
+    );
+    if (confirmed) setState(() => items.removeAt(index));
+  }
+
+  PurchaseBillModel _draftBill() {
+    final now = DateTime.now();
+    return PurchaseBillModel(
+      id: existing?.id,
+      billNumber: number.text.trim().isEmpty ? 'PB-DRAFT' : number.text.trim(),
+      supplierId: supplier?.id,
+      supplierName: supplier?.name ?? 'Supplier',
+      billDate: billDate,
+      dueDate: dueDate,
+      items: List.of(items),
+      paidMinor: existing?.paidMinor ?? 0,
+      notes: _null(notes.text),
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+    );
+  }
+
+  Future<void> _previewPdf() async {
+    if (supplier == null) {
+      _message('Select a supplier before saving.');
+      return;
+    }
+    if (items.isEmpty) {
+      _message('Add at least one purchased item.');
+      return;
+    }
+    if (!(key.currentState?.validate() ?? false)) return;
+    final profile = await Get.find<BusinessRepository>().getProfile();
+    if (profile == null || profile.businessName.trim().isEmpty) {
+      AppNotification.warning(
+        'Business details needed',
+        'Complete business setup before generating a PDF.',
+      );
+      return;
+    }
+    await Get.toNamed<void>(
+      AppRoutes.purchaseBillPdf,
+      arguments: PurchaseBillPdfArgs.draft(_draftBill()),
+    );
+  }
 
   Future<void> _save() async {
     if (!(key.currentState?.validate() ?? false)) return;
@@ -946,26 +1527,40 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final current = bill;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: Text(current?.billNumber ?? 'Purchase bill'),
+        title: AppBarTitle(
+          current?.billNumber ?? 'Purchase bill',
+          subtitle: current == null ? null : 'Purchase bill',
+        ),
         actions: [
-          IconButton(
-            tooltip: 'Bill actions',
+          AppBarIconButton(
+            tooltip: l10n('Preview PDF'),
+            onPressed: current == null ? null : _openPdf,
+            icon: Icons.picture_as_pdf_outlined,
+          ),
+          AppBarIconButton(
+            tooltip: l10n('Bill actions'),
             onPressed: _showBillActions,
-            icon: const Icon(Icons.more_horiz_rounded),
+            icon: Icons.more_vert_rounded,
           ),
         ],
       ),
       bottomNavigationBar: current != null && current.balanceMinor > 0
           ? SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              top: false,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  border: const Border(
+                    top: BorderSide(color: AppColors.border),
+                  ),
+                ),
                 child: AppButton(
-                  label: 'Record supplier payment',
-                  icon: Icons.account_balance_wallet_outlined,
+                  label: 'Record payment',
+                  icon: Icons.payments_outlined,
                   onPressed: () => _payment(current),
                 ),
               ),
@@ -979,188 +1574,93 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
               tabletMaxWidth: 720,
               child: ListView(
                 children: [
-                  AppCard(
-                    color: isDark
-                        ? AppColors.darkSurface
-                        : AppColors.surfaceSoft,
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  _PurchaseBillHero(bill: current),
+                  const SizedBox(height: 16),
+                  _PurchasePaymentCard(bill: current, billId: id),
+                  const SizedBox(height: 18),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 2, bottom: 6),
+                    child: Row(
                       children: [
-                        Text(
-                          current.supplierName,
-                          style: AppTextStyles.sectionTitle,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Bill ${_date(current.billDate)}${current.dueDate == null ? '' : ' · Due ${_date(current.dueDate!)}'}',
-                          style: AppTextStyles.caption.copyWith(
-                            color: isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.textSecondary,
+                        Expanded(
+                          child: Text(
+                            'Items',
+                            style: AppTextStyles.listName.copyWith(
+                              fontSize: 15,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 14),
                         Text(
-                          current.balanceMinor > 0 ? 'Payable' : 'Paid',
-                          style: AppTextStyles.caption.copyWith(
+                          '${current.items.length} ${current.items.length == 1 ? 'item' : 'items'}',
+                          style: AppTextStyles.small.copyWith(
                             color: AppColors.textSecondary,
                           ),
-                        ),
-                        AppAmountText(
-                          amountMinor: current.balanceMinor > 0
-                              ? current.balanceMinor
-                              : current.totalMinor,
-                          symbol: '₹',
-                          hero: true,
-                          textAlign: TextAlign.start,
-                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Payment activity',
-                    style: AppTextStyles.listName.copyWith(fontSize: 15),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _PayMetric(
-                          'Total',
-                          current.totalMinor,
-                          AppColors.secondary,
-                          AppColors.secondaryLight,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _PayMetric(
-                          'Paid',
-                          current.paidMinor,
-                          AppColors.success,
-                          AppColors.successLight,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _PayMetric(
-                          'Remaining',
-                          current.balanceMinor,
-                          current.balanceMinor > 0
-                              ? AppColors.warning
-                              : AppColors.success,
-                          current.balanceMinor > 0
-                              ? AppColors.warningLight
-                              : AppColors.successLight,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    'Items',
-                    style: AppTextStyles.listName.copyWith(fontSize: 15),
-                  ),
-                  const SizedBox(height: 8),
-                  for (var i = 0; i < current.items.length; i++) ...[
-                    if (i > 0) const SizedBox(height: 8),
-                    AppGroupedTile(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                  AppCard(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < current.items.length; i++)
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+                            decoration: i == current.items.length - 1
+                                ? null
+                                : const BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: AppColors.border,
+                                      ),
+                                    ),
+                                  ),
+                            child: Row(
                               children: [
-                                Text(
-                                  current.items[i].name,
-                                  style: AppTextStyles.listName,
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryLight,
+                                    borderRadius: BorderRadius.circular(7),
+                                  ),
+                                  child: Text(
+                                    '${i + 1}',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.primaryDark,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        current.items[i].name,
+                                        style: AppTextStyles.listName,
+                                      ),
+                                      Text(
+                                        '${_qty(current.items[i].quantity)} ${current.items[i].unit} × ${_money(current.items[i].rateMinor)} · GST ${_qty(current.items[i].taxRate)}%',
+                                        style: AppTextStyles.caption.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 Text(
-                                  '${_qty(current.items[i].quantity)} ${current.items[i].unit} × ${_money(current.items[i].rateMinor)}',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                                  _money(current.items[i].totalMinor),
+                                  style: AppTextStyles.listName,
                                 ),
                               ],
                             ),
                           ),
-                          Text(
-                            _money(current.items[i].totalMinor),
-                            style: AppTextStyles.listName,
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
-                  ],
-                  const SizedBox(height: 18),
-                  Text(
-                    'Payment history',
-                    style: AppTextStyles.listName.copyWith(fontSize: 15),
-                  ),
-                  const SizedBox(height: 8),
-                  StreamBuilder<List<PurchasePaymentModel>>(
-                    stream: Get.find<PurchaseRepository>().watchPayments(id),
-                    builder: (_, p) {
-                      final payments = p.data ?? [];
-                      if (payments.isEmpty) {
-                        return AppGroupedTile(
-                          child: Text(
-                            'No payments recorded yet.',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        );
-                      }
-                      return Column(
-                        children: [
-                          for (var i = 0; i < payments.length; i++) ...[
-                            if (i > 0) const SizedBox(height: 8),
-                            AppGroupedTile(
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 38,
-                                    height: 38,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.successLight,
-                                      borderRadius: BorderRadius.circular(11),
-                                    ),
-                                    child: const Icon(
-                                      Icons.payments_outlined,
-                                      color: AppColors.success,
-                                      size: 20,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _money(payments[i].amountMinor),
-                                          style: AppTextStyles.listName,
-                                        ),
-                                        Text(
-                                          '${payments[i].method ?? 'Payment'} · ${_date(payments[i].paidAt)}',
-                                          style: AppTextStyles.caption.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ],
-                      );
-                    },
                   ),
                   if ((current.notes ?? '').isNotEmpty) ...[
                     const SizedBox(height: 18),
@@ -1169,12 +1669,29 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
                       style: AppTextStyles.listName.copyWith(fontSize: 15),
                     ),
                     const SizedBox(height: 8),
-                    AppGroupedTile(child: Text(current.notes!)),
+                    AppCard(child: Text(current.notes!)),
                   ],
                   const SizedBox(height: 24),
                 ],
               ),
             ),
+    );
+  }
+
+  Future<void> _openPdf() async {
+    final current = bill;
+    if (current == null) return;
+    final profile = await Get.find<BusinessRepository>().getProfile();
+    if (profile == null || profile.businessName.trim().isEmpty) {
+      AppNotification.warning(
+        'Business details needed',
+        'Complete business setup before generating a PDF.',
+      );
+      return;
+    }
+    await Get.toNamed<void>(
+      AppRoutes.purchaseBillPdf,
+      arguments: PurchaseBillPdfArgs.saved(id),
     );
   }
 
@@ -1184,6 +1701,15 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        _ActionTile(
+          icon: Icons.picture_as_pdf_outlined,
+          title: 'Generate PDF',
+          subtitle: 'Preview, share, save or print this purchase bill.',
+          onTap: () {
+            Navigator.pop(context);
+            _openPdf();
+          },
+        ),
         _ActionTile(
           icon: Icons.edit_note_rounded,
           title: 'Edit bill',
@@ -1222,31 +1748,634 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
   );
 
   Future<void> _payment(PurchaseBillModel current) async {
-    final amount = TextEditingController();
+    final result = await showAppBottomSheet<int>(
+      context: context,
+      title: 'Record supplier payment',
+      child: _PaymentSheet(balanceMinor: current.balanceMinor),
+    );
+    if (result == null) return;
     try {
-      final result = await showAppBottomSheet<int>(
-        context: context,
-        title: 'Record supplier payment',
-        child: _PaymentSheet(
-          controller: amount,
-          balanceMinor: current.balanceMinor,
-        ),
+      await Get.find<PurchaseRepository>().recordPayment(
+        id,
+        result,
+        method: 'Cash',
       );
-      if (result != null) {
-        try {
-          await Get.find<PurchaseRepository>().recordPayment(
-            id,
-            result,
-            method: 'Cash',
-          );
-          await _load();
-        } catch (e) {
-          _message(e.toString());
-        }
-      }
-    } finally {
-      amount.dispose();
+      await _load();
+    } catch (e) {
+      _message(e.toString());
     }
+  }
+}
+
+class PurchaseOverviewCard extends StatelessWidget {
+  const PurchaseOverviewCard({
+    required this.data,
+    this.onPayableTap,
+    this.onOverdueTap,
+    this.compact = false,
+    super.key,
+  });
+
+  final PurchaseDashboardSummary data;
+  final VoidCallback? onPayableTap;
+  final VoidCallback? onOverdueTap;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final metrics = [
+      (
+        label: 'Paid',
+        amount: data.paidMinor,
+        icon: Icons.check_circle_outline_rounded,
+        color: AppColors.success,
+        onTap: null,
+      ),
+      (
+        label: 'Payable',
+        amount: data.payableMinor,
+        icon: Icons.schedule_rounded,
+        color: AppColors.warning,
+        onTap: onPayableTap,
+      ),
+      (
+        label: 'Overdue',
+        amount: data.overdueMinor,
+        icon: Icons.error_outline_rounded,
+        color: AppColors.error,
+        onTap: onOverdueTap,
+      ),
+    ];
+    return Container(
+      padding: EdgeInsets.all(compact ? 10 : 14),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.border,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.secondary.withValues(alpha: 0.06),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!compact) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Purchase overview',
+                    style: AppTextStyles.listName,
+                  ),
+                ),
+                Text(
+                  '${data.billCount} ${data.billCount == 1 ? 'bill' : 'bills'} · ${data.supplierCount} ${data.supplierCount == 1 ? 'supplier' : 'suppliers'}',
+                  style: AppTextStyles.caption.copyWith(
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+          Row(
+            children: [
+              for (var i = 0; i < metrics.length; i++) ...[
+                Expanded(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: metrics[i].onTap,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 25,
+                                  height: 25,
+                                  decoration: BoxDecoration(
+                                    color: metrics[i].color.withValues(
+                                      alpha: 0.11,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    metrics[i].icon,
+                                    size: 15,
+                                    color: metrics[i].color,
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                Expanded(
+                                  child: Text(
+                                    metrics[i].label,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 9.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            AppAmountText(
+                              amountMinor: metrics[i].amount,
+                              symbol: '₹',
+                              color: metrics[i].color,
+                              textAlign: TextAlign.start,
+                              style: AppTextStyles.listAmount.copyWith(
+                                fontSize: 13,
+                                color: metrics[i].color,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                if (i != metrics.length - 1)
+                  Container(
+                    width: 1,
+                    height: 52,
+                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                    color: isDark ? AppColors.darkBorder : AppColors.border,
+                  ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class PurchaseBillRow extends StatelessWidget {
+  const PurchaseBillRow({required this.bill, this.index = 0, super.key});
+  final PurchaseBillSummary bill;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _billStatusColor(bill.status);
+    final statusLabel = _billStatusLabel(bill.status);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+    final dateHint = bill.dueDate == null
+        ? 'Bill ${_compactDate(bill.billDate)}'
+        : 'Due ${_compactDate(bill.dueDate!)}';
+    return AppListEntrance(
+      index: index,
+      child: AppGroupedTile(
+        accentColor: color,
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+        onTap: () => Get.toNamed<void>(
+          AppRoutes.purchaseBillDetails,
+          arguments: bill.id,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    bill.billNumber,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.listName.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: isDark ? 0.22 : 0.11),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    statusLabel,
+                    style: AppTextStyles.caption.copyWith(
+                      color: color,
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 7),
+            Row(
+              children: [
+                Expanded(
+                  flex: 7,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.storefront_outlined,
+                        size: 13,
+                        color: secondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          bill.supplierName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption.copyWith(
+                            color: secondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 3,
+                  child: AppAmountText(
+                    amountMinor: bill.totalMinor,
+                    symbol: '₹',
+                    textAlign: TextAlign.end,
+                    style: AppTextStyles.listAmount.copyWith(fontSize: 10),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        size: 11,
+                        color: color,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          dateHint,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption.copyWith(
+                            color: color,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (bill.balanceMinor > 0)
+                  AppAmountText(
+                    amountMinor: bill.balanceMinor,
+                    symbol: '₹',
+                    suffix: ' due',
+                    textAlign: TextAlign.end,
+                    color: color,
+                    style: AppTextStyles.caption.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PurchaseBillHero extends StatelessWidget {
+  const _PurchaseBillHero({required this.bill});
+  final PurchaseBillModel bill;
+
+  String get _status {
+    if (bill.balanceMinor <= 0) return 'paid';
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (bill.dueDate != null && bill.dueDate!.isBefore(today)) return 'overdue';
+    return 'unpaid';
+  }
+
+  List<Color> get _colors => switch (_status) {
+    'paid' => const [AppColors.secondary, AppColors.success],
+    'overdue' => const [AppColors.secondary, AppColors.error],
+    _ => const [AppColors.secondary, AppColors.primary],
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = _colors;
+    final status = _status;
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: colors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: .14)),
+        boxShadow: [
+          BoxShadow(
+            color: colors.first.withValues(alpha: .2),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -24,
+            top: -40,
+            child: Container(
+              width: 110,
+              height: 110,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: .1),
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${bill.items.length} ${bill.items.length == 1 ? 'item' : 'items'}  •  ${_date(bill.billDate)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: Colors.white.withValues(alpha: .78),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: .16),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                    child: Text(
+                      _billStatusLabel(status),
+                      style: AppTextStyles.caption.copyWith(
+                        color: Colors.white,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: .16),
+                      borderRadius: BorderRadius.circular(11),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: .2),
+                      ),
+                    ),
+                    child: Text(
+                      bill.supplierName.trim().isEmpty
+                          ? '?'
+                          : bill.supplierName.characters.first.toUpperCase(),
+                      style: AppTextStyles.listName.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Supplier',
+                          style: AppTextStyles.caption.copyWith(
+                            color: Colors.white.withValues(alpha: .7),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          bill.supplierName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.listName.copyWith(
+                            color: Colors.white,
+                            fontSize: 14.5,
+                          ),
+                        ),
+                        if (bill.dueDate != null) ...[
+                          const SizedBox(height: 1),
+                          Text(
+                            'Due ${_date(bill.dueDate!)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.caption.copyWith(
+                              color: Colors.white.withValues(alpha: .78),
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    child: AppAmountText(
+                      amountMinor: bill.balanceMinor > 0
+                          ? bill.balanceMinor
+                          : bill.totalMinor,
+                      symbol: '₹',
+                      color: Colors.white,
+                      style: AppTextStyles.sectionTitle.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PurchasePaymentCard extends StatelessWidget {
+  const _PurchasePaymentCard({required this.bill, required this.billId});
+  final PurchaseBillModel bill;
+  final int billId;
+
+  @override
+  Widget build(BuildContext context) {
+    final remainingColor = bill.balanceMinor > 0
+        ? AppColors.warning
+        : AppColors.success;
+    final remainingFill = bill.balanceMinor > 0
+        ? AppColors.warningLight
+        : AppColors.successLight;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 2, bottom: 6),
+          child: Text(
+            'Payment activity',
+            style: AppTextStyles.listName.copyWith(fontSize: 15),
+          ),
+        ),
+        AppCard(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _PayMetric(
+                      'Total',
+                      bill.totalMinor,
+                      AppColors.secondary,
+                      AppColors.secondaryLight,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _PayMetric(
+                      'Paid',
+                      bill.paidMinor,
+                      AppColors.success,
+                      AppColors.successLight,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _PayMetric(
+                      'Remaining',
+                      bill.balanceMinor,
+                      remainingColor,
+                      remainingFill,
+                    ),
+                  ),
+                ],
+              ),
+              StreamBuilder<List<PurchasePaymentModel>>(
+                stream: Get.find<PurchaseRepository>().watchPayments(billId),
+                builder: (_, snapshot) {
+                  final payments = snapshot.data ?? [];
+                  if (payments.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'No payments recorded yet.',
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return Column(
+                    children: [
+                      const Divider(height: 24),
+                      for (var i = 0; i < payments.length; i++) ...[
+                        if (i > 0) const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: AppColors.successLight,
+                                borderRadius: BorderRadius.circular(11),
+                              ),
+                              child: const Icon(
+                                Icons.payments_outlined,
+                                color: AppColors.success,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _money(payments[i].amountMinor),
+                                    style: AppTextStyles.listName,
+                                  ),
+                                  Text(
+                                    '${payments[i].method ?? 'Payment'} · ${_date(payments[i].paidAt)}',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -1258,103 +2387,139 @@ class _PayMetric extends StatelessWidget {
   final Color fill;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-    decoration: BoxDecoration(
-      color: fill,
-      borderRadius: BorderRadius.circular(14),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.caption.copyWith(
-            color: color,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 4),
-        AppAmountText(
-          amountMinor: amount,
-          symbol: '₹',
-          color: color,
-          textAlign: TextAlign.start,
-          style: AppTextStyles.listAmount.copyWith(fontSize: 13, color: color),
-        ),
-      ],
-    ),
-  );
-}
-
-class PurchaseBillRow extends StatelessWidget {
-  const PurchaseBillRow({required this.bill, super.key});
-  final PurchaseBillSummary bill;
-
-  @override
   Widget build(BuildContext context) {
-    final color = bill.status == 'paid'
-        ? AppColors.success
-        : bill.status == 'overdue'
-        ? AppColors.error
-        : AppColors.warning;
-    final statusLabel = bill.status == 'paid'
-        ? 'Paid'
-        : bill.status == 'overdue'
-        ? 'Overdue'
-        : 'Unpaid';
-    return AppGroupedTile(
-      accentColor: color,
-      onTap: () =>
-          Get.toNamed<void>(AppRoutes.purchaseBillDetails, arguments: bill.id),
-      child: Row(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      decoration: BoxDecoration(
+        color: isDark ? color.withValues(alpha: .18) : fill,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  bill.billNumber,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.listName,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${bill.supplierName} · $statusLabel',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
             ),
           ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              AppAmountText(
-                amountMinor: bill.totalMinor,
-                symbol: '₹',
-                style: AppTextStyles.listAmount,
-              ),
-              if (bill.balanceMinor > 0)
-                Text(
-                  '${_money(bill.balanceMinor)} due',
-                  style: AppTextStyles.caption.copyWith(
-                    color: color,
-                    fontSize: 11,
-                  ),
-                ),
-            ],
+          const SizedBox(height: 3),
+          AppAmountText(
+            amountMinor: amount,
+            symbol: '₹',
+            color: color,
+            textAlign: TextAlign.start,
+            style: AppTextStyles.listAmount.copyWith(
+              fontSize: 13,
+              color: color,
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+class _BillMetaCell extends StatelessWidget {
+  const _BillMetaCell({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.onTap,
+    this.muted = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final VoidCallback? onTap;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: Colors.transparent,
+    borderRadius: BorderRadius.circular(12),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 13, color: AppColors.primary),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label.toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(fontSize: 9),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.small.copyWith(
+                color: muted
+                    ? AppColors.textTertiary
+                    : Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _PurchaseEmptyItemsCard extends StatelessWidget {
+  const _PurchaseEmptyItemsCard({required this.onAdd});
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    onTap: onAdd,
+    padding: const EdgeInsets.fromLTRB(16, 22, 16, 18),
+    child: Column(
+      children: [
+        Container(
+          width: 56,
+          height: 56,
+          decoration: const BoxDecoration(
+            color: AppColors.primaryLight,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.add_shopping_cart_rounded,
+            color: AppColors.primary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text('No items yet', style: AppTextStyles.listName),
+        const SizedBox(height: 4),
+        Text(
+          'Add a saved product, scan a barcode, or enter a one-time item.',
+          textAlign: TextAlign.center,
+          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 14),
+        AppButton(
+          label: 'Add an item',
+          icon: Icons.add_rounded,
+          onPressed: onAdd,
+        ),
+      ],
+    ),
+  );
 }
 
 class _Intro extends StatelessWidget {
@@ -1406,28 +2571,6 @@ class _Intro extends StatelessWidget {
       ],
     );
   }
-}
-
-class _DateTile extends StatelessWidget {
-  const _DateTile({
-    required this.label,
-    required this.value,
-    required this.onTap,
-  });
-  final String label;
-  final DateTime? value;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) => InkWell(
-    onTap: onTap,
-    child: InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: const Icon(Icons.calendar_today_outlined),
-      ),
-      child: Text(value == null ? 'Not set' : _date(value!)),
-    ),
-  );
 }
 
 class _PurchaseItemSheet extends StatefulWidget {
@@ -1572,6 +2715,7 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
       context,
       PurchaseItemModel(
         id: widget.initial?.id,
+        productId: widget.initial?.productId,
         name: name.text.trim(),
         quantity: q,
         unit: unit,
@@ -1582,10 +2726,28 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
   }
 }
 
-class _PaymentSheet extends StatelessWidget {
-  const _PaymentSheet({required this.controller, required this.balanceMinor});
-  final TextEditingController controller;
+class _PaymentSheet extends StatefulWidget {
+  const _PaymentSheet({required this.balanceMinor});
   final int balanceMinor;
+
+  @override
+  State<_PaymentSheet> createState() => _PaymentSheetState();
+}
+
+class _PaymentSheetState extends State<_PaymentSheet> {
+  late final TextEditingController amount;
+
+  @override
+  void initState() {
+    super.initState();
+    amount = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    amount.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Column(
@@ -1594,12 +2756,12 @@ class _PaymentSheet extends StatelessWidget {
     children: [
       _Intro(
         icon: Icons.account_balance_wallet_outlined,
-        title: 'Payment due ${_money(balanceMinor)}',
+        title: 'Payment due ${_money(widget.balanceMinor)}',
         subtitle: 'Record only the amount already paid to your supplier.',
       ),
       const SizedBox(height: 16),
       TextField(
-        controller: controller,
+        controller: amount,
         autofocus: true,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         decoration: const InputDecoration(
@@ -1612,12 +2774,12 @@ class _PaymentSheet extends StatelessWidget {
         label: 'Record payment',
         icon: Icons.check_rounded,
         onPressed: () {
-          final value = double.tryParse(controller.text);
+          final value = double.tryParse(amount.text);
           final minor = value == null ? 0 : (value * 100).round();
-          if (minor <= 0 || minor > balanceMinor) {
+          if (minor <= 0 || minor > widget.balanceMinor) {
             AppNotification.warning(
               'Check payment amount',
-              'Enter an amount between ₹0.01 and ${_money(balanceMinor)}.',
+              'Enter an amount between ₹0.01 and ${_money(widget.balanceMinor)}.',
             );
             return;
           }
@@ -1679,6 +2841,471 @@ class _ActionTile extends StatelessWidget {
       ),
     );
   }
+}
+
+enum _PurchaseAddItemChoice { scan, saved, custom }
+
+class _PurchaseAddItemOption extends StatelessWidget {
+  const _PurchaseAddItemOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    onTap: onTap,
+    child: Row(
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: AppColors.primaryLight,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, color: AppColors.primary),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: AppTextStyles.cardTitle),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                style: AppTextStyles.small.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Icon(Icons.chevron_right_rounded),
+      ],
+    ),
+  );
+}
+
+class _PurchaseQuantityStepper extends StatelessWidget {
+  const _PurchaseQuantityStepper({
+    required this.value,
+    required this.canDecrease,
+    required this.onDecrease,
+    required this.onRemove,
+    required this.onIncrease,
+    required this.onEdit,
+  });
+
+  final String value;
+  final bool canDecrease;
+  final VoidCallback onDecrease;
+  final VoidCallback onRemove;
+  final VoidCallback onIncrease;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    height: 34,
+    decoration: BoxDecoration(
+      color: AppColors.surfaceSoft,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: AppColors.border),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          tooltip: canDecrease ? 'Decrease quantity' : 'Remove item',
+          onPressed: canDecrease ? onDecrease : onRemove,
+          constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+          padding: EdgeInsets.zero,
+          icon: Icon(
+            canDecrease ? Icons.remove_rounded : Icons.delete_outline_rounded,
+            size: 17,
+            color: canDecrease ? null : AppColors.error,
+          ),
+        ),
+        Container(width: 1, height: 22, color: AppColors.border),
+        Tooltip(
+          message: 'Enter quantity',
+          child: InkWell(
+            onTap: onEdit,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 34),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  value,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.small.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(width: 1, height: 22, color: AppColors.border),
+        IconButton(
+          tooltip: l10n('Increase quantity'),
+          onPressed: onIncrease,
+          constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+          padding: EdgeInsets.zero,
+          icon: const Icon(Icons.add_rounded, size: 17),
+        ),
+      ],
+    ),
+  );
+}
+
+class _PurchaseQuantitySheet extends StatefulWidget {
+  const _PurchaseQuantitySheet({required this.value, required this.unit});
+  final double value;
+  final String unit;
+
+  @override
+  State<_PurchaseQuantitySheet> createState() => _PurchaseQuantitySheetState();
+}
+
+class _PurchaseQuantitySheetState extends State<_PurchaseQuantitySheet> {
+  late final TextEditingController input = TextEditingController(
+    text: _qty(widget.value),
+  );
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    input.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: input.text.length,
+    );
+  }
+
+  @override
+  void dispose() {
+    input.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final value = double.tryParse(input.text.trim());
+    if (value == null || value <= 0) {
+      setState(() => error = 'Enter a quantity greater than 0.');
+      return;
+    }
+    Navigator.pop(context, value);
+  }
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.fromLTRB(
+      20,
+      0,
+      20,
+      MediaQuery.viewInsetsOf(context).bottom + 20,
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Enter quantity', style: AppTextStyles.sectionTitle),
+        const SizedBox(height: 4),
+        Text(
+          'Type the exact quantity instead of tapping + repeatedly.',
+          style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: input,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: TextInputAction.done,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
+          ],
+          decoration: InputDecoration(
+            labelText: l10n('Quantity *'),
+            suffixText: widget.unit,
+            errorText: error,
+            prefixIcon: const Icon(Icons.numbers_rounded),
+          ),
+          onSubmitted: (_) => _save(),
+        ),
+        const SizedBox(height: 16),
+        FilledButton.icon(
+          onPressed: _save,
+          icon: const Icon(Icons.check_rounded),
+          label: const Text('Update quantity'),
+        ),
+      ],
+    ),
+  );
+}
+
+class SupplierSummaryCard extends StatelessWidget {
+  const SupplierSummaryCard({
+    required this.supplier,
+    required this.onNewBill,
+    required this.onEdit,
+    required this.onConfirmDelete,
+    required this.onDelete,
+    required this.billedMinor,
+    required this.payableMinor,
+    required this.billCount,
+    super.key,
+  });
+
+  final SupplierModel supplier;
+  final VoidCallback onNewBill;
+  final VoidCallback onEdit;
+  final Future<bool> Function() onConfirmDelete;
+  final Future<void> Function() onDelete;
+  final int billedMinor;
+  final int payableMinor;
+  final int billCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final statusLabel = billCount == 0
+        ? 'No bills'
+        : payableMinor > 0
+        ? 'Payable'
+        : 'Paid';
+    final statusColor = payableMinor > 0
+        ? AppColors.warning
+        : billCount == 0
+        ? AppColors.textTertiary
+        : AppColors.success;
+    return Dismissible(
+      key: ValueKey('supplier-${supplier.id}'),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          onEdit();
+          return false;
+        }
+        return onConfirmDelete();
+      },
+      onDismissed: (_) => onDelete(),
+      background: const _SupplierSwipeBackground(
+        alignment: Alignment.centerLeft,
+        color: AppColors.accent,
+        icon: Icons.edit_rounded,
+        label: 'Edit',
+      ),
+      secondaryBackground: const _SupplierSwipeBackground(
+        alignment: Alignment.centerRight,
+        color: AppColors.error,
+        icon: Icons.delete_outline_rounded,
+        label: 'Delete',
+      ),
+      child: GestureDetector(
+        onLongPress: () => _showActions(context),
+        child: AppGroupedTile(
+          accentColor: statusColor,
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+          onTap: onEdit,
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primary, AppColors.secondary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  supplier.name.characters.first.toUpperCase(),
+                  style: AppTextStyles.listName.copyWith(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            supplier.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.listName,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(
+                              alpha: isDark ? 0.22 : 0.11,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            statusLabel,
+                            style: AppTextStyles.caption.copyWith(
+                              color: statusColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            billCount == 0
+                                ? (supplier.mobile ?? 'Ready for a new bill')
+                                : payableMinor > 0
+                                ? '$billCount ${billCount == 1 ? 'bill' : 'bills'} payable'
+                                : '$billCount ${billCount == 1 ? 'bill' : 'bills'} settled',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.caption.copyWith(
+                              color: statusColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 108,
+                          child: AppAmountText(
+                            amountMinor: payableMinor > 0
+                                ? payableMinor
+                                : billedMinor,
+                            symbol: '₹',
+                            textAlign: TextAlign.end,
+                            color: payableMinor == 0 && billCount > 0
+                                ? (isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.textTertiary)
+                                : null,
+                            style: AppTextStyles.listAmount.copyWith(
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showActions(BuildContext context) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(supplier.name, style: AppTextStyles.sectionTitle),
+              const SizedBox(height: 12),
+              ListTile(
+                leading: const Icon(Icons.receipt_long_outlined),
+                title: const Text('New bill'),
+                subtitle: const Text('Start a purchase bill for this supplier'),
+                onTap: () => Navigator.pop(context, 'bill'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.edit_rounded),
+                title: const Text('Edit supplier'),
+                subtitle: const Text('Update contact and GST details'),
+                onTap: () => Navigator.pop(context, 'edit'),
+              ),
+              ListTile(
+                textColor: AppColors.error,
+                iconColor: AppColors.error,
+                leading: const Icon(Icons.delete_outline_rounded),
+                title: const Text('Delete supplier'),
+                subtitle: const Text('Bills already recorded stay unchanged'),
+                onTap: () => Navigator.pop(context, 'delete'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (action == 'bill') {
+      onNewBill();
+    } else if (action == 'edit') {
+      onEdit();
+    } else if (action == 'delete' && await onConfirmDelete()) {
+      await onDelete();
+    }
+  }
+}
+
+class _SupplierSwipeBackground extends StatelessWidget {
+  const _SupplierSwipeBackground({
+    required this.alignment,
+    required this.color,
+    required this.icon,
+    required this.label,
+  });
+
+  final Alignment alignment;
+  final Color color;
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    alignment: alignment,
+    padding: const EdgeInsets.symmetric(horizontal: 24),
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (alignment == Alignment.centerRight)
+          Text(label, style: const TextStyle(color: Colors.white)),
+        if (alignment == Alignment.centerRight) const SizedBox(width: 8),
+        Icon(icon, color: Colors.white),
+        if (alignment == Alignment.centerLeft) const SizedBox(width: 8),
+        if (alignment == Alignment.centerLeft)
+          Text(label, style: const TextStyle(color: Colors.white)),
+      ],
+    ),
+  );
 }
 
 Widget _field(

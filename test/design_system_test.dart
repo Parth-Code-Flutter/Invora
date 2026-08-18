@@ -264,7 +264,7 @@ void main() {
     expect(tester.getSize(find.byType(IconButton).first), const Size(48, 48));
     expect(
       AppTheme.light.appBarTheme.titleTextStyle?.fontSize,
-      AppTextStyles.pageTitle.fontSize,
+      AppTextStyles.appBarTitle.fontSize,
     );
     expect(find.text('Paid'), findsOneWidget);
     expect(

@@ -8,6 +8,7 @@ abstract final class AppRoutes {
   static const purchaseBills = '/purchases/bills';
   static const purchaseBillCreate = '/purchases/bills/create';
   static const purchaseBillDetails = '/purchases/bills/details';
+  static const purchaseBillPdf = '/purchases/bills/pdf';
   static const suppliers = '/purchases/suppliers';
   static const supplierAdd = '/purchases/suppliers/add';
   static const customers = '/customers';

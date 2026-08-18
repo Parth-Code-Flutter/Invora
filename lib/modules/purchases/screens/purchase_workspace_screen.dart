@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/constants/app_spacing.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
-import '../../../app/widgets/app_amount_text.dart';
-import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_purchase_navigation.dart';
 import '../../../app/widgets/app_workspace_switch.dart';
@@ -20,28 +20,14 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Purchases'),
-            Text(
-              'Bills & payables',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
+        title: const AppBarTitle('Purchases', subtitle: 'Bills & payables'),
         actions: [
-          IconButton(
+          AppBarIconButton(
             tooltip: l10n('Switch workspace'),
             onPressed: () => showWorkspaceSwitcher(context),
-            icon: const Icon(Icons.swap_horiz_rounded),
+            icon: Icons.swap_horiz_rounded,
           ),
         ],
       ),
@@ -50,6 +36,7 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
       ),
       body: ResponsiveContent(
         tabletMaxWidth: 800,
+        paddingTop: AppSpacing.xs,
         child: StreamBuilder<PurchaseDashboardSummary>(
           stream: Get.find<PurchaseRepository>().watchDashboard(),
           builder: (context, snapshot) {
@@ -60,122 +47,14 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
             return ListView(
               padding: const EdgeInsets.only(bottom: 24),
               children: [
-                AppCard(
-                  color: isDark
-                      ? const Color(0xFF3B2038)
-                      : const Color(0xFFFCFAFF),
-                  borderColor: isDark
-                      ? AppColors.darkBorder
-                      : const Color(0xFFE9DFF0),
-                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Purchase overview',
-                              style: AppTextStyles.listName,
-                            ),
-                          ),
-                          Text(
-                            '${data.billCount} ${data.billCount == 1 ? 'bill' : 'bills'} · ${data.supplierCount} ${data.supplierCount == 1 ? 'supplier' : 'suppliers'}',
-                            style: AppTextStyles.caption.copyWith(
-                              color: isDark
-                                  ? AppColors.darkTextSecondary
-                                  : AppColors.textSecondary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _OverviewMetric(
-                              label: 'Paid',
-                              amountMinor: data.paidMinor,
-                              color: AppColors.success,
-                            ),
-                          ),
-                          const _OverviewDivider(),
-                          Expanded(
-                            child: _OverviewMetric(
-                              label: 'Payable',
-                              amountMinor: data.payableMinor,
-                              color: AppColors.warning,
-                            ),
-                          ),
-                          const _OverviewDivider(),
-                          Expanded(
-                            child: _OverviewMetric(
-                              label: 'Overdue',
-                              amountMinor: data.overdueMinor,
-                              color: AppColors.error,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                PurchaseOverviewCard(
+                  data: data,
+                  onPayableTap: () =>
+                      Get.offAllNamed<void>(AppRoutes.purchaseBills),
+                  onOverdueTap: data.overdueMinor > 0
+                      ? () => Get.offAllNamed<void>(AppRoutes.purchaseBills)
+                      : null,
                 ),
-                if (data.overdueMinor > 0) ...[
-                  const SizedBox(height: 10),
-                  AppCard(
-                    onTap: () => Get.offAllNamed<void>(AppRoutes.purchaseBills),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: AppColors.errorLight,
-                            borderRadius: BorderRadius.circular(11),
-                          ),
-                          child: const Icon(
-                            Icons.warning_amber_rounded,
-                            color: AppColors.error,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Overdue payables',
-                                style: AppTextStyles.listName,
-                              ),
-                              Text(
-                                'Open bills to see what needs paying.',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: isDark
-                                      ? AppColors.darkTextSecondary
-                                      : AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        AppAmountText(
-                          amountMinor: data.overdueMinor,
-                          symbol: '₹',
-                          color: AppColors.error,
-                          style: AppTextStyles.listAmount.copyWith(
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -240,7 +119,7 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
                       children: [
                         for (var i = 0; i < values.length; i++) ...[
                           if (i > 0) const SizedBox(height: 8),
-                          PurchaseBillRow(bill: values[i]),
+                          PurchaseBillRow(bill: values[i], index: i),
                         ],
                       ],
                     );
@@ -253,59 +132,6 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class _OverviewMetric extends StatelessWidget {
-  const _OverviewMetric({
-    required this.label,
-    required this.amountMinor,
-    required this.color,
-  });
-  final String label;
-  final int amountMinor;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 2),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.textSecondary,
-            fontSize: 10,
-          ),
-        ),
-        const SizedBox(height: 4),
-        AppAmountText(
-          amountMinor: amountMinor,
-          symbol: '₹',
-          color: color,
-          textAlign: TextAlign.start,
-          style: AppTextStyles.listAmount.copyWith(fontSize: 13, color: color),
-        ),
-      ],
-    ),
-  );
-}
-
-class _OverviewDivider extends StatelessWidget {
-  const _OverviewDivider();
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 1,
-    height: 38,
-    margin: const EdgeInsets.symmetric(horizontal: 8),
-    color: Theme.of(context).brightness == Brightness.dark
-        ? AppColors.darkBorder
-        : AppColors.border,
-  );
 }
 
 class _QuickAction extends StatelessWidget {
@@ -342,10 +168,10 @@ class _QuickAction extends StatelessWidget {
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: AppColors.secondaryLight,
+                  color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: AppColors.secondary, size: 18),
+                child: Icon(icon, color: AppColors.primary, size: 18),
               ),
               const SizedBox(height: 5),
               Text(label, style: AppTextStyles.caption),
