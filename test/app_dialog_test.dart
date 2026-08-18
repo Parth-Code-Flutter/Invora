@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:creovo_invoice/app/widgets/app_dialog.dart';
 
 void main() {
-  testWidgets('confirm dialogs use a centered glow icon and paired actions', (
+  testWidgets('confirm dialogs use a centered tone icon and paired actions', (
     tester,
   ) async {
     await tester.pumpWidget(

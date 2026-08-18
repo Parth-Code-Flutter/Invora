@@ -1,8 +1,9 @@
 # Pro Dialog
 
-Reusable Flutter dialogs with a centered glow icon, semantic colors, entry
-motion, and paired outlined + filled actions. No GetX, no app-specific theme,
-no extra dependencies.
+Reusable Flutter dialogs with a centered type-colored icon, semantic action
+colors, entry motion, and outlined plus filled buttons. The card stays a
+neutral white/dark surface so tone color does not wash the background. No
+GetX, no app-specific theme, no extra dependencies.
 
 ## Use in another project
 
@@ -66,14 +67,20 @@ showDialog<void>(
 
 ## Tones
 
-| Tone | Color | Motion |
-| --- | --- | --- |
-| `success` | Green | Bounce |
-| `error` | Red | Shake |
-| `warning` | Amber | Pulse |
-| `info` | Blue | Fade |
-| `question` | Purple | Rotate |
+Tones color the circular icon and the **filled** confirm action. The card
+stays a neutral white or dark surface. Outlined cancel/continue actions stay
+plum unless the button sets its own tone (for example a red Discard on a
+warning dialog).
+
+| Tone | Icon | Filled action | Motion |
+| --- | --- | --- | --- |
+| `success` | Teal | Teal gradient | Bounce |
+| `error` | Red | Red gradient | Shake |
+| `warning` | Warm orange | Coral → orange | Pulse |
+| `info` | Teal | Teal → plum | Fade |
+| `question` | Plum | Coral → plum | Rotate |
 
 Form dialogs (`form: true`) keep the same chrome and left-align fields.
-Two actions sit side by side; three or more stack. Dark mode follows the host
+Two short actions sit side by side; long labels or three-or-more actions
+stack full-width so the text is not truncated. Dark mode follows the host
 `ThemeData`. Reduced-motion settings skip entry animation.

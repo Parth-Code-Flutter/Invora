@@ -10,37 +10,48 @@ enum ProDialogButtonVariant { filled, outlined, text }
 class _ToneStyle {
   const _ToneStyle({
     required this.color,
+    required this.fill,
     required this.icon,
     required this.motion,
   });
 
+  /// Icon and outlined-border color for this dialog type.
   final Color color;
+
+  /// Filled action background, matching Creovo primary CTAs (coral → plum)
+  /// or a type-tinted pair for success, warning, error, and info.
+  final List<Color> fill;
   final IconData icon;
   final _Motion motion;
 
   static _ToneStyle of(ProDialogTone tone) => switch (tone) {
     ProDialogTone.success => const _ToneStyle(
-      color: Color(0xFF22C55E),
+      color: Color(0xFF218C7F),
+      fill: [Color(0xFF2AAFA3), Color(0xFF218C7F)],
       icon: Icons.check_rounded,
       motion: _Motion.bounce,
     ),
     ProDialogTone.error => const _ToneStyle(
-      color: Color(0xFFEF4444),
+      color: Color(0xFFDC2626),
+      fill: [Color(0xFFE11D48), Color(0xFFDC2626)],
       icon: Icons.priority_high_rounded,
       motion: _Motion.shake,
     ),
     ProDialogTone.warning => const _ToneStyle(
-      color: Color(0xFFF59E0B),
+      color: Color(0xFFE58A3A),
+      fill: [Color(0xFFF36F62), Color(0xFFE58A3A)],
       icon: Icons.warning_rounded,
       motion: _Motion.pulse,
     ),
     ProDialogTone.info => const _ToneStyle(
-      color: Color(0xFF3B82F6),
+      color: Color(0xFF2AAFA3),
+      fill: [Color(0xFF2AAFA3), Color(0xFF6A315F)],
       icon: Icons.info_rounded,
       motion: _Motion.fade,
     ),
     ProDialogTone.question => const _ToneStyle(
-      color: Color(0xFF7C3AED),
+      color: Color(0xFF6A315F),
+      fill: [Color(0xFFF36F62), Color(0xFF6A315F)],
       icon: Icons.help_rounded,
       motion: _Motion.rotate,
     ),
@@ -95,8 +106,11 @@ class ProDialogButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dialog = ProDialogTheme.of(context);
-    final color = _ToneStyle.of(tone ?? dialog.tone).color;
     final isFilled = variant == ProDialogButtonVariant.filled;
+    final resolvedTone =
+        tone ?? (isFilled ? dialog.tone : ProDialogTone.question);
+    final style = _ToneStyle.of(resolvedTone);
+    final color = style.color;
     final foreground = switch (variant) {
       ProDialogButtonVariant.filled => Colors.white,
       ProDialogButtonVariant.outlined => color,
@@ -107,6 +121,9 @@ class ProDialogButton extends StatelessWidget {
       fontWeight: FontWeight.w600,
       fontSize: 15,
     );
+    final outlinedFill = dialog.isDark
+        ? color.withValues(alpha: .16)
+        : const Color(0xFFFFFCF8);
 
     return Semantics(
       button: true,
@@ -121,28 +138,35 @@ class ProDialogButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             child: Ink(
               decoration: BoxDecoration(
+                gradient: isFilled
+                    ? LinearGradient(
+                        colors: style.fill,
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      )
+                    : null,
                 color: isFilled
-                    ? color
+                    ? null
                     : variant == ProDialogButtonVariant.outlined
-                    ? color.withValues(alpha: dialog.isDark ? .12 : .06)
+                    ? outlinedFill
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(14),
                 border: variant == ProDialogButtonVariant.outlined
                     ? Border.all(color: color, width: 1.4)
                     : null,
                 boxShadow: isFilled
-                    ? [
+                    ? const [
                         BoxShadow(
-                          color: color.withValues(alpha: .32),
-                          blurRadius: 14,
-                          offset: const Offset(0, 6),
+                          color: Color(0x1A321D30),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
                         ),
                       ]
                     : null,
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
+                  horizontal: 12,
                   vertical: 12,
                 ),
                 child: Row(
@@ -150,13 +174,14 @@ class ProDialogButton extends StatelessWidget {
                   children: [
                     if (icon != null) ...[
                       Icon(icon, size: 18, color: foreground),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                     ],
                     Flexible(
                       child: Text(
                         label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                        overflow: TextOverflow.visible,
+                        softWrap: true,
                         textAlign: TextAlign.center,
                         style: textStyle,
                       ),
@@ -172,7 +197,7 @@ class ProDialogButton extends StatelessWidget {
   }
 }
 
-/// Centered glow-icon dialog. Use [ProDialog.confirm] and [ProDialog.notice]
+/// Centered type-icon dialog. Use [ProDialog.confirm] and [ProDialog.notice]
 /// for the common flows, or construct this widget for custom content.
 class ProDialog extends StatefulWidget {
   const ProDialog({
@@ -235,6 +260,7 @@ class ProDialog extends StatefulWidget {
                 onPressed: () => Navigator.pop(dialogContext, true),
               ),
             ],
+            stackedActions: _labelsNeedStack(cancelLabel, confirmLabel),
           ),
         ) ??
         false;
@@ -318,7 +344,7 @@ class _ProDialogState extends State<ProDialog>
           : CrossAxisAlignment.center,
       children: [
         Center(
-          child: _GlowIcon(icon: icon, color: color),
+          child: _ToneIcon(icon: icon, color: color),
         ),
         const SizedBox(height: 18),
         DefaultTextStyle.merge(
@@ -357,9 +383,10 @@ class _ProDialogState extends State<ProDialog>
     );
 
     final card = Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       backgroundColor: isDark ? scheme.surface : Colors.white,
       surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: ConstrainedBox(
@@ -367,16 +394,17 @@ class _ProDialogState extends State<ProDialog>
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(28),
+            color: isDark ? scheme.surface : Colors.white,
             border: Border.all(
               color: isDark
-                  ? Colors.white.withValues(alpha: .08)
-                  : color.withValues(alpha: .12),
+                  ? Colors.white.withValues(alpha: .10)
+                  : const Color(0xFFEEDFD8),
             ),
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
-                color: color.withValues(alpha: isDark ? .22 : .16),
-                blurRadius: 28,
-                offset: const Offset(0, 14),
+                color: Color(0x1A321D30),
+                blurRadius: 24,
+                offset: Offset(0, 12),
               ),
             ],
           ),
@@ -428,8 +456,8 @@ class _ProDialogState extends State<ProDialog>
   }
 }
 
-class _GlowIcon extends StatelessWidget {
-  const _GlowIcon({required this.icon, required this.color});
+class _ToneIcon extends StatelessWidget {
+  const _ToneIcon({required this.icon, required this.color});
 
   final IconData icon;
   final Color color;
@@ -437,21 +465,10 @@ class _GlowIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 72,
-      height: 72,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-        boxShadow: [
-          BoxShadow(
-            color: color.withValues(alpha: .42),
-            blurRadius: 22,
-            spreadRadius: 1,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Icon(icon, color: Colors.white, size: 34),
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+      child: Icon(icon, color: Colors.white, size: 30),
     );
   }
 }
@@ -462,9 +479,18 @@ class _ActionRow extends StatelessWidget {
   final List<Widget> actions;
   final bool stacked;
 
+  bool get _stack {
+    if (stacked || actions.length != 2) return true;
+    return actions.whereType<ProDialogButton>().any(_isLongAction);
+  }
+
+  static bool _isLongAction(ProDialogButton button) =>
+      button.label.trim().length > 10 ||
+      (button.icon != null && button.label.trim().length > 7);
+
   @override
   Widget build(BuildContext context) {
-    if (stacked || actions.length != 2) {
+    if (_stack) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -484,3 +510,8 @@ class _ActionRow extends StatelessWidget {
     );
   }
 }
+
+bool _labelsNeedStack(String cancelLabel, String confirmLabel) =>
+    cancelLabel.trim().length > 10 ||
+    confirmLabel.trim().length > 10 ||
+    cancelLabel.trim().length + confirmLabel.trim().length > 16;

@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-08-17
+Last updated: 2026-08-18
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -81,10 +81,16 @@ backups.
 - All app-owned dialogs use the local `pro_dialog` package through Creovo
   aliases (`AppDialog`, `showAppConfirmDialog`). The package lives at
   `packages/pro_dialog` and can be copied into another Flutter app as a path
-  dependency. Visual system: centered glowing circular icon, typed
-  success/error/warning/info/question colors, bounce/shake/pulse/fade/rotate
-  entry motion, centered title and body, and equal-width outlined plus filled
-  action buttons. Form dialogs keep the same chrome with start-aligned fields.
+  dependency. Visual system: centered type-colored circular icon on a
+  neutral white card (no tone wash on the surface), typed
+  Creovo success/error/warning/info/question action colors,
+  bounce/shake/pulse/fade/rotate entry motion, centered title and body, and
+  outlined plus filled action buttons. Long labels stack full-width so they
+  are not truncated. Filled confirms use a type-tinted gradient (coral-to-plum
+  for questions, coral-to-orange for warnings, red for destructive, teal for
+  success). Outlined cancel/continue actions stay plum on cream unless the
+  button sets a tone such as error. Form dialogs keep the same chrome with
+  start-aligned fields.
 - Shared unsaved-change protection covers invoice/quotation, customer,
   product/service, and business forms across AppBar back, system back, and iOS
   back gestures. Dirty document composers can save a draft before leaving.
@@ -422,6 +428,30 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-18 — Neutral dialog cards and full button labels
+
+- Dialog cards no longer pick up a light red/orange/teal wash from the icon
+  glow. The type color stays on the icon and filled button only. Long action
+  labels such as Remove item and Keep item stack full-width instead of
+  truncating to "Remov...".
+- Important files: `packages/pro_dialog/lib/src/pro_dialog.dart`, package
+  tests, this handoff.
+- Verification: package and app dialog widget tests, Dart formatting,
+  `flutter analyze`.
+
+### 2026-08-18 — Dialog actions match Creovo tones
+
+- Shared dialog buttons now use Creovo coral, plum, teal, and error instead of
+  generic amber/blue/violet. Filled confirms follow the dialog type (coral-to-
+  plum for questions, coral-to-orange for warnings, red for delete, teal for
+  success). Outlined cancel/continue stays plum on cream so warning dialogs no
+  longer wash secondary actions yellow. Every AppDialog/confirm/notice/form
+  surface picks this up from `pro_dialog`.
+- Important files: `packages/pro_dialog/lib/src/pro_dialog.dart`, package
+  README, this handoff.
+- Verification: package and app dialog widget tests, Dart formatting,
+  `flutter analyze`.
 
 ### 2026-08-17 — Purchase workspace classic UI pass
 
