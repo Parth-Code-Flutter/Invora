@@ -151,6 +151,7 @@ class BackupService {
       AppStorageKeyConst.backupReminderDays: _storage.getInt(
         AppStorageKeyConst.backupReminderDays,
       ),
+      // Intentionally omit app-lock PIN hashes and demo last-seen day.
     });
     archive.addFile(ArchiveFile.string('settings.json', settings));
     final bytes = ZipEncoder().encode(archive);

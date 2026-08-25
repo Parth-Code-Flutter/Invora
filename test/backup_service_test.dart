@@ -187,6 +187,28 @@ void main() {
     expect(service.isBackupDue, isFalse);
     await expectLater(service.setReminderDays(2), throwsArgumentError);
   });
+
+  test('backup ZIP never exports the demo last-seen clock', () async {
+    final storage = await AppStorage.create();
+    await storage.setString(AppStorageKeyConst.demoLastSeenDay, '2099-01-01');
+    final dbFile = File('${temporaryDirectory.path}/active.sqlite');
+    await dbFile.writeAsBytes(_sqliteBytes('demo-clock'));
+    service = BackupService(
+      database,
+      BusinessRepository(database),
+      storage,
+      databaseFileProvider: () async => dbFile,
+      outputDirectoryProvider: () async => temporaryDirectory,
+    );
+
+    final zip = await service.createBackup();
+    final archive = ZipDecoder().decodeBytes(await zip.readAsBytes());
+    final settings = utf8.decode(
+      archive.findFile('settings.json')!.content as List<int>,
+    );
+    expect(settings, isNot(contains(AppStorageKeyConst.demoLastSeenDay)));
+    expect(settings, isNot(contains('2099-01-01')));
+  });
 }
 
 Future<File> _backupFile(

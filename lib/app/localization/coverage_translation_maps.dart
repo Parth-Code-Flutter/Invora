@@ -732,6 +732,8 @@ const Map<String, String> appHindiCoverageTranslations = {
   'bills payable': 'बिल देय',
   'bill settled': 'बिल चुकाया',
   'bills settled': 'बिल चुकाए',
+  'Please contact your sales person': 'कृपया अपने सेल्स पर्सन से संपर्क करें',
+  'This demo build is no longer available.': 'यह डेमो बिल्ड अब उपलब्ध नहीं है।',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -1460,4 +1462,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'bills payable': 'બિલ ચૂકવવાનાં',
   'bill settled': 'બિલ ચૂકવાયું',
   'bills settled': 'બિલ ચૂકવાયાં',
+  'Please contact your sales person':
+      'કૃપા કરીને તમારા સેલ્સ પર્સનનો સંપર્ક કરો',
+  'This demo build is no longer available.': 'આ ડેમો બિલ્ડ હવે ઉપલબ્ધ નથી.',
 };

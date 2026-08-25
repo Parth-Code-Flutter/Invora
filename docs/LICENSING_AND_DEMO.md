@@ -1,7 +1,9 @@
 # Creovo Billing — Licensing, paid unlock, and demo APK
 
-Status: **Design only. Not implemented.**  
+Status: **Client demo kill switch is implemented. Paid unlock (Play Billing /
+license keys) is still design only.**  
 Captured: 2026-08-17  
+Demo APK implemented: 2026-08-19  
 Live app status: [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md)
 
 This note records the agreed monetization design so later sessions can
@@ -117,11 +119,15 @@ around that.
 This is **not** the paid license. It is a time-bomb binary so a sales demo
 cannot be forwarded as a free forever app.
 
+**Implemented.** Default debug/release/Play builds do **not** pass
+`DEMO_EXPIRES_AT`, so the lock never arms. Only APKs built with
+`tool/build_demo_apk.sh` (or the same `--dart-define`s) expire.
+
 **Do not** implement “15 days from first open” in prefs or SQLite. Every new
 phone, clear-data, or reinstall would start a fresh 15 days.
 
-**Do** bake a **calendar expiry** into that APK (`expiresAt` = send date + 15
-days, not merely compile date + 15). Sharing the file does not mint extra
+**Do** bake a **calendar expiry** into that APK (`DEMO_EXPIRES_AT` = send date
++ 15 days, last inclusive calendar day). Sharing the file does not mint extra
 time. Every copy of that build dies on the same day.
 
 | Approach | Forwarded APK | Clear data / reinstall | New phone |
@@ -129,21 +135,46 @@ time. Every copy of that build dies on the same day.
 | 15 days from first launch, saved locally | New 15 days each install | New 15 days | New 15 days |
 | Expiry date compiled into the APK | Same deadline for everyone | Still dead after that date | Still dead after that date |
 
+### How to build a client demo APK
+
+Either command writes `build/app/outputs/flutter-apk/app-release.apk`. That
+file is the demo; copy it only if you need a second named copy.
+
+**Direct Flutter command** (set expiry yourself). Example for a 19 Aug 2026
+send date, last inclusive day 3 Sep 2026:
+
+```bash
+flutter build apk --release \
+  --dart-define=DEMO_EXPIRES_AT=2026-09-03 \
+  --dart-define=DEMO_BUILD_TIME=2026-08-19 \
+  --dart-define=DEMO_CLIENT_NAME="Client demo"
+```
+
+- `DEMO_EXPIRES_AT` = last inclusive calendar day (send date + 15 days)
+- `DEMO_BUILD_TIME` = the day you package the APK
+- `DEMO_CLIENT_NAME` = label shown on the expired screen
+
+**Helper script** (computes today + 15 days):
+
+```bash
+./tool/build_demo_apk.sh "Sharma Traders"
+```
+
+Daily work stays `flutter run` / `flutter build apk` **without** those defines.
+
 ### Client-specific demo, not the production APK
 
-- Flutter `demo` flavor only. Never send Play/production/`direct` APK for a
-  trial.
-- Per client when building: `expiresAt` + `clientName`.
-- Banner and lock dialog use the client name so a leak is identifiable
-  (“Demo for Sharma Traders”).
-- Watermark PDFs as demo even during the 15 days.
+- Never send a Play/production APK for a trial. Only the dart-define demo APK.
+- Per client when building: expiry day + `DEMO_CLIENT_NAME`.
+- Lock copy includes the client name so a leak is identifiable.
+- PDF watermarking is still optional/future; the kill switch is the lock.
 
 ### After expiry
 
 Block **all** features: splash, home, invoices, purchases, backup, restore.
 Show a dialog (and keep them on a dead screen if they dismiss):
 
-**Please contact sales person**
+**Please contact your sales person**
 
 Optional subtitle: demo ended on &lt;date&gt; / demo for &lt;client&gt;.
 Restoring a ZIP must not skip the kill switch. The deadline lives in the APK,
@@ -170,8 +201,9 @@ converted into a Pro license.
 - No Play Billing, RevenueCat, or Keygen in the project today.
 - Backup: full SQLite + settings whitelist + media; restore remaps media
   paths and rebuilds database-bound GetX runtime.
-- `AppStorageKeyConst` holds UI/business defaults and app-lock hashes, not
-  entitlements.
+- `AppStorageKeyConst` holds UI/business defaults, app-lock hashes, and
+  (on demo APKs only) a last-seen calendar day that is **not** copied into
+  backup `settings.json`.
 - Product plan (`CODEX_IMPLEMENTATION_PLAN.md`) still says no cloud of
   invoice data. Licensing as designed does not add invoice sync.
 

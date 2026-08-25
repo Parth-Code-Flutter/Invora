@@ -27,4 +27,7 @@ abstract final class AppStorageKeyConst {
   static const appLockEnabled = 'app_lock_enabled';
   static const appLockPinHash = 'app_lock_pin_hash';
   static const appLockPinSalt = 'app_lock_pin_salt';
+
+  /// Demo kill-switch last-seen calendar day. Never include in backup ZIP.
+  static const demoLastSeenDay = 'demo_last_seen_day';
 }

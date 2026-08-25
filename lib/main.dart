@@ -12,6 +12,9 @@ import 'data/services/app_database.dart';
 import 'data/services/app_storage.dart';
 import 'data/services/local_database_service.dart';
 import 'data/services/app_lock_service.dart';
+import 'data/services/demo_access_service.dart';
+import 'data/services/demo_build_config.dart';
+import 'modules/demo/screens/demo_expired_gate.dart';
 import 'modules/settings/screens/app_lock_screen.dart';
 
 Future<void> main() async {
@@ -25,14 +28,21 @@ Future<void> main() async {
 }
 
 class CreovoInvoiceApp extends StatelessWidget {
-  const CreovoInvoiceApp({
+  CreovoInvoiceApp({
     required this.appStorage,
     required this.databaseService,
+    DemoAccessService? demoAccess,
     super.key,
-  });
+  }) : demoAccess =
+           demoAccess ??
+           DemoAccessService(
+             config: DemoBuildConfig.fromEnvironment(),
+             storage: appStorage,
+           );
 
   final AppStorage appStorage;
   final LocalDatabaseService databaseService;
+  final DemoAccessService demoAccess;
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +64,12 @@ class CreovoInvoiceApp extends StatelessWidget {
           .map((language) => language.locale)
           .toList(growable: false),
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      builder: (context, child) => AppLockGate(
-        service: Get.find<AppLockService>(),
-        child: child ?? const SizedBox.shrink(),
+      builder: (context, child) => DemoExpiredGate(
+        service: demoAccess,
+        child: AppLockGate(
+          service: Get.find<AppLockService>(),
+          child: child ?? const SizedBox.shrink(),
+        ),
       ),
     );
   }

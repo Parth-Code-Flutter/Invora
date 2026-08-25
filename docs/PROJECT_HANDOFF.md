@@ -1,10 +1,10 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-08-18
-Active development branch: `parth-dev`  
+Last updated: 2026-08-19
+Active development branch: `demo-apk-code`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
-Licensing and demo APK (design only): [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md)
+Licensing and demo APK: [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md)
 
 ## Purpose
 
@@ -17,10 +17,11 @@ every material code change.
 Creovo Billing is a Flutter Android and iOS app for fast, privacy-first,
 offline invoicing. It has no backend, authentication, cloud dependency, ads,
 subscriptions, payment gateway, inventory accounting, or multi-user system.
-Paid unlock, store billing, license keys, and time-limited demo APKs are
-planned in [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md) and are not in the
-live app. That design keeps invoice data offline and keeps entitlement out of
-backups.
+Paid unlock, store billing, and license keys are still design-only in
+[LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md). Client demo APKs use a
+compile-time 15-day kill switch (`DEMO_EXPIRES_AT`) that is omitted from
+default / Play builds. Entitlement and demo clocks stay out of Drift and
+backup ZIPs.
 
 - Flutter and Dart
 - GetX for routing, dependency injection, and reactive state
@@ -69,6 +70,16 @@ backups.
   cover cold launch and foreground return, while the stored credential is a
   salted, iterated SHA-256 hash rather than plain PIN text. This is an access
   guard for the local app and does not encrypt SQLite data, exports, or backups.
+- Client demo APKs are a compile-time 15-day kill switch, not a first-launch
+  timer. `flutter run` / Play / unsigned daily APKs omit `DEMO_EXPIRES_AT`, so
+  the lock never arms. A demo APK baked with `--dart-define=DEMO_EXPIRES_AT`
+  (last inclusive calendar day) plus optional client name and build day blocks
+  every screen after that date, including backup/restore, and shows
+  **Please contact your sales person**. Last-seen day is stored on-device only
+  and is excluded from backup `settings.json`. Build with
+  `flutter build apk --release` plus `DEMO_EXPIRES_AT` /
+  `DEMO_BUILD_TIME` / `DEMO_CLIENT_NAME`, or `tool/build_demo_apk.sh
+  "Client name"`. Commands are in `docs/LICENSING_AND_DEMO.md`.
 - App-wide interface localization with English as the default and selectable
   Hindi or Gujarati under Settings > Appearance. The selected language is
   stored in `AppStorage`, applies immediately, and survives restart. Shared
@@ -436,11 +447,11 @@ As of 2026-08-15:
 7. Test all PDFs with long, multi-page, and Unicode content.
 8. Complete accessibility, tablet, landscape, and physical-device QA.
 9. Add CI for formatting, analysis, tests, and release validation.
-10. Licensing / monetization is design-only. When picked up, follow
-    [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md): store builds use
-    RevenueCat/Play/App Store billing; direct APKs use GSTIN-bound keys;
-    client demos use a dated `demo` flavor kill switch, not a first-launch
-    timer in local storage. Do not put Pro or demo expiry in the backup ZIP.
+10. Store billing / license keys remain design-only. Client demo APKs now use
+    a dated kill switch (`DEMO_EXPIRES_AT`); default builds stay unlimited.
+    Follow [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md) for Play/App Store
+    billing and GSTIN-bound keys. Do not put Pro or demo expiry in the backup
+    ZIP.
 
 Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
@@ -448,6 +459,36 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-19 — Documented demo APK Flutter command
+
+- `docs/LICENSING_AND_DEMO.md` now includes the exact
+  `flutter build apk --release` `--dart-define` command (15-day example:
+  `DEMO_EXPIRES_AT=2026-09-03`) as well as `tool/build_demo_apk.sh`.
+- Important files: `LICENSING_AND_DEMO.md`, this handoff.
+- Verification: documentation only.
+
+### 2026-08-19 — Client demo window set to 15 days
+
+- Client demo APKs now expire 15 calendar days after the build date
+  (`tool/build_demo_apk.sh` uses `date +15 days`). Default/Play builds still
+  omit `DEMO_EXPIRES_AT` and never lock.
+- Important files: `tool/build_demo_apk.sh`, `LICENSING_AND_DEMO.md`, this
+  handoff.
+- Verification: documentation and script only; kill-switch tests are date-based
+  and unchanged.
+
+### 2026-08-19 — Client demo APK 7-day kill switch
+
+- Demo APKs expire on a calendar date compiled with `--dart-define`, not a
+  first-open timer. After that date the app is fully blocked with
+  “Please contact your sales person.” Default `flutter run` / Play builds omit
+  the define and never lock. Last-seen day is kept out of backup ZIP.
+- Important files: `demo_build_config.dart`, `demo_access_service.dart`,
+  `demo_expired_gate.dart`, `main.dart`, `tool/build_demo_apk.sh`,
+  `LICENSING_AND_DEMO.md`, this handoff.
+- Verification: demo access and gate tests, backup ZIP exclusion test,
+  existing first-launch widget test, Dart formatting, `flutter analyze`.
 
 ### 2026-08-18 — Purchase composer uses catalog items and PDF
 
