@@ -36,9 +36,8 @@ void main() {
     expect(find.text('Bills & payables'), findsOneWidget);
     expect(find.text('New bill'), findsOneWidget);
     expect(find.text('Quick actions'), findsOneWidget);
-    await tester.drag(find.byType(ListView).first, const Offset(0, -180));
-    await tester.pumpAndSettle();
-    expect(find.text('Supplier'), findsOneWidget);
+    expect(find.text('Supplier'), findsNothing);
+    expect(find.text('All bills'), findsNothing);
     await tester.drag(find.byType(ListView).first, const Offset(0, -180));
     await tester.pumpAndSettle();
     expect(find.text('Record your first purchase bill'), findsOneWidget);

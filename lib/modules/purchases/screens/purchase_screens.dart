@@ -663,25 +663,20 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
       child: Form(
         key: key,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
           children: [
-            const _Intro(
-              icon: Icons.storefront_outlined,
-              title: 'Supplier details',
-              subtitle:
-                  'Keep purchase bills, tax details and payables organised.',
-            ),
-            const SizedBox(height: 16),
-            const _SupplierSectionTitle(
-              icon: Icons.badge_outlined,
-              title: 'Supplier identity',
-              subtitle: 'Who you purchase from',
-            ),
-            const SizedBox(height: 8),
             AppCard(
               padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const _SupplierFormCardHeader(
+                    icon: Icons.storefront_outlined,
+                    title: 'Supplier essentials',
+                    subtitle: 'Only the supplier name is required',
+                    badge: '1 required',
+                  ),
+                  const SizedBox(height: 14),
                   _field(
                     name,
                     'Supplier name *',
@@ -690,20 +685,7 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
                         : null,
                   ),
                   _field(company, 'Business / company name'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            const _SupplierSectionTitle(
-              icon: Icons.call_outlined,
-              title: 'Contact details',
-              subtitle: 'Optional, for quick follow-ups',
-            ),
-            const SizedBox(height: 8),
-            AppCard(
-              padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
-              child: Column(
-                children: [
+                  const _SupplierFormDivider(label: 'Contact (optional)'),
                   _field(
                     mobile,
                     'Mobile number',
@@ -746,17 +728,19 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            const _SupplierSectionTitle(
-              icon: Icons.receipt_long_outlined,
-              title: 'Tax & billing',
-              subtitle: 'Used on purchase records',
-            ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             AppCard(
               padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const _SupplierFormCardHeader(
+                    icon: Icons.receipt_long_outlined,
+                    title: 'GST & billing',
+                    subtitle: 'Optional purchase record details',
+                    badge: 'Optional',
+                  ),
+                  const SizedBox(height: 14),
                   AppDropdownField<String>(
                     label: 'GST registration',
                     sheetTitle: 'Select GST registration',
@@ -916,15 +900,16 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
   }
 }
 
-class _SupplierSectionTitle extends StatelessWidget {
-  const _SupplierSectionTitle({
+class _SupplierFormCardHeader extends StatelessWidget {
+  const _SupplierFormCardHeader({
     required this.icon,
     required this.title,
     required this.subtitle,
+    required this.badge,
   });
 
   final IconData icon;
-  final String title, subtitle;
+  final String title, subtitle, badge;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -938,7 +923,7 @@ class _SupplierSectionTitle extends StatelessWidget {
         ),
         child: Icon(icon, size: 18, color: AppColors.primary),
       ),
-      const SizedBox(width: 10),
+      const SizedBox(width: 11),
       Expanded(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -954,7 +939,48 @@ class _SupplierSectionTitle extends StatelessWidget {
           ],
         ),
       ),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+        decoration: BoxDecoration(
+          color: AppColors.primaryLight.withValues(alpha: .7),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          badge,
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
     ],
+  );
+}
+
+class _SupplierFormDivider extends StatelessWidget {
+  const _SupplierFormDivider({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(2, 2, 2, 12),
+    child: Row(
+      children: [
+        const Expanded(child: Divider(color: AppColors.border)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        const Expanded(child: Divider(color: AppColors.border)),
+      ],
+    ),
   );
 }
 
@@ -964,12 +990,8 @@ class _GstHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     width: double.infinity,
-    margin: const EdgeInsets.only(bottom: 10),
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: AppColors.primaryLight.withValues(alpha: .7),
-      borderRadius: BorderRadius.circular(12),
-    ),
+    margin: const EdgeInsets.fromLTRB(2, 0, 2, 12),
+    padding: const EdgeInsets.symmetric(horizontal: 2),
     child: Row(
       children: [
         const Icon(
@@ -980,7 +1002,7 @@ class _GstHint extends StatelessWidget {
         const SizedBox(width: 9),
         Expanded(
           child: Text(
-            'Choose a GST type to add and validate the supplier GSTIN.',
+            'Select a registered GST type when you need to store a GSTIN.',
             style: AppTextStyles.caption.copyWith(
               color: AppColors.textSecondary,
             ),

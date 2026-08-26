@@ -48,7 +48,9 @@ backups.
   Supplier creation supports the same native phone-contact import behavior and
   contact validation as customer creation. Supplier profiles persist a GST
   registration type (Unregistered, Regular, Composition, or SEZ); the focused
-  GSTIN field is shown and validated only for registered suppliers. New
+  GSTIN field is shown and validated only for registered suppliers. The supplier
+  form uses two compact, task-focused cards: required identity/contact details
+  and optional GST/billing details, while retaining the sticky save action. New
   purchase bills require supplier selection before bill fields are shown, then
   enforce unique bill number, valid date order, required line items, positive
   quantity/rate, bounded GST, and payment-within-balance rules.
@@ -472,6 +474,31 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-26 — Purchase dashboard shortcut cleanup
+
+- Removed the Supplier and All bills shortcut containers from Purchase Quick
+  actions, leaving New bill as the single primary dashboard action.
+- Supplier and bill destinations remain available in Purchase bottom navigation,
+  so no feature or route was removed. Tightened the transition into Recent
+  purchase bills and updated narrow-phone widget coverage.
+- No database, storage, migration, or Sales behavior changes.
+- Important files: `purchase_workspace_screen.dart`,
+  `purchase_workspace_screen_test.dart`.
+- Verified with formatting, clean Flutter analysis, and automated tests.
+
+### 2026-08-26 — Supplier form hierarchy refinement
+
+- Replaced the supplier form's repeated banner, external section headings, and
+  nested panels with two compact cards: Supplier essentials and GST & billing.
+- Kept the required supplier name prominent, grouped optional contact fields
+  behind a quiet divider, and reduced the unregistered-GST guidance to a concise
+  inline hint. Contact import, validation, conditional GSTIN, persistence, and
+  the sticky save/update action are unchanged.
+- Added Hindi and Gujarati coverage for the revised labels. No database,
+  storage, migration, or Sales behavior changes.
+- Important files: `purchase_screens.dart`, `coverage_translation_maps.dart`.
+- Verified with formatting, clean Flutter analysis, and the automated suite.
 
 ### 2026-08-26 — Action-first Purchase dashboard
 

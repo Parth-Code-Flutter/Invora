@@ -677,6 +677,15 @@ const Map<String, String> appHindiCoverageTranslations = {
   'No suppliers yet': 'अभी कोई सप्लायर नहीं',
   'Add supplier': 'सप्लायर जोड़ें',
   'Supplier details': 'सप्लायर विवरण',
+  'Supplier essentials': 'सप्लायर की आवश्यक जानकारी',
+  'Only the supplier name is required': 'केवल सप्लायर का नाम आवश्यक है',
+  '1 required': '1 आवश्यक',
+  'Contact (optional)': 'संपर्क (वैकल्पिक)',
+  'GST & billing': 'GST और बिलिंग',
+  'Optional purchase record details': 'वैकल्पिक खरीद रिकॉर्ड विवरण',
+  'Optional': 'वैकल्पिक',
+  'Select a registered GST type when you need to store a GSTIN.':
+      'GSTIN सहेजने के लिए पंजीकृत GST प्रकार चुनें।',
   'Keep purchase bills, tax details and payables organised.':
       'खरीद बिल, कर विवरण और देय राशि व्यवस्थित रखें।',
   'Supplier identity': 'सप्लायर पहचान',
@@ -1489,6 +1498,15 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'No suppliers yet': 'હજુ કોઈ સપ્લાયર નથી',
   'Add supplier': 'સપ્લાયર ઉમેરો',
   'Supplier details': 'સપ્લાયર વિગતો',
+  'Supplier essentials': 'સપ્લાયરની જરૂરી વિગતો',
+  'Only the supplier name is required': 'ફક્ત સપ્લાયરનું નામ જરૂરી છે',
+  '1 required': '1 જરૂરી',
+  'Contact (optional)': 'સંપર્ક (વૈકલ્પિક)',
+  'GST & billing': 'GST અને બિલિંગ',
+  'Optional purchase record details': 'વૈકલ્પિક ખરીદી રેકોર્ડ વિગતો',
+  'Optional': 'વૈકલ્પિક',
+  'Select a registered GST type when you need to store a GSTIN.':
+      'GSTIN સાચવવા માટે નોંધાયેલ GST પ્રકાર પસંદ કરો.',
   'Keep purchase bills, tax details and payables organised.':
       'ખરીદ બિલ, કર વિગતો અને ચૂકવવાની રકમ વ્યવસ્થિત રાખો.',
   'Supplier identity': 'સપ્લાયરની ઓળખ',

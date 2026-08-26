@@ -112,25 +112,7 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
                       onTap: () =>
                           Get.toNamed<void>(AppRoutes.purchaseBillCreate),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        _QuickAction(
-                          label: 'Supplier',
-                          icon: Icons.storefront_outlined,
-                          onTap: () =>
-                              Get.offAllNamed<void>(AppRoutes.suppliers),
-                        ),
-                        const SizedBox(width: 8),
-                        _QuickAction(
-                          label: 'All bills',
-                          icon: Icons.receipt_long_rounded,
-                          onTap: () =>
-                              Get.offAllNamed<void>(AppRoutes.purchaseBills),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.md),
                     Row(
                       children: [
                         Expanded(
@@ -335,60 +317,4 @@ class _PayablesPrompt extends StatelessWidget {
   String _formatMoney(int minor) {
     return CurrencyUtils.formatMinor(minor, symbol: '₹');
   }
-}
-
-class _QuickAction extends StatelessWidget {
-  const _QuickAction({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-  });
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-    child: Material(
-      color: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(17),
-        side: BorderSide(
-          color: Theme.of(context).brightness == Brightness.dark
-              ? AppColors.darkBorder
-              : AppColors.border,
-        ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: AppColors.primary, size: 19),
-              ),
-              const SizedBox(height: 7),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.caption.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
 }
