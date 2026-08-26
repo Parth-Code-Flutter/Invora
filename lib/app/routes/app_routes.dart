@@ -11,6 +11,7 @@ abstract final class AppRoutes {
   static const purchaseBillPdf = '/purchases/bills/pdf';
   static const suppliers = '/purchases/suppliers';
   static const supplierAdd = '/purchases/suppliers/add';
+  static const supplierStatement = '/purchases/suppliers/statement';
   static const customers = '/customers';
   static const customerAdd = '/customer/add';
   static const customerEdit = '/customer/edit';

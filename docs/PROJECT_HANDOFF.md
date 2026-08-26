@@ -1,10 +1,11 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-08-18
+Last updated: 2026-08-26
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
 Licensing and demo APK (design only): [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md)
+Purchase readiness priorities: [PURCHASE_READINESS_ROADMAP.md](PURCHASE_READINESS_ROADMAP.md)
 
 ## Purpose
 
@@ -45,10 +46,12 @@ backups.
   More navigation. A labelled Sales/Purchases control switches workspaces;
   sales customers/invoices and purchase suppliers/bills use separate tables.
   Supplier creation supports the same native phone-contact import behavior and
-  contact validation as customer creation. New purchase bills require supplier
-  selection before bill fields are shown, then enforce unique bill number,
-  valid date order, required line items, positive quantity/rate, bounded GST,
-  and payment-within-balance rules.
+  contact validation as customer creation. Supplier profiles persist a GST
+  registration type (Unregistered, Regular, Composition, or SEZ); the focused
+  GSTIN field is shown and validated only for registered suppliers. New
+  purchase bills require supplier selection before bill fields are shown, then
+  enforce unique bill number, valid date order, required line items, positive
+  quantity/rate, bounded GST, and payment-within-balance rules.
   The purchase composer now matches Sales create invoice for catalog work:
   Add item opens Scan barcodes / Choose saved item / Create custom item, saved
   products keep quantity steppers with confirm-before-remove, and Generate PDF
@@ -62,6 +65,26 @@ backups.
   Save/Update), PDF preview from composer and details, and bill details with
   a status gradient hero, payment activity, grouped items, and a sticky
   Record payment bar. Long footer labels stay short so they are not truncated.
+  Purchase ledger hardening now derives paid/payable from immutable payment
+  entries, records method/reference/date/note, supports reasoned payment
+  reversals, and prevents payment on cancelled bills. Bills support duplication,
+  cancellation-with-reason, separate Part paid/Cancelled states, supplier and
+  financial-year duplicate-number checks, and safe-delete rules when payments
+  exist. Cancelled bills remain auditable but are excluded from dashboard totals.
+  The composer captures place of supply, CGST+SGST/IGST/exempt treatment, ITC
+  eligibility, reverse charge, bill discount, other charges, and item HSN/SAC;
+  those values appear in bill details and generated purchase PDFs. Supplier
+  cards open a date-filtered running statement of bills, payments, reversals,
+  and payable balance. Saved bill details accept original PDF/image attachments,
+  and portable attachment files are included in local backup/restore archives.
+  Purchase GST/payment selectors use the same shared bottom-sheet dropdown as
+  Sales, and Purchase bottom navigation mirrors the Sales Material Symbol
+  weights, selected states, raised create action, dark-mode border, and focus
+  handling while retaining Purchase-specific routes.
+- Current Drift database schema is version 12. Version 11 adds the Purchase
+  audit/tax/attachment fields; version 12 non-destructively adds supplier GST
+  registration type and defaults existing suppliers to Unregistered. ZIP
+  backup compatibility checks use this schema version.
 - Business profile, logo, signature, payment QR, bank, and UPI information
 - Responsive phone/tablet layouts and dark mode
 - Optional four-digit app lock under Settings > Security. PIN setup requires
@@ -413,18 +436,19 @@ transfer automatically.
 
 ## Verification baseline
 
-As of 2026-08-15:
+As of 2026-08-26:
 
 - Flutter analysis: no issues
-- Automated suite: all 146 tests passing
+- Automated suite: all 150 tests passing
 - Android debug APK builds successfully
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
 
-1. Add purchase-specific reporting/export after the core supplier/bill/payment
-   workflow has been field tested. Purchase bills now generate, preview, share,
-   save, and print their own PDFs.
+1. Add purchase CSV export and payable ageing buckets after field-testing the
+   new supplier statement, reversal, cancellation, tax-evidence, and attachment
+   workflows. Purchase bills already generate, preview, share, save, and print
+   their own PDFs.
 2. Configure secure Android release signing; release still references debug
    signing.
 3. Verify Android AAB and iOS archive release builds.
@@ -448,6 +472,128 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-26 — Purchase navigation icon parity
+
+- Matched the Purchase bottom navigation to the Sales visual treatment:
+  selected Material Symbols now use filled/heavier icon variants, inactive
+  icons use the lighter outlined weight, and dark-mode borders stay consistent.
+- Rebuilt the raised Purchase create action with the same white outer ring,
+  branded gradient, shadow, and active indicator dot used by Sales. Keyboard
+  focus is dismissed before tab or create-sheet navigation.
+- No routes, stored data, database schema, or Sales behavior changed.
+- Important files: `app_purchase_navigation.dart`,
+  `main_navigation_test.dart`.
+- Verified on a narrow-phone widget harness, with formatting, Flutter analysis,
+  and the automated suite.
+
+### 2026-08-26 — Shared dropdowns across Purchase
+
+- Removed the remaining native Flutter dropdown menus from the Purchase
+  workspace. Supplier GST registration, bill tax treatment, and supplier
+  payment method now all use the same shared `AppDropdownField` bottom-sheet
+  selector already used by Sales.
+- Payment and tax options retain their existing stored values and behavior,
+  while icons, selected-state styling, accessibility semantics, and future UI
+  improvements now come from one common widget on both sides.
+- Added Hindi and Gujarati coverage for the selector headings. No database,
+  storage, migration, or Sales behavior changes.
+- Important files: `purchase_screens.dart`, `coverage_translation_maps.dart`.
+- Verified with a native-dropdown audit, formatting, Flutter analysis, and the
+  automated suite.
+
+### 2026-08-26 — Purchase bill detail alignment refinement
+
+- Rebalanced the purchase bill hero so supplier details stay left while the
+  labelled balance stays consistently right-aligned on narrow screens.
+- Reworked payment entries into method/date information on the left and a
+  clear signed amount on the right. Added a scannable Tax & GST header and a
+  compact attachment action to remove uneven text/button alignment.
+- Added Hindi and Gujarati coverage for the new labels. No database, storage,
+  migration, or Sales behavior changes.
+- Important files: `purchase_screens.dart`, `coverage_translation_maps.dart`.
+- Verified with formatting, Flutter analysis, and the automated suite.
+
+### 2026-08-26 — Supplier GST registration and form refinement
+
+- Reorganised supplier creation/editing into compact Identity, Contact, and
+  Tax & billing sections while preserving phone-contact import and the sticky
+  save action.
+- Added a modern GST registration selector for Unregistered, Regular,
+  Composition, and SEZ suppliers. GSTIN is requested only for registered
+  suppliers and is validated against the Indian GSTIN structure before save.
+- Persisted the selected registration type and advanced the database schema
+  from 11 to 12 with a non-destructive supplier-table migration. Existing
+  suppliers default to Unregistered; Sales tables and behavior are untouched.
+- Important files: `purchase_screens.dart`, `purchase_models.dart`,
+  `purchase_repository.dart`, `app_database.dart`, generated Drift schema,
+  and `purchase_repository_test.dart`.
+- Verified with formatting, generated Drift code, clean Flutter analysis, and
+  automated purchase repository coverage.
+
+### 2026-08-26 — Purchase journey visual and usability refinement
+
+- Reworked the Purchase home overview into a branded financial hero with a
+  prominent recorded-purchase total, compact Paid/Payable/Overdue metrics, and
+  balanced New bill/Suppliers/All bills shortcuts.
+- Improved supplier-first bill creation with a focused selection guide,
+  supplier/mobile/GSTIN search, clearer empty/search states, and stronger row
+  affordances. The bill composer now uses numbered item cards, a live subtotal/
+  GST/discount/charges summary, and collapsible optional notes to reduce wasted
+  space while keeping tax evidence one tap away.
+- Added Hindi and Gujarati coverage for the new interface copy. No database,
+  storage, migration, or Sales behavior changes.
+- Important files: `purchase_workspace_screen.dart`, `purchase_screens.dart`,
+  and `coverage_translation_maps.dart`.
+- Verified with clean Flutter analysis, narrow-screen Purchase widget tests,
+  purchase flow/repository tests, and all 149 automated tests passing.
+
+### 2026-08-26 — Purchase payment keyboard overflow fix
+
+- Made the supplier-payment form vertically scrollable inside the shared
+  keyboard-aware bottom-sheet viewport. Small Android screens can now reach the
+  payment note and submit action without a RenderFlex overflow when the numeric
+  keyboard is visible; dragging also dismisses the keyboard naturally.
+- Important file: `purchase_screens.dart`. No database, storage, migration, or
+  Sales behavior changes.
+- Verified with formatting, clean Flutter analysis, and the automated suite.
+
+### 2026-08-25 — Purchase ledger, evidence, statements, and attachments
+
+- Upgraded the isolated Purchase workspace from basic CRUD to a reconciled
+  payable ledger. Supplier payments now store method, reference, date, and note;
+  corrections create reasoned reversal entries instead of rewriting history.
+- Added bill lifecycle safety: unique supplier bill numbers within a financial
+  year, duplicate-to-draft, cancel-with-reason, payment-aware delete/cancel
+  guards, and dashboard exclusion for cancelled records.
+- Added purchase evidence fields for HSN/SAC, place of supply, tax treatment,
+  ITC eligibility, reverse charge, bill discount, and other charges. Purchase
+  details and generated PDFs expose the saved evidence and adjusted totals.
+- Added a modern supplier statement with date filters and running balances, plus
+  original supplier PDF/image attachments on saved bills. Attachment paths are
+  portable and their files now travel with ZIP backup/restore.
+- Database schema advanced from 10 to 11. Migration adds purchase lifecycle,
+  tax-evidence, payment-audit, item HSN/SAC, and attachment storage without
+  touching Sales tables. Important files: `app_database.dart`, generated Drift
+  schema, `purchase_models.dart`, `purchase_repository.dart`,
+  `purchase_attachment_service.dart`, `purchase_bill_pdf_service.dart`,
+  Purchase routes/screens, localization coverage, and Purchase tests.
+- Verification: clean Flutter analysis and all 149 automated tests passing,
+  including purchase ledger, workspace, PDF, and attachment restore coverage;
+  Android debug APK also builds successfully.
+
+### 2026-08-25 — Purchase client and Play readiness research
+
+- Added a research-backed Purchase roadmap separating client acceptance, Play
+  release gates, high-value follow-ups, and explicitly deferred inventory/
+  accounting scope. The first goals are supplier-payment ledger integrity,
+  bill lifecycle safety, GST evidence, original bill attachments, supplier
+  statements/exports, and schema-v10/backup/scale verification.
+- Documented 2026 Play target-API and upcoming contacts-permission expectations,
+  backup privacy, signing/AAB/device QA, and a phased delivery order that keeps
+  Creovo fast and offline-first.
+- Important file: `docs/PURCHASE_READINESS_ROADMAP.md`. No application behavior,
+  schema, or stored data changed.
 
 ### 2026-08-18 — Purchase composer uses catalog items and PDF
 

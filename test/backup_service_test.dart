@@ -177,6 +177,32 @@ void main() {
     expect(result.mediaPaths['signature'], isNull);
   });
 
+  test('restores portable purchase bill attachments', () async {
+    final target = File('${temporaryDirectory.path}/active.sqlite');
+    await target.writeAsBytes(_sqliteBytes('old'));
+    service = BackupService(
+      database,
+      BusinessRepository(database),
+      await AppStorage.create(),
+      databaseFileProvider: () async => target,
+    );
+    final backup = await _backupFile(
+      temporaryDirectory,
+      schemaVersion: 11,
+      databaseBytes: _sqliteBytes('restored'),
+      purchaseAttachments: {
+        'supplier_bill_1.pdf': [9, 8, 7, 6],
+      },
+    );
+
+    await service.restore(backup);
+
+    final restored = File(
+      '${temporaryDirectory.path}/purchase_attachments/supplier_bill_1.pdf',
+    );
+    expect(await restored.readAsBytes(), [9, 8, 7, 6]);
+  });
+
   test('stores a validated local reminder interval', () async {
     expect(service.reminderDays, 7);
     expect(service.isBackupDue, isTrue);
@@ -195,6 +221,7 @@ Future<File> _backupFile(
   required List<int> databaseBytes,
   List<int>? settingsBytes,
   Map<String, List<int>> media = const {},
+  Map<String, List<int>> purchaseAttachments = const {},
 }) async {
   final archive = Archive()
     ..addFile(
@@ -217,6 +244,15 @@ Future<File> _backupFile(
   for (final entry in media.entries) {
     archive.addFile(
       ArchiveFile('media/${entry.key}', entry.value.length, entry.value),
+    );
+  }
+  for (final entry in purchaseAttachments.entries) {
+    archive.addFile(
+      ArchiveFile(
+        'purchase_attachments/${entry.key}',
+        entry.value.length,
+        entry.value,
+      ),
     );
   }
   if (settingsBytes != null) {

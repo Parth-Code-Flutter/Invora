@@ -100,6 +100,10 @@ abstract final class AppRouter {
     ),
     GetPage(name: AppRoutes.supplierAdd, page: SupplierFormScreen.new),
     GetPage(
+      name: AppRoutes.supplierStatement,
+      page: SupplierStatementScreen.new,
+    ),
+    GetPage(
       name: AppRoutes.dashboard,
       page: DashboardScreen.new,
       binding: DashboardBinding(),

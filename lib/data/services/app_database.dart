@@ -184,6 +184,8 @@ class Suppliers extends Table {
   TextColumn get companyName => text().nullable()();
   TextColumn get mobile => text().nullable()();
   TextColumn get email => text().nullable()();
+  TextColumn get gstRegistrationType =>
+      text().withDefault(const Constant('unregistered'))();
   TextColumn get gstin => text().nullable()();
   TextColumn get address => text().nullable()();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
@@ -205,6 +207,16 @@ class PurchaseBills extends Table {
   IntColumn get paidMinor => integer().withDefault(const Constant(0))();
   IntColumn get balanceMinor => integer()();
   TextColumn get status => text().withDefault(const Constant('unpaid'))();
+  TextColumn get cancellationReason => text().nullable()();
+  DateTimeColumn get cancelledAt => dateTime().nullable()();
+  TextColumn get placeOfSupply => text().nullable()();
+  TextColumn get taxMode => text().withDefault(const Constant('cgst_sgst'))();
+  BoolColumn get reverseCharge =>
+      boolean().withDefault(const Constant(false))();
+  BoolColumn get itcEligible => boolean().withDefault(const Constant(true))();
+  IntColumn get discountMinor => integer().withDefault(const Constant(0))();
+  IntColumn get additionalChargesMinor =>
+      integer().withDefault(const Constant(0))();
   TextColumn get notes => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
@@ -217,6 +229,7 @@ class PurchaseItems extends Table {
   TextColumn get name => text()();
   IntColumn get quantityScaled => integer()();
   TextColumn get unit => text()();
+  TextColumn get hsnSac => text().nullable()();
   IntColumn get rateMinor => integer()();
   IntColumn get taxRateBasisPoints =>
       integer().withDefault(const Constant(0))();
@@ -230,8 +243,22 @@ class PurchasePayments extends Table {
       integer().references(PurchaseBills, #id, onDelete: KeyAction.cascade)();
   IntColumn get amountMinor => integer()();
   TextColumn get method => text().nullable()();
+  TextColumn get reference => text().nullable()();
   TextColumn get note => text().nullable()();
+  TextColumn get entryType => text().withDefault(const Constant('payment'))();
+  IntColumn get reversesPaymentId => integer().nullable()();
   DateTimeColumn get paidAt => dateTime()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class PurchaseBillAttachments extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get purchaseBillId =>
+      integer().references(PurchaseBills, #id, onDelete: KeyAction.cascade)();
+  TextColumn get fileName => text()();
+  TextColumn get localPath => text()();
+  TextColumn get mimeType => text().nullable()();
+  IntColumn get sizeBytes => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -249,6 +276,7 @@ class PurchasePayments extends Table {
     PurchaseBills,
     PurchaseItems,
     PurchasePayments,
+    PurchaseBillAttachments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -331,6 +359,54 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createTable(purchaseBills);
         await migrator.createTable(purchaseItems);
         await migrator.createTable(purchasePayments);
+        await migrator.createTable(purchaseBillAttachments);
+      }
+      if (from >= 10 && from < 11) {
+        final tables = (await customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table'",
+        ).get()).map((row) => row.read<String>('name')).toSet();
+        if (tables.contains('purchase_bills')) {
+          await migrator.addColumn(
+            purchaseBills,
+            purchaseBills.cancellationReason,
+          );
+          await migrator.addColumn(purchaseBills, purchaseBills.cancelledAt);
+          await migrator.addColumn(purchaseBills, purchaseBills.placeOfSupply);
+          await migrator.addColumn(purchaseBills, purchaseBills.taxMode);
+          await migrator.addColumn(purchaseBills, purchaseBills.reverseCharge);
+          await migrator.addColumn(purchaseBills, purchaseBills.itcEligible);
+          await migrator.addColumn(purchaseBills, purchaseBills.discountMinor);
+          await migrator.addColumn(
+            purchaseBills,
+            purchaseBills.additionalChargesMinor,
+          );
+        }
+        if (tables.contains('purchase_items')) {
+          await migrator.addColumn(purchaseItems, purchaseItems.hsnSac);
+        }
+        if (tables.contains('purchase_payments')) {
+          await migrator.addColumn(
+            purchasePayments,
+            purchasePayments.reference,
+          );
+          await migrator.addColumn(
+            purchasePayments,
+            purchasePayments.entryType,
+          );
+          await migrator.addColumn(
+            purchasePayments,
+            purchasePayments.reversesPaymentId,
+          );
+        }
+        await migrator.createTable(purchaseBillAttachments);
+      }
+      if (from >= 10 && from < 12) {
+        final tables = (await customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table'",
+        ).get()).map((row) => row.read<String>('name')).toSet();
+        if (tables.contains('suppliers')) {
+          await migrator.addColumn(suppliers, suppliers.gstRegistrationType);
+        }
       }
     },
   );

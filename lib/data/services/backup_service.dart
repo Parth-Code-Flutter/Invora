@@ -80,6 +80,23 @@ class BackupService {
         ),
       );
     }
+    final support = databaseFile.parent;
+    final purchaseAttachments = Directory(
+      p.join(support.path, 'purchase_attachments'),
+    );
+    if (await purchaseAttachments.exists()) {
+      await for (final entity in purchaseAttachments.list()) {
+        if (entity is! File) continue;
+        final bytes = await entity.readAsBytes();
+        archive.addFile(
+          ArchiveFile(
+            'purchase_attachments/${p.basename(entity.path)}',
+            bytes.length,
+            bytes,
+          ),
+        );
+      }
+    }
     final metadata = jsonEncode({
       'format': 'creovo-invoice-backup',
       'version': 1,
@@ -274,6 +291,7 @@ class BackupService {
         flush: true,
       );
       final mediaPaths = await _restoreMedia(archive, target.parent);
+      await _restorePurchaseAttachments(archive, target.parent);
       await _restoreSettings(archive);
       await _storage.setBool(AppStorageKeyConst.restoreCompleted, true);
       return BackupRestoreResult(mediaPaths);
@@ -331,6 +349,23 @@ class BackupService {
           value.whereType<String>().toList(),
         );
       }
+    }
+  }
+
+  Future<void> _restorePurchaseAttachments(
+    Archive archive,
+    Directory support,
+  ) async {
+    final folder = Directory(p.join(support.path, 'purchase_attachments'));
+    await folder.create(recursive: true);
+    for (final file in archive.files.where(
+      (entry) => entry.isFile && entry.name.startsWith('purchase_attachments/'),
+    )) {
+      final name = p.basename(file.name);
+      if (name.isEmpty) continue;
+      await File(
+        p.join(folder.path, name),
+      ).writeAsBytes(file.content as List<int>, flush: true);
     }
   }
 }

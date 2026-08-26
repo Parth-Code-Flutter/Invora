@@ -68,7 +68,14 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
                     _QuickAction(
                       label: 'Supplier',
                       icon: Icons.storefront_outlined,
-                      onTap: () => Get.toNamed<void>(AppRoutes.supplierAdd),
+                      onTap: () => Get.offAllNamed<void>(AppRoutes.suppliers),
+                    ),
+                    const SizedBox(width: 8),
+                    _QuickAction(
+                      label: 'All bills',
+                      icon: Icons.receipt_long_rounded,
+                      onTap: () =>
+                          Get.offAllNamed<void>(AppRoutes.purchaseBills),
                     ),
                   ],
                 ),
@@ -160,21 +167,28 @@ class _QuickAction extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 32,
-                height: 32,
+                width: 38,
+                height: 38,
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: AppColors.primary, size: 18),
+                child: Icon(icon, color: AppColors.primary, size: 19),
               ),
-              const SizedBox(height: 5),
-              Text(label, style: AppTextStyles.caption),
+              const SizedBox(height: 7),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.caption.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ],
           ),
         ),

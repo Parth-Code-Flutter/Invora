@@ -5,6 +5,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_colors.dart';
 import '../routes/app_routes.dart';
+import '../utils/app_focus.dart';
 import 'app_bottom_sheet.dart';
 
 enum PurchaseDestination { home, bills, suppliers, more }
@@ -32,7 +33,11 @@ class AppPurchaseNavigation extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(23),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.darkBorder
+                      : AppColors.border,
+                ),
                 boxShadow: const [
                   BoxShadow(
                     color: Color(0x1F321D30),
@@ -72,47 +77,91 @@ class AppPurchaseNavigation extends StatelessWidget {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () => showAppBottomSheet<void>(
-              context: context,
-              title: 'Create purchase record',
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: const Icon(Symbols.receipt_long_rounded),
-                    title: const Text('Purchase bill'),
-                    subtitle: const Text('Record a supplier bill'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Get.toNamed<void>(AppRoutes.purchaseBillCreate);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Symbols.person_add_rounded),
-                    title: const Text('Supplier'),
-                    subtitle: const Text('Add a supplier'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Get.toNamed<void>(AppRoutes.supplierAdd);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            child: Container(
-              width: 58,
-              height: 58,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.secondary],
+          SizedBox(
+            width: 68,
+            height: 70,
+            child: Semantics(
+              button: true,
+              label: 'Create purchase record',
+              child: InkWell(
+                onTap: () async {
+                  await AppFocus.dismissKeyboard();
+                  if (!context.mounted) return;
+                  await showAppBottomSheet<void>(
+                    context: context,
+                    title: 'Create purchase record',
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: const Icon(Symbols.receipt_long_rounded),
+                          title: const Text('Purchase bill'),
+                          subtitle: const Text('Record a supplier bill'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            Get.toNamed<void>(AppRoutes.purchaseBillCreate);
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(Symbols.person_add_rounded),
+                          title: const Text('Supplier'),
+                          subtitle: const Text('Add a supplier'),
+                          onTap: () {
+                            Navigator.pop(context);
+                            Get.toNamed<void>(AppRoutes.supplierAdd);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                customBorder: const CircleBorder(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        shape: BoxShape.circle,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x3D7B2F68),
+                            blurRadius: 15,
+                            offset: Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppColors.primary, AppColors.secondary],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Symbols.add_rounded,
+                          color: Colors.white,
+                          size: 28,
+                          weight: 650,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      width: 5,
+                      height: 5,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              child: const Icon(
-                Symbols.add_rounded,
-                color: Colors.white,
-                size: 29,
               ),
             ),
           ),
@@ -134,7 +183,12 @@ class AppPurchaseNavigation extends StatelessWidget {
         selected: selected,
         button: true,
         child: InkWell(
-          onTap: selected ? null : () => Get.offAllNamed<void>(route),
+          onTap: selected
+              ? null
+              : () async {
+                  await AppFocus.dismissKeyboard();
+                  Get.offAllNamed<void>(route);
+                },
           borderRadius: BorderRadius.circular(15),
           child: Center(
             child: AnimatedContainer(
@@ -150,6 +204,9 @@ class AppPurchaseNavigation extends StatelessWidget {
                 icon,
                 color: selected ? AppColors.primary : AppColors.textSecondary,
                 size: 23,
+                fill: selected ? 1 : 0,
+                weight: selected ? 650 : 450,
+                opticalSize: 24,
               ),
             ),
           ),

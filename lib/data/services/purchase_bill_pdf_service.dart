@@ -117,7 +117,11 @@ class PurchaseBillPdfService {
               for (var i = 0; i < bill.items.length; i++)
                 [
                   '${i + 1}',
-                  bill.items[i].name,
+                  [
+                    bill.items[i].name,
+                    if ((bill.items[i].hsnSac ?? '').isNotEmpty)
+                      'HSN/SAC ${bill.items[i].hsnSac}',
+                  ].join('\n'),
                   '${_qty(bill.items[i].quantity)} ${bill.items[i].unit}',
                   CurrencyUtils.formatMinor(
                     bill.items[i].rateMinor,
@@ -162,6 +166,14 @@ class PurchaseBillPdfService {
                   _totalRow('Subtotal', bill.subtotalMinor, symbol),
                   if (bill.taxMinor > 0)
                     _totalRow('GST', bill.taxMinor, symbol),
+                  if (bill.discountMinor > 0)
+                    _totalRow('Discount', -bill.discountMinor, symbol),
+                  if (bill.additionalChargesMinor > 0)
+                    _totalRow(
+                      'Other charges',
+                      bill.additionalChargesMinor,
+                      symbol,
+                    ),
                   _totalRow('Total', bill.totalMinor, symbol, bold: true),
                   _totalRow('Paid', bill.paidMinor, symbol),
                   _totalRow('Balance', bill.balanceMinor, symbol, bold: true),
@@ -169,6 +181,38 @@ class PurchaseBillPdfService {
               ),
             ),
           ),
+          if ((bill.placeOfSupply ?? '').isNotEmpty ||
+              bill.reverseCharge ||
+              !bill.itcEligible) ...[
+            pw.SizedBox(height: 16),
+            pw.Container(
+              width: double.infinity,
+              padding: const pw.EdgeInsets.all(10),
+              decoration: pw.BoxDecoration(
+                color: PdfColors.grey100,
+                borderRadius: pw.BorderRadius.circular(5),
+              ),
+              child: pw.Wrap(
+                spacing: 18,
+                runSpacing: 6,
+                children: [
+                  pw.Text(
+                    'Tax: ${bill.taxMode == 'igst'
+                        ? 'IGST'
+                        : bill.taxMode == 'exempt'
+                        ? 'Exempt'
+                        : 'CGST + SGST'}',
+                  ),
+                  if ((bill.placeOfSupply ?? '').isNotEmpty)
+                    pw.Text('Place of supply: ${bill.placeOfSupply}'),
+                  pw.Text(
+                    'ITC: ${bill.itcEligible ? 'Eligible' : 'Not eligible'}',
+                  ),
+                  if (bill.reverseCharge) pw.Text('Reverse charge: Applicable'),
+                ],
+              ),
+            ),
+          ],
           if ((bill.notes ?? '').trim().isNotEmpty) ...[
             pw.SizedBox(height: 18),
             pw.Text(

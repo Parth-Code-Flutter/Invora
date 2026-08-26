@@ -11,6 +11,7 @@ import '../../data/services/data_export_service.dart';
 import '../../data/services/product_settings_service.dart';
 import '../../data/services/payment_receipt_pdf_service.dart';
 import '../../data/services/purchase_bill_pdf_service.dart';
+import '../../data/services/purchase_attachment_service.dart';
 import '../../data/services/backup_service.dart';
 import '../../data/services/unit_service.dart';
 import '../../data/services/app_lock_service.dart';
@@ -58,6 +59,10 @@ class InitialBinding extends Bindings {
     );
     Get.put<PurchaseBillPdfService>(
       const PurchaseBillPdfService(),
+      permanent: true,
+    );
+    Get.put<PurchaseAttachmentService>(
+      const PurchaseAttachmentService(),
       permanent: true,
     );
     Get.put<UnitService>(UnitService(appStorage), permanent: true);

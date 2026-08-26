@@ -7245,6 +7245,18 @@ class $SuppliersTable extends Suppliers
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _gstRegistrationTypeMeta =
+      const VerificationMeta('gstRegistrationType');
+  @override
+  late final GeneratedColumn<String> gstRegistrationType =
+      GeneratedColumn<String>(
+        'gst_registration_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('unregistered'),
+      );
   static const VerificationMeta _gstinMeta = const VerificationMeta('gstin');
   @override
   late final GeneratedColumn<String> gstin = GeneratedColumn<String>(
@@ -7311,6 +7323,7 @@ class $SuppliersTable extends Suppliers
     companyName,
     mobile,
     email,
+    gstRegistrationType,
     gstin,
     address,
     isDeleted,
@@ -7359,6 +7372,15 @@ class $SuppliersTable extends Suppliers
       context.handle(
         _emailMeta,
         email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    }
+    if (data.containsKey('gst_registration_type')) {
+      context.handle(
+        _gstRegistrationTypeMeta,
+        gstRegistrationType.isAcceptableOrUnknown(
+          data['gst_registration_type']!,
+          _gstRegistrationTypeMeta,
+        ),
       );
     }
     if (data.containsKey('gstin')) {
@@ -7420,6 +7442,10 @@ class $SuppliersTable extends Suppliers
         DriftSqlType.string,
         data['${effectivePrefix}email'],
       ),
+      gstRegistrationType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}gst_registration_type'],
+      )!,
       gstin: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}gstin'],
@@ -7455,6 +7481,7 @@ class Supplier extends DataClass implements Insertable<Supplier> {
   final String? companyName;
   final String? mobile;
   final String? email;
+  final String gstRegistrationType;
   final String? gstin;
   final String? address;
   final bool isDeleted;
@@ -7466,6 +7493,7 @@ class Supplier extends DataClass implements Insertable<Supplier> {
     this.companyName,
     this.mobile,
     this.email,
+    required this.gstRegistrationType,
     this.gstin,
     this.address,
     required this.isDeleted,
@@ -7486,6 +7514,7 @@ class Supplier extends DataClass implements Insertable<Supplier> {
     if (!nullToAbsent || email != null) {
       map['email'] = Variable<String>(email);
     }
+    map['gst_registration_type'] = Variable<String>(gstRegistrationType);
     if (!nullToAbsent || gstin != null) {
       map['gstin'] = Variable<String>(gstin);
     }
@@ -7511,6 +7540,7 @@ class Supplier extends DataClass implements Insertable<Supplier> {
       email: email == null && nullToAbsent
           ? const Value.absent()
           : Value(email),
+      gstRegistrationType: Value(gstRegistrationType),
       gstin: gstin == null && nullToAbsent
           ? const Value.absent()
           : Value(gstin),
@@ -7534,6 +7564,9 @@ class Supplier extends DataClass implements Insertable<Supplier> {
       companyName: serializer.fromJson<String?>(json['companyName']),
       mobile: serializer.fromJson<String?>(json['mobile']),
       email: serializer.fromJson<String?>(json['email']),
+      gstRegistrationType: serializer.fromJson<String>(
+        json['gstRegistrationType'],
+      ),
       gstin: serializer.fromJson<String?>(json['gstin']),
       address: serializer.fromJson<String?>(json['address']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
@@ -7550,6 +7583,7 @@ class Supplier extends DataClass implements Insertable<Supplier> {
       'companyName': serializer.toJson<String?>(companyName),
       'mobile': serializer.toJson<String?>(mobile),
       'email': serializer.toJson<String?>(email),
+      'gstRegistrationType': serializer.toJson<String>(gstRegistrationType),
       'gstin': serializer.toJson<String?>(gstin),
       'address': serializer.toJson<String?>(address),
       'isDeleted': serializer.toJson<bool>(isDeleted),
@@ -7564,6 +7598,7 @@ class Supplier extends DataClass implements Insertable<Supplier> {
     Value<String?> companyName = const Value.absent(),
     Value<String?> mobile = const Value.absent(),
     Value<String?> email = const Value.absent(),
+    String? gstRegistrationType,
     Value<String?> gstin = const Value.absent(),
     Value<String?> address = const Value.absent(),
     bool? isDeleted,
@@ -7575,6 +7610,7 @@ class Supplier extends DataClass implements Insertable<Supplier> {
     companyName: companyName.present ? companyName.value : this.companyName,
     mobile: mobile.present ? mobile.value : this.mobile,
     email: email.present ? email.value : this.email,
+    gstRegistrationType: gstRegistrationType ?? this.gstRegistrationType,
     gstin: gstin.present ? gstin.value : this.gstin,
     address: address.present ? address.value : this.address,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -7590,6 +7626,9 @@ class Supplier extends DataClass implements Insertable<Supplier> {
           : this.companyName,
       mobile: data.mobile.present ? data.mobile.value : this.mobile,
       email: data.email.present ? data.email.value : this.email,
+      gstRegistrationType: data.gstRegistrationType.present
+          ? data.gstRegistrationType.value
+          : this.gstRegistrationType,
       gstin: data.gstin.present ? data.gstin.value : this.gstin,
       address: data.address.present ? data.address.value : this.address,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
@@ -7606,6 +7645,7 @@ class Supplier extends DataClass implements Insertable<Supplier> {
           ..write('companyName: $companyName, ')
           ..write('mobile: $mobile, ')
           ..write('email: $email, ')
+          ..write('gstRegistrationType: $gstRegistrationType, ')
           ..write('gstin: $gstin, ')
           ..write('address: $address, ')
           ..write('isDeleted: $isDeleted, ')
@@ -7622,6 +7662,7 @@ class Supplier extends DataClass implements Insertable<Supplier> {
     companyName,
     mobile,
     email,
+    gstRegistrationType,
     gstin,
     address,
     isDeleted,
@@ -7637,6 +7678,7 @@ class Supplier extends DataClass implements Insertable<Supplier> {
           other.companyName == this.companyName &&
           other.mobile == this.mobile &&
           other.email == this.email &&
+          other.gstRegistrationType == this.gstRegistrationType &&
           other.gstin == this.gstin &&
           other.address == this.address &&
           other.isDeleted == this.isDeleted &&
@@ -7650,6 +7692,7 @@ class SuppliersCompanion extends UpdateCompanion<Supplier> {
   final Value<String?> companyName;
   final Value<String?> mobile;
   final Value<String?> email;
+  final Value<String> gstRegistrationType;
   final Value<String?> gstin;
   final Value<String?> address;
   final Value<bool> isDeleted;
@@ -7661,6 +7704,7 @@ class SuppliersCompanion extends UpdateCompanion<Supplier> {
     this.companyName = const Value.absent(),
     this.mobile = const Value.absent(),
     this.email = const Value.absent(),
+    this.gstRegistrationType = const Value.absent(),
     this.gstin = const Value.absent(),
     this.address = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -7673,6 +7717,7 @@ class SuppliersCompanion extends UpdateCompanion<Supplier> {
     this.companyName = const Value.absent(),
     this.mobile = const Value.absent(),
     this.email = const Value.absent(),
+    this.gstRegistrationType = const Value.absent(),
     this.gstin = const Value.absent(),
     this.address = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -7685,6 +7730,7 @@ class SuppliersCompanion extends UpdateCompanion<Supplier> {
     Expression<String>? companyName,
     Expression<String>? mobile,
     Expression<String>? email,
+    Expression<String>? gstRegistrationType,
     Expression<String>? gstin,
     Expression<String>? address,
     Expression<bool>? isDeleted,
@@ -7697,6 +7743,8 @@ class SuppliersCompanion extends UpdateCompanion<Supplier> {
       if (companyName != null) 'company_name': companyName,
       if (mobile != null) 'mobile': mobile,
       if (email != null) 'email': email,
+      if (gstRegistrationType != null)
+        'gst_registration_type': gstRegistrationType,
       if (gstin != null) 'gstin': gstin,
       if (address != null) 'address': address,
       if (isDeleted != null) 'is_deleted': isDeleted,
@@ -7711,6 +7759,7 @@ class SuppliersCompanion extends UpdateCompanion<Supplier> {
     Value<String?>? companyName,
     Value<String?>? mobile,
     Value<String?>? email,
+    Value<String>? gstRegistrationType,
     Value<String?>? gstin,
     Value<String?>? address,
     Value<bool>? isDeleted,
@@ -7723,6 +7772,7 @@ class SuppliersCompanion extends UpdateCompanion<Supplier> {
       companyName: companyName ?? this.companyName,
       mobile: mobile ?? this.mobile,
       email: email ?? this.email,
+      gstRegistrationType: gstRegistrationType ?? this.gstRegistrationType,
       gstin: gstin ?? this.gstin,
       address: address ?? this.address,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -7748,6 +7798,11 @@ class SuppliersCompanion extends UpdateCompanion<Supplier> {
     }
     if (email.present) {
       map['email'] = Variable<String>(email.value);
+    }
+    if (gstRegistrationType.present) {
+      map['gst_registration_type'] = Variable<String>(
+        gstRegistrationType.value,
+      );
     }
     if (gstin.present) {
       map['gstin'] = Variable<String>(gstin.value);
@@ -7775,6 +7830,7 @@ class SuppliersCompanion extends UpdateCompanion<Supplier> {
           ..write('companyName: $companyName, ')
           ..write('mobile: $mobile, ')
           ..write('email: $email, ')
+          ..write('gstRegistrationType: $gstRegistrationType, ')
           ..write('gstin: $gstin, ')
           ..write('address: $address, ')
           ..write('isDeleted: $isDeleted, ')
@@ -7929,6 +7985,104 @@ class $PurchaseBillsTable extends PurchaseBills
     requiredDuringInsert: false,
     defaultValue: const Constant('unpaid'),
   );
+  static const VerificationMeta _cancellationReasonMeta =
+      const VerificationMeta('cancellationReason');
+  @override
+  late final GeneratedColumn<String> cancellationReason =
+      GeneratedColumn<String>(
+        'cancellation_reason',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _cancelledAtMeta = const VerificationMeta(
+    'cancelledAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cancelledAt = GeneratedColumn<DateTime>(
+    'cancelled_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _placeOfSupplyMeta = const VerificationMeta(
+    'placeOfSupply',
+  );
+  @override
+  late final GeneratedColumn<String> placeOfSupply = GeneratedColumn<String>(
+    'place_of_supply',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _taxModeMeta = const VerificationMeta(
+    'taxMode',
+  );
+  @override
+  late final GeneratedColumn<String> taxMode = GeneratedColumn<String>(
+    'tax_mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('cgst_sgst'),
+  );
+  static const VerificationMeta _reverseChargeMeta = const VerificationMeta(
+    'reverseCharge',
+  );
+  @override
+  late final GeneratedColumn<bool> reverseCharge = GeneratedColumn<bool>(
+    'reverse_charge',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("reverse_charge" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _itcEligibleMeta = const VerificationMeta(
+    'itcEligible',
+  );
+  @override
+  late final GeneratedColumn<bool> itcEligible = GeneratedColumn<bool>(
+    'itc_eligible',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("itc_eligible" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _discountMinorMeta = const VerificationMeta(
+    'discountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> discountMinor = GeneratedColumn<int>(
+    'discount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _additionalChargesMinorMeta =
+      const VerificationMeta('additionalChargesMinor');
+  @override
+  late final GeneratedColumn<int> additionalChargesMinor = GeneratedColumn<int>(
+    'additional_charges_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -7976,6 +8130,14 @@ class $PurchaseBillsTable extends PurchaseBills
     paidMinor,
     balanceMinor,
     status,
+    cancellationReason,
+    cancelledAt,
+    placeOfSupply,
+    taxMode,
+    reverseCharge,
+    itcEligible,
+    discountMinor,
+    additionalChargesMinor,
     notes,
     createdAt,
     updatedAt,
@@ -8084,6 +8246,75 @@ class $PurchaseBillsTable extends PurchaseBills
         status.isAcceptableOrUnknown(data['status']!, _statusMeta),
       );
     }
+    if (data.containsKey('cancellation_reason')) {
+      context.handle(
+        _cancellationReasonMeta,
+        cancellationReason.isAcceptableOrUnknown(
+          data['cancellation_reason']!,
+          _cancellationReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cancelled_at')) {
+      context.handle(
+        _cancelledAtMeta,
+        cancelledAt.isAcceptableOrUnknown(
+          data['cancelled_at']!,
+          _cancelledAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('place_of_supply')) {
+      context.handle(
+        _placeOfSupplyMeta,
+        placeOfSupply.isAcceptableOrUnknown(
+          data['place_of_supply']!,
+          _placeOfSupplyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tax_mode')) {
+      context.handle(
+        _taxModeMeta,
+        taxMode.isAcceptableOrUnknown(data['tax_mode']!, _taxModeMeta),
+      );
+    }
+    if (data.containsKey('reverse_charge')) {
+      context.handle(
+        _reverseChargeMeta,
+        reverseCharge.isAcceptableOrUnknown(
+          data['reverse_charge']!,
+          _reverseChargeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('itc_eligible')) {
+      context.handle(
+        _itcEligibleMeta,
+        itcEligible.isAcceptableOrUnknown(
+          data['itc_eligible']!,
+          _itcEligibleMeta,
+        ),
+      );
+    }
+    if (data.containsKey('discount_minor')) {
+      context.handle(
+        _discountMinorMeta,
+        discountMinor.isAcceptableOrUnknown(
+          data['discount_minor']!,
+          _discountMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('additional_charges_minor')) {
+      context.handle(
+        _additionalChargesMinorMeta,
+        additionalChargesMinor.isAcceptableOrUnknown(
+          data['additional_charges_minor']!,
+          _additionalChargesMinorMeta,
+        ),
+      );
+    }
     if (data.containsKey('notes')) {
       context.handle(
         _notesMeta,
@@ -8159,6 +8390,38 @@ class $PurchaseBillsTable extends PurchaseBills
         DriftSqlType.string,
         data['${effectivePrefix}status'],
       )!,
+      cancellationReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cancellation_reason'],
+      ),
+      cancelledAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cancelled_at'],
+      ),
+      placeOfSupply: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}place_of_supply'],
+      ),
+      taxMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tax_mode'],
+      )!,
+      reverseCharge: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}reverse_charge'],
+      )!,
+      itcEligible: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}itc_eligible'],
+      )!,
+      discountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}discount_minor'],
+      )!,
+      additionalChargesMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}additional_charges_minor'],
+      )!,
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
@@ -8193,6 +8456,14 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
   final int paidMinor;
   final int balanceMinor;
   final String status;
+  final String? cancellationReason;
+  final DateTime? cancelledAt;
+  final String? placeOfSupply;
+  final String taxMode;
+  final bool reverseCharge;
+  final bool itcEligible;
+  final int discountMinor;
+  final int additionalChargesMinor;
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -8209,6 +8480,14 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
     required this.paidMinor,
     required this.balanceMinor,
     required this.status,
+    this.cancellationReason,
+    this.cancelledAt,
+    this.placeOfSupply,
+    required this.taxMode,
+    required this.reverseCharge,
+    required this.itcEligible,
+    required this.discountMinor,
+    required this.additionalChargesMinor,
     this.notes,
     required this.createdAt,
     required this.updatedAt,
@@ -8230,6 +8509,20 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
     map['paid_minor'] = Variable<int>(paidMinor);
     map['balance_minor'] = Variable<int>(balanceMinor);
     map['status'] = Variable<String>(status);
+    if (!nullToAbsent || cancellationReason != null) {
+      map['cancellation_reason'] = Variable<String>(cancellationReason);
+    }
+    if (!nullToAbsent || cancelledAt != null) {
+      map['cancelled_at'] = Variable<DateTime>(cancelledAt);
+    }
+    if (!nullToAbsent || placeOfSupply != null) {
+      map['place_of_supply'] = Variable<String>(placeOfSupply);
+    }
+    map['tax_mode'] = Variable<String>(taxMode);
+    map['reverse_charge'] = Variable<bool>(reverseCharge);
+    map['itc_eligible'] = Variable<bool>(itcEligible);
+    map['discount_minor'] = Variable<int>(discountMinor);
+    map['additional_charges_minor'] = Variable<int>(additionalChargesMinor);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -8254,6 +8547,20 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
       paidMinor: Value(paidMinor),
       balanceMinor: Value(balanceMinor),
       status: Value(status),
+      cancellationReason: cancellationReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cancellationReason),
+      cancelledAt: cancelledAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cancelledAt),
+      placeOfSupply: placeOfSupply == null && nullToAbsent
+          ? const Value.absent()
+          : Value(placeOfSupply),
+      taxMode: Value(taxMode),
+      reverseCharge: Value(reverseCharge),
+      itcEligible: Value(itcEligible),
+      discountMinor: Value(discountMinor),
+      additionalChargesMinor: Value(additionalChargesMinor),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
@@ -8280,6 +8587,18 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
       paidMinor: serializer.fromJson<int>(json['paidMinor']),
       balanceMinor: serializer.fromJson<int>(json['balanceMinor']),
       status: serializer.fromJson<String>(json['status']),
+      cancellationReason: serializer.fromJson<String?>(
+        json['cancellationReason'],
+      ),
+      cancelledAt: serializer.fromJson<DateTime?>(json['cancelledAt']),
+      placeOfSupply: serializer.fromJson<String?>(json['placeOfSupply']),
+      taxMode: serializer.fromJson<String>(json['taxMode']),
+      reverseCharge: serializer.fromJson<bool>(json['reverseCharge']),
+      itcEligible: serializer.fromJson<bool>(json['itcEligible']),
+      discountMinor: serializer.fromJson<int>(json['discountMinor']),
+      additionalChargesMinor: serializer.fromJson<int>(
+        json['additionalChargesMinor'],
+      ),
       notes: serializer.fromJson<String?>(json['notes']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -8301,6 +8620,14 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
       'paidMinor': serializer.toJson<int>(paidMinor),
       'balanceMinor': serializer.toJson<int>(balanceMinor),
       'status': serializer.toJson<String>(status),
+      'cancellationReason': serializer.toJson<String?>(cancellationReason),
+      'cancelledAt': serializer.toJson<DateTime?>(cancelledAt),
+      'placeOfSupply': serializer.toJson<String?>(placeOfSupply),
+      'taxMode': serializer.toJson<String>(taxMode),
+      'reverseCharge': serializer.toJson<bool>(reverseCharge),
+      'itcEligible': serializer.toJson<bool>(itcEligible),
+      'discountMinor': serializer.toJson<int>(discountMinor),
+      'additionalChargesMinor': serializer.toJson<int>(additionalChargesMinor),
       'notes': serializer.toJson<String?>(notes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -8320,6 +8647,14 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
     int? paidMinor,
     int? balanceMinor,
     String? status,
+    Value<String?> cancellationReason = const Value.absent(),
+    Value<DateTime?> cancelledAt = const Value.absent(),
+    Value<String?> placeOfSupply = const Value.absent(),
+    String? taxMode,
+    bool? reverseCharge,
+    bool? itcEligible,
+    int? discountMinor,
+    int? additionalChargesMinor,
     Value<String?> notes = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -8336,6 +8671,19 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
     paidMinor: paidMinor ?? this.paidMinor,
     balanceMinor: balanceMinor ?? this.balanceMinor,
     status: status ?? this.status,
+    cancellationReason: cancellationReason.present
+        ? cancellationReason.value
+        : this.cancellationReason,
+    cancelledAt: cancelledAt.present ? cancelledAt.value : this.cancelledAt,
+    placeOfSupply: placeOfSupply.present
+        ? placeOfSupply.value
+        : this.placeOfSupply,
+    taxMode: taxMode ?? this.taxMode,
+    reverseCharge: reverseCharge ?? this.reverseCharge,
+    itcEligible: itcEligible ?? this.itcEligible,
+    discountMinor: discountMinor ?? this.discountMinor,
+    additionalChargesMinor:
+        additionalChargesMinor ?? this.additionalChargesMinor,
     notes: notes.present ? notes.value : this.notes,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -8366,6 +8714,28 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
           ? data.balanceMinor.value
           : this.balanceMinor,
       status: data.status.present ? data.status.value : this.status,
+      cancellationReason: data.cancellationReason.present
+          ? data.cancellationReason.value
+          : this.cancellationReason,
+      cancelledAt: data.cancelledAt.present
+          ? data.cancelledAt.value
+          : this.cancelledAt,
+      placeOfSupply: data.placeOfSupply.present
+          ? data.placeOfSupply.value
+          : this.placeOfSupply,
+      taxMode: data.taxMode.present ? data.taxMode.value : this.taxMode,
+      reverseCharge: data.reverseCharge.present
+          ? data.reverseCharge.value
+          : this.reverseCharge,
+      itcEligible: data.itcEligible.present
+          ? data.itcEligible.value
+          : this.itcEligible,
+      discountMinor: data.discountMinor.present
+          ? data.discountMinor.value
+          : this.discountMinor,
+      additionalChargesMinor: data.additionalChargesMinor.present
+          ? data.additionalChargesMinor.value
+          : this.additionalChargesMinor,
       notes: data.notes.present ? data.notes.value : this.notes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -8387,6 +8757,14 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
           ..write('paidMinor: $paidMinor, ')
           ..write('balanceMinor: $balanceMinor, ')
           ..write('status: $status, ')
+          ..write('cancellationReason: $cancellationReason, ')
+          ..write('cancelledAt: $cancelledAt, ')
+          ..write('placeOfSupply: $placeOfSupply, ')
+          ..write('taxMode: $taxMode, ')
+          ..write('reverseCharge: $reverseCharge, ')
+          ..write('itcEligible: $itcEligible, ')
+          ..write('discountMinor: $discountMinor, ')
+          ..write('additionalChargesMinor: $additionalChargesMinor, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -8395,7 +8773,7 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     billNumber,
     supplierId,
@@ -8408,10 +8786,18 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
     paidMinor,
     balanceMinor,
     status,
+    cancellationReason,
+    cancelledAt,
+    placeOfSupply,
+    taxMode,
+    reverseCharge,
+    itcEligible,
+    discountMinor,
+    additionalChargesMinor,
     notes,
     createdAt,
     updatedAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8428,6 +8814,14 @@ class PurchaseBill extends DataClass implements Insertable<PurchaseBill> {
           other.paidMinor == this.paidMinor &&
           other.balanceMinor == this.balanceMinor &&
           other.status == this.status &&
+          other.cancellationReason == this.cancellationReason &&
+          other.cancelledAt == this.cancelledAt &&
+          other.placeOfSupply == this.placeOfSupply &&
+          other.taxMode == this.taxMode &&
+          other.reverseCharge == this.reverseCharge &&
+          other.itcEligible == this.itcEligible &&
+          other.discountMinor == this.discountMinor &&
+          other.additionalChargesMinor == this.additionalChargesMinor &&
           other.notes == this.notes &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -8446,6 +8840,14 @@ class PurchaseBillsCompanion extends UpdateCompanion<PurchaseBill> {
   final Value<int> paidMinor;
   final Value<int> balanceMinor;
   final Value<String> status;
+  final Value<String?> cancellationReason;
+  final Value<DateTime?> cancelledAt;
+  final Value<String?> placeOfSupply;
+  final Value<String> taxMode;
+  final Value<bool> reverseCharge;
+  final Value<bool> itcEligible;
+  final Value<int> discountMinor;
+  final Value<int> additionalChargesMinor;
   final Value<String?> notes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -8462,6 +8864,14 @@ class PurchaseBillsCompanion extends UpdateCompanion<PurchaseBill> {
     this.paidMinor = const Value.absent(),
     this.balanceMinor = const Value.absent(),
     this.status = const Value.absent(),
+    this.cancellationReason = const Value.absent(),
+    this.cancelledAt = const Value.absent(),
+    this.placeOfSupply = const Value.absent(),
+    this.taxMode = const Value.absent(),
+    this.reverseCharge = const Value.absent(),
+    this.itcEligible = const Value.absent(),
+    this.discountMinor = const Value.absent(),
+    this.additionalChargesMinor = const Value.absent(),
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -8479,6 +8889,14 @@ class PurchaseBillsCompanion extends UpdateCompanion<PurchaseBill> {
     this.paidMinor = const Value.absent(),
     required int balanceMinor,
     this.status = const Value.absent(),
+    this.cancellationReason = const Value.absent(),
+    this.cancelledAt = const Value.absent(),
+    this.placeOfSupply = const Value.absent(),
+    this.taxMode = const Value.absent(),
+    this.reverseCharge = const Value.absent(),
+    this.itcEligible = const Value.absent(),
+    this.discountMinor = const Value.absent(),
+    this.additionalChargesMinor = const Value.absent(),
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -8502,6 +8920,14 @@ class PurchaseBillsCompanion extends UpdateCompanion<PurchaseBill> {
     Expression<int>? paidMinor,
     Expression<int>? balanceMinor,
     Expression<String>? status,
+    Expression<String>? cancellationReason,
+    Expression<DateTime>? cancelledAt,
+    Expression<String>? placeOfSupply,
+    Expression<String>? taxMode,
+    Expression<bool>? reverseCharge,
+    Expression<bool>? itcEligible,
+    Expression<int>? discountMinor,
+    Expression<int>? additionalChargesMinor,
     Expression<String>? notes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -8519,6 +8945,15 @@ class PurchaseBillsCompanion extends UpdateCompanion<PurchaseBill> {
       if (paidMinor != null) 'paid_minor': paidMinor,
       if (balanceMinor != null) 'balance_minor': balanceMinor,
       if (status != null) 'status': status,
+      if (cancellationReason != null) 'cancellation_reason': cancellationReason,
+      if (cancelledAt != null) 'cancelled_at': cancelledAt,
+      if (placeOfSupply != null) 'place_of_supply': placeOfSupply,
+      if (taxMode != null) 'tax_mode': taxMode,
+      if (reverseCharge != null) 'reverse_charge': reverseCharge,
+      if (itcEligible != null) 'itc_eligible': itcEligible,
+      if (discountMinor != null) 'discount_minor': discountMinor,
+      if (additionalChargesMinor != null)
+        'additional_charges_minor': additionalChargesMinor,
       if (notes != null) 'notes': notes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -8538,6 +8973,14 @@ class PurchaseBillsCompanion extends UpdateCompanion<PurchaseBill> {
     Value<int>? paidMinor,
     Value<int>? balanceMinor,
     Value<String>? status,
+    Value<String?>? cancellationReason,
+    Value<DateTime?>? cancelledAt,
+    Value<String?>? placeOfSupply,
+    Value<String>? taxMode,
+    Value<bool>? reverseCharge,
+    Value<bool>? itcEligible,
+    Value<int>? discountMinor,
+    Value<int>? additionalChargesMinor,
     Value<String?>? notes,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -8555,6 +8998,15 @@ class PurchaseBillsCompanion extends UpdateCompanion<PurchaseBill> {
       paidMinor: paidMinor ?? this.paidMinor,
       balanceMinor: balanceMinor ?? this.balanceMinor,
       status: status ?? this.status,
+      cancellationReason: cancellationReason ?? this.cancellationReason,
+      cancelledAt: cancelledAt ?? this.cancelledAt,
+      placeOfSupply: placeOfSupply ?? this.placeOfSupply,
+      taxMode: taxMode ?? this.taxMode,
+      reverseCharge: reverseCharge ?? this.reverseCharge,
+      itcEligible: itcEligible ?? this.itcEligible,
+      discountMinor: discountMinor ?? this.discountMinor,
+      additionalChargesMinor:
+          additionalChargesMinor ?? this.additionalChargesMinor,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -8600,6 +9052,32 @@ class PurchaseBillsCompanion extends UpdateCompanion<PurchaseBill> {
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
+    if (cancellationReason.present) {
+      map['cancellation_reason'] = Variable<String>(cancellationReason.value);
+    }
+    if (cancelledAt.present) {
+      map['cancelled_at'] = Variable<DateTime>(cancelledAt.value);
+    }
+    if (placeOfSupply.present) {
+      map['place_of_supply'] = Variable<String>(placeOfSupply.value);
+    }
+    if (taxMode.present) {
+      map['tax_mode'] = Variable<String>(taxMode.value);
+    }
+    if (reverseCharge.present) {
+      map['reverse_charge'] = Variable<bool>(reverseCharge.value);
+    }
+    if (itcEligible.present) {
+      map['itc_eligible'] = Variable<bool>(itcEligible.value);
+    }
+    if (discountMinor.present) {
+      map['discount_minor'] = Variable<int>(discountMinor.value);
+    }
+    if (additionalChargesMinor.present) {
+      map['additional_charges_minor'] = Variable<int>(
+        additionalChargesMinor.value,
+      );
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -8627,6 +9105,14 @@ class PurchaseBillsCompanion extends UpdateCompanion<PurchaseBill> {
           ..write('paidMinor: $paidMinor, ')
           ..write('balanceMinor: $balanceMinor, ')
           ..write('status: $status, ')
+          ..write('cancellationReason: $cancellationReason, ')
+          ..write('cancelledAt: $cancelledAt, ')
+          ..write('placeOfSupply: $placeOfSupply, ')
+          ..write('taxMode: $taxMode, ')
+          ..write('reverseCharge: $reverseCharge, ')
+          ..write('itcEligible: $itcEligible, ')
+          ..write('discountMinor: $discountMinor, ')
+          ..write('additionalChargesMinor: $additionalChargesMinor, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -8697,6 +9183,15 @@ class $PurchaseItemsTable extends PurchaseItems
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _hsnSacMeta = const VerificationMeta('hsnSac');
+  @override
+  late final GeneratedColumn<String> hsnSac = GeneratedColumn<String>(
+    'hsn_sac',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _rateMinorMeta = const VerificationMeta(
     'rateMinor',
   );
@@ -8748,6 +9243,7 @@ class $PurchaseItemsTable extends PurchaseItems
     name,
     quantityScaled,
     unit,
+    hsnSac,
     rateMinor,
     taxRateBasisPoints,
     totalMinor,
@@ -8805,6 +9301,12 @@ class $PurchaseItemsTable extends PurchaseItems
       );
     } else if (isInserting) {
       context.missing(_unitMeta);
+    }
+    if (data.containsKey('hsn_sac')) {
+      context.handle(
+        _hsnSacMeta,
+        hsnSac.isAcceptableOrUnknown(data['hsn_sac']!, _hsnSacMeta),
+      );
     }
     if (data.containsKey('rate_minor')) {
       context.handle(
@@ -8868,6 +9370,10 @@ class $PurchaseItemsTable extends PurchaseItems
         DriftSqlType.string,
         data['${effectivePrefix}unit'],
       )!,
+      hsnSac: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hsn_sac'],
+      ),
       rateMinor: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}rate_minor'],
@@ -8899,6 +9405,7 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
   final String name;
   final int quantityScaled;
   final String unit;
+  final String? hsnSac;
   final int rateMinor;
   final int taxRateBasisPoints;
   final int totalMinor;
@@ -8909,6 +9416,7 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
     required this.name,
     required this.quantityScaled,
     required this.unit,
+    this.hsnSac,
     required this.rateMinor,
     required this.taxRateBasisPoints,
     required this.totalMinor,
@@ -8922,6 +9430,9 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
     map['name'] = Variable<String>(name);
     map['quantity_scaled'] = Variable<int>(quantityScaled);
     map['unit'] = Variable<String>(unit);
+    if (!nullToAbsent || hsnSac != null) {
+      map['hsn_sac'] = Variable<String>(hsnSac);
+    }
     map['rate_minor'] = Variable<int>(rateMinor);
     map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints);
     map['total_minor'] = Variable<int>(totalMinor);
@@ -8936,6 +9447,9 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
       name: Value(name),
       quantityScaled: Value(quantityScaled),
       unit: Value(unit),
+      hsnSac: hsnSac == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hsnSac),
       rateMinor: Value(rateMinor),
       taxRateBasisPoints: Value(taxRateBasisPoints),
       totalMinor: Value(totalMinor),
@@ -8954,6 +9468,7 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
       name: serializer.fromJson<String>(json['name']),
       quantityScaled: serializer.fromJson<int>(json['quantityScaled']),
       unit: serializer.fromJson<String>(json['unit']),
+      hsnSac: serializer.fromJson<String?>(json['hsnSac']),
       rateMinor: serializer.fromJson<int>(json['rateMinor']),
       taxRateBasisPoints: serializer.fromJson<int>(json['taxRateBasisPoints']),
       totalMinor: serializer.fromJson<int>(json['totalMinor']),
@@ -8969,6 +9484,7 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
       'name': serializer.toJson<String>(name),
       'quantityScaled': serializer.toJson<int>(quantityScaled),
       'unit': serializer.toJson<String>(unit),
+      'hsnSac': serializer.toJson<String?>(hsnSac),
       'rateMinor': serializer.toJson<int>(rateMinor),
       'taxRateBasisPoints': serializer.toJson<int>(taxRateBasisPoints),
       'totalMinor': serializer.toJson<int>(totalMinor),
@@ -8982,6 +9498,7 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
     String? name,
     int? quantityScaled,
     String? unit,
+    Value<String?> hsnSac = const Value.absent(),
     int? rateMinor,
     int? taxRateBasisPoints,
     int? totalMinor,
@@ -8992,6 +9509,7 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
     name: name ?? this.name,
     quantityScaled: quantityScaled ?? this.quantityScaled,
     unit: unit ?? this.unit,
+    hsnSac: hsnSac.present ? hsnSac.value : this.hsnSac,
     rateMinor: rateMinor ?? this.rateMinor,
     taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
     totalMinor: totalMinor ?? this.totalMinor,
@@ -9008,6 +9526,7 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
           ? data.quantityScaled.value
           : this.quantityScaled,
       unit: data.unit.present ? data.unit.value : this.unit,
+      hsnSac: data.hsnSac.present ? data.hsnSac.value : this.hsnSac,
       rateMinor: data.rateMinor.present ? data.rateMinor.value : this.rateMinor,
       taxRateBasisPoints: data.taxRateBasisPoints.present
           ? data.taxRateBasisPoints.value
@@ -9027,6 +9546,7 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
           ..write('name: $name, ')
           ..write('quantityScaled: $quantityScaled, ')
           ..write('unit: $unit, ')
+          ..write('hsnSac: $hsnSac, ')
           ..write('rateMinor: $rateMinor, ')
           ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
           ..write('totalMinor: $totalMinor, ')
@@ -9042,6 +9562,7 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
     name,
     quantityScaled,
     unit,
+    hsnSac,
     rateMinor,
     taxRateBasisPoints,
     totalMinor,
@@ -9056,6 +9577,7 @@ class PurchaseItem extends DataClass implements Insertable<PurchaseItem> {
           other.name == this.name &&
           other.quantityScaled == this.quantityScaled &&
           other.unit == this.unit &&
+          other.hsnSac == this.hsnSac &&
           other.rateMinor == this.rateMinor &&
           other.taxRateBasisPoints == this.taxRateBasisPoints &&
           other.totalMinor == this.totalMinor &&
@@ -9068,6 +9590,7 @@ class PurchaseItemsCompanion extends UpdateCompanion<PurchaseItem> {
   final Value<String> name;
   final Value<int> quantityScaled;
   final Value<String> unit;
+  final Value<String?> hsnSac;
   final Value<int> rateMinor;
   final Value<int> taxRateBasisPoints;
   final Value<int> totalMinor;
@@ -9078,6 +9601,7 @@ class PurchaseItemsCompanion extends UpdateCompanion<PurchaseItem> {
     this.name = const Value.absent(),
     this.quantityScaled = const Value.absent(),
     this.unit = const Value.absent(),
+    this.hsnSac = const Value.absent(),
     this.rateMinor = const Value.absent(),
     this.taxRateBasisPoints = const Value.absent(),
     this.totalMinor = const Value.absent(),
@@ -9089,6 +9613,7 @@ class PurchaseItemsCompanion extends UpdateCompanion<PurchaseItem> {
     required String name,
     required int quantityScaled,
     required String unit,
+    this.hsnSac = const Value.absent(),
     required int rateMinor,
     this.taxRateBasisPoints = const Value.absent(),
     required int totalMinor,
@@ -9106,6 +9631,7 @@ class PurchaseItemsCompanion extends UpdateCompanion<PurchaseItem> {
     Expression<String>? name,
     Expression<int>? quantityScaled,
     Expression<String>? unit,
+    Expression<String>? hsnSac,
     Expression<int>? rateMinor,
     Expression<int>? taxRateBasisPoints,
     Expression<int>? totalMinor,
@@ -9117,6 +9643,7 @@ class PurchaseItemsCompanion extends UpdateCompanion<PurchaseItem> {
       if (name != null) 'name': name,
       if (quantityScaled != null) 'quantity_scaled': quantityScaled,
       if (unit != null) 'unit': unit,
+      if (hsnSac != null) 'hsn_sac': hsnSac,
       if (rateMinor != null) 'rate_minor': rateMinor,
       if (taxRateBasisPoints != null)
         'tax_rate_basis_points': taxRateBasisPoints,
@@ -9131,6 +9658,7 @@ class PurchaseItemsCompanion extends UpdateCompanion<PurchaseItem> {
     Value<String>? name,
     Value<int>? quantityScaled,
     Value<String>? unit,
+    Value<String?>? hsnSac,
     Value<int>? rateMinor,
     Value<int>? taxRateBasisPoints,
     Value<int>? totalMinor,
@@ -9142,6 +9670,7 @@ class PurchaseItemsCompanion extends UpdateCompanion<PurchaseItem> {
       name: name ?? this.name,
       quantityScaled: quantityScaled ?? this.quantityScaled,
       unit: unit ?? this.unit,
+      hsnSac: hsnSac ?? this.hsnSac,
       rateMinor: rateMinor ?? this.rateMinor,
       taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
       totalMinor: totalMinor ?? this.totalMinor,
@@ -9167,6 +9696,9 @@ class PurchaseItemsCompanion extends UpdateCompanion<PurchaseItem> {
     if (unit.present) {
       map['unit'] = Variable<String>(unit.value);
     }
+    if (hsnSac.present) {
+      map['hsn_sac'] = Variable<String>(hsnSac.value);
+    }
     if (rateMinor.present) {
       map['rate_minor'] = Variable<int>(rateMinor.value);
     }
@@ -9190,6 +9722,7 @@ class PurchaseItemsCompanion extends UpdateCompanion<PurchaseItem> {
           ..write('name: $name, ')
           ..write('quantityScaled: $quantityScaled, ')
           ..write('unit: $unit, ')
+          ..write('hsnSac: $hsnSac, ')
           ..write('rateMinor: $rateMinor, ')
           ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
           ..write('totalMinor: $totalMinor, ')
@@ -9252,6 +9785,17 @@ class $PurchasePaymentsTable extends PurchasePayments
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _referenceMeta = const VerificationMeta(
+    'reference',
+  );
+  @override
+  late final GeneratedColumn<String> reference = GeneratedColumn<String>(
+    'reference',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
@@ -9259,6 +9803,29 @@ class $PurchasePaymentsTable extends PurchasePayments
     aliasedName,
     true,
     type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _entryTypeMeta = const VerificationMeta(
+    'entryType',
+  );
+  @override
+  late final GeneratedColumn<String> entryType = GeneratedColumn<String>(
+    'entry_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('payment'),
+  );
+  static const VerificationMeta _reversesPaymentIdMeta = const VerificationMeta(
+    'reversesPaymentId',
+  );
+  @override
+  late final GeneratedColumn<int> reversesPaymentId = GeneratedColumn<int>(
+    'reverses_payment_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
   static const VerificationMeta _paidAtMeta = const VerificationMeta('paidAt');
@@ -9288,7 +9855,10 @@ class $PurchasePaymentsTable extends PurchasePayments
     purchaseBillId,
     amountMinor,
     method,
+    reference,
     note,
+    entryType,
+    reversesPaymentId,
     paidAt,
     createdAt,
   ];
@@ -9335,10 +9905,31 @@ class $PurchasePaymentsTable extends PurchasePayments
         method.isAcceptableOrUnknown(data['method']!, _methodMeta),
       );
     }
+    if (data.containsKey('reference')) {
+      context.handle(
+        _referenceMeta,
+        reference.isAcceptableOrUnknown(data['reference']!, _referenceMeta),
+      );
+    }
     if (data.containsKey('note')) {
       context.handle(
         _noteMeta,
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('entry_type')) {
+      context.handle(
+        _entryTypeMeta,
+        entryType.isAcceptableOrUnknown(data['entry_type']!, _entryTypeMeta),
+      );
+    }
+    if (data.containsKey('reverses_payment_id')) {
+      context.handle(
+        _reversesPaymentIdMeta,
+        reversesPaymentId.isAcceptableOrUnknown(
+          data['reverses_payment_id']!,
+          _reversesPaymentIdMeta,
+        ),
       );
     }
     if (data.containsKey('paid_at')) {
@@ -9380,9 +9971,21 @@ class $PurchasePaymentsTable extends PurchasePayments
         DriftSqlType.string,
         data['${effectivePrefix}method'],
       ),
+      reference: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reference'],
+      ),
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note'],
+      ),
+      entryType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entry_type'],
+      )!,
+      reversesPaymentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reverses_payment_id'],
       ),
       paidAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -9406,7 +10009,10 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
   final int purchaseBillId;
   final int amountMinor;
   final String? method;
+  final String? reference;
   final String? note;
+  final String entryType;
+  final int? reversesPaymentId;
   final DateTime paidAt;
   final DateTime createdAt;
   const PurchasePayment({
@@ -9414,7 +10020,10 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
     required this.purchaseBillId,
     required this.amountMinor,
     this.method,
+    this.reference,
     this.note,
+    required this.entryType,
+    this.reversesPaymentId,
     required this.paidAt,
     required this.createdAt,
   });
@@ -9427,8 +10036,15 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
     if (!nullToAbsent || method != null) {
       map['method'] = Variable<String>(method);
     }
+    if (!nullToAbsent || reference != null) {
+      map['reference'] = Variable<String>(reference);
+    }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
+    }
+    map['entry_type'] = Variable<String>(entryType);
+    if (!nullToAbsent || reversesPaymentId != null) {
+      map['reverses_payment_id'] = Variable<int>(reversesPaymentId);
     }
     map['paid_at'] = Variable<DateTime>(paidAt);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -9443,7 +10059,14 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
       method: method == null && nullToAbsent
           ? const Value.absent()
           : Value(method),
+      reference: reference == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reference),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      entryType: Value(entryType),
+      reversesPaymentId: reversesPaymentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reversesPaymentId),
       paidAt: Value(paidAt),
       createdAt: Value(createdAt),
     );
@@ -9459,7 +10082,10 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
       purchaseBillId: serializer.fromJson<int>(json['purchaseBillId']),
       amountMinor: serializer.fromJson<int>(json['amountMinor']),
       method: serializer.fromJson<String?>(json['method']),
+      reference: serializer.fromJson<String?>(json['reference']),
       note: serializer.fromJson<String?>(json['note']),
+      entryType: serializer.fromJson<String>(json['entryType']),
+      reversesPaymentId: serializer.fromJson<int?>(json['reversesPaymentId']),
       paidAt: serializer.fromJson<DateTime>(json['paidAt']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -9472,7 +10098,10 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
       'purchaseBillId': serializer.toJson<int>(purchaseBillId),
       'amountMinor': serializer.toJson<int>(amountMinor),
       'method': serializer.toJson<String?>(method),
+      'reference': serializer.toJson<String?>(reference),
       'note': serializer.toJson<String?>(note),
+      'entryType': serializer.toJson<String>(entryType),
+      'reversesPaymentId': serializer.toJson<int?>(reversesPaymentId),
       'paidAt': serializer.toJson<DateTime>(paidAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -9483,7 +10112,10 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
     int? purchaseBillId,
     int? amountMinor,
     Value<String?> method = const Value.absent(),
+    Value<String?> reference = const Value.absent(),
     Value<String?> note = const Value.absent(),
+    String? entryType,
+    Value<int?> reversesPaymentId = const Value.absent(),
     DateTime? paidAt,
     DateTime? createdAt,
   }) => PurchasePayment(
@@ -9491,7 +10123,12 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
     purchaseBillId: purchaseBillId ?? this.purchaseBillId,
     amountMinor: amountMinor ?? this.amountMinor,
     method: method.present ? method.value : this.method,
+    reference: reference.present ? reference.value : this.reference,
     note: note.present ? note.value : this.note,
+    entryType: entryType ?? this.entryType,
+    reversesPaymentId: reversesPaymentId.present
+        ? reversesPaymentId.value
+        : this.reversesPaymentId,
     paidAt: paidAt ?? this.paidAt,
     createdAt: createdAt ?? this.createdAt,
   );
@@ -9505,7 +10142,12 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
           ? data.amountMinor.value
           : this.amountMinor,
       method: data.method.present ? data.method.value : this.method,
+      reference: data.reference.present ? data.reference.value : this.reference,
       note: data.note.present ? data.note.value : this.note,
+      entryType: data.entryType.present ? data.entryType.value : this.entryType,
+      reversesPaymentId: data.reversesPaymentId.present
+          ? data.reversesPaymentId.value
+          : this.reversesPaymentId,
       paidAt: data.paidAt.present ? data.paidAt.value : this.paidAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -9518,7 +10160,10 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
           ..write('purchaseBillId: $purchaseBillId, ')
           ..write('amountMinor: $amountMinor, ')
           ..write('method: $method, ')
+          ..write('reference: $reference, ')
           ..write('note: $note, ')
+          ..write('entryType: $entryType, ')
+          ..write('reversesPaymentId: $reversesPaymentId, ')
           ..write('paidAt: $paidAt, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -9531,7 +10176,10 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
     purchaseBillId,
     amountMinor,
     method,
+    reference,
     note,
+    entryType,
+    reversesPaymentId,
     paidAt,
     createdAt,
   );
@@ -9543,7 +10191,10 @@ class PurchasePayment extends DataClass implements Insertable<PurchasePayment> {
           other.purchaseBillId == this.purchaseBillId &&
           other.amountMinor == this.amountMinor &&
           other.method == this.method &&
+          other.reference == this.reference &&
           other.note == this.note &&
+          other.entryType == this.entryType &&
+          other.reversesPaymentId == this.reversesPaymentId &&
           other.paidAt == this.paidAt &&
           other.createdAt == this.createdAt);
 }
@@ -9553,7 +10204,10 @@ class PurchasePaymentsCompanion extends UpdateCompanion<PurchasePayment> {
   final Value<int> purchaseBillId;
   final Value<int> amountMinor;
   final Value<String?> method;
+  final Value<String?> reference;
   final Value<String?> note;
+  final Value<String> entryType;
+  final Value<int?> reversesPaymentId;
   final Value<DateTime> paidAt;
   final Value<DateTime> createdAt;
   const PurchasePaymentsCompanion({
@@ -9561,7 +10215,10 @@ class PurchasePaymentsCompanion extends UpdateCompanion<PurchasePayment> {
     this.purchaseBillId = const Value.absent(),
     this.amountMinor = const Value.absent(),
     this.method = const Value.absent(),
+    this.reference = const Value.absent(),
     this.note = const Value.absent(),
+    this.entryType = const Value.absent(),
+    this.reversesPaymentId = const Value.absent(),
     this.paidAt = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
@@ -9570,7 +10227,10 @@ class PurchasePaymentsCompanion extends UpdateCompanion<PurchasePayment> {
     required int purchaseBillId,
     required int amountMinor,
     this.method = const Value.absent(),
+    this.reference = const Value.absent(),
     this.note = const Value.absent(),
+    this.entryType = const Value.absent(),
+    this.reversesPaymentId = const Value.absent(),
     required DateTime paidAt,
     this.createdAt = const Value.absent(),
   }) : purchaseBillId = Value(purchaseBillId),
@@ -9581,7 +10241,10 @@ class PurchasePaymentsCompanion extends UpdateCompanion<PurchasePayment> {
     Expression<int>? purchaseBillId,
     Expression<int>? amountMinor,
     Expression<String>? method,
+    Expression<String>? reference,
     Expression<String>? note,
+    Expression<String>? entryType,
+    Expression<int>? reversesPaymentId,
     Expression<DateTime>? paidAt,
     Expression<DateTime>? createdAt,
   }) {
@@ -9590,7 +10253,10 @@ class PurchasePaymentsCompanion extends UpdateCompanion<PurchasePayment> {
       if (purchaseBillId != null) 'purchase_bill_id': purchaseBillId,
       if (amountMinor != null) 'amount_minor': amountMinor,
       if (method != null) 'method': method,
+      if (reference != null) 'reference': reference,
       if (note != null) 'note': note,
+      if (entryType != null) 'entry_type': entryType,
+      if (reversesPaymentId != null) 'reverses_payment_id': reversesPaymentId,
       if (paidAt != null) 'paid_at': paidAt,
       if (createdAt != null) 'created_at': createdAt,
     });
@@ -9601,7 +10267,10 @@ class PurchasePaymentsCompanion extends UpdateCompanion<PurchasePayment> {
     Value<int>? purchaseBillId,
     Value<int>? amountMinor,
     Value<String?>? method,
+    Value<String?>? reference,
     Value<String?>? note,
+    Value<String>? entryType,
+    Value<int?>? reversesPaymentId,
     Value<DateTime>? paidAt,
     Value<DateTime>? createdAt,
   }) {
@@ -9610,7 +10279,10 @@ class PurchasePaymentsCompanion extends UpdateCompanion<PurchasePayment> {
       purchaseBillId: purchaseBillId ?? this.purchaseBillId,
       amountMinor: amountMinor ?? this.amountMinor,
       method: method ?? this.method,
+      reference: reference ?? this.reference,
       note: note ?? this.note,
+      entryType: entryType ?? this.entryType,
+      reversesPaymentId: reversesPaymentId ?? this.reversesPaymentId,
       paidAt: paidAt ?? this.paidAt,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -9631,8 +10303,17 @@ class PurchasePaymentsCompanion extends UpdateCompanion<PurchasePayment> {
     if (method.present) {
       map['method'] = Variable<String>(method.value);
     }
+    if (reference.present) {
+      map['reference'] = Variable<String>(reference.value);
+    }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
+    }
+    if (entryType.present) {
+      map['entry_type'] = Variable<String>(entryType.value);
+    }
+    if (reversesPaymentId.present) {
+      map['reverses_payment_id'] = Variable<int>(reversesPaymentId.value);
     }
     if (paidAt.present) {
       map['paid_at'] = Variable<DateTime>(paidAt.value);
@@ -9650,8 +10331,474 @@ class PurchasePaymentsCompanion extends UpdateCompanion<PurchasePayment> {
           ..write('purchaseBillId: $purchaseBillId, ')
           ..write('amountMinor: $amountMinor, ')
           ..write('method: $method, ')
+          ..write('reference: $reference, ')
           ..write('note: $note, ')
+          ..write('entryType: $entryType, ')
+          ..write('reversesPaymentId: $reversesPaymentId, ')
           ..write('paidAt: $paidAt, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PurchaseBillAttachmentsTable extends PurchaseBillAttachments
+    with TableInfo<$PurchaseBillAttachmentsTable, PurchaseBillAttachment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PurchaseBillAttachmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _purchaseBillIdMeta = const VerificationMeta(
+    'purchaseBillId',
+  );
+  @override
+  late final GeneratedColumn<int> purchaseBillId = GeneratedColumn<int>(
+    'purchase_bill_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES purchase_bills (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _fileNameMeta = const VerificationMeta(
+    'fileName',
+  );
+  @override
+  late final GeneratedColumn<String> fileName = GeneratedColumn<String>(
+    'file_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _localPathMeta = const VerificationMeta(
+    'localPath',
+  );
+  @override
+  late final GeneratedColumn<String> localPath = GeneratedColumn<String>(
+    'local_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mimeTypeMeta = const VerificationMeta(
+    'mimeType',
+  );
+  @override
+  late final GeneratedColumn<String> mimeType = GeneratedColumn<String>(
+    'mime_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta(
+    'sizeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+    'size_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    purchaseBillId,
+    fileName,
+    localPath,
+    mimeType,
+    sizeBytes,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'purchase_bill_attachments';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PurchaseBillAttachment> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('purchase_bill_id')) {
+      context.handle(
+        _purchaseBillIdMeta,
+        purchaseBillId.isAcceptableOrUnknown(
+          data['purchase_bill_id']!,
+          _purchaseBillIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_purchaseBillIdMeta);
+    }
+    if (data.containsKey('file_name')) {
+      context.handle(
+        _fileNameMeta,
+        fileName.isAcceptableOrUnknown(data['file_name']!, _fileNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fileNameMeta);
+    }
+    if (data.containsKey('local_path')) {
+      context.handle(
+        _localPathMeta,
+        localPath.isAcceptableOrUnknown(data['local_path']!, _localPathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_localPathMeta);
+    }
+    if (data.containsKey('mime_type')) {
+      context.handle(
+        _mimeTypeMeta,
+        mimeType.isAcceptableOrUnknown(data['mime_type']!, _mimeTypeMeta),
+      );
+    }
+    if (data.containsKey('size_bytes')) {
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PurchaseBillAttachment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PurchaseBillAttachment(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      purchaseBillId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}purchase_bill_id'],
+      )!,
+      fileName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_name'],
+      )!,
+      localPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_path'],
+      )!,
+      mimeType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mime_type'],
+      ),
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PurchaseBillAttachmentsTable createAlias(String alias) {
+    return $PurchaseBillAttachmentsTable(attachedDatabase, alias);
+  }
+}
+
+class PurchaseBillAttachment extends DataClass
+    implements Insertable<PurchaseBillAttachment> {
+  final int id;
+  final int purchaseBillId;
+  final String fileName;
+  final String localPath;
+  final String? mimeType;
+  final int sizeBytes;
+  final DateTime createdAt;
+  const PurchaseBillAttachment({
+    required this.id,
+    required this.purchaseBillId,
+    required this.fileName,
+    required this.localPath,
+    this.mimeType,
+    required this.sizeBytes,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['purchase_bill_id'] = Variable<int>(purchaseBillId);
+    map['file_name'] = Variable<String>(fileName);
+    map['local_path'] = Variable<String>(localPath);
+    if (!nullToAbsent || mimeType != null) {
+      map['mime_type'] = Variable<String>(mimeType);
+    }
+    map['size_bytes'] = Variable<int>(sizeBytes);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PurchaseBillAttachmentsCompanion toCompanion(bool nullToAbsent) {
+    return PurchaseBillAttachmentsCompanion(
+      id: Value(id),
+      purchaseBillId: Value(purchaseBillId),
+      fileName: Value(fileName),
+      localPath: Value(localPath),
+      mimeType: mimeType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(mimeType),
+      sizeBytes: Value(sizeBytes),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PurchaseBillAttachment.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PurchaseBillAttachment(
+      id: serializer.fromJson<int>(json['id']),
+      purchaseBillId: serializer.fromJson<int>(json['purchaseBillId']),
+      fileName: serializer.fromJson<String>(json['fileName']),
+      localPath: serializer.fromJson<String>(json['localPath']),
+      mimeType: serializer.fromJson<String?>(json['mimeType']),
+      sizeBytes: serializer.fromJson<int>(json['sizeBytes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'purchaseBillId': serializer.toJson<int>(purchaseBillId),
+      'fileName': serializer.toJson<String>(fileName),
+      'localPath': serializer.toJson<String>(localPath),
+      'mimeType': serializer.toJson<String?>(mimeType),
+      'sizeBytes': serializer.toJson<int>(sizeBytes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  PurchaseBillAttachment copyWith({
+    int? id,
+    int? purchaseBillId,
+    String? fileName,
+    String? localPath,
+    Value<String?> mimeType = const Value.absent(),
+    int? sizeBytes,
+    DateTime? createdAt,
+  }) => PurchaseBillAttachment(
+    id: id ?? this.id,
+    purchaseBillId: purchaseBillId ?? this.purchaseBillId,
+    fileName: fileName ?? this.fileName,
+    localPath: localPath ?? this.localPath,
+    mimeType: mimeType.present ? mimeType.value : this.mimeType,
+    sizeBytes: sizeBytes ?? this.sizeBytes,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  PurchaseBillAttachment copyWithCompanion(
+    PurchaseBillAttachmentsCompanion data,
+  ) {
+    return PurchaseBillAttachment(
+      id: data.id.present ? data.id.value : this.id,
+      purchaseBillId: data.purchaseBillId.present
+          ? data.purchaseBillId.value
+          : this.purchaseBillId,
+      fileName: data.fileName.present ? data.fileName.value : this.fileName,
+      localPath: data.localPath.present ? data.localPath.value : this.localPath,
+      mimeType: data.mimeType.present ? data.mimeType.value : this.mimeType,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PurchaseBillAttachment(')
+          ..write('id: $id, ')
+          ..write('purchaseBillId: $purchaseBillId, ')
+          ..write('fileName: $fileName, ')
+          ..write('localPath: $localPath, ')
+          ..write('mimeType: $mimeType, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    purchaseBillId,
+    fileName,
+    localPath,
+    mimeType,
+    sizeBytes,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PurchaseBillAttachment &&
+          other.id == this.id &&
+          other.purchaseBillId == this.purchaseBillId &&
+          other.fileName == this.fileName &&
+          other.localPath == this.localPath &&
+          other.mimeType == this.mimeType &&
+          other.sizeBytes == this.sizeBytes &&
+          other.createdAt == this.createdAt);
+}
+
+class PurchaseBillAttachmentsCompanion
+    extends UpdateCompanion<PurchaseBillAttachment> {
+  final Value<int> id;
+  final Value<int> purchaseBillId;
+  final Value<String> fileName;
+  final Value<String> localPath;
+  final Value<String?> mimeType;
+  final Value<int> sizeBytes;
+  final Value<DateTime> createdAt;
+  const PurchaseBillAttachmentsCompanion({
+    this.id = const Value.absent(),
+    this.purchaseBillId = const Value.absent(),
+    this.fileName = const Value.absent(),
+    this.localPath = const Value.absent(),
+    this.mimeType = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  PurchaseBillAttachmentsCompanion.insert({
+    this.id = const Value.absent(),
+    required int purchaseBillId,
+    required String fileName,
+    required String localPath,
+    this.mimeType = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  }) : purchaseBillId = Value(purchaseBillId),
+       fileName = Value(fileName),
+       localPath = Value(localPath);
+  static Insertable<PurchaseBillAttachment> custom({
+    Expression<int>? id,
+    Expression<int>? purchaseBillId,
+    Expression<String>? fileName,
+    Expression<String>? localPath,
+    Expression<String>? mimeType,
+    Expression<int>? sizeBytes,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (purchaseBillId != null) 'purchase_bill_id': purchaseBillId,
+      if (fileName != null) 'file_name': fileName,
+      if (localPath != null) 'local_path': localPath,
+      if (mimeType != null) 'mime_type': mimeType,
+      if (sizeBytes != null) 'size_bytes': sizeBytes,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  PurchaseBillAttachmentsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? purchaseBillId,
+    Value<String>? fileName,
+    Value<String>? localPath,
+    Value<String?>? mimeType,
+    Value<int>? sizeBytes,
+    Value<DateTime>? createdAt,
+  }) {
+    return PurchaseBillAttachmentsCompanion(
+      id: id ?? this.id,
+      purchaseBillId: purchaseBillId ?? this.purchaseBillId,
+      fileName: fileName ?? this.fileName,
+      localPath: localPath ?? this.localPath,
+      mimeType: mimeType ?? this.mimeType,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (purchaseBillId.present) {
+      map['purchase_bill_id'] = Variable<int>(purchaseBillId.value);
+    }
+    if (fileName.present) {
+      map['file_name'] = Variable<String>(fileName.value);
+    }
+    if (localPath.present) {
+      map['local_path'] = Variable<String>(localPath.value);
+    }
+    if (mimeType.present) {
+      map['mime_type'] = Variable<String>(mimeType.value);
+    }
+    if (sizeBytes.present) {
+      map['size_bytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PurchaseBillAttachmentsCompanion(')
+          ..write('id: $id, ')
+          ..write('purchaseBillId: $purchaseBillId, ')
+          ..write('fileName: $fileName, ')
+          ..write('localPath: $localPath, ')
+          ..write('mimeType: $mimeType, ')
+          ..write('sizeBytes: $sizeBytes, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -9683,6 +10830,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PurchasePaymentsTable purchasePayments = $PurchasePaymentsTable(
     this,
   );
+  late final $PurchaseBillAttachmentsTable purchaseBillAttachments =
+      $PurchaseBillAttachmentsTable(this);
   late final Index customersName = Index(
     'customers_name',
     'CREATE INDEX customers_name ON customers (name)',
@@ -9740,6 +10889,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     purchaseBills,
     purchaseItems,
     purchasePayments,
+    purchaseBillAttachments,
     customersName,
     customersMobile,
     customersGstin,
@@ -9787,6 +10937,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('purchase_payments', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'purchase_bills',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('purchase_bill_attachments', kind: UpdateKind.delete),
+      ],
     ),
   ]);
 }
@@ -13760,6 +14919,7 @@ typedef $$SuppliersTableCreateCompanionBuilder =
       Value<String?> companyName,
       Value<String?> mobile,
       Value<String?> email,
+      Value<String> gstRegistrationType,
       Value<String?> gstin,
       Value<String?> address,
       Value<bool> isDeleted,
@@ -13773,6 +14933,7 @@ typedef $$SuppliersTableUpdateCompanionBuilder =
       Value<String?> companyName,
       Value<String?> mobile,
       Value<String?> email,
+      Value<String> gstRegistrationType,
       Value<String?> gstin,
       Value<String?> address,
       Value<bool> isDeleted,
@@ -13834,6 +14995,11 @@ class $$SuppliersTableFilterComposer
 
   ColumnFilters<String> get email => $composableBuilder(
     column: $table.email,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get gstRegistrationType => $composableBuilder(
+    column: $table.gstRegistrationType,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13922,6 +15088,11 @@ class $$SuppliersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get gstRegistrationType => $composableBuilder(
+    column: $table.gstRegistrationType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get gstin => $composableBuilder(
     column: $table.gstin,
     builder: (column) => ColumnOrderings(column),
@@ -13973,6 +15144,11 @@ class $$SuppliersTableAnnotationComposer
 
   GeneratedColumn<String> get email =>
       $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<String> get gstRegistrationType => $composableBuilder(
+    column: $table.gstRegistrationType,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get gstin =>
       $composableBuilder(column: $table.gstin, builder: (column) => column);
@@ -14048,6 +15224,7 @@ class $$SuppliersTableTableManager
                 Value<String?> companyName = const Value.absent(),
                 Value<String?> mobile = const Value.absent(),
                 Value<String?> email = const Value.absent(),
+                Value<String> gstRegistrationType = const Value.absent(),
                 Value<String?> gstin = const Value.absent(),
                 Value<String?> address = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
@@ -14059,6 +15236,7 @@ class $$SuppliersTableTableManager
                 companyName: companyName,
                 mobile: mobile,
                 email: email,
+                gstRegistrationType: gstRegistrationType,
                 gstin: gstin,
                 address: address,
                 isDeleted: isDeleted,
@@ -14072,6 +15250,7 @@ class $$SuppliersTableTableManager
                 Value<String?> companyName = const Value.absent(),
                 Value<String?> mobile = const Value.absent(),
                 Value<String?> email = const Value.absent(),
+                Value<String> gstRegistrationType = const Value.absent(),
                 Value<String?> gstin = const Value.absent(),
                 Value<String?> address = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
@@ -14083,6 +15262,7 @@ class $$SuppliersTableTableManager
                 companyName: companyName,
                 mobile: mobile,
                 email: email,
+                gstRegistrationType: gstRegistrationType,
                 gstin: gstin,
                 address: address,
                 isDeleted: isDeleted,
@@ -14161,6 +15341,14 @@ typedef $$PurchaseBillsTableCreateCompanionBuilder =
       Value<int> paidMinor,
       required int balanceMinor,
       Value<String> status,
+      Value<String?> cancellationReason,
+      Value<DateTime?> cancelledAt,
+      Value<String?> placeOfSupply,
+      Value<String> taxMode,
+      Value<bool> reverseCharge,
+      Value<bool> itcEligible,
+      Value<int> discountMinor,
+      Value<int> additionalChargesMinor,
       Value<String?> notes,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -14179,6 +15367,14 @@ typedef $$PurchaseBillsTableUpdateCompanionBuilder =
       Value<int> paidMinor,
       Value<int> balanceMinor,
       Value<String> status,
+      Value<String?> cancellationReason,
+      Value<DateTime?> cancelledAt,
+      Value<String?> placeOfSupply,
+      Value<String> taxMode,
+      Value<bool> reverseCharge,
+      Value<bool> itcEligible,
+      Value<int> discountMinor,
+      Value<int> additionalChargesMinor,
       Value<String?> notes,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -14241,6 +15437,32 @@ final class $$PurchaseBillsTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _purchasePaymentsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $PurchaseBillAttachmentsTable,
+    List<PurchaseBillAttachment>
+  >
+  _purchaseBillAttachmentsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.purchaseBillAttachments,
+        aliasName:
+            'purchase_bills__id__purchase_bill_attachments__purchase_bill_id',
+      );
+
+  $$PurchaseBillAttachmentsTableProcessedTableManager
+  get purchaseBillAttachmentsRefs {
+    final manager = $$PurchaseBillAttachmentsTableTableManager(
+      $_db,
+      $_db.purchaseBillAttachments,
+    ).filter((f) => f.purchaseBillId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _purchaseBillAttachmentsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -14309,6 +15531,46 @@ class $$PurchaseBillsTableFilterComposer
 
   ColumnFilters<String> get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get placeOfSupply => $composableBuilder(
+    column: $table.placeOfSupply,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get taxMode => $composableBuilder(
+    column: $table.taxMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get reverseCharge => $composableBuilder(
+    column: $table.reverseCharge,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get itcEligible => $composableBuilder(
+    column: $table.itcEligible,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get discountMinor => $composableBuilder(
+    column: $table.discountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get additionalChargesMinor => $composableBuilder(
+    column: $table.additionalChargesMinor,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14399,6 +15661,32 @@ class $$PurchaseBillsTableFilterComposer
     );
     return f(composer);
   }
+
+  Expression<bool> purchaseBillAttachmentsRefs(
+    Expression<bool> Function($$PurchaseBillAttachmentsTableFilterComposer f) f,
+  ) {
+    final $$PurchaseBillAttachmentsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.purchaseBillAttachments,
+          getReferencedColumn: (t) => t.purchaseBillId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PurchaseBillAttachmentsTableFilterComposer(
+                $db: $db,
+                $table: $db.purchaseBillAttachments,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$PurchaseBillsTableOrderingComposer
@@ -14462,6 +15750,46 @@ class $$PurchaseBillsTableOrderingComposer
 
   ColumnOrderings<String> get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get placeOfSupply => $composableBuilder(
+    column: $table.placeOfSupply,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get taxMode => $composableBuilder(
+    column: $table.taxMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get reverseCharge => $composableBuilder(
+    column: $table.reverseCharge,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get itcEligible => $composableBuilder(
+    column: $table.itcEligible,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get discountMinor => $composableBuilder(
+    column: $table.discountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get additionalChargesMinor => $composableBuilder(
+    column: $table.additionalChargesMinor,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -14556,6 +15884,44 @@ class $$PurchaseBillsTableAnnotationComposer
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
+  GeneratedColumn<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get placeOfSupply => $composableBuilder(
+    column: $table.placeOfSupply,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get taxMode =>
+      $composableBuilder(column: $table.taxMode, builder: (column) => column);
+
+  GeneratedColumn<bool> get reverseCharge => $composableBuilder(
+    column: $table.reverseCharge,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get itcEligible => $composableBuilder(
+    column: $table.itcEligible,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get discountMinor => $composableBuilder(
+    column: $table.discountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get additionalChargesMinor => $composableBuilder(
+    column: $table.additionalChargesMinor,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
@@ -14637,6 +16003,33 @@ class $$PurchaseBillsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> purchaseBillAttachmentsRefs<T extends Object>(
+    Expression<T> Function($$PurchaseBillAttachmentsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$PurchaseBillAttachmentsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.purchaseBillAttachments,
+          getReferencedColumn: (t) => t.purchaseBillId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PurchaseBillAttachmentsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.purchaseBillAttachments,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$PurchaseBillsTableTableManager
@@ -14656,6 +16049,7 @@ class $$PurchaseBillsTableTableManager
             bool supplierId,
             bool purchaseItemsRefs,
             bool purchasePaymentsRefs,
+            bool purchaseBillAttachmentsRefs,
           })
         > {
   $$PurchaseBillsTableTableManager(_$AppDatabase db, $PurchaseBillsTable table)
@@ -14683,6 +16077,14 @@ class $$PurchaseBillsTableTableManager
                 Value<int> paidMinor = const Value.absent(),
                 Value<int> balanceMinor = const Value.absent(),
                 Value<String> status = const Value.absent(),
+                Value<String?> cancellationReason = const Value.absent(),
+                Value<DateTime?> cancelledAt = const Value.absent(),
+                Value<String?> placeOfSupply = const Value.absent(),
+                Value<String> taxMode = const Value.absent(),
+                Value<bool> reverseCharge = const Value.absent(),
+                Value<bool> itcEligible = const Value.absent(),
+                Value<int> discountMinor = const Value.absent(),
+                Value<int> additionalChargesMinor = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -14699,6 +16101,14 @@ class $$PurchaseBillsTableTableManager
                 paidMinor: paidMinor,
                 balanceMinor: balanceMinor,
                 status: status,
+                cancellationReason: cancellationReason,
+                cancelledAt: cancelledAt,
+                placeOfSupply: placeOfSupply,
+                taxMode: taxMode,
+                reverseCharge: reverseCharge,
+                itcEligible: itcEligible,
+                discountMinor: discountMinor,
+                additionalChargesMinor: additionalChargesMinor,
                 notes: notes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -14717,6 +16127,14 @@ class $$PurchaseBillsTableTableManager
                 Value<int> paidMinor = const Value.absent(),
                 required int balanceMinor,
                 Value<String> status = const Value.absent(),
+                Value<String?> cancellationReason = const Value.absent(),
+                Value<DateTime?> cancelledAt = const Value.absent(),
+                Value<String?> placeOfSupply = const Value.absent(),
+                Value<String> taxMode = const Value.absent(),
+                Value<bool> reverseCharge = const Value.absent(),
+                Value<bool> itcEligible = const Value.absent(),
+                Value<int> discountMinor = const Value.absent(),
+                Value<int> additionalChargesMinor = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -14733,6 +16151,14 @@ class $$PurchaseBillsTableTableManager
                 paidMinor: paidMinor,
                 balanceMinor: balanceMinor,
                 status: status,
+                cancellationReason: cancellationReason,
+                cancelledAt: cancelledAt,
+                placeOfSupply: placeOfSupply,
+                taxMode: taxMode,
+                reverseCharge: reverseCharge,
+                itcEligible: itcEligible,
+                discountMinor: discountMinor,
+                additionalChargesMinor: additionalChargesMinor,
                 notes: notes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -14750,12 +16176,14 @@ class $$PurchaseBillsTableTableManager
                 supplierId = false,
                 purchaseItemsRefs = false,
                 purchasePaymentsRefs = false,
+                purchaseBillAttachmentsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (purchaseItemsRefs) db.purchaseItems,
                     if (purchasePaymentsRefs) db.purchasePayments,
+                    if (purchaseBillAttachmentsRefs) db.purchaseBillAttachments,
                   ],
                   addJoins:
                       <
@@ -14835,6 +16263,27 @@ class $$PurchaseBillsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (purchaseBillAttachmentsRefs)
+                        await $_getPrefetchedData<
+                          PurchaseBill,
+                          $PurchaseBillsTable,
+                          PurchaseBillAttachment
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PurchaseBillsTableReferences
+                              ._purchaseBillAttachmentsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PurchaseBillsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).purchaseBillAttachmentsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.purchaseBillId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -14859,6 +16308,7 @@ typedef $$PurchaseBillsTableProcessedTableManager =
         bool supplierId,
         bool purchaseItemsRefs,
         bool purchasePaymentsRefs,
+        bool purchaseBillAttachmentsRefs,
       })
     >;
 typedef $$PurchaseItemsTableCreateCompanionBuilder =
@@ -14868,6 +16318,7 @@ typedef $$PurchaseItemsTableCreateCompanionBuilder =
       required String name,
       required int quantityScaled,
       required String unit,
+      Value<String?> hsnSac,
       required int rateMinor,
       Value<int> taxRateBasisPoints,
       required int totalMinor,
@@ -14880,6 +16331,7 @@ typedef $$PurchaseItemsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<int> quantityScaled,
       Value<String> unit,
+      Value<String?> hsnSac,
       Value<int> rateMinor,
       Value<int> taxRateBasisPoints,
       Value<int> totalMinor,
@@ -14939,6 +16391,11 @@ class $$PurchaseItemsTableFilterComposer
 
   ColumnFilters<String> get unit => $composableBuilder(
     column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get hsnSac => $composableBuilder(
+    column: $table.hsnSac,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15015,6 +16472,11 @@ class $$PurchaseItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get hsnSac => $composableBuilder(
+    column: $table.hsnSac,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get rateMinor => $composableBuilder(
     column: $table.rateMinor,
     builder: (column) => ColumnOrderings(column),
@@ -15081,6 +16543,9 @@ class $$PurchaseItemsTableAnnotationComposer
 
   GeneratedColumn<String> get unit =>
       $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<String> get hsnSac =>
+      $composableBuilder(column: $table.hsnSac, builder: (column) => column);
 
   GeneratedColumn<int> get rateMinor =>
       $composableBuilder(column: $table.rateMinor, builder: (column) => column);
@@ -15155,6 +16620,7 @@ class $$PurchaseItemsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<int> quantityScaled = const Value.absent(),
                 Value<String> unit = const Value.absent(),
+                Value<String?> hsnSac = const Value.absent(),
                 Value<int> rateMinor = const Value.absent(),
                 Value<int> taxRateBasisPoints = const Value.absent(),
                 Value<int> totalMinor = const Value.absent(),
@@ -15165,6 +16631,7 @@ class $$PurchaseItemsTableTableManager
                 name: name,
                 quantityScaled: quantityScaled,
                 unit: unit,
+                hsnSac: hsnSac,
                 rateMinor: rateMinor,
                 taxRateBasisPoints: taxRateBasisPoints,
                 totalMinor: totalMinor,
@@ -15177,6 +16644,7 @@ class $$PurchaseItemsTableTableManager
                 required String name,
                 required int quantityScaled,
                 required String unit,
+                Value<String?> hsnSac = const Value.absent(),
                 required int rateMinor,
                 Value<int> taxRateBasisPoints = const Value.absent(),
                 required int totalMinor,
@@ -15187,6 +16655,7 @@ class $$PurchaseItemsTableTableManager
                 name: name,
                 quantityScaled: quantityScaled,
                 unit: unit,
+                hsnSac: hsnSac,
                 rateMinor: rateMinor,
                 taxRateBasisPoints: taxRateBasisPoints,
                 totalMinor: totalMinor,
@@ -15265,7 +16734,10 @@ typedef $$PurchasePaymentsTableCreateCompanionBuilder =
       required int purchaseBillId,
       required int amountMinor,
       Value<String?> method,
+      Value<String?> reference,
       Value<String?> note,
+      Value<String> entryType,
+      Value<int?> reversesPaymentId,
       required DateTime paidAt,
       Value<DateTime> createdAt,
     });
@@ -15275,7 +16747,10 @@ typedef $$PurchasePaymentsTableUpdateCompanionBuilder =
       Value<int> purchaseBillId,
       Value<int> amountMinor,
       Value<String?> method,
+      Value<String?> reference,
       Value<String?> note,
+      Value<String> entryType,
+      Value<int?> reversesPaymentId,
       Value<DateTime> paidAt,
       Value<DateTime> createdAt,
     });
@@ -15332,8 +16807,23 @@ class $$PurchasePaymentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get reference => $composableBuilder(
+    column: $table.reference,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get note => $composableBuilder(
     column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entryType => $composableBuilder(
+    column: $table.entryType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reversesPaymentId => $composableBuilder(
+    column: $table.reversesPaymentId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15395,8 +16885,23 @@ class $$PurchasePaymentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get reference => $composableBuilder(
+    column: $table.reference,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get note => $composableBuilder(
     column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entryType => $composableBuilder(
+    column: $table.entryType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reversesPaymentId => $composableBuilder(
+    column: $table.reversesPaymentId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -15454,8 +16959,19 @@ class $$PurchasePaymentsTableAnnotationComposer
   GeneratedColumn<String> get method =>
       $composableBuilder(column: $table.method, builder: (column) => column);
 
+  GeneratedColumn<String> get reference =>
+      $composableBuilder(column: $table.reference, builder: (column) => column);
+
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get entryType =>
+      $composableBuilder(column: $table.entryType, builder: (column) => column);
+
+  GeneratedColumn<int> get reversesPaymentId => $composableBuilder(
+    column: $table.reversesPaymentId,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get paidAt =>
       $composableBuilder(column: $table.paidAt, builder: (column) => column);
@@ -15521,7 +17037,10 @@ class $$PurchasePaymentsTableTableManager
                 Value<int> purchaseBillId = const Value.absent(),
                 Value<int> amountMinor = const Value.absent(),
                 Value<String?> method = const Value.absent(),
+                Value<String?> reference = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<String> entryType = const Value.absent(),
+                Value<int?> reversesPaymentId = const Value.absent(),
                 Value<DateTime> paidAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => PurchasePaymentsCompanion(
@@ -15529,7 +17048,10 @@ class $$PurchasePaymentsTableTableManager
                 purchaseBillId: purchaseBillId,
                 amountMinor: amountMinor,
                 method: method,
+                reference: reference,
                 note: note,
+                entryType: entryType,
+                reversesPaymentId: reversesPaymentId,
                 paidAt: paidAt,
                 createdAt: createdAt,
               ),
@@ -15539,7 +17061,10 @@ class $$PurchasePaymentsTableTableManager
                 required int purchaseBillId,
                 required int amountMinor,
                 Value<String?> method = const Value.absent(),
+                Value<String?> reference = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<String> entryType = const Value.absent(),
+                Value<int?> reversesPaymentId = const Value.absent(),
                 required DateTime paidAt,
                 Value<DateTime> createdAt = const Value.absent(),
               }) => PurchasePaymentsCompanion.insert(
@@ -15547,7 +17072,10 @@ class $$PurchasePaymentsTableTableManager
                 purchaseBillId: purchaseBillId,
                 amountMinor: amountMinor,
                 method: method,
+                reference: reference,
                 note: note,
+                entryType: entryType,
+                reversesPaymentId: reversesPaymentId,
                 paidAt: paidAt,
                 createdAt: createdAt,
               ),
@@ -15620,6 +17148,379 @@ typedef $$PurchasePaymentsTableProcessedTableManager =
       PurchasePayment,
       PrefetchHooks Function({bool purchaseBillId})
     >;
+typedef $$PurchaseBillAttachmentsTableCreateCompanionBuilder =
+    PurchaseBillAttachmentsCompanion Function({
+      Value<int> id,
+      required int purchaseBillId,
+      required String fileName,
+      required String localPath,
+      Value<String?> mimeType,
+      Value<int> sizeBytes,
+      Value<DateTime> createdAt,
+    });
+typedef $$PurchaseBillAttachmentsTableUpdateCompanionBuilder =
+    PurchaseBillAttachmentsCompanion Function({
+      Value<int> id,
+      Value<int> purchaseBillId,
+      Value<String> fileName,
+      Value<String> localPath,
+      Value<String?> mimeType,
+      Value<int> sizeBytes,
+      Value<DateTime> createdAt,
+    });
+
+final class $$PurchaseBillAttachmentsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PurchaseBillAttachmentsTable,
+          PurchaseBillAttachment
+        > {
+  $$PurchaseBillAttachmentsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PurchaseBillsTable _purchaseBillIdTable(_$AppDatabase db) =>
+      db.purchaseBills.createAlias(
+        'purchase_bill_attachments__purchase_bill_id__purchase_bills__id',
+      );
+
+  $$PurchaseBillsTableProcessedTableManager get purchaseBillId {
+    final $_column = $_itemColumn<int>('purchase_bill_id')!;
+
+    final manager = $$PurchaseBillsTableTableManager(
+      $_db,
+      $_db.purchaseBills,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_purchaseBillIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PurchaseBillAttachmentsTableFilterComposer
+    extends Composer<_$AppDatabase, $PurchaseBillAttachmentsTable> {
+  $$PurchaseBillAttachmentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fileName => $composableBuilder(
+    column: $table.fileName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get localPath => $composableBuilder(
+    column: $table.localPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mimeType => $composableBuilder(
+    column: $table.mimeType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PurchaseBillsTableFilterComposer get purchaseBillId {
+    final $$PurchaseBillsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.purchaseBillId,
+      referencedTable: $db.purchaseBills,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PurchaseBillsTableFilterComposer(
+            $db: $db,
+            $table: $db.purchaseBills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PurchaseBillAttachmentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PurchaseBillAttachmentsTable> {
+  $$PurchaseBillAttachmentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fileName => $composableBuilder(
+    column: $table.fileName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get localPath => $composableBuilder(
+    column: $table.localPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mimeType => $composableBuilder(
+    column: $table.mimeType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PurchaseBillsTableOrderingComposer get purchaseBillId {
+    final $$PurchaseBillsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.purchaseBillId,
+      referencedTable: $db.purchaseBills,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PurchaseBillsTableOrderingComposer(
+            $db: $db,
+            $table: $db.purchaseBills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PurchaseBillAttachmentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PurchaseBillAttachmentsTable> {
+  $$PurchaseBillAttachmentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get fileName =>
+      $composableBuilder(column: $table.fileName, builder: (column) => column);
+
+  GeneratedColumn<String> get localPath =>
+      $composableBuilder(column: $table.localPath, builder: (column) => column);
+
+  GeneratedColumn<String> get mimeType =>
+      $composableBuilder(column: $table.mimeType, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$PurchaseBillsTableAnnotationComposer get purchaseBillId {
+    final $$PurchaseBillsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.purchaseBillId,
+      referencedTable: $db.purchaseBills,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PurchaseBillsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.purchaseBills,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PurchaseBillAttachmentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PurchaseBillAttachmentsTable,
+          PurchaseBillAttachment,
+          $$PurchaseBillAttachmentsTableFilterComposer,
+          $$PurchaseBillAttachmentsTableOrderingComposer,
+          $$PurchaseBillAttachmentsTableAnnotationComposer,
+          $$PurchaseBillAttachmentsTableCreateCompanionBuilder,
+          $$PurchaseBillAttachmentsTableUpdateCompanionBuilder,
+          (PurchaseBillAttachment, $$PurchaseBillAttachmentsTableReferences),
+          PurchaseBillAttachment,
+          PrefetchHooks Function({bool purchaseBillId})
+        > {
+  $$PurchaseBillAttachmentsTableTableManager(
+    _$AppDatabase db,
+    $PurchaseBillAttachmentsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PurchaseBillAttachmentsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PurchaseBillAttachmentsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PurchaseBillAttachmentsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> purchaseBillId = const Value.absent(),
+                Value<String> fileName = const Value.absent(),
+                Value<String> localPath = const Value.absent(),
+                Value<String?> mimeType = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => PurchaseBillAttachmentsCompanion(
+                id: id,
+                purchaseBillId: purchaseBillId,
+                fileName: fileName,
+                localPath: localPath,
+                mimeType: mimeType,
+                sizeBytes: sizeBytes,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int purchaseBillId,
+                required String fileName,
+                required String localPath,
+                Value<String?> mimeType = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => PurchaseBillAttachmentsCompanion.insert(
+                id: id,
+                purchaseBillId: purchaseBillId,
+                fileName: fileName,
+                localPath: localPath,
+                mimeType: mimeType,
+                sizeBytes: sizeBytes,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PurchaseBillAttachmentsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({purchaseBillId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (purchaseBillId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.purchaseBillId,
+                                referencedTable:
+                                    $$PurchaseBillAttachmentsTableReferences
+                                        ._purchaseBillIdTable(db),
+                                referencedColumn:
+                                    $$PurchaseBillAttachmentsTableReferences
+                                        ._purchaseBillIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PurchaseBillAttachmentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PurchaseBillAttachmentsTable,
+      PurchaseBillAttachment,
+      $$PurchaseBillAttachmentsTableFilterComposer,
+      $$PurchaseBillAttachmentsTableOrderingComposer,
+      $$PurchaseBillAttachmentsTableAnnotationComposer,
+      $$PurchaseBillAttachmentsTableCreateCompanionBuilder,
+      $$PurchaseBillAttachmentsTableUpdateCompanionBuilder,
+      (PurchaseBillAttachment, $$PurchaseBillAttachmentsTableReferences),
+      PurchaseBillAttachment,
+      PrefetchHooks Function({bool purchaseBillId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -15648,4 +17549,9 @@ class $AppDatabaseManager {
       $$PurchaseItemsTableTableManager(_db, _db.purchaseItems);
   $$PurchasePaymentsTableTableManager get purchasePayments =>
       $$PurchasePaymentsTableTableManager(_db, _db.purchasePayments);
+  $$PurchaseBillAttachmentsTableTableManager get purchaseBillAttachments =>
+      $$PurchaseBillAttachmentsTableTableManager(
+        _db,
+        _db.purchaseBillAttachments,
+      );
 }

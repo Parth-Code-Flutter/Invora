@@ -7,6 +7,7 @@ class SupplierModel {
     this.companyName,
     this.mobile,
     this.email,
+    this.gstRegistrationType = 'unregistered',
     this.gstin,
     this.address,
     this.isDeleted = false,
@@ -15,6 +16,7 @@ class SupplierModel {
   });
   final int? id;
   final String name;
+  final String gstRegistrationType;
   final String? companyName, mobile, email, gstin, address;
   final bool isDeleted;
   final DateTime createdAt, updatedAt;
@@ -27,6 +29,7 @@ class PurchaseItemModel {
     required this.name,
     required this.quantity,
     required this.unit,
+    this.hsnSac,
     required this.rateMinor,
     this.taxRate = 0,
   });
@@ -39,6 +42,7 @@ class PurchaseItemModel {
     name: product.name,
     quantity: quantity,
     unit: product.unit,
+    hsnSac: product.hsnSac,
     rateMinor: product.salePriceMinor,
     taxRate: product.taxRateBasisPoints / 100,
   );
@@ -46,6 +50,7 @@ class PurchaseItemModel {
   final int? id;
   final int? productId;
   final String name, unit;
+  final String? hsnSac;
   final double quantity, taxRate;
   final int rateMinor;
   int get subtotalMinor => (quantity * rateMinor).round();
@@ -58,6 +63,7 @@ class PurchaseItemModel {
     String? name,
     double? quantity,
     String? unit,
+    String? hsnSac,
     int? rateMinor,
     double? taxRate,
   }) => PurchaseItemModel(
@@ -66,6 +72,7 @@ class PurchaseItemModel {
     name: name ?? this.name,
     quantity: quantity ?? this.quantity,
     unit: unit ?? this.unit,
+    hsnSac: hsnSac ?? this.hsnSac,
     rateMinor: rateMinor ?? this.rateMinor,
     taxRate: taxRate ?? this.taxRate,
   );
@@ -82,6 +89,15 @@ class PurchaseBillModel {
     required this.items,
     this.paidMinor = 0,
     this.notes,
+    this.status = 'unpaid',
+    this.cancellationReason,
+    this.cancelledAt,
+    this.placeOfSupply,
+    this.taxMode = 'cgst_sgst',
+    this.reverseCharge = false,
+    this.itcEligible = true,
+    this.discountMinor = 0,
+    this.additionalChargesMinor = 0,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -92,10 +108,20 @@ class PurchaseBillModel {
   final List<PurchaseItemModel> items;
   final int paidMinor;
   final String? notes;
+  final String status;
+  final String? cancellationReason, placeOfSupply;
+  final DateTime? cancelledAt;
+  final String taxMode;
+  final bool reverseCharge, itcEligible;
+  final int discountMinor, additionalChargesMinor;
   int get subtotalMinor =>
       items.fold(0, (sum, item) => sum + item.subtotalMinor);
   int get taxMinor => items.fold(0, (sum, item) => sum + item.taxMinor);
-  int get totalMinor => subtotalMinor + taxMinor;
+  int get totalMinor =>
+      (subtotalMinor + taxMinor - discountMinor + additionalChargesMinor).clamp(
+        0,
+        1 << 62,
+      );
   int get balanceMinor => (totalMinor - paidMinor).clamp(0, totalMinor);
 }
 
@@ -123,12 +149,50 @@ class PurchasePaymentModel {
     required this.id,
     required this.amountMinor,
     this.method,
+    this.reference,
     this.note,
+    this.entryType = 'payment',
+    this.reversesPaymentId,
     required this.paidAt,
   });
   final int id, amountMinor;
-  final String? method, note;
+  final String? method, reference, note;
+  final String entryType;
+  final int? reversesPaymentId;
   final DateTime paidAt;
+}
+
+class PurchaseBillAttachmentModel {
+  const PurchaseBillAttachmentModel({
+    this.id,
+    required this.purchaseBillId,
+    required this.fileName,
+    required this.localPath,
+    this.mimeType,
+    this.sizeBytes = 0,
+    required this.createdAt,
+  });
+
+  final int? id;
+  final int purchaseBillId, sizeBytes;
+  final String fileName, localPath;
+  final String? mimeType;
+  final DateTime createdAt;
+}
+
+class SupplierStatementEntry {
+  const SupplierStatementEntry({
+    required this.date,
+    required this.title,
+    required this.reference,
+    required this.debitMinor,
+    required this.creditMinor,
+    required this.balanceMinor,
+    required this.type,
+  });
+  final DateTime date;
+  final String title, reference, type;
+  final int debitMinor, creditMinor, balanceMinor;
 }
 
 class PurchaseDashboardSummary {

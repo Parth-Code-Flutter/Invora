@@ -18,6 +18,7 @@ import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_bottom_sheet.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dialog.dart';
+import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
@@ -32,12 +33,15 @@ import '../../../data/models/purchase_models.dart';
 import '../../../data/models/scanned_invoice_line.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/purchase_repository.dart';
+import '../../../data/services/purchase_attachment_service.dart';
 import '../../../data/services/unit_service.dart';
 import '../../invoices/screens/invoice_item_picker_screen.dart';
 import '../../invoices/scan/product_scan_screen.dart';
 import 'purchase_bill_pdf_screen.dart';
 
 String _money(int minor) => CurrencyUtils.formatMinor(minor, symbol: '₹');
+int _minor(String value) =>
+    ((double.tryParse(value.trim()) ?? 0) * 100).round();
 String _date(DateTime value) =>
     '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}';
 String _qty(double value) => value == value.roundToDouble()
@@ -66,12 +70,15 @@ String _compactDate(DateTime value) {
 Color _billStatusColor(String status) => switch (status) {
   'paid' => AppColors.success,
   'overdue' => AppColors.error,
+  'cancelled' => AppColors.textTertiary,
   _ => AppColors.warning,
 };
 
 String _billStatusLabel(String status) => switch (status) {
   'paid' => 'Paid',
   'overdue' => 'Overdue',
+  'partially_paid' => 'Part paid',
+  'cancelled' => 'Cancelled',
   _ => 'Unpaid',
 };
 
@@ -151,8 +158,10 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
                         for (final option in const [
                           ('all', 'All'),
                           ('unpaid', 'Unpaid'),
+                          ('partially_paid', 'Part paid'),
                           ('overdue', 'Overdue'),
                           ('paid', 'Paid'),
+                          ('cancelled', 'Cancelled'),
                         ])
                           Padding(
                             padding: const EdgeInsets.only(right: 8),
@@ -293,6 +302,10 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
                       AppRoutes.purchaseBillCreate,
                       arguments: supplier,
                     ),
+                    onStatement: () => Get.toNamed<void>(
+                      AppRoutes.supplierStatement,
+                      arguments: supplier,
+                    ),
                     onEdit: () => Get.toNamed<void>(
                       AppRoutes.supplierAdd,
                       arguments: supplier,
@@ -325,6 +338,264 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
   );
 }
 
+class SupplierStatementScreen extends StatefulWidget {
+  const SupplierStatementScreen({super.key});
+
+  @override
+  State<SupplierStatementScreen> createState() =>
+      _SupplierStatementScreenState();
+}
+
+class _SupplierStatementScreenState extends State<SupplierStatementScreen> {
+  late final SupplierModel supplier = Get.arguments as SupplierModel;
+  DateTime? from;
+  DateTime? to;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      leading: const AppBackButton(),
+      title: AppBarTitle(supplier.name, subtitle: 'Supplier statement'),
+      actions: [
+        AppBarIconButton(
+          tooltip: 'New purchase bill',
+          icon: Icons.add_rounded,
+          onPressed: () => Get.toNamed<void>(
+            AppRoutes.purchaseBillCreate,
+            arguments: supplier,
+          ),
+        ),
+      ],
+    ),
+    body: FutureBuilder<List<SupplierStatementEntry>>(
+      future: Get.find<PurchaseRepository>().supplierStatement(
+        supplier.id!,
+        from: from,
+        to: to,
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final entries = snapshot.data ?? const <SupplierStatementEntry>[];
+        final payable = entries.isEmpty ? 0 : entries.last.balanceMinor;
+        return ResponsiveContent(
+          tabletMaxWidth: 720,
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: 24),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.secondary, AppColors.primary],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Current payable',
+                            style: AppTextStyles.small.copyWith(
+                              color: Colors.white.withValues(alpha: .78),
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            _money(payable),
+                            style: AppTextStyles.pageTitle.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: .14),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const Icon(
+                        Icons.account_balance_wallet_outlined,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _StatementDateFilter(
+                      label: 'From',
+                      value: from,
+                      onTap: () => _pick(true),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _StatementDateFilter(
+                      label: 'To',
+                      value: to,
+                      onTap: () => _pick(false),
+                    ),
+                  ),
+                  if (from != null || to != null)
+                    IconButton(
+                      tooltip: 'Clear dates',
+                      onPressed: () => setState(() {
+                        from = null;
+                        to = null;
+                      }),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Text('Activity', style: AppTextStyles.sectionTitle),
+              const SizedBox(height: 8),
+              if (entries.isEmpty)
+                const AppEmptyState(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'No statement activity',
+                  message: 'Bills and supplier payments will appear here.',
+                )
+              else
+                AppCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      for (var index = 0; index < entries.length; index++)
+                        _StatementEntryTile(
+                          entry: entries[index],
+                          showDivider: index != entries.length - 1,
+                        ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+
+  Future<void> _pick(bool start) async {
+    final value = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      initialDate: (start ? from : to) ?? DateTime.now(),
+    );
+    if (value != null) setState(() => start ? from = value : to = value);
+  }
+}
+
+class _StatementDateFilter extends StatelessWidget {
+  const _StatementDateFilter({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+  final String label;
+  final DateTime? value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    onTap: onTap,
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    child: Row(
+      children: [
+        const Icon(Icons.calendar_today_outlined, size: 17),
+        const SizedBox(width: 8),
+        Expanded(child: Text(value == null ? label : _date(value!))),
+      ],
+    ),
+  );
+}
+
+class _StatementEntryTile extends StatelessWidget {
+  const _StatementEntryTile({required this.entry, required this.showDivider});
+  final SupplierStatementEntry entry;
+  final bool showDivider;
+
+  @override
+  Widget build(BuildContext context) {
+    final isPayment = entry.creditMinor > 0;
+    final isReversal = entry.type == 'reversal';
+    final color = isReversal
+        ? AppColors.error
+        : isPayment
+        ? AppColors.success
+        : AppColors.secondary;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: showDivider
+          ? const BoxDecoration(
+              border: Border(bottom: BorderSide(color: AppColors.border)),
+            )
+          : null,
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: .1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              isReversal
+                  ? Icons.undo_rounded
+                  : isPayment
+                  ? Icons.south_west_rounded
+                  : Icons.receipt_long_outlined,
+              color: color,
+              size: 19,
+            ),
+          ),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(entry.title, style: AppTextStyles.listName),
+                Text(
+                  '${entry.reference} · ${_date(entry.date)}',
+                  style: AppTextStyles.caption,
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                isPayment
+                    ? '-${_money(entry.creditMinor)}'
+                    : '+${_money(entry.debitMinor)}',
+                style: AppTextStyles.listAmount.copyWith(color: color),
+              ),
+              Text(
+                'Bal ${_money(entry.balanceMinor)}',
+                style: AppTextStyles.caption,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class SupplierFormScreen extends StatefulWidget {
   const SupplierFormScreen({super.key});
   @override
@@ -335,6 +606,7 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
   final key = GlobalKey<FormState>();
   late final SupplierModel? existing;
   late final TextEditingController name, company, mobile, email, gstin, address;
+  late String gstRegistrationType;
   bool isImportingContact = false;
   @override
   void initState() {
@@ -347,6 +619,7 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
     mobile = TextEditingController(text: existing?.mobile);
     email = TextEditingController(text: existing?.email);
     gstin = TextEditingController(text: existing?.gstin);
+    gstRegistrationType = existing?.gstRegistrationType ?? 'unregistered';
     address = TextEditingController(text: existing?.address);
   }
 
@@ -395,9 +668,16 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
             const _Intro(
               icon: Icons.storefront_outlined,
               title: 'Supplier details',
-              subtitle: 'Used only for purchase bills and payables.',
+              subtitle:
+                  'Keep purchase bills, tax details and payables organised.',
             ),
             const SizedBox(height: 16),
+            const _SupplierSectionTitle(
+              icon: Icons.badge_outlined,
+              title: 'Supplier identity',
+              subtitle: 'Who you purchase from',
+            ),
+            const SizedBox(height: 8),
             AppCard(
               padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
               child: Column(
@@ -410,6 +690,20 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
                         : null,
                   ),
                   _field(company, 'Business / company name'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const _SupplierSectionTitle(
+              icon: Icons.call_outlined,
+              title: 'Contact details',
+              subtitle: 'Optional, for quick follow-ups',
+            ),
+            const SizedBox(height: 8),
+            AppCard(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+              child: Column(
+                children: [
                   _field(
                     mobile,
                     'Mobile number',
@@ -449,16 +743,73 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
                       FilteringTextInputFormatter.deny(RegExp(r'\s')),
                     ],
                   ),
-                  _field(
-                    gstin,
-                    'GSTIN',
-                    validator: _validateGstin,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(15),
-                      FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z]')),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const _SupplierSectionTitle(
+              icon: Icons.receipt_long_outlined,
+              title: 'Tax & billing',
+              subtitle: 'Used on purchase records',
+            ),
+            const SizedBox(height: 8),
+            AppCard(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+              child: Column(
+                children: [
+                  AppDropdownField<String>(
+                    label: 'GST registration',
+                    sheetTitle: 'Select GST registration',
+                    value: gstRegistrationType,
+                    prefixIcon: Icons.account_balance_outlined,
+                    options: const [
+                      AppDropdownOption(
+                        value: 'unregistered',
+                        label: 'Unregistered / no GST',
+                        icon: Icons.person_outline_rounded,
+                      ),
+                      AppDropdownOption(
+                        value: 'regular',
+                        label: 'Regular GST',
+                        icon: Icons.verified_outlined,
+                      ),
+                      AppDropdownOption(
+                        value: 'composition',
+                        label: 'Composition scheme',
+                        icon: Icons.store_outlined,
+                      ),
+                      AppDropdownOption(
+                        value: 'sez',
+                        label: 'SEZ',
+                        icon: Icons.apartment_outlined,
+                      ),
                     ],
+                    onChanged: (value) => setState(() {
+                      gstRegistrationType = value;
+                      if (value == 'unregistered') gstin.clear();
+                    }),
                   ),
-                  _field(address, 'Address', lines: 3),
+                  const SizedBox(height: 10),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 220),
+                    child: gstRegistrationType == 'unregistered'
+                        ? const _GstHint(key: ValueKey('gst-hint'))
+                        : KeyedSubtree(
+                            key: const ValueKey('gstin-field'),
+                            child: _field(
+                              gstin,
+                              'GSTIN *',
+                              validator: _validateGstin,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(15),
+                                FilteringTextInputFormatter.allow(
+                                  RegExp('[0-9a-zA-Z]'),
+                                ),
+                              ],
+                            ),
+                          ),
+                  ),
+                  _field(address, 'Billing address', lines: 3),
                 ],
               ),
             ),
@@ -477,7 +828,10 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
         companyName: _null(company.text),
         mobile: _null(mobile.text),
         email: _null(email.text),
-        gstin: _null(gstin.text.toUpperCase()),
+        gstRegistrationType: gstRegistrationType,
+        gstin: gstRegistrationType == 'unregistered'
+            ? null
+            : _null(gstin.text.toUpperCase()),
         address: _null(address.text),
         createdAt: existing?.createdAt ?? now,
         updatedAt: now,
@@ -488,10 +842,13 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
 
   String? _validateGstin(String? value) {
     final normalized = value?.trim().toUpperCase() ?? '';
-    if (normalized.isEmpty) return null;
-    return RegExp(r'^[0-9A-Z]{15}$').hasMatch(normalized)
+    if (gstRegistrationType == 'unregistered') return null;
+    if (normalized.isEmpty) return 'GSTIN is required for this registration.';
+    return RegExp(
+          r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$',
+        ).hasMatch(normalized)
         ? null
-        : 'Enter a valid 15-character GSTIN.';
+        : 'Enter a valid GSTIN (for example, 24ABCDE1234F1Z5).';
   }
 
   Future<void> _importContact() async {
@@ -559,6 +916,81 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
   }
 }
 
+class _SupplierSectionTitle extends StatelessWidget {
+  const _SupplierSectionTitle({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title, subtitle;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Container(
+        width: 34,
+        height: 34,
+        decoration: BoxDecoration(
+          color: AppColors.primaryLight,
+          borderRadius: BorderRadius.circular(11),
+        ),
+        child: Icon(icon, size: 18, color: AppColors.primary),
+      ),
+      const SizedBox(width: 10),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppTextStyles.listName),
+            const SizedBox(height: 1),
+            Text(
+              subtitle,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+class _GstHint extends StatelessWidget {
+  const _GstHint({super.key});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    margin: const EdgeInsets.only(bottom: 10),
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: AppColors.primaryLight.withValues(alpha: .7),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      children: [
+        const Icon(
+          Icons.info_outline_rounded,
+          size: 18,
+          color: AppColors.primary,
+        ),
+        const SizedBox(width: 9),
+        Expanded(
+          child: Text(
+            'Choose a GST type to add and validate the supplier GSTIN.',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 class PurchaseBillFormScreen extends StatefulWidget {
   const PurchaseBillFormScreen({super.key});
   @override
@@ -569,12 +1001,19 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
   final key = GlobalKey<FormState>();
   final number = TextEditingController();
   final notes = TextEditingController();
+  final placeOfSupply = TextEditingController();
+  final discount = TextEditingController();
+  final additionalCharges = TextEditingController();
   SupplierModel? supplier;
   DateTime billDate = DateTime.now();
   DateTime? dueDate;
   final items = <PurchaseItemModel>[];
   PurchaseBillModel? existing;
   bool loading = true;
+  String supplierQuery = '';
+  String taxMode = 'cgst_sgst';
+  bool reverseCharge = false;
+  bool itcEligible = true;
   @override
   void initState() {
     super.initState();
@@ -585,6 +1024,9 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
   void dispose() {
     number.dispose();
     notes.dispose();
+    placeOfSupply.dispose();
+    discount.dispose();
+    additionalCharges.dispose();
     super.dispose();
   }
 
@@ -597,6 +1039,16 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
       notes.text = e.notes ?? '';
       billDate = e.billDate;
       dueDate = e.dueDate;
+      placeOfSupply.text = e.placeOfSupply ?? '';
+      taxMode = e.taxMode;
+      reverseCharge = e.reverseCharge;
+      itcEligible = e.itcEligible;
+      discount.text = e.discountMinor == 0
+          ? ''
+          : (e.discountMinor / 100).toStringAsFixed(2);
+      additionalCharges.text = e.additionalChargesMinor == 0
+          ? ''
+          : (e.additionalChargesMinor / 100).toStringAsFixed(2);
       items.addAll(e.items);
       final suppliers = await Get.find<PurchaseRepository>()
           .watchSuppliers()
@@ -610,7 +1062,13 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
     if (mounted) setState(() => loading = false);
   }
 
-  int get total => items.fold(0, (s, i) => s + i.totalMinor);
+  int get itemSubtotal => items.fold(0, (s, i) => s + i.subtotalMinor);
+  int get taxTotal => items.fold(0, (s, i) => s + i.taxMinor);
+  int get itemsTotal => itemSubtotal + taxTotal;
+  int get discountMinor => _minor(discount.text);
+  int get additionalChargesMinor => _minor(additionalCharges.text);
+  int get total =>
+      (itemsTotal - discountMinor + additionalChargesMinor).clamp(0, 1 << 62);
   @override
   Widget build(BuildContext context) {
     final ready = !loading && (existing != null || supplier != null);
@@ -915,6 +1373,23 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
                               children: [
                                 Row(
                                   children: [
+                                    Container(
+                                      width: 34,
+                                      height: 34,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.secondaryLight,
+                                        borderRadius: BorderRadius.circular(11),
+                                      ),
+                                      child: Text(
+                                        '${i + 1}',
+                                        style: AppTextStyles.small.copyWith(
+                                          color: AppColors.secondary,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -986,7 +1461,33 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
                           ),
                         ),
                     const SizedBox(height: 4),
-                    _field(notes, 'Notes', lines: 3),
+                    if (items.isNotEmpty) ...[
+                      _PurchaseLiveTotalCard(
+                        subtotalMinor: itemSubtotal,
+                        taxMinor: taxTotal,
+                        discountMinor: discountMinor,
+                        chargesMinor: additionalChargesMinor,
+                        totalMinor: total,
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    _PurchaseTaxEvidenceCard(
+                      placeOfSupply: placeOfSupply,
+                      discount: discount,
+                      additionalCharges: additionalCharges,
+                      taxMode: taxMode,
+                      reverseCharge: reverseCharge,
+                      itcEligible: itcEligible,
+                      onTaxModeChanged: (value) =>
+                          setState(() => taxMode = value),
+                      onReverseChargeChanged: (value) =>
+                          setState(() => reverseCharge = value),
+                      onItcEligibleChanged: (value) =>
+                          setState(() => itcEligible = value),
+                      onAmountChanged: () => setState(() {}),
+                    ),
+                    const SizedBox(height: 12),
+                    _PurchaseNotesCard(controller: notes),
                   ],
                 ),
               ),
@@ -1053,13 +1554,36 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _Intro(
-          icon: Icons.storefront_outlined,
-          title: 'Who supplied this purchase?',
-          subtitle:
-              'Select a supplier first. Bill details and items come next.',
+        AppCard(
+          padding: EdgeInsets.zero,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primary.withValues(alpha: .13),
+                  AppColors.secondary.withValues(alpha: .08),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const _Intro(
+              icon: Icons.storefront_outlined,
+              title: 'Who supplied this purchase?',
+              subtitle:
+                  'We will prepare the bill with this supplier’s details.',
+            ),
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
+        TextField(
+          onChanged: (value) => setState(() => supplierQuery = value),
+          decoration: const InputDecoration(
+            hintText: 'Search supplier, mobile or GSTIN',
+            prefixIcon: Icon(Icons.search_rounded),
+          ),
+        ),
+        const SizedBox(height: 14),
         Row(
           children: [
             Expanded(
@@ -1075,7 +1599,9 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
         const SizedBox(height: 6),
         Expanded(
           child: StreamBuilder<List<SupplierModel>>(
-            stream: Get.find<PurchaseRepository>().watchSuppliers(),
+            stream: Get.find<PurchaseRepository>().watchSuppliers(
+              query: supplierQuery,
+            ),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
@@ -1084,11 +1610,16 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
               if (suppliers.isEmpty) {
                 return AppEmptyState(
                   icon: Icons.storefront_outlined,
-                  title: 'No suppliers yet',
-                  message:
-                      'Create your first supplier, then continue with the purchase bill.',
-                  actionLabel: 'Create supplier',
-                  onAction: () => Get.toNamed<void>(AppRoutes.supplierAdd),
+                  title: supplierQuery.isEmpty
+                      ? 'No suppliers yet'
+                      : 'No matching supplier',
+                  message: supplierQuery.isEmpty
+                      ? 'Create your first supplier, then continue with the purchase bill.'
+                      : 'Try another name, mobile number or GSTIN.',
+                  actionLabel: supplierQuery.isEmpty ? 'Create supplier' : null,
+                  onAction: supplierQuery.isEmpty
+                      ? () => Get.toNamed<void>(AppRoutes.supplierAdd)
+                      : null,
                 );
               }
               return ListView.separated(
@@ -1098,6 +1629,7 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
                   final value = suppliers[index];
                   return AppGroupedTile(
                     onTap: () => setState(() => supplier = value),
+                    padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
                     child: Row(
                       children: [
                         Container(
@@ -1130,9 +1662,18 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
                             ],
                           ),
                         ),
-                        const Icon(
-                          Icons.chevron_right_rounded,
-                          color: AppColors.textTertiary,
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 17,
+                            color: AppColors.primary,
+                          ),
                         ),
                       ],
                     ),
@@ -1428,6 +1969,12 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
       items: List.of(items),
       paidMinor: existing?.paidMinor ?? 0,
       notes: _null(notes.text),
+      placeOfSupply: _null(placeOfSupply.text),
+      taxMode: taxMode,
+      reverseCharge: reverseCharge,
+      itcEligible: itcEligible,
+      discountMinor: discountMinor,
+      additionalChargesMinor: additionalChargesMinor,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
     );
@@ -1472,7 +2019,12 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
       return;
     }
     final numberAvailable = await Get.find<PurchaseRepository>()
-        .isBillNumberAvailable(number.text, excludingId: existing?.id);
+        .isBillNumberAvailable(
+          number.text,
+          excludingId: existing?.id,
+          supplierId: supplier!.id,
+          billDate: billDate,
+        );
     if (!numberAvailable) {
       _message('This supplier bill number already exists.');
       return;
@@ -1489,6 +2041,12 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
         items: items,
         paidMinor: existing?.paidMinor ?? 0,
         notes: _null(notes.text),
+        placeOfSupply: _null(placeOfSupply.text),
+        taxMode: taxMode,
+        reverseCharge: reverseCharge,
+        itcEligible: itcEligible,
+        discountMinor: discountMinor,
+        additionalChargesMinor: additionalChargesMinor,
         createdAt: existing?.createdAt ?? now,
         updatedAt: now,
       ),
@@ -1547,7 +2105,10 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: current != null && current.balanceMinor > 0
+      bottomNavigationBar:
+          current != null &&
+              current.balanceMinor > 0 &&
+              current.status != 'cancelled'
           ? SafeArea(
               top: false,
               child: Container(
@@ -1576,7 +2137,11 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
                 children: [
                   _PurchaseBillHero(bill: current),
                   const SizedBox(height: 16),
-                  _PurchasePaymentCard(bill: current, billId: id),
+                  _PurchasePaymentCard(
+                    bill: current,
+                    billId: id,
+                    onChanged: _load,
+                  ),
                   const SizedBox(height: 18),
                   Padding(
                     padding: const EdgeInsets.only(left: 2, bottom: 6),
@@ -1662,6 +2227,116 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  AppCard(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: AppColors.secondaryLight,
+                                borderRadius: BorderRadius.circular(11),
+                              ),
+                              child: const Icon(
+                                Icons.account_balance_outlined,
+                                size: 18,
+                                color: AppColors.secondary,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Tax & GST',
+                                    style: AppTextStyles.listName,
+                                  ),
+                                  Text(
+                                    'Purchase tax treatment',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(height: 22),
+                        _EvidenceRow('Tax treatment', switch (current.taxMode) {
+                          'igst' => 'IGST',
+                          'exempt' => 'Exempt / no GST',
+                          _ => 'CGST + SGST',
+                        }),
+                        _EvidenceRow(
+                          'Place of supply',
+                          current.placeOfSupply ?? 'Not recorded',
+                        ),
+                        _EvidenceRow(
+                          'Input tax credit',
+                          current.itcEligible ? 'Eligible' : 'Not eligible',
+                        ),
+                        if (current.reverseCharge)
+                          const _EvidenceRow('Reverse charge', 'Applicable'),
+                        if (current.discountMinor > 0)
+                          _EvidenceRow(
+                            'Bill discount',
+                            '-${_money(current.discountMinor)}',
+                          ),
+                        if (current.additionalChargesMinor > 0)
+                          _EvidenceRow(
+                            'Other charges',
+                            _money(current.additionalChargesMinor),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _PurchaseAttachmentsCard(
+                    billId: id,
+                    onAdd: _addAttachment,
+                    onDelete: _deleteAttachment,
+                  ),
+                  if (current.status == 'cancelled') ...[
+                    const SizedBox(height: 16),
+                    AppCard(
+                      color: AppColors.error.withValues(alpha: .06),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.block_rounded,
+                            color: AppColors.error,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Cancelled bill',
+                                  style: AppTextStyles.listName.copyWith(
+                                    color: AppColors.error,
+                                  ),
+                                ),
+                                Text(
+                                  current.cancellationReason ??
+                                      'No reason recorded.',
+                                  style: AppTextStyles.caption,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   if ((current.notes ?? '').isNotEmpty) ...[
                     const SizedBox(height: 18),
                     Text(
@@ -1695,6 +2370,30 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
     );
   }
 
+  Future<void> _addAttachment() async {
+    try {
+      final stored = await Get.find<PurchaseAttachmentService>().pickAndStore();
+      if (stored == null) return;
+      await Get.find<PurchaseRepository>().addAttachment(
+        PurchaseBillAttachmentModel(
+          purchaseBillId: id,
+          fileName: stored.fileName,
+          localPath: stored.relativePath,
+          mimeType: stored.mimeType,
+          sizeBytes: stored.sizeBytes,
+          createdAt: DateTime.now(),
+        ),
+      );
+    } catch (e) {
+      _message(e.toString());
+    }
+  }
+
+  Future<void> _deleteAttachment(PurchaseBillAttachmentModel attachment) async {
+    await Get.find<PurchaseAttachmentService>().delete(attachment.localPath);
+    await Get.find<PurchaseRepository>().deleteAttachment(attachment.id!);
+  }
+
   Future<void> _showBillActions() => showAppBottomSheet<void>(
     context: context,
     title: 'Purchase bill actions',
@@ -1724,6 +2423,51 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
           },
         ),
         _ActionTile(
+          icon: Icons.copy_all_outlined,
+          title: 'Duplicate bill',
+          subtitle: 'Create a new draft with the same supplier and items.',
+          onTap: () async {
+            Navigator.pop(context);
+            try {
+              final copyId = await Get.find<PurchaseRepository>().duplicateBill(
+                id,
+              );
+              Get.toNamed<void>(
+                AppRoutes.purchaseBillCreate,
+                arguments: copyId,
+              );
+            } catch (e) {
+              _message(e.toString());
+            }
+          },
+        ),
+        if (bill?.status != 'cancelled')
+          _ActionTile(
+            icon: Icons.block_outlined,
+            title: 'Cancel bill',
+            subtitle: 'Keep an audit record without counting it in totals.',
+            destructive: true,
+            onTap: () async {
+              Navigator.pop(context);
+              final reason = await _askReason(
+                context,
+                title: 'Why are you cancelling this bill?',
+                hint: 'Cancellation reason *',
+                action: 'Cancel bill',
+              );
+              if (reason == null) return;
+              try {
+                await Get.find<PurchaseRepository>().cancelBill(
+                  id,
+                  reason: reason,
+                );
+                await _load();
+              } catch (e) {
+                _message(e.toString());
+              }
+            },
+          ),
+        _ActionTile(
           icon: Icons.delete_outline_rounded,
           title: 'Delete bill',
           subtitle: 'Permanently remove this bill and its payments.',
@@ -1739,8 +2483,19 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
               destructive: true,
             );
             if (!confirmed) return;
-            await Get.find<PurchaseRepository>().deleteBill(id);
-            Get.offAllNamed<void>(AppRoutes.purchaseBills);
+            try {
+              final repository = Get.find<PurchaseRepository>();
+              final files = await repository.watchAttachments(id).first;
+              await repository.deleteBill(id);
+              for (final file in files) {
+                await Get.find<PurchaseAttachmentService>().delete(
+                  file.localPath,
+                );
+              }
+              Get.offAllNamed<void>(AppRoutes.purchaseBills);
+            } catch (e) {
+              _message(e.toString());
+            }
           },
         ),
       ],
@@ -1748,7 +2503,7 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
   );
 
   Future<void> _payment(PurchaseBillModel current) async {
-    final result = await showAppBottomSheet<int>(
+    final result = await showAppBottomSheet<_PaymentResult>(
       context: context,
       title: 'Record supplier payment',
       child: _PaymentSheet(balanceMinor: current.balanceMinor),
@@ -1757,8 +2512,11 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
     try {
       await Get.find<PurchaseRepository>().recordPayment(
         id,
-        result,
-        method: 'Cash',
+        result.amountMinor,
+        method: result.method,
+        reference: result.reference,
+        note: result.note,
+        paidAt: result.date,
       );
       await _load();
     } catch (e) {
@@ -1807,6 +2565,152 @@ class PurchaseOverviewCard extends StatelessWidget {
         onTap: onOverdueTap,
       ),
     ];
+    if (!compact) {
+      return Container(
+        clipBehavior: Clip.antiAlias,
+        padding: const EdgeInsets.fromLTRB(16, 15, 16, 14),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [AppColors.secondary, AppColors.primary],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.secondary.withValues(alpha: .18),
+              blurRadius: 20,
+              offset: const Offset(0, 9),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -38,
+              top: -52,
+              child: Container(
+                width: 135,
+                height: 135,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: .08),
+                ),
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: .14),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.shopping_bag_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Purchase overview',
+                            style: AppTextStyles.listName.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '${data.billCount} ${data.billCount == 1 ? 'bill' : 'bills'} · ${data.supplierCount} ${data.supplierCount == 1 ? 'supplier' : 'suppliers'}',
+                            style: AppTextStyles.caption.copyWith(
+                              color: Colors.white.withValues(alpha: .72),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'Total recorded purchases',
+                  style: AppTextStyles.caption.copyWith(
+                    color: Colors.white.withValues(alpha: .72),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                AppAmountText(
+                  amountMinor: data.totalSpendMinor,
+                  symbol: '₹',
+                  color: Colors.white,
+                  textAlign: TextAlign.start,
+                  style: AppTextStyles.pageTitle.copyWith(
+                    color: Colors.white,
+                    fontSize: 25,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .11),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: .12),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < metrics.length; i++) ...[
+                        Expanded(
+                          child: InkWell(
+                            onTap: metrics[i].onTap,
+                            child: Column(
+                              children: [
+                                Text(
+                                  metrics[i].label,
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: Colors.white.withValues(alpha: .7),
+                                    fontSize: 9.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 3),
+                                AppAmountText(
+                                  amountMinor: metrics[i].amount,
+                                  symbol: '₹',
+                                  color: Colors.white,
+                                  style: AppTextStyles.listAmount.copyWith(
+                                    color: Colors.white,
+                                    fontSize: 12.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (i != metrics.length - 1)
+                          Container(
+                            width: 1,
+                            height: 32,
+                            color: Colors.white.withValues(alpha: .16),
+                          ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       padding: EdgeInsets.all(compact ? 10 : 14),
       decoration: BoxDecoration(
@@ -2081,6 +2985,7 @@ class _PurchaseBillHero extends StatelessWidget {
   final PurchaseBillModel bill;
 
   String get _status {
+    if (bill.status == 'cancelled') return 'cancelled';
     if (bill.balanceMinor <= 0) return 'paid';
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -2091,6 +2996,7 @@ class _PurchaseBillHero extends StatelessWidget {
   List<Color> get _colors => switch (_status) {
     'paid' => const [AppColors.secondary, AppColors.success],
     'overdue' => const [AppColors.secondary, AppColors.error],
+    'cancelled' => const [AppColors.textSecondary, AppColors.textTertiary],
     _ => const [AppColors.secondary, AppColors.primary],
   };
 
@@ -2229,17 +3135,30 @@ class _PurchaseBillHero extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Flexible(
-                    child: AppAmountText(
-                      amountMinor: bill.balanceMinor > 0
-                          ? bill.balanceMinor
-                          : bill.totalMinor,
-                      symbol: '₹',
-                      color: Colors.white,
-                      style: AppTextStyles.sectionTitle.copyWith(
-                        color: Colors.white,
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        bill.balanceMinor > 0 ? 'Balance due' : 'Bill total',
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white.withValues(alpha: .72),
+                          fontSize: 10,
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 2),
+                      AppAmountText(
+                        amountMinor: bill.balanceMinor > 0
+                            ? bill.balanceMinor
+                            : bill.totalMinor,
+                        symbol: '₹',
+                        textAlign: TextAlign.end,
+                        color: Colors.white,
+                        style: AppTextStyles.sectionTitle.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -2251,10 +3170,132 @@ class _PurchaseBillHero extends StatelessWidget {
   }
 }
 
+class _PurchaseAttachmentsCard extends StatelessWidget {
+  const _PurchaseAttachmentsCard({
+    required this.billId,
+    required this.onAdd,
+    required this.onDelete,
+  });
+  final int billId;
+  final VoidCallback onAdd;
+  final Future<void> Function(PurchaseBillAttachmentModel) onDelete;
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) => StreamBuilder<List<PurchaseBillAttachmentModel>>(
+    stream: Get.find<PurchaseRepository>().watchAttachments(billId),
+    builder: (context, snapshot) {
+      final files = snapshot.data ?? const <PurchaseBillAttachmentModel>[];
+      return AppCard(
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.attach_file_rounded,
+                  color: AppColors.secondary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Original bill files',
+                    style: AppTextStyles.listName,
+                  ),
+                ),
+                IconButton.filledTonal(
+                  tooltip: 'Attach original bill',
+                  onPressed: onAdd,
+                  icon: const Icon(Icons.add_rounded, size: 19),
+                ),
+              ],
+            ),
+            if (files.isEmpty)
+              Text(
+                'Attach the supplier PDF or photo for future verification.',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              )
+            else
+              for (final file in files)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  minVerticalPadding: 6,
+                  leading: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Icon(
+                      file.mimeType == 'application/pdf'
+                          ? Icons.picture_as_pdf_outlined
+                          : Icons.image_outlined,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                  ),
+                  title: Text(
+                    file.fileName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.small.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  subtitle: Text(
+                    file.sizeBytes < 1024 * 1024
+                        ? '${(file.sizeBytes / 1024).ceil()} KB'
+                        : '${(file.sizeBytes / (1024 * 1024)).toStringAsFixed(1)} MB',
+                    style: AppTextStyles.caption,
+                  ),
+                  onTap: () async {
+                    try {
+                      await Get.find<PurchaseAttachmentService>().share(
+                        file.localPath,
+                        fileName: file.fileName,
+                      );
+                    } catch (e) {
+                      _message(e.toString());
+                    }
+                  },
+                  trailing: IconButton(
+                    tooltip: 'Remove attachment',
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    onPressed: () async {
+                      final confirmed = await showAppConfirmDialog(
+                        context: context,
+                        title: 'Remove attachment?',
+                        message:
+                            'The stored copy will be removed from this device.',
+                        confirmLabel: 'Remove',
+                        destructive: true,
+                      );
+                      if (confirmed) await onDelete(file);
+                    },
+                  ),
+                ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 class _PurchasePaymentCard extends StatelessWidget {
-  const _PurchasePaymentCard({required this.bill, required this.billId});
+  const _PurchasePaymentCard({
+    required this.bill,
+    required this.billId,
+    required this.onChanged,
+  });
   final PurchaseBillModel bill;
   final int billId;
+  final Future<void> Function() onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -2331,40 +3372,73 @@ class _PurchasePaymentCard extends StatelessWidget {
                       const Divider(height: 24),
                       for (var i = 0; i < payments.length; i++) ...[
                         if (i > 0) const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Container(
-                              width: 38,
-                              height: 38,
-                              decoration: BoxDecoration(
-                                color: AppColors.successLight,
-                                borderRadius: BorderRadius.circular(11),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onLongPress: payments[i].entryType == 'payment'
+                              ? () => _reverse(context, payments[i])
+                              : null,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: payments[i].entryType == 'reversal'
+                                      ? AppColors.error.withValues(alpha: .1)
+                                      : AppColors.successLight,
+                                  borderRadius: BorderRadius.circular(11),
+                                ),
+                                child: Icon(
+                                  payments[i].entryType == 'reversal'
+                                      ? Icons.undo_rounded
+                                      : Icons.payments_outlined,
+                                  color: payments[i].entryType == 'reversal'
+                                      ? AppColors.error
+                                      : AppColors.success,
+                                  size: 20,
+                                ),
                               ),
-                              child: const Icon(
-                                Icons.payments_outlined,
-                                color: AppColors.success,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _money(payments[i].amountMinor),
-                                    style: AppTextStyles.listName,
-                                  ),
-                                  Text(
-                                    '${payments[i].method ?? 'Payment'} · ${_date(payments[i].paidAt)}',
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      payments[i].entryType == 'reversal'
+                                          ? 'Payment reversal'
+                                          : payments[i].method ?? 'Payment',
+                                      style: AppTextStyles.listName,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${_date(payments[i].paidAt)}${payments[i].reference == null ? '' : ' · ${payments[i].reference}'}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              AppAmountText(
+                                amountMinor: payments[i].amountMinor.abs(),
+                                symbol: payments[i].entryType == 'reversal'
+                                    ? '-₹'
+                                    : '₹',
+                                textAlign: TextAlign.end,
+                                color: payments[i].entryType == 'reversal'
+                                    ? AppColors.error
+                                    : AppColors.success,
+                                style: AppTextStyles.listAmount.copyWith(
+                                  color: payments[i].entryType == 'reversal'
+                                      ? AppColors.error
+                                      : AppColors.success,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ],
@@ -2376,6 +3450,32 @@ class _PurchasePaymentCard extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _reverse(
+    BuildContext context,
+    PurchasePaymentModel payment,
+  ) async {
+    final reason = await _askReason(
+      context,
+      title: 'Reverse this supplier payment?',
+      hint: 'Reversal reason *',
+      action: 'Reverse payment',
+    );
+    if (reason == null) return;
+    try {
+      await Get.find<PurchaseRepository>().reversePayment(
+        payment.id,
+        reason: reason,
+      );
+      await onChanged();
+      AppNotification.success(
+        'Payment reversed',
+        'The payable balance and audit trail were updated.',
+      );
+    } catch (e) {
+      _message(e.toString());
+    }
   }
 }
 
@@ -2419,6 +3519,34 @@ class _PayMetric extends StatelessWidget {
       ),
     );
   }
+}
+
+class _EvidenceRow extends StatelessWidget {
+  const _EvidenceRow(this.label, this.value);
+  final String label, value;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: AppTextStyles.small.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _BillMetaCell extends StatelessWidget {
@@ -2582,7 +3710,7 @@ class _PurchaseItemSheet extends StatefulWidget {
 
 class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
   final formKey = GlobalKey<FormState>();
-  late final TextEditingController name, qty, rate, tax;
+  late final TextEditingController name, qty, rate, tax, hsnSac;
   late String unit;
 
   @override
@@ -2600,6 +3728,7 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
     tax = TextEditingController(
       text: initial == null ? '0' : _qty(initial.taxRate),
     );
+    hsnSac = TextEditingController(text: initial?.hsnSac);
   }
 
   @override
@@ -2608,6 +3737,7 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
     qty.dispose();
     rate.dispose();
     tax.dispose();
+    hsnSac.dispose();
     super.dispose();
   }
 
@@ -2690,6 +3820,15 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
                           : null;
                     },
                   ),
+                  _field(
+                    hsnSac,
+                    'HSN / SAC',
+                    keyboard: TextInputType.text,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(8),
+                      FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z]')),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -2719,11 +3858,318 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
         name: name.text.trim(),
         quantity: q,
         unit: unit,
+        hsnSac: _null(hsnSac.text.toUpperCase()),
         rateMinor: (r * 100).round(),
         taxRate: t,
       ),
     );
   }
+}
+
+class _PurchaseNotesCard extends StatelessWidget {
+  const _PurchaseNotesCard({required this.controller});
+  final TextEditingController controller;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+    child: ExpansionTile(
+      initiallyExpanded: controller.text.trim().isNotEmpty,
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(bottom: 10),
+      leading: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: AppColors.primaryLight,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(
+          Icons.notes_rounded,
+          size: 19,
+          color: AppColors.primary,
+        ),
+      ),
+      title: Text('Notes', style: AppTextStyles.listName),
+      subtitle: Text(
+        controller.text.trim().isEmpty
+            ? 'Optional details for your records'
+            : 'Notes added to this purchase bill',
+        style: AppTextStyles.caption,
+      ),
+      children: [
+        TextField(
+          controller: controller,
+          minLines: 2,
+          maxLines: 4,
+          decoration: const InputDecoration(
+            hintText: 'Add delivery, reference or internal notes',
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _PurchaseLiveTotalCard extends StatelessWidget {
+  const _PurchaseLiveTotalCard({
+    required this.subtotalMinor,
+    required this.taxMinor,
+    required this.discountMinor,
+    required this.chargesMinor,
+    required this.totalMinor,
+  });
+
+  final int subtotalMinor;
+  final int taxMinor;
+  final int discountMinor;
+  final int chargesMinor;
+  final int totalMinor;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          AppColors.secondary.withValues(alpha: .09),
+          AppColors.primary.withValues(alpha: .07),
+        ],
+      ),
+      borderRadius: BorderRadius.circular(17),
+      border: Border.all(color: AppColors.secondary.withValues(alpha: .14)),
+    ),
+    child: Column(
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: const Icon(
+                Icons.calculate_outlined,
+                size: 19,
+                color: AppColors.secondary,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text('Bill summary', style: AppTextStyles.listName),
+            ),
+            Text(
+              _money(totalMinor),
+              style: AppTextStyles.sectionTitle.copyWith(
+                color: AppColors.secondary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _CompactTotalMetric(
+                label: 'Subtotal',
+                amount: subtotalMinor,
+              ),
+            ),
+            Expanded(
+              child: _CompactTotalMetric(label: 'GST', amount: taxMinor),
+            ),
+            if (discountMinor > 0)
+              Expanded(
+                child: _CompactTotalMetric(
+                  label: 'Discount',
+                  amount: -discountMinor,
+                ),
+              ),
+            if (chargesMinor > 0)
+              Expanded(
+                child: _CompactTotalMetric(
+                  label: 'Charges',
+                  amount: chargesMinor,
+                ),
+              ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+class _CompactTotalMetric extends StatelessWidget {
+  const _CompactTotalMetric({required this.label, required this.amount});
+  final String label;
+  final int amount;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: AppTextStyles.caption.copyWith(fontSize: 9.5)),
+      const SizedBox(height: 2),
+      Text(
+        _money(amount),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.small.copyWith(fontWeight: FontWeight.w800),
+      ),
+    ],
+  );
+}
+
+class _PurchaseTaxEvidenceCard extends StatelessWidget {
+  const _PurchaseTaxEvidenceCard({
+    required this.placeOfSupply,
+    required this.discount,
+    required this.additionalCharges,
+    required this.taxMode,
+    required this.reverseCharge,
+    required this.itcEligible,
+    required this.onTaxModeChanged,
+    required this.onReverseChargeChanged,
+    required this.onItcEligibleChanged,
+    required this.onAmountChanged,
+  });
+
+  final TextEditingController placeOfSupply;
+  final TextEditingController discount;
+  final TextEditingController additionalCharges;
+  final String taxMode;
+  final bool reverseCharge;
+  final bool itcEligible;
+  final ValueChanged<String> onTaxModeChanged;
+  final ValueChanged<bool> onReverseChargeChanged;
+  final ValueChanged<bool> onItcEligibleChanged;
+  final VoidCallback onAmountChanged;
+
+  @override
+  Widget build(BuildContext context) => AppCard(
+    padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+    child: ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: EdgeInsets.zero,
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.secondaryLight,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(Icons.verified_outlined, color: AppColors.secondary),
+      ),
+      title: Text('Tax & bill evidence', style: AppTextStyles.cardTitle),
+      subtitle: Text(
+        'GST treatment, ITC and final adjustments',
+        style: AppTextStyles.caption,
+      ),
+      children: [
+        const SizedBox(height: 10),
+        TextField(
+          controller: placeOfSupply,
+          decoration: const InputDecoration(
+            labelText: 'Place of supply',
+            prefixIcon: Icon(Icons.location_on_outlined),
+          ),
+        ),
+        const SizedBox(height: 10),
+        AppDropdownField<String>(
+          label: 'Tax treatment',
+          sheetTitle: 'Choose tax treatment',
+          value: taxMode,
+          prefixIcon: Icons.account_balance_outlined,
+          options: const [
+            AppDropdownOption(
+              value: 'cgst_sgst',
+              label: 'Intra-state · CGST + SGST',
+              icon: Icons.call_split_rounded,
+            ),
+            AppDropdownOption(
+              value: 'igst',
+              label: 'Inter-state · IGST',
+              icon: Icons.swap_horiz_rounded,
+            ),
+            AppDropdownOption(
+              value: 'exempt',
+              label: 'Exempt / no GST',
+              icon: Icons.money_off_csred_outlined,
+            ),
+          ],
+          onChanged: onTaxModeChanged,
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: discount,
+                onChanged: (_) => onAmountChanged(),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                ],
+                decoration: const InputDecoration(
+                  labelText: 'Bill discount',
+                  prefixText: '₹ ',
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: additionalCharges,
+                onChanged: (_) => onAmountChanged(),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                ],
+                decoration: const InputDecoration(
+                  labelText: 'Other charges',
+                  prefixText: '₹ ',
+                ),
+              ),
+            ),
+          ],
+        ),
+        SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Eligible for input tax credit'),
+          subtitle: const Text('Include this bill in your ITC evidence'),
+          value: itcEligible,
+          onChanged: onItcEligibleChanged,
+        ),
+        SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Reverse charge applies'),
+          subtitle: const Text('Tax is payable under reverse charge'),
+          value: reverseCharge,
+          onChanged: onReverseChargeChanged,
+        ),
+      ],
+    ),
+  );
+}
+
+class _PaymentResult {
+  const _PaymentResult({
+    required this.amountMinor,
+    required this.method,
+    required this.date,
+    this.reference,
+    this.note,
+  });
+  final int amountMinor;
+  final String method;
+  final DateTime date;
+  final String? reference, note;
 }
 
 class _PaymentSheet extends StatefulWidget {
@@ -2736,6 +4182,10 @@ class _PaymentSheet extends StatefulWidget {
 
 class _PaymentSheetState extends State<_PaymentSheet> {
   late final TextEditingController amount;
+  final reference = TextEditingController();
+  final note = TextEditingController();
+  String method = 'Bank transfer';
+  DateTime date = DateTime.now();
 
   @override
   void initState() {
@@ -2746,47 +4196,132 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   @override
   void dispose() {
     amount.dispose();
+    reference.dispose();
+    note.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      _Intro(
-        icon: Icons.account_balance_wallet_outlined,
-        title: 'Payment due ${_money(widget.balanceMinor)}',
-        subtitle: 'Record only the amount already paid to your supplier.',
-      ),
-      const SizedBox(height: 16),
-      TextField(
-        controller: amount,
-        autofocus: true,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: const InputDecoration(
-          labelText: 'Amount paid *',
-          prefixIcon: Icon(Icons.currency_rupee_rounded),
+  Widget build(BuildContext context) => SingleChildScrollView(
+    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+    padding: const EdgeInsets.only(bottom: 2),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Intro(
+          icon: Icons.account_balance_wallet_outlined,
+          title: 'Payment due ${_money(widget.balanceMinor)}',
+          subtitle: 'Record only the amount already paid to your supplier.',
         ),
-      ),
-      const SizedBox(height: 16),
-      AppButton(
-        label: 'Record payment',
-        icon: Icons.check_rounded,
-        onPressed: () {
-          final value = double.tryParse(amount.text);
-          final minor = value == null ? 0 : (value * 100).round();
-          if (minor <= 0 || minor > widget.balanceMinor) {
-            AppNotification.warning(
-              'Check payment amount',
-              'Enter an amount between ₹0.01 and ${_money(widget.balanceMinor)}.',
+        const SizedBox(height: 16),
+        TextField(
+          controller: amount,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(
+            labelText: 'Amount paid *',
+            prefixIcon: Icon(Icons.currency_rupee_rounded),
+          ),
+        ),
+        const SizedBox(height: 10),
+        AppDropdownField<String>(
+          label: 'Payment method',
+          sheetTitle: 'Choose payment method',
+          value: method,
+          prefixIcon: Icons.account_balance_wallet_outlined,
+          options: const [
+            AppDropdownOption(
+              value: 'Bank transfer',
+              label: 'Bank transfer',
+              icon: Icons.account_balance_outlined,
+            ),
+            AppDropdownOption(
+              value: 'UPI',
+              label: 'UPI',
+              icon: Icons.qr_code_2_rounded,
+            ),
+            AppDropdownOption(
+              value: 'Cash',
+              label: 'Cash',
+              icon: Icons.payments_outlined,
+            ),
+            AppDropdownOption(
+              value: 'Cheque',
+              label: 'Cheque',
+              icon: Icons.receipt_long_outlined,
+            ),
+            AppDropdownOption(
+              value: 'Card',
+              label: 'Card',
+              icon: Icons.credit_card_rounded,
+            ),
+            AppDropdownOption(
+              value: 'Other',
+              label: 'Other',
+              icon: Icons.more_horiz_rounded,
+            ),
+          ],
+          onChanged: (value) => setState(() => method = value),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: reference,
+          decoration: const InputDecoration(
+            labelText: 'Reference / transaction ID',
+            prefixIcon: Icon(Icons.tag_rounded),
+          ),
+        ),
+        const SizedBox(height: 10),
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+          leading: const Icon(Icons.event_available_outlined),
+          title: const Text('Payment date'),
+          subtitle: Text(_date(date)),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: () async {
+            final value = await showDatePicker(
+              context: context,
+              firstDate: DateTime(2000),
+              lastDate: DateTime.now(),
+              initialDate: date,
             );
-            return;
-          }
-          Navigator.pop(context, minor);
-        },
-      ),
-    ],
+            if (value != null) setState(() => date = value);
+          },
+        ),
+        TextField(
+          controller: note,
+          maxLines: 2,
+          decoration: const InputDecoration(labelText: 'Payment note'),
+        ),
+        const SizedBox(height: 16),
+        AppButton(
+          label: 'Record payment',
+          icon: Icons.check_rounded,
+          onPressed: () {
+            final value = double.tryParse(amount.text);
+            final minor = value == null ? 0 : (value * 100).round();
+            if (minor <= 0 || minor > widget.balanceMinor) {
+              AppNotification.warning(
+                'Check payment amount',
+                'Enter an amount between ₹0.01 and ${_money(widget.balanceMinor)}.',
+              );
+              return;
+            }
+            Navigator.pop(
+              context,
+              _PaymentResult(
+                amountMinor: minor,
+                method: method,
+                date: date,
+                reference: _null(reference.text),
+                note: _null(note.text),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
   );
 }
 
@@ -3054,6 +4589,7 @@ class SupplierSummaryCard extends StatelessWidget {
   const SupplierSummaryCard({
     required this.supplier,
     required this.onNewBill,
+    required this.onStatement,
     required this.onEdit,
     required this.onConfirmDelete,
     required this.onDelete,
@@ -3065,6 +4601,7 @@ class SupplierSummaryCard extends StatelessWidget {
 
   final SupplierModel supplier;
   final VoidCallback onNewBill;
+  final VoidCallback onStatement;
   final VoidCallback onEdit;
   final Future<bool> Function() onConfirmDelete;
   final Future<void> Function() onDelete;
@@ -3112,7 +4649,7 @@ class SupplierSummaryCard extends StatelessWidget {
         child: AppGroupedTile(
           accentColor: statusColor,
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-          onTap: onEdit,
+          onTap: onStatement,
           child: Row(
             children: [
               Container(
@@ -3244,6 +4781,12 @@ class SupplierSummaryCard extends StatelessWidget {
                 onTap: () => Navigator.pop(context, 'bill'),
               ),
               ListTile(
+                leading: const Icon(Icons.account_balance_wallet_outlined),
+                title: const Text('View statement'),
+                subtitle: const Text('Bills, payments and running balance'),
+                onTap: () => Navigator.pop(context, 'statement'),
+              ),
+              ListTile(
                 leading: const Icon(Icons.edit_rounded),
                 title: const Text('Edit supplier'),
                 subtitle: const Text('Update contact and GST details'),
@@ -3264,6 +4807,8 @@ class SupplierSummaryCard extends StatelessWidget {
     );
     if (action == 'bill') {
       onNewBill();
+    } else if (action == 'statement') {
+      onStatement();
     } else if (action == 'edit') {
       onEdit();
     } else if (action == 'delete' && await onConfirmDelete()) {
@@ -3328,5 +4873,52 @@ Widget _field(
   ),
 );
 String? _null(String value) => value.trim().isEmpty ? null : value.trim();
+Future<String?> _askReason(
+  BuildContext context, {
+  required String title,
+  required String hint,
+  required String action,
+}) async {
+  final controller = TextEditingController();
+  final result = await showAppBottomSheet<String>(
+    context: context,
+    title: title,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: controller,
+          autofocus: true,
+          maxLines: 3,
+          maxLength: 240,
+          decoration: InputDecoration(
+            labelText: hint,
+            prefixIcon: const Icon(Icons.edit_note_rounded),
+          ),
+        ),
+        const SizedBox(height: 12),
+        AppButton(
+          label: action,
+          icon: Icons.check_rounded,
+          onPressed: () {
+            final value = controller.text.trim();
+            if (value.isEmpty) {
+              AppNotification.warning(
+                'Reason required',
+                'Add a short reason to keep the audit trail complete.',
+              );
+              return;
+            }
+            Navigator.pop(context, value);
+          },
+        ),
+      ],
+    ),
+  );
+  controller.dispose();
+  return result;
+}
+
 void _message(String value) =>
     AppNotification.warning('Complete required details', value);
