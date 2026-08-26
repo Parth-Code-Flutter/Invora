@@ -13,6 +13,8 @@ import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
+import '../../../app/widgets/app_form_grid.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/models/scanned_invoice_line.dart';
 import '../../../data/repositories/business_repository.dart';
@@ -119,26 +121,28 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
             color: Theme.of(context).colorScheme.surface,
             border: const Border(top: BorderSide(color: AppColors.border)),
           ),
-          child: AppButton(
-            label: !_hasChanges
-                ? (_alreadyAdded.isEmpty
-                      ? 'Select items to add'
-                      : 'No item changes')
-                : _alreadyAdded.isEmpty
-                ? 'Add ${_addedIds.length} ${_addedIds.length == 1 ? 'item' : 'items'}'
-                : 'Apply item changes',
-            icon: Icons.add_shopping_cart_rounded,
-            onPressed: !_hasChanges
-                ? null
-                : () => Get.back<InvoiceItemPickerResult>(
-                    result: InvoiceItemPickerResult(
-                      added: _addedIds
-                          .map((id) => _knownItems[id])
-                          .whereType<ProductServiceModel>()
-                          .toList(growable: false),
-                      removedIds: _alreadyAdded.difference(_selectedIds),
+          child: AppConstrainedAction(
+            child: AppButton(
+              label: !_hasChanges
+                  ? (_alreadyAdded.isEmpty
+                        ? 'Select items to add'
+                        : 'No item changes')
+                  : _alreadyAdded.isEmpty
+                  ? 'Add ${_addedIds.length} ${_addedIds.length == 1 ? 'item' : 'items'}'
+                  : 'Apply item changes',
+              icon: Icons.add_shopping_cart_rounded,
+              onPressed: !_hasChanges
+                  ? null
+                  : () => Get.back<InvoiceItemPickerResult>(
+                      result: InvoiceItemPickerResult(
+                        added: _addedIds
+                            .map((id) => _knownItems[id])
+                            .whereType<ProductServiceModel>()
+                            .toList(growable: false),
+                        removedIds: _alreadyAdded.difference(_selectedIds),
+                      ),
                     ),
-                  ),
+            ),
           ),
         ),
       ),
@@ -293,19 +297,35 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                           ),
                         ),
                         Expanded(
-                          child: ListView.separated(
-                            padding: EdgeInsets.fromLTRB(
-                              ResponsiveUtils.horizontalPadding(context),
-                              4,
-                              ResponsiveUtils.horizontalPadding(context),
-                              24,
-                            ),
-                            itemCount: items.length,
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: 9),
-                            itemBuilder: (context, index) =>
-                                _itemTile(items[index]),
-                          ),
+                          child: ResponsiveUtils.isTablet(context)
+                              ? ListView(
+                                  padding: EdgeInsets.fromLTRB(
+                                    ResponsiveUtils.horizontalPadding(context),
+                                    4,
+                                    ResponsiveUtils.horizontalPadding(context),
+                                    24,
+                                  ),
+                                  children: [
+                                    AppResponsiveCards(
+                                      itemCount: items.length,
+                                      itemBuilder: (context, index) =>
+                                          _itemTile(items[index]),
+                                    ),
+                                  ],
+                                )
+                              : ListView.separated(
+                                  padding: EdgeInsets.fromLTRB(
+                                    ResponsiveUtils.horizontalPadding(context),
+                                    4,
+                                    ResponsiveUtils.horizontalPadding(context),
+                                    24,
+                                  ),
+                                  itemCount: items.length,
+                                  separatorBuilder: (_, _) =>
+                                      const SizedBox(height: 9),
+                                  itemBuilder: (context, index) =>
+                                      _itemTile(items[index]),
+                                ),
                         ),
                       ],
                     );

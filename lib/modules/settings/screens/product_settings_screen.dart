@@ -33,7 +33,8 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
           title: const AppBarTitle('Product settings'),
         ),
         body: ResponsiveContent(
-          tabletMaxWidth: 720,
+          tabletMaxWidth: 560,
+          largeTabletMaxWidth: 640,
           child: Obx(() => _content(context)),
         ),
       ),

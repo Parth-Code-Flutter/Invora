@@ -10,10 +10,12 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_text_field.dart';
+import '../../../app/widgets/responsive_content.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
 import '../../../data/models/business_category_model.dart';
 import '../controllers/business_setup_controller.dart';
@@ -53,224 +55,411 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
         body: Obx(
           () => controller.isLoading.value
               ? const Center(child: CircularProgressIndicator())
-              : Form(
-                  key: controller.formKey,
-                  child: ListView(
-                    padding: EdgeInsets.fromLTRB(
-                      ResponsiveUtils.horizontalPadding(context),
-                      ResponsiveUtils.height(context, 8),
-                      ResponsiveUtils.horizontalPadding(context),
-                      ResponsiveUtils.height(context, 32),
-                    ),
-                    children: [
-                      _SetupHeader(
-                        step: controller.setupStep.value,
-                        isEditing: controller.isEditing,
+              : AppFormCanvas(
+                  child: Form(
+                    key: controller.formKey,
+                    child: ListView(
+                      padding: EdgeInsets.fromLTRB(
+                        ResponsiveUtils.horizontalPadding(context),
+                        ResponsiveUtils.height(context, 8),
+                        ResponsiveUtils.horizontalPadding(context),
+                        ResponsiveUtils.height(context, 32),
                       ),
-                      const SizedBox(height: 26),
-                      if (controller.setupStep.value == 0) ...[
-                        _SectionLabel(
-                          title: 'Your identity',
-                          caption: controller.isEditing
-                              ? 'Used across your invoices.'
-                              : 'Required to create your first invoice.',
+                      children: [
+                        _SetupHeader(
+                          step: controller.setupStep.value,
+                          isEditing: controller.isEditing,
                         ),
-                        const SizedBox(height: 12),
-                        Obx(
-                          () => _LogoPicker(
-                            path: controller.logoPath.value,
-                            onTap: controller.pickLogo,
+                        const SizedBox(height: 26),
+                        if (controller.setupStep.value == 0) ...[
+                          _SectionLabel(
+                            title: 'Your identity',
+                            caption: controller.isEditing
+                                ? 'Used across your invoices.'
+                                : 'Required to create your first invoice.',
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        AppTextField(
-                          controller: controller.businessName,
-                          label: 'Business name *',
-                          hint: 'e.g. Creovo Studio',
-                          prefixIcon: Icons.storefront_outlined,
-                          validator: controller.requiredBusinessName,
-                          textCapitalization: TextCapitalization.words,
-                        ),
-                        const SizedBox(height: 14),
-                        Obx(
-                          () => AppDropdownField<BusinessCategory>(
-                            label: 'Business category',
-                            value: controller.businessCategory.value,
-                            sheetTitle: 'Choose your business category',
-                            searchable: true,
-                            sheetHeightFactor: .75,
-                            prefixIcon: Icons.category_outlined,
-                            options: BusinessCategory.values
-                                .map(
-                                  (value) => AppDropdownOption(
-                                    value: value,
-                                    label: value.label,
-                                  ),
-                                )
-                                .toList(growable: false),
-                            onChanged: (value) =>
-                                controller.businessCategory.value = value,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'This only recommends useful product fields and units. You can change it later.',
-                          style: AppTextStyles.small.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ] else ...[
-                        const _SectionLabel(
-                          title: 'Contact details',
-                          caption: 'Optional · helps customers reach you.',
-                        ),
-                        const SizedBox(height: 12),
-                        AppCard(
-                          padding: const EdgeInsets.all(16),
-                          child: _ResponsiveFields(
-                            children: [
-                              AppTextField(
-                                controller: controller.ownerName,
-                                label: 'Owner name',
-                                prefixIcon: Icons.person_outline_rounded,
-                                textCapitalization: TextCapitalization.words,
-                              ),
-                              AppTextField(
-                                controller: controller.mobile,
-                                label: 'Mobile number',
-                                prefixIcon: Icons.phone_outlined,
-                                keyboardType: TextInputType.phone,
-                                validator: controller.validateMobile,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                  LengthLimitingTextInputFormatter(10),
-                                ],
-                              ),
-                              AppTextField(
-                                controller: controller.email,
-                                label: 'Email address (optional)',
-                                prefixIcon: Icons.alternate_email_rounded,
-                                keyboardType: TextInputType.emailAddress,
-                                validator: controller.validateEmail,
-                                inputFormatters: [
-                                  LengthLimitingTextInputFormatter(254),
-                                  FilteringTextInputFormatter.deny(
-                                    RegExp(r'\s'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        AppCard(
-                          padding: EdgeInsets.zero,
-                          child: ExpansionTile(
-                            tilePadding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                            ),
-                            childrenPadding: const EdgeInsets.fromLTRB(
-                              12,
-                              0,
-                              12,
-                              12,
-                            ),
-                            leading: const Icon(
-                              Icons.tune_rounded,
-                              color: AppColors.primary,
-                            ),
-                            title: const Text('Customize your invoices'),
-                            subtitle: const Text(
-                              '3 optional sections · complete anytime',
-                            ),
-                            children: [
-                              _OptionalDetailTile(
-                                title: 'Business address',
-                                subtitle: 'Address, city, state and PIN code',
-                                icon: Icons.location_on_outlined,
-                                child: Column(
-                                  children: [
-                                    AppTextField(
-                                      controller: controller.address,
-                                      label: 'Address',
-                                      maxLines: 2,
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
+                          const SizedBox(height: 12),
+                          if (ResponsiveUtils.isTablet(context))
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 168,
+                                  child: Obx(
+                                    () => _LogoPicker(
+                                      path: controller.logoPath.value,
+                                      onTap: controller.pickLogo,
                                     ),
-                                    const SizedBox(height: 12),
-                                    _ResponsiveFields(
-                                      children: [
-                                        AppTextField(
-                                          controller: controller.city,
-                                          label: 'City',
+                                  ),
+                                ),
+                                const SizedBox(width: 24),
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      AppTextField(
+                                        controller: controller.businessName,
+                                        label: 'Business name *',
+                                        hint: 'e.g. Creovo Studio',
+                                        prefixIcon: Icons.storefront_outlined,
+                                        validator:
+                                            controller.requiredBusinessName,
+                                        textCapitalization:
+                                            TextCapitalization.words,
+                                      ),
+                                      const SizedBox(height: 14),
+                                      Obx(
+                                        () => AppDropdownField<BusinessCategory>(
+                                          label: 'Business category',
+                                          value:
+                                              controller.businessCategory.value,
+                                          sheetTitle:
+                                              'Choose your business category',
+                                          searchable: true,
+                                          sheetHeightFactor: .75,
+                                          prefixIcon: Icons.category_outlined,
+                                          options: BusinessCategory.values
+                                              .map(
+                                                (value) => AppDropdownOption(
+                                                  value: value,
+                                                  label: value.label,
+                                                ),
+                                              )
+                                              .toList(growable: false),
+                                          onChanged: (value) =>
+                                              controller
+                                                      .businessCategory
+                                                      .value =
+                                                  value,
                                         ),
-                                        AppTextField(
-                                          controller: controller.state,
-                                          label: 'State',
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        'This only recommends useful product fields and units. You can change it later.',
+                                        style: AppTextStyles.small.copyWith(
+                                          color: AppColors.textSecondary,
                                         ),
-                                        AppTextField(
-                                          controller: controller.pinCode,
-                                          label: 'PIN code',
-                                          keyboardType: TextInputType.number,
-                                          validator: controller.validatePinCode,
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter
-                                                .digitsOnly,
-                                            LengthLimitingTextInputFormatter(6),
-                                          ],
-                                        ),
-                                      ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                          else ...[
+                            Obx(
+                              () => _LogoPicker(
+                                path: controller.logoPath.value,
+                                onTap: controller.pickLogo,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            AppTextField(
+                              controller: controller.businessName,
+                              label: 'Business name *',
+                              hint: 'e.g. Creovo Studio',
+                              prefixIcon: Icons.storefront_outlined,
+                              validator: controller.requiredBusinessName,
+                              textCapitalization: TextCapitalization.words,
+                            ),
+                            const SizedBox(height: 14),
+                            Obx(
+                              () => AppDropdownField<BusinessCategory>(
+                                label: 'Business category',
+                                value: controller.businessCategory.value,
+                                sheetTitle: 'Choose your business category',
+                                searchable: true,
+                                sheetHeightFactor: .75,
+                                prefixIcon: Icons.category_outlined,
+                                options: BusinessCategory.values
+                                    .map(
+                                      (value) => AppDropdownOption(
+                                        value: value,
+                                        label: value.label,
+                                      ),
+                                    )
+                                    .toList(growable: false),
+                                onChanged: (value) =>
+                                    controller.businessCategory.value = value,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'This only recommends useful product fields and units. You can change it later.',
+                              style: AppTextStyles.small.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ] else ...[
+                          const _SectionLabel(
+                            title: 'Contact details',
+                            caption: 'Optional · helps customers reach you.',
+                          ),
+                          const SizedBox(height: 12),
+                          AppCard(
+                            padding: const EdgeInsets.all(16),
+                            child: _ResponsiveFields(
+                              children: [
+                                AppTextField(
+                                  controller: controller.ownerName,
+                                  label: 'Owner name',
+                                  prefixIcon: Icons.person_outline_rounded,
+                                  textCapitalization: TextCapitalization.words,
+                                ),
+                                AppTextField(
+                                  controller: controller.mobile,
+                                  label: 'Mobile number',
+                                  prefixIcon: Icons.phone_outlined,
+                                  keyboardType: TextInputType.phone,
+                                  validator: controller.validateMobile,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(10),
+                                  ],
+                                ),
+                                AppTextField(
+                                  controller: controller.email,
+                                  label: 'Email address (optional)',
+                                  prefixIcon: Icons.alternate_email_rounded,
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: controller.validateEmail,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(254),
+                                    FilteringTextInputFormatter.deny(
+                                      RegExp(r'\s'),
                                     ),
                                   ],
                                 ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          AppCard(
+                            padding: EdgeInsets.zero,
+                            child: ExpansionTile(
+                              tilePadding: const EdgeInsets.symmetric(
+                                horizontal: 18,
                               ),
-                              const SizedBox(height: 10),
-                              _OptionalDetailTile(
-                                title: 'Tax and invoice settings',
-                                subtitle: 'GST, PAN, currency and numbering',
-                                icon: Icons.receipt_long_outlined,
-                                child: Column(
-                                  children: [
-                                    Obx(
-                                      () => SwitchListTile.adaptive(
-                                        contentPadding: EdgeInsets.zero,
-                                        title: const Text('GST registered'),
-                                        subtitle: const Text(
-                                          'Enable GST details on invoices',
-                                        ),
-                                        value: controller.gstRegistered.value,
-                                        onChanged: (value) =>
-                                            controller.gstRegistered.value =
-                                                value,
+                              childrenPadding: const EdgeInsets.fromLTRB(
+                                12,
+                                0,
+                                12,
+                                12,
+                              ),
+                              leading: const Icon(
+                                Icons.tune_rounded,
+                                color: AppColors.primary,
+                              ),
+                              title: const Text('Customize your invoices'),
+                              subtitle: const Text(
+                                '3 optional sections · complete anytime',
+                              ),
+                              children: [
+                                _OptionalDetailTile(
+                                  title: 'Business address',
+                                  subtitle: 'Address, city, state and PIN code',
+                                  icon: Icons.location_on_outlined,
+                                  child: Column(
+                                    children: [
+                                      AppTextField(
+                                        controller: controller.address,
+                                        label: 'Address',
+                                        maxLines: 2,
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
                                       ),
-                                    ),
-                                    Obx(
-                                      () => _ResponsiveFields(
+                                      const SizedBox(height: 12),
+                                      _ResponsiveFields(
                                         children: [
-                                          if (controller.gstRegistered.value)
+                                          AppTextField(
+                                            controller: controller.city,
+                                            label: 'City',
+                                          ),
+                                          AppTextField(
+                                            controller: controller.state,
+                                            label: 'State',
+                                          ),
+                                          AppTextField(
+                                            controller: controller.pinCode,
+                                            label: 'PIN code',
+                                            keyboardType: TextInputType.number,
+                                            validator:
+                                                controller.validatePinCode,
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter
+                                                  .digitsOnly,
+                                              LengthLimitingTextInputFormatter(
+                                                6,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                _OptionalDetailTile(
+                                  title: 'Tax and invoice settings',
+                                  subtitle: 'GST, PAN, currency and numbering',
+                                  icon: Icons.receipt_long_outlined,
+                                  child: Column(
+                                    children: [
+                                      Obx(
+                                        () => SwitchListTile.adaptive(
+                                          contentPadding: EdgeInsets.zero,
+                                          title: const Text('GST registered'),
+                                          subtitle: const Text(
+                                            'Enable GST details on invoices',
+                                          ),
+                                          value: controller.gstRegistered.value,
+                                          onChanged: (value) =>
+                                              controller.gstRegistered.value =
+                                                  value,
+                                        ),
+                                      ),
+                                      Obx(
+                                        () => _ResponsiveFields(
+                                          children: [
+                                            if (controller.gstRegistered.value)
+                                              AppTextField(
+                                                controller: controller.gstin,
+                                                label: 'GSTIN *',
+                                                validator:
+                                                    controller.validateGstin,
+                                                inputFormatters: [
+                                                  LengthLimitingTextInputFormatter(
+                                                    15,
+                                                  ),
+                                                  FilteringTextInputFormatter.allow(
+                                                    RegExp('[0-9a-zA-Z]'),
+                                                  ),
+                                                ],
+                                              ),
                                             AppTextField(
-                                              controller: controller.gstin,
-                                              label: 'GSTIN *',
-                                              validator:
-                                                  controller.validateGstin,
+                                              controller: controller.pan,
+                                              label: 'PAN',
+                                              validator: controller.validatePan,
+                                              textCapitalization:
+                                                  TextCapitalization.characters,
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
-                                                  15,
+                                                  10,
                                                 ),
                                                 FilteringTextInputFormatter.allow(
                                                   RegExp('[0-9a-zA-Z]'),
                                                 ),
                                               ],
                                             ),
+                                            AppTextField(
+                                              controller:
+                                                  controller.invoicePrefix,
+                                              label: 'Invoice prefix',
+                                              hint: 'INV',
+                                              validator: controller
+                                                  .validateInvoicePrefix,
+                                              textCapitalization:
+                                                  TextCapitalization.characters,
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(
+                                                  10,
+                                                ),
+                                                FilteringTextInputFormatter.allow(
+                                                  RegExp('[0-9a-zA-Z-]'),
+                                                ),
+                                              ],
+                                            ),
+                                            AppTextField(
+                                              controller: controller
+                                                  .startingInvoiceNumber,
+                                              label: 'Starting invoice number',
+                                              hint: '1',
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              validator: controller
+                                                  .validateStartingInvoiceNumber,
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                                LengthLimitingTextInputFormatter(
+                                                  9,
+                                                ),
+                                              ],
+                                            ),
+                                            AppDropdownField<String>(
+                                              label: 'Currency',
+                                              sheetTitle: 'Choose currency',
+                                              prefixIcon: Icons
+                                                  .currency_exchange_rounded,
+                                              value:
+                                                  controller.currencyCode.value,
+                                              options: BusinessSetupController
+                                                  .currencies
+                                                  .entries
+                                                  .map(
+                                                    (
+                                                      entry,
+                                                    ) => AppDropdownOption(
+                                                      value: entry.key,
+                                                      label:
+                                                          '${entry.key} (${entry.value})',
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                              onChanged: (value) =>
+                                                  controller
+                                                          .currencyCode
+                                                          .value =
+                                                      value,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                _OptionalDetailTile(
+                                  title: 'Payment details',
+                                  subtitle:
+                                      'Bank account, UPI, QR and signature',
+                                  icon: Icons.account_balance_wallet_outlined,
+                                  child: Column(
+                                    children: [
+                                      _ResponsiveFields(
+                                        children: [
                                           AppTextField(
-                                            controller: controller.pan,
-                                            label: 'PAN',
-                                            validator: controller.validatePan,
+                                            controller: controller.bankName,
+                                            label: 'Bank name',
+                                          ),
+                                          AppTextField(
+                                            controller:
+                                                controller.accountHolderName,
+                                            label: 'Account holder',
+                                          ),
+                                          AppTextField(
+                                            controller:
+                                                controller.accountNumber,
+                                            label: 'Account number',
+                                            keyboardType: TextInputType.number,
+                                            validator: controller
+                                                .validateAccountNumber,
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter
+                                                  .digitsOnly,
+                                              LengthLimitingTextInputFormatter(
+                                                18,
+                                              ),
+                                            ],
+                                          ),
+                                          AppTextField(
+                                            controller: controller.ifsc,
+                                            label: 'IFSC',
+                                            validator: controller.validateIfsc,
                                             textCapitalization:
                                                 TextCapitalization.characters,
                                             inputFormatters: [
                                               LengthLimitingTextInputFormatter(
-                                                10,
+                                                11,
                                               ),
                                               FilteringTextInputFormatter.allow(
                                                 RegExp('[0-9a-zA-Z]'),
@@ -278,169 +467,61 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                                             ],
                                           ),
                                           AppTextField(
-                                            controller:
-                                                controller.invoicePrefix,
-                                            label: 'Invoice prefix',
-                                            hint: 'INV',
-                                            validator: controller
-                                                .validateInvoicePrefix,
-                                            textCapitalization:
-                                                TextCapitalization.characters,
+                                            controller: controller.upiId,
+                                            label: 'UPI ID',
+                                            keyboardType:
+                                                TextInputType.emailAddress,
+                                            validator: controller.validateUpiId,
                                             inputFormatters: [
                                               LengthLimitingTextInputFormatter(
-                                                10,
+                                                321,
                                               ),
-                                              FilteringTextInputFormatter.allow(
-                                                RegExp('[0-9a-zA-Z-]'),
-                                              ),
-                                            ],
-                                          ),
-                                          AppTextField(
-                                            controller: controller
-                                                .startingInvoiceNumber,
-                                            label: 'Starting invoice number',
-                                            hint: '1',
-                                            keyboardType: TextInputType.number,
-                                            validator: controller
-                                                .validateStartingInvoiceNumber,
-                                            inputFormatters: [
-                                              FilteringTextInputFormatter
-                                                  .digitsOnly,
-                                              LengthLimitingTextInputFormatter(
-                                                9,
+                                              FilteringTextInputFormatter.deny(
+                                                RegExp(r'\s'),
                                               ),
                                             ],
-                                          ),
-                                          AppDropdownField<String>(
-                                            label: 'Currency',
-                                            sheetTitle: 'Choose currency',
-                                            prefixIcon:
-                                                Icons.currency_exchange_rounded,
-                                            value:
-                                                controller.currencyCode.value,
-                                            options: BusinessSetupController
-                                                .currencies
-                                                .entries
-                                                .map(
-                                                  (entry) => AppDropdownOption(
-                                                    value: entry.key,
-                                                    label:
-                                                        '${entry.key} (${entry.value})',
-                                                  ),
-                                                )
-                                                .toList(),
-                                            onChanged: (value) =>
-                                                controller.currencyCode.value =
-                                                    value,
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              _OptionalDetailTile(
-                                title: 'Payment details',
-                                subtitle: 'Bank account, UPI, QR and signature',
-                                icon: Icons.account_balance_wallet_outlined,
-                                child: Column(
-                                  children: [
-                                    _ResponsiveFields(
-                                      children: [
-                                        AppTextField(
-                                          controller: controller.bankName,
-                                          label: 'Bank name',
-                                        ),
-                                        AppTextField(
-                                          controller:
-                                              controller.accountHolderName,
-                                          label: 'Account holder',
-                                        ),
-                                        AppTextField(
-                                          controller: controller.accountNumber,
-                                          label: 'Account number',
-                                          keyboardType: TextInputType.number,
-                                          validator:
-                                              controller.validateAccountNumber,
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter
-                                                .digitsOnly,
-                                            LengthLimitingTextInputFormatter(
-                                              18,
-                                            ),
-                                          ],
-                                        ),
-                                        AppTextField(
-                                          controller: controller.ifsc,
-                                          label: 'IFSC',
-                                          validator: controller.validateIfsc,
-                                          textCapitalization:
-                                              TextCapitalization.characters,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(
-                                              11,
-                                            ),
-                                            FilteringTextInputFormatter.allow(
-                                              RegExp('[0-9a-zA-Z]'),
-                                            ),
-                                          ],
-                                        ),
-                                        AppTextField(
-                                          controller: controller.upiId,
-                                          label: 'UPI ID',
-                                          keyboardType:
-                                              TextInputType.emailAddress,
-                                          validator: controller.validateUpiId,
-                                          inputFormatters: [
-                                            LengthLimitingTextInputFormatter(
-                                              321,
-                                            ),
-                                            FilteringTextInputFormatter.deny(
-                                              RegExp(r'\s'),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Obx(
-                                            () => _ImagePickerCard(
-                                              label: 'Payment QR',
-                                              path: controller
-                                                  .paymentQrPath
-                                                  .value,
-                                              icon: Icons.qr_code_rounded,
-                                              onTap: controller.pickPaymentQr,
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Obx(
+                                              () => _ImagePickerCard(
+                                                label: 'Payment QR',
+                                                path: controller
+                                                    .paymentQrPath
+                                                    .value,
+                                                icon: Icons.qr_code_rounded,
+                                                onTap: controller.pickPaymentQr,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Obx(
-                                            () => _ImagePickerCard(
-                                              label: 'Signature',
-                                              path: controller
-                                                  .signaturePath
-                                                  .value,
-                                              icon: Icons.draw_outlined,
-                                              onTap: controller.pickSignature,
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Obx(
+                                              () => _ImagePickerCard(
+                                                label: 'Signature',
+                                                path: controller
+                                                    .signaturePath
+                                                    .value,
+                                                icon: Icons.draw_outlined,
+                                                onTap: controller.pickSignature,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
         ),
@@ -458,25 +539,27 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
               border: Border(top: BorderSide(color: AppColors.border)),
             ),
             child: Obx(
-              () => AppButton(
-                label: controller.setupStep.value == 0
-                    ? 'Continue'
-                    : controller.isEditing
-                    ? 'Save changes'
-                    : 'Save & start invoicing',
-                icon: controller.isEditing && controller.setupStep.value == 1
-                    ? Icons.check_rounded
-                    : null,
-                trailingIcon:
-                    controller.setupStep.value == 0 || !controller.isEditing
-                    ? Icons.arrow_forward_rounded
-                    : null,
-                isLoading: controller.isSaving.value,
-                onPressed: controller.isLoading.value
-                    ? null
-                    : controller.setupStep.value == 0
-                    ? controller.continueToDetails
-                    : controller.save,
+              () => AppConstrainedAction(
+                child: AppButton(
+                  label: controller.setupStep.value == 0
+                      ? 'Continue'
+                      : controller.isEditing
+                      ? 'Save changes'
+                      : 'Save & start invoicing',
+                  icon: controller.isEditing && controller.setupStep.value == 1
+                      ? Icons.check_rounded
+                      : null,
+                  trailingIcon:
+                      controller.setupStep.value == 0 || !controller.isEditing
+                      ? Icons.arrow_forward_rounded
+                      : null,
+                  isLoading: controller.isSaving.value,
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : controller.setupStep.value == 0
+                      ? controller.continueToDetails
+                      : controller.save,
+                ),
               ),
             ),
           ),

@@ -16,6 +16,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_outlined_button.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
@@ -384,34 +385,37 @@ class _InvoiceDetailsFooter extends StatelessWidget {
           color: Theme.of(context).colorScheme.surface,
           border: const Border(top: BorderSide(color: AppColors.border)),
         ),
-        child: Row(
-          children: [
-            if (_canRecordPayment) ...[
-              Expanded(
-                flex: 3,
-                child: AppButton(
-                  label: l10n('Record payment'),
-                  icon: Icons.payments_outlined,
-                  onPressed: onRecordPayment,
+        child: AppConstrainedAction(
+          maxWidth: ResponsiveUtils.footerMaxWidth(context),
+          child: Row(
+            children: [
+              if (_canRecordPayment) ...[
+                Expanded(
+                  flex: 3,
+                  child: AppButton(
+                    label: l10n('Record payment'),
+                    icon: Icons.payments_outlined,
+                    onPressed: onRecordPayment,
+                  ),
                 ),
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                flex: _canRecordPayment ? 2 : 3,
+                child: _canRecordPayment
+                    ? AppOutlinedButton(
+                        label: l10n('Share'),
+                        icon: Icons.ios_share_rounded,
+                        onPressed: onShare,
+                      )
+                    : AppButton(
+                        label: l10n('Share / print'),
+                        icon: Icons.ios_share_rounded,
+                        onPressed: onShareOrPrint,
+                      ),
               ),
-              const SizedBox(width: 10),
             ],
-            Expanded(
-              flex: _canRecordPayment ? 2 : 3,
-              child: _canRecordPayment
-                  ? AppOutlinedButton(
-                      label: l10n('Share'),
-                      icon: Icons.ios_share_rounded,
-                      onPressed: onShare,
-                    )
-                  : AppButton(
-                      label: l10n('Share / print'),
-                      icon: Icons.ios_share_rounded,
-                      onPressed: onShareOrPrint,
-                    ),
-            ),
-          ],
+          ),
         ),
       ),
     );

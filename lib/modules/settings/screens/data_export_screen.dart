@@ -21,7 +21,8 @@ class DataExportScreen extends GetView<DataExportController> {
       title: const AppBarTitle('Export data'),
     ),
     body: ResponsiveContent(
-      tabletMaxWidth: 760,
+      tabletMaxWidth: 640,
+      largeTabletMaxWidth: 720,
       child: ListView(
         padding: const EdgeInsets.only(bottom: 28),
         children: [

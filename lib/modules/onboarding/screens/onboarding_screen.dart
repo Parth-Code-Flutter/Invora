@@ -7,7 +7,6 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_button.dart';
-import '../../../app/widgets/responsive_content.dart';
 import '../controllers/onboarding_controller.dart';
 
 class OnboardingScreen extends GetView<OnboardingController> {
@@ -51,31 +50,46 @@ class OnboardingScreen extends GetView<OnboardingController> {
           ),
         ),
         child: SafeArea(
-          child: ResponsiveContent(
-            paddingTop: 8,
-            tabletMaxWidth: 980,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsiveUtils.horizontalPadding(context),
+            ),
             child: Column(
               children: [
+                const SizedBox(height: 8),
                 _BrandHeader(onSkip: controller.complete),
-                const SizedBox(height: 14),
+                SizedBox(height: ResponsiveUtils.isTablet(context) ? 12 : 14),
                 Expanded(
-                  child: PageView.builder(
-                    controller: controller.pageController,
-                    onPageChanged: controller.onPageChanged,
-                    itemCount: _pages.length,
-                    itemBuilder: (context, index) =>
-                        _OnboardingPage(data: _pages[index], pageIndex: index),
-                  ),
+                  child: ResponsiveUtils.isTablet(context)
+                      ? PageView.builder(
+                          controller: controller.pageController,
+                          onPageChanged: controller.onPageChanged,
+                          itemCount: _pages.length,
+                          itemBuilder: (context, index) =>
+                              _TabletOnboardingPage(
+                                data: _pages[index],
+                                pageIndex: index,
+                                pageCount: _pages.length,
+                                currentPage: controller.currentPage,
+                                onNext: controller.next,
+                              ),
+                        )
+                      : PageView.builder(
+                          controller: controller.pageController,
+                          onPageChanged: controller.onPageChanged,
+                          itemCount: _pages.length,
+                          itemBuilder: (context, index) => _OnboardingPage(
+                            data: _pages[index],
+                            pageIndex: index,
+                          ),
+                        ),
                 ),
-                Obx(
-                  () => _PageIndicator(current: controller.currentPage.value),
-                ),
-                ResponsiveUtils.verticalGap(context, 22),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: ResponsiveUtils.isTablet(context) ? 420 : 520,
+                if (!ResponsiveUtils.isTablet(context)) ...[
+                  Obx(
+                    () => _PageIndicator(current: controller.currentPage.value),
                   ),
-                  child: Obx(
+                  ResponsiveUtils.verticalGap(context, 22),
+                  Obx(
                     () => AppButton(
                       label: controller.currentPage.value == _pages.length - 1
                           ? 'Set up my business'
@@ -84,8 +98,8 @@ class OnboardingScreen extends GetView<OnboardingController> {
                       trailingIcon: Icons.arrow_forward_rounded,
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
+                  const SizedBox(height: 8),
+                ],
               ],
             ),
           ),
@@ -140,7 +154,112 @@ class _OnboardingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final visual = _FeatureVisual(data: data, pageIndex: pageIndex);
-    final copy = Column(
+    final copy = _OnboardingCopy(data: data);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(child: visual),
+        const SizedBox(height: 26),
+        copy,
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+}
+
+class _TabletOnboardingPage extends StatelessWidget {
+  const _TabletOnboardingPage({
+    required this.data,
+    required this.pageIndex,
+    required this.pageCount,
+    required this.currentPage,
+    required this.onNext,
+  });
+
+  final _OnboardingData data;
+  final int pageIndex;
+  final int pageCount;
+  final RxInt currentPage;
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1080, maxHeight: 640),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 5,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 460,
+                      maxHeight: 520,
+                    ),
+                    child: AspectRatio(
+                      aspectRatio: 0.9,
+                      child: _FeatureVisual(data: data, pageIndex: pageIndex),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 48),
+              Expanded(
+                flex: 5,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _OnboardingCopy(data: data),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: 168,
+                          child: Obx(
+                            () => _PageIndicator(current: currentPage.value),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 320),
+                          child: Obx(
+                            () => AppButton(
+                              label: currentPage.value == pageCount - 1
+                                  ? 'Set up my business'
+                                  : 'Show me more',
+                              onPressed: onNext,
+                              trailingIcon: Icons.arrow_forward_rounded,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OnboardingCopy extends StatelessWidget {
+  const _OnboardingCopy({required this.data});
+  final _OnboardingData data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -156,7 +275,10 @@ class _OnboardingPage extends StatelessWidget {
         Text(
           data.title,
           style: AppTextStyles.pageTitle.copyWith(
-            fontSize: ResponsiveUtils.fontSize(context, 28),
+            fontSize: ResponsiveUtils.fontSize(
+              context,
+              ResponsiveUtils.isTablet(context) ? 34 : 28,
+            ),
             height: 1.12,
           ),
         ),
@@ -166,32 +288,10 @@ class _OnboardingPage extends StatelessWidget {
           style: AppTextStyles.body.copyWith(
             color: AppColors.textSecondary,
             height: 1.5,
+            fontSize: ResponsiveUtils.isTablet(context) ? 16 : 14,
           ),
         ),
       ],
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (ResponsiveUtils.isTablet(context)) {
-          return Row(
-            children: [
-              Expanded(child: visual),
-              const SizedBox(width: 52),
-              Expanded(child: copy),
-            ],
-          );
-        }
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(child: visual),
-            const SizedBox(height: 26),
-            copy,
-            const SizedBox(height: 10),
-          ],
-        );
-      },
     );
   }
 }
@@ -203,11 +303,16 @@ class _FeatureVisual extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = ResponsiveUtils.isTablet(context);
     final isCompact = MediaQuery.sizeOf(context).height < 700;
     return Container(
       constraints: BoxConstraints(
-        maxHeight: isCompact ? 270 : 330,
-        maxWidth: 520,
+        maxHeight: isTablet
+            ? double.infinity
+            : isCompact
+            ? 270
+            : 330,
+        maxWidth: isTablet ? double.infinity : 520,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -228,8 +333,15 @@ class _FeatureVisual extends StatelessWidget {
         children: [
           Positioned(right: -45, top: -55, child: _Glow(size: 160)),
           Positioned(left: -35, bottom: -50, child: _Glow(size: 130)),
-          Center(
-            child: _InvoiceScene(pageIndex: pageIndex, accent: data.accent),
+          Positioned.fill(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: ResponsiveUtils.isTablet(context) ? 24 : 0,
+              ),
+              child: Center(
+                child: _InvoiceScene(pageIndex: pageIndex, accent: data.accent),
+              ),
+            ),
           ),
           Positioned(
             left: 18,
@@ -281,7 +393,7 @@ class _InvoiceScene extends StatelessWidget {
     return Transform.rotate(
       angle: -.035,
       child: Container(
-        width: 218,
+        width: ResponsiveUtils.isTablet(context) ? 280 : 218,
         margin: const EdgeInsets.only(top: 30),
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(

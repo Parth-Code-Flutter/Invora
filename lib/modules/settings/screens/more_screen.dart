@@ -12,6 +12,7 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_purchase_navigation.dart';
+import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/app_menu_group.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/business_profile_model.dart';
@@ -22,140 +23,144 @@ class MoreScreen extends GetView<MoreController> {
   const MoreScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const AppBarTitle('More')),
-    bottomNavigationBar: Obx(
-      () => Get.find<BusinessWorkspaceService>().isPurchases
-          ? const AppPurchaseNavigation(current: PurchaseDestination.more)
-          : const AppMainNavigation(current: MainDestination.more),
-    ),
-    body: ResponsiveContent(
-      tabletMaxWidth: 720,
-      child: ListView(
-        padding: const EdgeInsets.only(top: 4, bottom: 12),
-        children: [
-          Obx(
-            () => _BusinessHeader(
-              controller: controller,
-              profile: controller.profile.value,
-            ),
-          ),
-          const SizedBox(height: 14),
-          const _SectionLabel('Change workspace'),
-          Obx(() {
-            final workspace = Get.find<BusinessWorkspaceService>();
-            final isDark = Theme.of(context).brightness == Brightness.dark;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppMenuGroup(
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final purchases = Get.find<BusinessWorkspaceService>().isPurchases;
+      return AppShell(
+        salesDestination: purchases ? null : MainDestination.more,
+        purchaseDestination: purchases ? PurchaseDestination.more : null,
+        appBar: AppBar(title: const AppBarTitle('More')),
+        body: ResponsiveContent(
+          tabletMaxWidth: 720,
+          child: ListView(
+            padding: const EdgeInsets.only(top: 4, bottom: 12),
+            children: [
+              Obx(
+                () => _BusinessHeader(
+                  controller: controller,
+                  profile: controller.profile.value,
+                ),
+              ),
+              const SizedBox(height: 14),
+              const _SectionLabel('Change workspace'),
+              Obx(() {
+                final workspace = Get.find<BusinessWorkspaceService>();
+                final isDark = Theme.of(context).brightness == Brightness.dark;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppMenuTile(
-                      icon: Icons.trending_up_rounded,
-                      title: 'Sales',
-                      subtitle: 'Invoices, customers and money to receive',
-                      selected: workspace.isSales,
-                      onTap: () => workspace.select(BusinessWorkspace.sales),
+                    AppMenuGroup(
+                      children: [
+                        AppMenuTile(
+                          icon: Icons.trending_up_rounded,
+                          title: 'Sales',
+                          subtitle: 'Invoices, customers and money to receive',
+                          selected: workspace.isSales,
+                          onTap: () =>
+                              workspace.select(BusinessWorkspace.sales),
+                        ),
+                        AppMenuTile(
+                          icon: Icons.shopping_bag_outlined,
+                          title: 'Purchases',
+                          subtitle: 'Supplier bills and money to pay',
+                          selected: workspace.isPurchases,
+                          onTap: () =>
+                              workspace.select(BusinessWorkspace.purchases),
+                        ),
+                      ],
                     ),
-                    AppMenuTile(
-                      icon: Icons.shopping_bag_outlined,
-                      title: 'Purchases',
-                      subtitle: 'Supplier bills and money to pay',
-                      selected: workspace.isPurchases,
-                      onTap: () =>
-                          workspace.select(BusinessWorkspace.purchases),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Text(
+                        'Tap Sales or Purchases to change mode. Records stay separate.',
+                        style: AppTextStyles.caption.copyWith(
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.textTertiary,
+                          fontWeight: FontWeight.w400,
+                          height: 1.35,
+                        ),
+                      ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Text(
-                    'Tap Sales or Purchases to change mode. Records stay separate.',
-                    style: AppTextStyles.caption.copyWith(
-                      color: isDark
-                          ? AppColors.darkTextSecondary
-                          : AppColors.textTertiary,
-                      fontWeight: FontWeight.w400,
-                      height: 1.35,
-                    ),
+                );
+              }),
+              const SizedBox(height: 22),
+              const _SectionLabel('Customization'),
+              AppMenuGroup(
+                children: [
+                  AppMenuTile(
+                    icon: Icons.tune_rounded,
+                    title: 'Product settings',
+                    subtitle: 'Business category, fields and invoice display',
+                    onTap: () => Get.toNamed<void>(AppRoutes.productSettings),
                   ),
-                ),
-              ],
-            );
-          }),
-          const SizedBox(height: 22),
-          const _SectionLabel('Customization'),
-          AppMenuGroup(
-            children: [
-              AppMenuTile(
-                icon: Icons.tune_rounded,
-                title: 'Product settings',
-                subtitle: 'Business category, fields and invoice display',
-                onTap: () => Get.toNamed<void>(AppRoutes.productSettings),
+                  AppMenuTile(
+                    icon: Icons.straighten_rounded,
+                    title: 'Set default unit',
+                    subtitle:
+                        'Manage units and choose the default for new items',
+                    onTap: () => Get.toNamed<void>(AppRoutes.unitSettings),
+                  ),
+                ],
               ),
-              AppMenuTile(
-                icon: Icons.straighten_rounded,
-                title: 'Set default unit',
-                subtitle: 'Manage units and choose the default for new items',
-                onTap: () => Get.toNamed<void>(AppRoutes.unitSettings),
+              const SizedBox(height: 22),
+              const _SectionLabel('Create & manage'),
+              AppMenuGroup(
+                children: [
+                  AppMenuTile(
+                    icon: Icons.inventory_2_outlined,
+                    title: 'Products & services',
+                    subtitle: 'Saved items, pricing, tax and units',
+                    onTap: () => Get.toNamed<void>(AppRoutes.products),
+                  ),
+                  AppMenuTile(
+                    icon: Icons.request_quote_outlined,
+                    title: 'Estimates',
+                    subtitle: 'Create and manage client quotations',
+                    onTap: () => Get.toNamed<void>(AppRoutes.quotations),
+                  ),
+                ],
               ),
+              const SizedBox(height: 22),
+              const _SectionLabel('Insights & data'),
+              AppMenuGroup(
+                children: [
+                  AppMenuTile(
+                    icon: Icons.insert_chart_outlined_rounded,
+                    title: 'Reports',
+                    subtitle: 'Review sales, receipts and outstanding totals',
+                    onTap: () => Get.toNamed<void>(AppRoutes.reports),
+                  ),
+                  AppMenuTile(
+                    icon: Icons.settings_backup_restore_rounded,
+                    title: 'Backup & restore',
+                    subtitle: 'Export or restore your offline records',
+                    onTap: () => Get.toNamed<void>(AppRoutes.backup),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 22),
+              const _SectionLabel('Preferences'),
+              AppMenuGroup(
+                children: [
+                  AppMenuTile(
+                    icon: Icons.tune_rounded,
+                    title: 'App settings',
+                    subtitle: 'Appearance, language and security',
+                    onTap: () => Get.toNamed<void>(AppRoutes.settings),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const _PrivacyNote(),
             ],
           ),
-          const SizedBox(height: 22),
-          const _SectionLabel('Create & manage'),
-          AppMenuGroup(
-            children: [
-              AppMenuTile(
-                icon: Icons.inventory_2_outlined,
-                title: 'Products & services',
-                subtitle: 'Saved items, pricing, tax and units',
-                onTap: () => Get.toNamed<void>(AppRoutes.products),
-              ),
-              AppMenuTile(
-                icon: Icons.request_quote_outlined,
-                title: 'Estimates',
-                subtitle: 'Create and manage client quotations',
-                onTap: () => Get.toNamed<void>(AppRoutes.quotations),
-              ),
-            ],
-          ),
-          const SizedBox(height: 22),
-          const _SectionLabel('Insights & data'),
-          AppMenuGroup(
-            children: [
-              AppMenuTile(
-                icon: Icons.insert_chart_outlined_rounded,
-                title: 'Reports',
-                subtitle: 'Review sales, receipts and outstanding totals',
-                onTap: () => Get.toNamed<void>(AppRoutes.reports),
-              ),
-              AppMenuTile(
-                icon: Icons.settings_backup_restore_rounded,
-                title: 'Backup & restore',
-                subtitle: 'Export or restore your offline records',
-                onTap: () => Get.toNamed<void>(AppRoutes.backup),
-              ),
-            ],
-          ),
-          const SizedBox(height: 22),
-          const _SectionLabel('Preferences'),
-          AppMenuGroup(
-            children: [
-              AppMenuTile(
-                icon: Icons.tune_rounded,
-                title: 'App settings',
-                subtitle: 'Appearance, language and security',
-                onTap: () => Get.toNamed<void>(AppRoutes.settings),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          const _PrivacyNote(),
-        ],
-      ),
-    ),
-  );
+        ),
+      );
+    });
+  }
 }
 
 class _BusinessHeader extends StatelessWidget {

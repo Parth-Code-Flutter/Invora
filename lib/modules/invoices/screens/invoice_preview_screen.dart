@@ -4,7 +4,9 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 import 'package:printing/printing.dart';
 
+import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_swipe_action.dart';
 import '../../../data/services/invoice_pdf_service.dart';
@@ -105,16 +107,19 @@ class InvoicePreviewScreen extends GetView<InvoicePreviewController> {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: AppSwipeAction(
-              onCompleted:
-                  controller.isSavingDocument.value ||
-                      controller.validationError.value != null
-                  ? null
-                  : controller.saveDocument,
-              label: invoice.id == null
-                  ? 'Swipe to create invoice'
-                  : 'Swipe to update invoice',
-              isLoading: controller.isSavingDocument.value,
+            child: AppConstrainedAction(
+              maxWidth: ResponsiveUtils.footerMaxWidth(context),
+              child: AppSwipeAction(
+                onCompleted:
+                    controller.isSavingDocument.value ||
+                        controller.validationError.value != null
+                    ? null
+                    : controller.saveDocument,
+                label: invoice.id == null
+                    ? 'Swipe to create invoice'
+                    : 'Swipe to update invoice',
+                isLoading: controller.isSavingDocument.value,
+              ),
             ),
           ),
         );

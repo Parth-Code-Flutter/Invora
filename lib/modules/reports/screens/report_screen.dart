@@ -7,9 +7,9 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
-import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/report_summary_model.dart';
 import '../controllers/report_controller.dart';
 
@@ -31,143 +31,148 @@ class ReportScreen extends GetView<ReportController> {
     body: Obx(() {
       final value = controller.report.value;
       final symbol = controller.currencySymbol.value;
-      return ListView(
-        padding: EdgeInsets.all(ResponsiveUtils.horizontalPadding(context)),
-        children: [
-          _MonthSelector(controller: controller),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  AppColors.secondary,
-                  AppColors.primary,
-                  AppColors.accent,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(22),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x285B5CE2),
-                  blurRadius: 22,
-                  offset: Offset(0, 9),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'TOTAL SALES • ${_monthLabel(controller.selectedMonth.value).toUpperCase()}',
-                  style: AppTextStyles.caption.copyWith(color: Colors.white70),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  CurrencyUtils.formatMinor(
-                    value.totalSalesMinor,
-                    symbol: symbol,
-                  ),
-                  style: AppTextStyles.displayAmount.copyWith(
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.receipt_long_outlined,
-                      color: Colors.white70,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 7),
-                    Text(
-                      '${value.invoiceCount} invoices created',
-                      style: AppTextStyles.secondaryBody.copyWith(
-                        color: Colors.white70,
-                      ),
-                    ),
+      return ResponsiveContent(
+        tabletMaxWidth: 920,
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 12),
+          children: [
+            _MonthSelector(controller: controller),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    AppColors.secondary,
+                    AppColors.primary,
+                    AppColors.accent,
                   ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: _MetricCard(
-                  label: 'Received',
-                  value: CurrencyUtils.formatMinor(
-                    value.totalReceivedMinor,
-                    symbol: symbol,
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x285B5CE2),
+                    blurRadius: 22,
+                    offset: Offset(0, 9),
                   ),
-                  icon: Icons.payments_outlined,
-                  color: AppColors.success,
-                ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _MetricCard(
-                  label: 'Outstanding',
-                  value: CurrencyUtils.formatMinor(
-                    value.outstandingMinor,
-                    symbol: symbol,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'TOTAL SALES • ${_monthLabel(controller.selectedMonth.value).toUpperCase()}',
+                    style: AppTextStyles.caption.copyWith(
+                      color: Colors.white70,
+                    ),
                   ),
-                  icon: Icons.schedule_rounded,
-                  color: AppColors.warning,
-                ),
+                  const SizedBox(height: 8),
+                  Text(
+                    CurrencyUtils.formatMinor(
+                      value.totalSalesMinor,
+                      symbol: symbol,
+                    ),
+                    style: AppTextStyles.displayAmount.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.receipt_long_outlined,
+                        color: Colors.white70,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 7),
+                      Text(
+                        '${value.invoiceCount} invoices created',
+                        style: AppTextStyles.secondaryBody.copyWith(
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          AppCard(
-            child: Row(
-              children: [
-                _CountMetric(
-                  label: 'Created',
-                  value: value.invoiceCount,
-                  icon: Icons.receipt_long_outlined,
-                ),
-                const _MetricDivider(),
-                _CountMetric(
-                  label: 'Paid',
-                  value: value.paidCount,
-                  icon: Icons.check_circle_outline_rounded,
-                ),
-                const _MetricDivider(),
-                _CountMetric(
-                  label: 'Pending',
-                  value: value.pendingCount,
-                  icon: Icons.pending_actions_outlined,
-                ),
-              ],
             ),
-          ),
-          const SizedBox(height: 18),
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 14),
+            Row(
               children: [
-                Text('Sales trend', style: AppTextStyles.sectionTitle),
-                const SizedBox(height: 3),
-                Text(
-                  'Six months ending ${_monthLabel(controller.selectedMonth.value)}',
-                  style: AppTextStyles.small.copyWith(
-                    color: AppColors.textSecondary,
+                Expanded(
+                  child: _MetricCard(
+                    label: 'Received',
+                    value: CurrencyUtils.formatMinor(
+                      value.totalReceivedMinor,
+                      symbol: symbol,
+                    ),
+                    icon: Icons.payments_outlined,
+                    color: AppColors.success,
                   ),
                 ),
-                const SizedBox(height: 18),
-                SizedBox(
-                  height: 180,
-                  child: _SalesChart(points: value.monthlySales),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _MetricCard(
+                    label: 'Outstanding',
+                    value: CurrencyUtils.formatMinor(
+                      value.outstandingMinor,
+                      symbol: symbol,
+                    ),
+                    icon: Icons.schedule_rounded,
+                    color: AppColors.warning,
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            AppCard(
+              child: Row(
+                children: [
+                  _CountMetric(
+                    label: 'Created',
+                    value: value.invoiceCount,
+                    icon: Icons.receipt_long_outlined,
+                  ),
+                  const _MetricDivider(),
+                  _CountMetric(
+                    label: 'Paid',
+                    value: value.paidCount,
+                    icon: Icons.check_circle_outline_rounded,
+                  ),
+                  const _MetricDivider(),
+                  _CountMetric(
+                    label: 'Pending',
+                    value: value.pendingCount,
+                    icon: Icons.pending_actions_outlined,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Sales trend', style: AppTextStyles.sectionTitle),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Six months ending ${_monthLabel(controller.selectedMonth.value)}',
+                    style: AppTextStyles.small.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    height: 180,
+                    child: _SalesChart(points: value.monthlySales),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       );
     }),
   );

@@ -8,6 +8,7 @@ import '../constants/app_colors.dart';
 import '../routes/app_routes.dart';
 import '../themes/app_text_styles.dart';
 import '../utils/app_focus.dart';
+import '../utils/responsive_utils.dart';
 import 'app_bottom_sheet.dart';
 
 enum MainDestination { home, invoices, customers, more }
@@ -135,7 +136,7 @@ class AppMainNavigation extends StatelessWidget {
       button: true,
       label: 'Create new',
       child: InkWell(
-        onTap: () => _showCreateSheet(context),
+        onTap: () => showSalesCreateSheet(context),
         customBorder: const CircleBorder(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -187,58 +188,128 @@ class AppMainNavigation extends StatelessWidget {
     ),
   );
 
-  Future<void> _showCreateSheet(BuildContext context) {
-    return _openCreateSheet(context);
-  }
-
   Future<void> _openDestination(String route) async {
     await AppFocus.dismissKeyboard();
     // Main destinations replace the root route and are configured without a
     // page transition, so they behave like tabs rather than pushed screens.
     Get.offAllNamed<void>(route);
   }
+}
 
-  Future<void> _openCreateSheet(BuildContext context) async {
-    await AppFocus.dismissKeyboard();
-    if (!context.mounted) return;
-    await showAppBottomSheet<void>(
-      context: context,
-      title: 'Create new',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _CreateAction(
-            icon: Symbols.receipt_long_rounded,
-            title: 'Invoice',
-            subtitle: 'Create a customer invoice',
-            onTap: () => _open(context, AppRoutes.invoiceCreate),
-          ),
-          _CreateAction(
-            icon: Symbols.request_quote_rounded,
-            title: 'Estimate',
-            subtitle: 'Create a quotation or estimate',
-            onTap: () => _open(context, AppRoutes.quotationCreate),
-          ),
-          _CreateAction(
-            icon: Symbols.person_add_rounded,
-            title: 'Customer',
-            subtitle: 'Save a new customer',
-            onTap: () => _open(context, AppRoutes.customerAdd),
-          ),
-          _CreateAction(
-            icon: Symbols.inventory_2_rounded,
-            title: 'Product or service',
-            subtitle: 'Add an item for faster invoicing',
-            onTap: () => _open(context, AppRoutes.productAdd),
-          ),
-        ],
+Future<void> showSalesCreateSheet(BuildContext context) async {
+  await AppFocus.dismissKeyboard();
+  if (!context.mounted) return;
+  await showAppBottomSheet<void>(
+    context: context,
+    title: 'Create new',
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _CreateAction(
+          icon: Symbols.receipt_long_rounded,
+          title: 'Invoice',
+          subtitle: 'Create a customer invoice',
+          onTap: () => _openCreateRoute(context, AppRoutes.invoiceCreate),
+        ),
+        _CreateAction(
+          icon: Symbols.request_quote_rounded,
+          title: 'Estimate',
+          subtitle: 'Create a quotation or estimate',
+          onTap: () => _openCreateRoute(context, AppRoutes.quotationCreate),
+        ),
+        _CreateAction(
+          icon: Symbols.person_add_rounded,
+          title: 'Customer',
+          subtitle: 'Save a new customer',
+          onTap: () => _openCreateRoute(context, AppRoutes.customerAdd),
+        ),
+        _CreateAction(
+          icon: Symbols.inventory_2_rounded,
+          title: 'Product or service',
+          subtitle: 'Add an item for faster invoicing',
+          onTap: () => _openCreateRoute(context, AppRoutes.productAdd),
+        ),
+      ],
+    ),
+  );
+}
+
+void _openCreateRoute(BuildContext context, String route) {
+  Navigator.pop(context);
+  Get.toNamed<void>(route);
+}
+
+class AppSalesNavigationRail extends StatelessWidget {
+  const AppSalesNavigationRail({required this.current, super.key});
+  final MainDestination current;
+
+  static const _routes = [
+    AppRoutes.dashboard,
+    AppRoutes.invoices,
+    AppRoutes.customers,
+    AppRoutes.more,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = MainDestination.values.indexOf(current);
+    return NavigationRail(
+      selectedIndex: selected,
+      extended: ResponsiveUtils.isLargeTablet(context),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      indicatorColor: AppColors.primaryLight,
+      selectedIconTheme: const IconThemeData(color: AppColors.primary),
+      unselectedIconTheme: const IconThemeData(color: AppColors.textSecondary),
+      selectedLabelTextStyle: AppTextStyles.caption.copyWith(
+        color: AppColors.primary,
+        fontWeight: FontWeight.w700,
       ),
+      unselectedLabelTextStyle: AppTextStyles.caption,
+      labelType: ResponsiveUtils.isLargeTablet(context)
+          ? NavigationRailLabelType.none
+          : NavigationRailLabelType.all,
+      onDestinationSelected: (index) async {
+        if (index == selected) return;
+        await AppFocus.dismissKeyboard();
+        Get.offAllNamed<void>(_routes[index]);
+      },
+      trailing: Expanded(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: FloatingActionButton(
+              heroTag: 'sales-rail-create',
+              tooltip: l10n('Create new'),
+              onPressed: () => showSalesCreateSheet(context),
+              child: const Icon(Symbols.add_rounded),
+            ),
+          ),
+        ),
+      ),
+      destinations: const [
+        NavigationRailDestination(
+          icon: Icon(Symbols.home_rounded),
+          selectedIcon: Icon(Symbols.home_rounded, fill: 1),
+          label: Text('Home'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Symbols.receipt_long_rounded),
+          selectedIcon: Icon(Symbols.receipt_long_rounded, fill: 1),
+          label: Text('Invoices'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Symbols.group_rounded),
+          selectedIcon: Icon(Symbols.group_rounded, fill: 1),
+          label: Text('Customers'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Symbols.widgets_rounded),
+          selectedIcon: Icon(Symbols.widgets_rounded, fill: 1),
+          label: Text('More'),
+        ),
+      ],
     );
-  }
-
-  void _open(BuildContext context, String route) {
-    Navigator.pop(context);
-    Get.toNamed<void>(route);
   }
 }
 

@@ -22,6 +22,8 @@ class SettingsScreen extends GetView<SettingsController> {
       title: const AppBarTitle('Settings'),
     ),
     body: ResponsiveContent(
+      tabletMaxWidth: 640,
+      largeTabletMaxWidth: 720,
       child: ListView(
         children: [
           _heading('Business'),

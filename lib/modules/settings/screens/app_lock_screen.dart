@@ -96,78 +96,87 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
     ),
   );
 
-  Widget _overview(BuildContext context) => ListView(
-    key: const ValueKey('overview'),
-    padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-    children: [
-      AppCard(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Container(
-              width: 62,
-              height: 62,
-              decoration: const BoxDecoration(
-                color: AppColors.primaryLight,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.lock_outline_rounded,
-                color: AppColors.primary,
-                size: 29,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Obx(
-              () => Text(
-                service.isEnabled ? 'App lock is on' : 'Protect your app',
-                style: AppTextStyles.sectionTitle,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 7),
-            Text(
-              'Require a four-digit PIN when Creovo Billing opens or returns from the background.',
-              style: AppTextStyles.body.copyWith(
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 18),
-      Obx(
-        () => service.isEnabled
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  AppButton(
-                    label: 'Change PIN',
-                    icon: Icons.password_rounded,
-                    onPressed: () => _start(_LockSettingsMode.verifyForChange),
+  Widget _overview(BuildContext context) => Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 560),
+      child: ListView(
+        key: const ValueKey('overview'),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+        children: [
+          AppCard(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Container(
+                  width: 62,
+                  height: 62,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primaryLight,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: () => _start(_LockSettingsMode.verifyForDisable),
-                    icon: const Icon(Icons.lock_open_rounded),
-                    label: const Text('Disable app lock'),
+                  child: const Icon(
+                    Icons.lock_outline_rounded,
+                    color: AppColors.primary,
+                    size: 29,
                   ),
-                ],
-              )
-            : AppButton(
-                label: 'Set up PIN',
-                icon: Icons.lock_rounded,
-                onPressed: () => _start(_LockSettingsMode.create),
-              ),
+                ),
+                const SizedBox(height: 14),
+                Obx(
+                  () => Text(
+                    service.isEnabled ? 'App lock is on' : 'Protect your app',
+                    style: AppTextStyles.sectionTitle,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 7),
+                Text(
+                  'Require a four-digit PIN when Creovo Billing opens or returns from the background.',
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          Obx(
+            () => service.isEnabled
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AppButton(
+                        label: 'Change PIN',
+                        icon: Icons.password_rounded,
+                        onPressed: () =>
+                            _start(_LockSettingsMode.verifyForChange),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: () =>
+                            _start(_LockSettingsMode.verifyForDisable),
+                        icon: const Icon(Icons.lock_open_rounded),
+                        label: const Text('Disable app lock'),
+                      ),
+                    ],
+                  )
+                : AppButton(
+                    label: 'Set up PIN',
+                    icon: Icons.lock_rounded,
+                    onPressed: () => _start(_LockSettingsMode.create),
+                  ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Your PIN protects access to this app on this device. It does not encrypt exported files or backups.',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textTertiary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
-      const SizedBox(height: 16),
-      Text(
-        'Your PIN protects access to this app on this device. It does not encrypt exported files or backups.',
-        style: AppTextStyles.caption.copyWith(color: AppColors.textTertiary),
-        textAlign: TextAlign.center,
-      ),
-    ],
+    ),
   );
 
   String get _title => switch (_mode) {

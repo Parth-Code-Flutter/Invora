@@ -8,6 +8,7 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../data/models/payment_receipt_model.dart';
 import '../controllers/payment_receipt_controller.dart';
 
@@ -187,26 +188,29 @@ class _ReceiptRollExperienceState extends State<_ReceiptRollExperience>
                       style: AppTextStyles.secondaryBody,
                     ),
                     const SizedBox(height: 18),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              animation.forward(from: 0);
-                            },
-                            icon: const Icon(Icons.print_outlined),
-                            label: const Text('Re-print receipt'),
+                    AppConstrainedAction(
+                      maxWidth: 480,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                animation.forward(from: 0);
+                              },
+                              icon: const Icon(Icons.print_outlined),
+                              label: const Text('Re-print receipt'),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: FilledButton.icon(
-                            onPressed: () => _preview(context),
-                            icon: const Icon(Icons.receipt_long_outlined),
-                            label: const Text('View receipt'),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: FilledButton.icon(
+                              onPressed: () => _preview(context),
+                              icon: const Icon(Icons.receipt_long_outlined),
+                              label: const Text('View receipt'),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),

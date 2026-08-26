@@ -20,7 +20,8 @@ class UnitSettingsScreen extends GetView<UnitSettingsController> {
       title: const AppBarTitle('Set default unit'),
     ),
     body: ResponsiveContent(
-      tabletMaxWidth: 720,
+      tabletMaxWidth: 560,
+      largeTabletMaxWidth: 640,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

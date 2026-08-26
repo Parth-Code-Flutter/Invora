@@ -10,12 +10,11 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
-import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/app_workspace_switch.dart';
-import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/report_summary_model.dart';
 import '../controllers/dashboard_controller.dart';
@@ -25,10 +24,8 @@ class DashboardScreen extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: ResponsiveUtils.isTablet(context)
-          ? null
-          : const AppMainNavigation(current: MainDestination.home),
+    return AppShell(
+      salesDestination: MainDestination.home,
       appBar: AppBar(
         title: Obx(
           () => Row(
@@ -76,103 +73,354 @@ class DashboardScreen extends GetView<DashboardController> {
           ),
         ],
       ),
-      body: Row(
-        children: [
-          if (ResponsiveUtils.isTablet(context)) _navigationRail(),
-          Expanded(
-            child: ResponsiveContent(
-              tabletMaxWidth: 840,
-              paddingTop: AppSpacing.xs,
-              child: Obx(() {
-                final overdue = controller.overdueInvoices();
-                final dueSoon = controller.dueSoonInvoices();
-                final followUp = controller.followUpInvoices();
-                final showFollowUp = followUp.isNotEmpty;
-                return ListView(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-                  children: [
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 220),
-                      child: controller.reportLoading.value
-                          ? const _DashboardOverviewLoadingCard()
-                          : DashboardOverviewCard(
-                              report: controller.report.value,
-                              symbol: _symbol,
-                              onOutstandingTap: () => controller
-                                  .openInvoiceList(InvoiceListFilter.unpaid),
-                            ),
-                    ),
-                    if (!controller.recentLoading.value &&
-                        (overdue.isNotEmpty || dueSoon.isNotEmpty)) ...[
-                      const SizedBox(height: AppSpacing.sm),
-                      _AttentionCard(
-                        overdueCount: overdue.length,
-                        overdueAmount: controller.overdueAmount(),
-                        dueSoonCount: dueSoon.length,
-                        dueSoonAmount: controller.dueSoonAmount(),
-                        oldestName: overdue.isNotEmpty
-                            ? overdue.first.customerName
-                            : dueSoon.first.customerName,
+      body: Padding(
+        padding: EdgeInsets.fromLTRB(
+          ResponsiveUtils.horizontalPadding(context),
+          AppSpacing.xs,
+          ResponsiveUtils.horizontalPadding(context),
+          0,
+        ),
+        child: Obx(() {
+          final overdue = controller.overdueInvoices();
+          final dueSoon = controller.dueSoonInvoices();
+          final followUp = controller.followUpInvoices();
+          final showFollowUp = followUp.isNotEmpty;
+          if (ResponsiveUtils.isTablet(context)) {
+            return _TabletDashboardHome(
+              controller: controller,
+              overdue: overdue,
+              dueSoon: dueSoon,
+              followUp: followUp,
+              showFollowUp: showFollowUp,
+              symbol: _symbol,
+            );
+          }
+          return ListView(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 220),
+                child: controller.reportLoading.value
+                    ? const _DashboardOverviewLoadingCard()
+                    : DashboardOverviewCard(
+                        report: controller.report.value,
                         symbol: _symbol,
-                        onOverdue: () => controller.openInvoiceList(
-                          InvoiceListFilter.overdue,
-                        ),
-                        onDueSoon: () => controller.openInvoiceList(
+                        onOutstandingTap: () => controller.openInvoiceList(
                           InvoiceListFilter.unpaid,
                         ),
                       ),
-                    ],
-                    if (!controller.reportLoading.value &&
-                        controller.backupDue.value) ...[
-                      const SizedBox(height: AppSpacing.sm),
-                      _BackupReminderPrompt(
-                        onTap: () async {
-                          await Get.toNamed<void>(AppRoutes.backup);
-                          controller.refreshBackupStatus();
-                        },
+              ),
+              if (!controller.recentLoading.value &&
+                  (overdue.isNotEmpty || dueSoon.isNotEmpty)) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _AttentionCard(
+                  overdueCount: overdue.length,
+                  overdueAmount: controller.overdueAmount(),
+                  dueSoonCount: dueSoon.length,
+                  dueSoonAmount: controller.dueSoonAmount(),
+                  oldestName: overdue.isNotEmpty
+                      ? overdue.first.customerName
+                      : dueSoon.first.customerName,
+                  symbol: _symbol,
+                  onOverdue: () =>
+                      controller.openInvoiceList(InvoiceListFilter.overdue),
+                  onDueSoon: () =>
+                      controller.openInvoiceList(InvoiceListFilter.unpaid),
+                ),
+              ],
+              if (!controller.reportLoading.value &&
+                  controller.backupDue.value) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _BackupReminderPrompt(
+                  onTap: () async {
+                    await Get.toNamed<void>(AppRoutes.backup);
+                    controller.refreshBackupStatus();
+                  },
+                ),
+              ],
+              const SizedBox(height: AppSpacing.md),
+              _SectionHeader(
+                title: 'Quick actions',
+                subtitle: 'Create and manage your business',
+                actionLabel: 'Reports',
+                actionIcon: Icons.insights_rounded,
+                onAction: () => Get.toNamed<void>(AppRoutes.reports),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                children: [
+                  _QuickAction(
+                    label: 'Estimate',
+                    icon: Icons.request_quote_outlined,
+                    onTap: () => Get.toNamed<void>(AppRoutes.quotationCreate),
+                  ),
+                  const SizedBox(width: 8),
+                  _QuickAction(
+                    label: 'Customer',
+                    icon: Icons.person_add_alt_1_outlined,
+                    onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
+                  ),
+                  const SizedBox(width: 8),
+                  _QuickAction(
+                    label: 'Product',
+                    icon: Icons.add_box_outlined,
+                    onTap: () => Get.toNamed<void>(AppRoutes.productAdd),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _SectionHeader(
+                title: showFollowUp ? 'Needs follow-up' : 'Recent invoices',
+                subtitle: controller.recentLoading.value
+                    ? 'Loading billing activity'
+                    : showFollowUp
+                    ? '${followUp.length} ${followUp.length == 1 ? 'invoice' : 'invoices'} to collect'
+                    : controller.recentInvoices.isEmpty
+                    ? 'Latest billing activity'
+                    : '${controller.recentInvoices.length} most recent',
+                actionLabel: 'View all',
+                onAction: () => controller.openInvoiceList(
+                  overdue.isNotEmpty
+                      ? InvoiceListFilter.overdue
+                      : showFollowUp
+                      ? InvoiceListFilter.unpaid
+                      : InvoiceListFilter.all,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              if (controller.recentLoading.value)
+                const _RecentInvoicesLoading()
+              else if (!showFollowUp && controller.recentInvoices.isEmpty)
+                AppCard(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 16,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long_outlined,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'No invoices yet',
+                              style: AppTextStyles.listName,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Create an invoice to see activity here.',
+                              style: AppTextStyles.small.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
-                    const SizedBox(height: AppSpacing.md),
-                    _SectionHeader(
-                      title: 'Quick actions',
-                      subtitle: 'Create and manage your business',
-                      actionLabel: 'Reports',
-                      actionIcon: Icons.insights_rounded,
-                      onAction: () => Get.toNamed<void>(AppRoutes.reports),
+                  ),
+                )
+              else ...[
+                for (
+                  var i = 0;
+                  i <
+                      (showFollowUp
+                          ? followUp.length
+                          : controller.recentInvoices.length);
+                  i++
+                )
+                  Padding(
+                    padding: EdgeInsets.only(
+                      bottom:
+                          i ==
+                              (showFollowUp
+                                      ? followUp.length
+                                      : controller.recentInvoices.length) -
+                                  1
+                          ? 0
+                          : 8,
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    if (ResponsiveUtils.isTablet(context)) ...[
-                      AppButton(
-                        label: 'Create invoice',
-                        icon: Icons.add_rounded,
-                        onPressed: () =>
-                            Get.toNamed<void>(AppRoutes.invoiceCreate),
+                    child: AppInvoiceSummaryCard(
+                      invoice: showFollowUp
+                          ? followUp[i]
+                          : controller.recentInvoices[i],
+                      currencySymbol: _symbol,
+                      onTap: () => Get.toNamed<void>(
+                        AppRoutes.invoiceDetails,
+                        arguments: showFollowUp
+                            ? followUp[i].id
+                            : controller.recentInvoices[i].id,
                       ),
-                      const SizedBox(height: AppSpacing.sm),
-                    ],
-                    Row(
-                      children: [
-                        _QuickAction(
-                          label: 'Estimate',
-                          icon: Icons.request_quote_outlined,
-                          onTap: () =>
-                              Get.toNamed<void>(AppRoutes.quotationCreate),
-                        ),
-                        const SizedBox(width: 8),
-                        _QuickAction(
-                          label: 'Customer',
-                          icon: Icons.person_add_alt_1_outlined,
-                          onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
-                        ),
-                        const SizedBox(width: 8),
-                        _QuickAction(
-                          label: 'Product',
-                          icon: Icons.add_box_outlined,
-                          onTap: () => Get.toNamed<void>(AppRoutes.productAdd),
-                        ),
-                      ],
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                  ),
+              ],
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  String get _symbol => controller.profile.value?.currencySymbol ?? '₹';
+
+  String get _businessInitial {
+    final name = controller.profile.value?.businessName.trim() ?? '';
+    return name.isEmpty ? 'C' : name.characters.first.toUpperCase();
+  }
+
+  String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+}
+
+class _TabletDashboardHome extends StatelessWidget {
+  const _TabletDashboardHome({
+    required this.controller,
+    required this.overdue,
+    required this.dueSoon,
+    required this.followUp,
+    required this.showFollowUp,
+    required this.symbol,
+  });
+
+  final DashboardController controller;
+  final List<InvoiceSummaryModel> overdue;
+  final List<InvoiceSummaryModel> dueSoon;
+  final List<InvoiceSummaryModel> followUp;
+  final bool showFollowUp;
+  final String symbol;
+
+  @override
+  Widget build(BuildContext context) {
+    final invoices = showFollowUp ? followUp : controller.recentInvoices;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          flex: 5,
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xl, right: 10),
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 220),
+                child: controller.reportLoading.value
+                    ? const _DashboardOverviewLoadingCard()
+                    : DashboardOverviewCard(
+                        report: controller.report.value,
+                        symbol: symbol,
+                        onOutstandingTap: () => controller.openInvoiceList(
+                          InvoiceListFilter.unpaid,
+                        ),
+                      ),
+              ),
+              if (!controller.recentLoading.value &&
+                  (overdue.isNotEmpty || dueSoon.isNotEmpty)) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _AttentionCard(
+                  overdueCount: overdue.length,
+                  overdueAmount: controller.overdueAmount(),
+                  dueSoonCount: dueSoon.length,
+                  dueSoonAmount: controller.dueSoonAmount(),
+                  oldestName: overdue.isNotEmpty
+                      ? overdue.first.customerName
+                      : dueSoon.first.customerName,
+                  symbol: symbol,
+                  onOverdue: () =>
+                      controller.openInvoiceList(InvoiceListFilter.overdue),
+                  onDueSoon: () =>
+                      controller.openInvoiceList(InvoiceListFilter.unpaid),
+                ),
+              ],
+              if (!controller.reportLoading.value &&
+                  controller.backupDue.value) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _BackupReminderPrompt(
+                  onTap: () async {
+                    await Get.toNamed<void>(AppRoutes.backup);
+                    controller.refreshBackupStatus();
+                  },
+                ),
+              ],
+              const SizedBox(height: AppSpacing.md),
+              _SectionHeader(
+                title: 'Quick actions',
+                subtitle: 'Create and manage your business',
+                actionLabel: 'Reports',
+                actionIcon: Icons.insights_rounded,
+                onAction: () => Get.toNamed<void>(AppRoutes.reports),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                children: [
+                  _QuickAction(
+                    label: 'Invoice',
+                    icon: Icons.add_rounded,
+                    emphasized: true,
+                    onTap: () => Get.toNamed<void>(AppRoutes.invoiceCreate),
+                  ),
+                  const SizedBox(width: 8),
+                  _QuickAction(
+                    label: 'Estimate',
+                    icon: Icons.request_quote_outlined,
+                    onTap: () => Get.toNamed<void>(AppRoutes.quotationCreate),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  _QuickAction(
+                    label: 'Customer',
+                    icon: Icons.person_add_alt_1_outlined,
+                    onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
+                  ),
+                  const SizedBox(width: 8),
+                  _QuickAction(
+                    label: 'Product',
+                    icon: Icons.add_box_outlined,
+                    onTap: () => Get.toNamed<void>(AppRoutes.productAdd),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 6,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.lg, left: 6),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.darkBorder
+                      : AppColors.border,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                     _SectionHeader(
                       title: showFollowUp
                           ? 'Needs follow-up'
@@ -193,142 +441,65 @@ class DashboardScreen extends GetView<DashboardController> {
                             : InvoiceListFilter.all,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    if (controller.recentLoading.value)
-                      const _RecentInvoicesLoading()
-                    else if (!showFollowUp && controller.recentInvoices.isEmpty)
-                      AppCard(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 16,
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryLight,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.receipt_long_outlined,
-                                color: AppColors.primary,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'No invoices yet',
-                                    style: AppTextStyles.listName,
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Create an invoice to see activity here.',
-                                    style: AppTextStyles.small.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else ...[
-                      for (
-                        var i = 0;
-                        i <
-                            (showFollowUp
-                                ? followUp.length
-                                : controller.recentInvoices.length);
-                        i++
-                      )
-                        Padding(
-                          padding: EdgeInsets.only(
-                            bottom:
-                                i ==
-                                    (showFollowUp
-                                            ? followUp.length
-                                            : controller
-                                                  .recentInvoices
-                                                  .length) -
-                                        1
-                                ? 0
-                                : 8,
-                          ),
-                          child: AppInvoiceSummaryCard(
-                            invoice: showFollowUp
-                                ? followUp[i]
-                                : controller.recentInvoices[i],
-                            currencySymbol: _symbol,
-                            onTap: () => Get.toNamed<void>(
-                              AppRoutes.invoiceDetails,
-                              arguments: showFollowUp
-                                  ? followUp[i].id
-                                  : controller.recentInvoices[i].id,
-                            ),
-                          ),
-                        ),
-                    ],
+                    const SizedBox(height: 12),
+                    Expanded(child: _recentPane(invoices)),
                   ],
-                );
-              }),
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  String get _symbol => controller.profile.value?.currencySymbol ?? '₹';
-
-  String get _businessInitial {
-    final name = controller.profile.value?.businessName.trim() ?? '';
-    return name.isEmpty ? 'C' : name.characters.first.toUpperCase();
-  }
-
-  Widget _navigationRail() => NavigationRail(
-    selectedIndex: 0,
-    labelType: NavigationRailLabelType.all,
-    onDestinationSelected: (index) {
-      final route = [
-        AppRoutes.dashboard,
-        AppRoutes.invoices,
-        AppRoutes.customers,
-        AppRoutes.more,
-      ][index];
-      if (index != 0) Get.offAllNamed<void>(route);
-    },
-    destinations: const [
-      NavigationRailDestination(
-        icon: Icon(Icons.home_outlined),
-        label: Text('Home'),
+  Widget _recentPane(List<InvoiceSummaryModel> invoices) {
+    if (controller.recentLoading.value) {
+      return const _RecentInvoicesLoading();
+    }
+    if (!showFollowUp && controller.recentInvoices.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.receipt_long_outlined,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text('No invoices yet', style: AppTextStyles.listName),
+            const SizedBox(height: 4),
+            Text(
+              'Create an invoice to see activity here.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.small.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return ListView.separated(
+      itemCount: invoices.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
+      itemBuilder: (context, i) => AppInvoiceSummaryCard(
+        invoice: invoices[i],
+        currencySymbol: symbol,
+        onTap: () => Get.toNamed<void>(
+          AppRoutes.invoiceDetails,
+          arguments: invoices[i].id,
+        ),
       ),
-      NavigationRailDestination(
-        icon: Icon(Icons.receipt_long_outlined),
-        label: Text('Invoices'),
-      ),
-      NavigationRailDestination(
-        icon: Icon(Icons.people_outline),
-        label: Text('Customers'),
-      ),
-      NavigationRailDestination(
-        icon: Icon(Icons.grid_view_outlined),
-        label: Text('More'),
-      ),
-    ],
-  );
-
-  String _greeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    );
   }
 }
 
@@ -567,35 +738,52 @@ class _QuickAction extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onTap,
+    this.emphasized = false,
   });
   final String label;
   final IconData icon;
   final VoidCallback onTap;
+  final bool emphasized;
   @override
   Widget build(BuildContext context) => Expanded(
     child: Material(
-      color: Theme.of(context).colorScheme.surface,
+      color: emphasized
+          ? AppColors.primaryLight
+          : Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(17),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(
+          color: emphasized
+              ? AppColors.secondary.withValues(alpha: .35)
+              : AppColors.border,
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
+          padding: EdgeInsets.symmetric(
+            horizontal: 6,
+            vertical: emphasized ? 14 : 9,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 32,
-                height: 32,
+                width: emphasized ? 36 : 32,
+                height: emphasized ? 36 : 32,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: emphasized
+                      ? AppColors.secondary
+                      : AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: AppColors.primary, size: 18),
+                child: Icon(
+                  icon,
+                  color: emphasized ? Colors.white : AppColors.primary,
+                  size: 18,
+                ),
               ),
               const SizedBox(height: 5),
               Text(label, style: AppTextStyles.caption),

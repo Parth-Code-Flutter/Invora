@@ -14,6 +14,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_notification.dart';
@@ -73,7 +74,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
                       Center(
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
-                            maxWidth: ResponsiveUtils.contentMaxWidth(context),
+                            maxWidth: ResponsiveUtils.formMaxWidth(context),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -381,13 +382,15 @@ class ProductFormScreen extends GetView<ProductFormController> {
               border: const Border(top: BorderSide(color: AppColors.border)),
             ),
             child: Obx(
-              () => AppButton(
-                label: controller.isEditing.value
-                    ? 'Save changes'
-                    : 'Save ${controller.type.value == ItemType.product ? 'product' : 'service'}',
-                icon: Icons.check_rounded,
-                isLoading: controller.isSaving.value,
-                onPressed: controller.save,
+              () => AppConstrainedAction(
+                child: AppButton(
+                  label: controller.isEditing.value
+                      ? 'Save changes'
+                      : 'Save ${controller.type.value == ItemType.product ? 'product' : 'service'}',
+                  icon: Icons.check_rounded,
+                  isLoading: controller.isSaving.value,
+                  onPressed: controller.save,
+                ),
               ),
             ),
           ),

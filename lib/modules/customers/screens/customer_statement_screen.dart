@@ -12,6 +12,7 @@ import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_bottom_sheet.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../data/models/customer_statement_model.dart';
@@ -62,10 +63,12 @@ class CustomerStatementScreen extends GetView<CustomerStatementController> {
               ),
             ),
           ),
-          child: AppButton(
-            label: 'Preview statement PDF',
-            icon: Icons.picture_as_pdf_outlined,
-            onPressed: () => _preview(context),
+          child: AppConstrainedAction(
+            child: AppButton(
+              label: 'Preview statement PDF',
+              icon: Icons.picture_as_pdf_outlined,
+              onPressed: () => _preview(context),
+            ),
           ),
         ),
       );

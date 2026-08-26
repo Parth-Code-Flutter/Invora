@@ -5,7 +5,9 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_colors.dart';
 import '../routes/app_routes.dart';
+import '../themes/app_text_styles.dart';
 import '../utils/app_focus.dart';
+import '../utils/responsive_utils.dart';
 import 'app_bottom_sheet.dart';
 
 enum PurchaseDestination { home, bills, suppliers, more }
@@ -84,37 +86,7 @@ class AppPurchaseNavigation extends StatelessWidget {
               button: true,
               label: 'Create purchase record',
               child: InkWell(
-                onTap: () async {
-                  await AppFocus.dismissKeyboard();
-                  if (!context.mounted) return;
-                  await showAppBottomSheet<void>(
-                    context: context,
-                    title: 'Create purchase record',
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          leading: const Icon(Symbols.receipt_long_rounded),
-                          title: const Text('Purchase bill'),
-                          subtitle: const Text('Record a supplier bill'),
-                          onTap: () {
-                            Navigator.pop(context);
-                            Get.toNamed<void>(AppRoutes.purchaseBillCreate);
-                          },
-                        ),
-                        ListTile(
-                          leading: const Icon(Symbols.person_add_rounded),
-                          title: const Text('Supplier'),
-                          subtitle: const Text('Add a supplier'),
-                          onTap: () {
-                            Navigator.pop(context);
-                            Get.toNamed<void>(AppRoutes.supplierAdd);
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                onTap: () => showPurchaseCreateSheet(context),
                 customBorder: const CircleBorder(),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -212,6 +184,112 @@ class AppPurchaseNavigation extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+Future<void> showPurchaseCreateSheet(BuildContext context) async {
+  await AppFocus.dismissKeyboard();
+  if (!context.mounted) return;
+  await showAppBottomSheet<void>(
+    context: context,
+    title: 'Create purchase record',
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+          leading: const Icon(Symbols.receipt_long_rounded),
+          title: const Text('Purchase bill'),
+          subtitle: const Text('Record a supplier bill'),
+          onTap: () {
+            Navigator.pop(context);
+            Get.toNamed<void>(AppRoutes.purchaseBillCreate);
+          },
+        ),
+        ListTile(
+          leading: const Icon(Symbols.person_add_rounded),
+          title: const Text('Supplier'),
+          subtitle: const Text('Add a supplier'),
+          onTap: () {
+            Navigator.pop(context);
+            Get.toNamed<void>(AppRoutes.supplierAdd);
+          },
+        ),
+      ],
+    ),
+  );
+}
+
+class AppPurchaseNavigationRail extends StatelessWidget {
+  const AppPurchaseNavigationRail({required this.current, super.key});
+  final PurchaseDestination current;
+
+  static const _routes = [
+    AppRoutes.purchases,
+    AppRoutes.purchaseBills,
+    AppRoutes.suppliers,
+    AppRoutes.more,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = PurchaseDestination.values.indexOf(current);
+    return NavigationRail(
+      selectedIndex: selected,
+      extended: ResponsiveUtils.isLargeTablet(context),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      indicatorColor: AppColors.primaryLight,
+      selectedIconTheme: const IconThemeData(color: AppColors.primary),
+      unselectedIconTheme: const IconThemeData(color: AppColors.textSecondary),
+      selectedLabelTextStyle: AppTextStyles.caption.copyWith(
+        color: AppColors.primary,
+        fontWeight: FontWeight.w700,
+      ),
+      unselectedLabelTextStyle: AppTextStyles.caption,
+      labelType: ResponsiveUtils.isLargeTablet(context)
+          ? NavigationRailLabelType.none
+          : NavigationRailLabelType.all,
+      onDestinationSelected: (index) async {
+        if (index == selected) return;
+        await AppFocus.dismissKeyboard();
+        Get.offAllNamed<void>(_routes[index]);
+      },
+      trailing: Expanded(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: FloatingActionButton(
+              heroTag: 'purchase-rail-create',
+              tooltip: l10n('Create purchase record'),
+              onPressed: () => showPurchaseCreateSheet(context),
+              child: const Icon(Symbols.add_rounded),
+            ),
+          ),
+        ),
+      ),
+      destinations: const [
+        NavigationRailDestination(
+          icon: Icon(Symbols.home_rounded),
+          selectedIcon: Icon(Symbols.home_rounded, fill: 1),
+          label: Text('Home'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Symbols.receipt_long_rounded),
+          selectedIcon: Icon(Symbols.receipt_long_rounded, fill: 1),
+          label: Text('Bills'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Symbols.storefront_rounded),
+          selectedIcon: Icon(Symbols.storefront_rounded, fill: 1),
+          label: Text('Suppliers'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Symbols.widgets_rounded),
+          selectedIcon: Icon(Symbols.widgets_rounded, fill: 1),
+          label: Text('More'),
+        ),
+      ],
     );
   }
 }

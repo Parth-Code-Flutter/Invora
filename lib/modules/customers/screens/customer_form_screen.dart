@@ -9,6 +9,7 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
@@ -45,7 +46,7 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                       Center(
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
-                            maxWidth: ResponsiveUtils.contentMaxWidth(context),
+                            maxWidth: ResponsiveUtils.formMaxWidth(context),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -219,18 +220,20 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
               border: const Border(top: BorderSide(color: AppColors.border)),
             ),
             child: Obx(
-              () => AppButton(
-                label: controller.isEditing
-                    ? 'Save changes'
-                    : controller.isInvoiceFlow
-                    ? 'Save & use customer'
-                    : 'Save customer',
-                icon: controller.isInvoiceFlow ? null : Icons.check_rounded,
-                trailingIcon: controller.isInvoiceFlow
-                    ? Icons.arrow_forward_rounded
-                    : null,
-                isLoading: controller.isSaving.value,
-                onPressed: controller.save,
+              () => AppConstrainedAction(
+                child: AppButton(
+                  label: controller.isEditing
+                      ? 'Save changes'
+                      : controller.isInvoiceFlow
+                      ? 'Save & use customer'
+                      : 'Save customer',
+                  icon: controller.isInvoiceFlow ? null : Icons.check_rounded,
+                  trailingIcon: controller.isInvoiceFlow
+                      ? Icons.arrow_forward_rounded
+                      : null,
+                  isLoading: controller.isSaving.value,
+                  onPressed: controller.save,
+                ),
               ),
             ),
           ),

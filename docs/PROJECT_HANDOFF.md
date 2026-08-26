@@ -88,7 +88,12 @@ backups.
   registration type and defaults existing suppliers to Unregistered. ZIP
   backup compatibility checks use this schema version.
 - Business profile, logo, signature, payment QR, bank, and UPI information
-- Responsive phone/tablet layouts and dark mode
+- Responsive phone/tablet layouts and dark mode. Phone screens keep the existing
+  bottom dock and stacked forms. Tablets use a shared `AppShell` NavigationRail
+  on Sales and Purchase root tabs. Home screens are two-pane (actions +
+  activity). Onboarding is a centred visual plus copy/CTA cluster. Forms stay
+  on a readable canvas instead of stretching edge-to-edge. Lists use 2/3-column
+  cards; sheets open as centred dialogs.
 - Optional four-digit app lock under Settings > Security. PIN setup requires
   confirmation; changing or disabling requires the current PIN. Enabled locks
   cover cold launch and foreground return, while the stored credential is a
@@ -441,7 +446,8 @@ transfer automatically.
 As of 2026-08-26:
 
 - Flutter analysis: no issues
-- Automated suite: all 150 tests passing
+- Automated suite: all 154 tests passing, including tablet shell, onboarding,
+  two-pane home, constrained-action, and first-launch routing coverage
 - Android debug APK builds successfully
 - Full release builds and physical-device end-to-end testing remain required
 
@@ -460,7 +466,9 @@ As of 2026-08-26:
    database rollback, and corruption coverage are implemented.
 6. Complete store privacy declarations and iOS privacy-manifest review.
 7. Test all PDFs with long, multi-page, and Unicode content.
-8. Complete accessibility, tablet, landscape, and physical-device QA.
+8. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
+   Tablet presentation (rail, two-column lists, capped CTAs, onboarding) is
+   implemented; remaining work is device QA, not missing layout primitives.
 9. Add CI for formatting, analysis, tests, and release validation.
 10. Licensing / monetization is design-only. When picked up, follow
     [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md): store builds use
@@ -474,6 +482,39 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-26 — Tablet composition pass (not stretched phone UI)
+
+- Replaced leftover phone-stretch layouts with real tablet composition:
+  onboarding is a centred hero (visual + copy/CTA together), workspace cards
+  stay compact instead of filling iPad height, business setup uses a 560px
+  form canvas with logo beside fields, and Sales/Purchase homes are two-pane
+  (actions left, activity panel right). Form and settings screens stay on a
+  readable 560–640 canvas. Phone stacking, docks, and CTAs are unchanged.
+- Important files: `onboarding_screen.dart`, `workspace_setup_screen.dart`,
+  `business_setup_screen.dart`, `dashboard_screen.dart`,
+  `purchase_workspace_screen.dart`, `responsive_utils.dart`.
+- Verified with formatting, analysis, and the automated suite.
+
+### 2026-08-26 — Tablet-first layout pass without changing phone UI
+
+- Applied Smart Inspection-style tablet presentation across the app: shared
+  `AppShell` shows a branded NavigationRail (with create) on tablet root tabs
+  while phones keep the existing bottom dock. Invoice, customer, supplier, and
+  purchase-bill lists use 2/3-column cards; forms cap primary actions; sheets
+  open as centred dialogs on tablet.
+- Onboarding and workspace setup now fill iPad height and use a true two-pane
+  layout. Phone onboarding, workspace choice, and list stacking are unchanged.
+- Sticky tablet footers now size to the control (`heightFactor: 1`) so they
+  cannot collapse the page body. Nested composers, details, PDF preview, item
+  picker, statements, app lock, restore, receipts, and dashboards cap action
+  width and use two-column cards on tablet only.
+- Important files: `responsive_utils.dart`, `app_shell.dart`,
+  `app_form_grid.dart`, `app_constrained_action.dart`, navigation rails,
+  onboarding/workspace, dashboard, invoice/customer/purchase lists, reports,
+  details/preview/picker/lock/restore, and sticky form footers.
+- Verified with formatting, Flutter analysis, and tablet/phone widget tests.
+  Physical iPad QA of camera/scan and landscape composers remains recommended.
 
 ### 2026-08-26 — Purchase dashboard shortcut cleanup
 

@@ -96,6 +96,7 @@ abstract final class ResponsiveUtils {
     double tablet = 900,
     double largeTablet = AppConstants.maxContentWidth,
   }) {
+    if (isPhone(context)) return double.infinity;
     return isLargeTablet(context) ? largeTablet : tablet;
   }
 
@@ -112,4 +113,55 @@ abstract final class ResponsiveUtils {
   }
 
   static int formColumns(BuildContext context) => isTablet(context) ? 2 : 1;
+
+  /// Readable width for identity/settings-style forms. Phone is unconstrained.
+  static double formMaxWidth(BuildContext context) {
+    return switch (deviceType(context)) {
+      AppDeviceType.phone => double.infinity,
+      AppDeviceType.tablet => 560,
+      AppDeviceType.largeTablet => 640,
+    };
+  }
+
+  /// Primary page actions stay full-width on phones and cap on tablets so
+  /// gradient buttons do not stretch across the whole iPad canvas.
+  static double actionMaxWidth(BuildContext context) {
+    return switch (deviceType(context)) {
+      AppDeviceType.phone => double.infinity,
+      AppDeviceType.tablet => 360,
+      AppDeviceType.largeTablet => 400,
+    };
+  }
+
+  /// Dual-action sticky footers (total + save, pay + share) stay readable
+  /// on iPad without stretching edge-to-edge.
+  static double footerMaxWidth(BuildContext context) {
+    return switch (deviceType(context)) {
+      AppDeviceType.phone => double.infinity,
+      AppDeviceType.tablet => 720,
+      AppDeviceType.largeTablet => 800,
+    };
+  }
+
+  static double dialogMaxWidth(BuildContext context) {
+    return isLargeTablet(context) ? 560 : 520;
+  }
+
+  static double sheetMaxHeight(BuildContext context) {
+    return MediaQuery.sizeOf(context).height *
+        (isTablet(context) ? 0.78 : 0.92);
+  }
+
+  static T valueFor<T>(
+    BuildContext context, {
+    required T phone,
+    required T tablet,
+    T? largeTablet,
+  }) {
+    return switch (deviceType(context)) {
+      AppDeviceType.phone => phone,
+      AppDeviceType.tablet => tablet,
+      AppDeviceType.largeTablet => largeTablet ?? tablet,
+    };
+  }
 }

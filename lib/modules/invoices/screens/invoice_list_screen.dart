@@ -12,7 +12,9 @@ import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
+import '../../../app/widgets/app_form_grid.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/app_list_motion.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../scan/barcode_capture_screen.dart';
@@ -53,10 +55,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: quotation
-          ? null
-          : const AppMainNavigation(current: MainDestination.invoices),
+    return AppShell(
+      salesDestination: quotation ? null : MainDestination.invoices,
       floatingActionButton: quotation
           ? FloatingActionButton(
               tooltip: l10n('Create quotation'),
@@ -227,69 +227,32 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                 controller.selectedSort.value,
                 DateTime.now(),
               );
-              return ListView.builder(
+              final columns = ResponsiveUtils.gridColumns(context);
+              if (columns == 1) {
+                return ListView.builder(
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
+                  padding: EdgeInsets.fromLTRB(padding, 2, padding, 90),
+                  itemCount: entries.length,
+                  itemBuilder: (_, index) => _invoiceListTile(
+                    context,
+                    entries[index],
+                    index,
+                    controller.currencySymbol.value,
+                  ),
+                );
+              }
+              return ListView(
                 physics: const BouncingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics(),
                 ),
                 padding: EdgeInsets.fromLTRB(padding, 2, padding, 90),
-                itemCount: entries.length,
-                itemBuilder: (_, index) {
-                  final entry = entries[index];
-                  if (entry.header != null) {
-                    return Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        4,
-                        index == 0 ? 4 : 18,
-                        4,
-                        8,
-                      ),
-                      child: Text.rich(
-                        TextSpan(
-                          text: entry.header!,
-                          children: [
-                            TextSpan(
-                              text: ' (${entry.count})',
-                              style: TextStyle(
-                                color:
-                                    Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? AppColors.darkTextPrimary
-                                    : AppColors.textPrimary,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                          style: AppTextStyles.caption.copyWith(
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.textTertiary,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.2,
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                  final invoice = entry.invoice!;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: AppListEntrance(
-                      index: index,
-                      child: AppScrollMotion(
-                        key: ValueKey('invoice-scroll-${invoice.id}'),
-                        child: AppInvoiceSummaryCard(
-                          invoice: invoice,
-                          currencySymbol: controller.currencySymbol.value,
-                          onTap: () => Get.toNamed<void>(
-                            AppRoutes.invoiceDetails,
-                            arguments: invoice.id,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                children: _tabletInvoiceSections(
+                  context,
+                  entries,
+                  controller.currencySymbol.value,
+                ),
               );
             }),
           ),
@@ -297,6 +260,96 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
       ),
     );
   }
+}
+
+Widget _invoiceListTile(
+  BuildContext context,
+  _InvoiceListEntry entry,
+  int index,
+  String currencySymbol,
+) {
+  if (entry.header != null) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(4, index == 0 ? 4 : 18, 4, 8),
+      child: Text.rich(
+        TextSpan(
+          text: entry.header!,
+          children: [
+            TextSpan(
+              text: ' (${entry.count})',
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.textPrimary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+          style: AppTextStyles.caption.copyWith(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.darkTextSecondary
+                : AppColors.textTertiary,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.2,
+          ),
+        ),
+      ),
+    );
+  }
+  final invoice = entry.invoice!;
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: AppListEntrance(
+      index: index,
+      child: AppScrollMotion(
+        key: ValueKey('invoice-scroll-${invoice.id}'),
+        child: AppInvoiceSummaryCard(
+          invoice: invoice,
+          currencySymbol: currencySymbol,
+          onTap: () => Get.toNamed<void>(
+            AppRoutes.invoiceDetails,
+            arguments: invoice.id,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+List<Widget> _tabletInvoiceSections(
+  BuildContext context,
+  List<_InvoiceListEntry> entries,
+  String currencySymbol,
+) {
+  final sections = <Widget>[];
+  var cards = <_InvoiceListEntry>[];
+  var index = 0;
+
+  void flushCards() {
+    if (cards.isEmpty) return;
+    final batch = List<_InvoiceListEntry>.from(cards);
+    final start = index - batch.length;
+    sections.add(
+      AppResponsiveCards(
+        itemCount: batch.length,
+        itemBuilder: (context, i) =>
+            _invoiceListTile(context, batch[i], start + i, currencySymbol),
+      ),
+    );
+    cards = [];
+  }
+
+  for (final entry in entries) {
+    if (entry.header != null) {
+      flushCards();
+      sections.add(_invoiceListTile(context, entry, index, currencySymbol));
+    } else {
+      cards.add(entry);
+    }
+    index++;
+  }
+  flushCards();
+  return sections;
 }
 
 class _HeaderActionIcon extends StatelessWidget {

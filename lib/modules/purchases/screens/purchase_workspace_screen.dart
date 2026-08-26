@@ -7,11 +7,12 @@ import '../../../app/constants/app_spacing.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
+import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_purchase_navigation.dart';
+import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/app_workspace_switch.dart';
-import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/purchase_models.dart';
 import '../../../data/repositories/purchase_repository.dart';
 import 'purchase_screens.dart';
@@ -21,7 +22,8 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppShell(
+      purchaseDestination: PurchaseDestination.home,
       appBar: AppBar(
         title: const AppBarTitle('Purchases', subtitle: 'Bills & payables'),
         actions: [
@@ -32,12 +34,13 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: const AppPurchaseNavigation(
-        current: PurchaseDestination.home,
-      ),
-      body: ResponsiveContent(
-        tabletMaxWidth: 800,
-        paddingTop: AppSpacing.xs,
+      body: Padding(
+        padding: EdgeInsets.fromLTRB(
+          ResponsiveUtils.horizontalPadding(context),
+          AppSpacing.xs,
+          ResponsiveUtils.horizontalPadding(context),
+          0,
+        ),
         child: StreamBuilder<PurchaseDashboardSummary>(
           stream: Get.find<PurchaseRepository>().watchDashboard(),
           builder: (context, snapshot) {
@@ -62,6 +65,14 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
                     .where((bill) => bill.status == 'overdue')
                     .toList();
                 final recent = active.take(4).toList();
+                if (ResponsiveUtils.isTablet(context)) {
+                  return _TabletPurchaseHome(
+                    data: data,
+                    overdue: overdue,
+                    open: open,
+                    recent: recent,
+                  );
+                }
                 return ListView(
                   padding: const EdgeInsets.only(bottom: 24),
                   children: [
@@ -179,6 +190,158 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+class _TabletPurchaseHome extends StatelessWidget {
+  const _TabletPurchaseHome({
+    required this.data,
+    required this.overdue,
+    required this.open,
+    required this.recent,
+  });
+
+  final PurchaseDashboardSummary data;
+  final List<PurchaseBillSummary> overdue;
+  final List<PurchaseBillSummary> open;
+  final List<PurchaseBillSummary> recent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          flex: 5,
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: 24, right: 10),
+            children: [
+              PurchaseOverviewCard(
+                data: data,
+                onPayableTap: () =>
+                    Get.offAllNamed<void>(AppRoutes.purchaseBills),
+                onOverdueTap: data.overdueMinor > 0
+                    ? () => Get.offAllNamed<void>(AppRoutes.purchaseBills)
+                    : null,
+              ),
+              if (open.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _PayablesPrompt(
+                  overdueCount: overdue.length,
+                  openCount: open.length,
+                  amountMinor: overdue.isNotEmpty
+                      ? data.overdueMinor
+                      : data.payableMinor,
+                  supplierName:
+                      (overdue.isNotEmpty ? overdue : open).first.supplierName,
+                  onTap: () => Get.offAllNamed<void>(AppRoutes.purchaseBills),
+                ),
+              ],
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Quick actions',
+                style: AppTextStyles.listName.copyWith(fontSize: 15),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 360),
+                child: _PrimaryPurchaseAction(
+                  onTap: () => Get.toNamed<void>(AppRoutes.purchaseBillCreate),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          flex: 6,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16, left: 6),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Recent purchase bills',
+                                style: AppTextStyles.listName.copyWith(
+                                  fontSize: 15,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                recent.isEmpty
+                                    ? 'Your latest supplier activity'
+                                    : '${recent.length} most recent',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () =>
+                              Get.offAllNamed<void>(AppRoutes.purchaseBills),
+                          child: const Text('View all'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: recent.isEmpty
+                          ? Center(
+                              child: AppGroupedTile(
+                                onTap: () => Get.toNamed<void>(
+                                  AppRoutes.purchaseBillCreate,
+                                ),
+                                child: const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.add_circle_outline_rounded,
+                                      color: AppColors.secondary,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        'Record your first purchase bill',
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTextStyles.listName,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : ListView.separated(
+                              itemCount: recent.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: 8),
+                              itemBuilder: (context, i) =>
+                                  PurchaseBillRow(bill: recent[i], index: i),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -9,6 +9,7 @@ import '../../../app/localization/localized_text.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/services/app_storage.dart';
 import '../../../data/services/backup_service.dart';
@@ -99,52 +100,59 @@ class _RestoreStatusScreenState extends State<RestoreStatusScreen> {
     canPop: false,
     child: Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(28, 32, 28, 24),
-          child: Column(
-            children: [
-              const Spacer(),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 260),
-                child: _statusIcon,
-              ),
-              const SizedBox(height: 24),
-              Text(_title, style: AppTextStyles.pageTitle),
-              const SizedBox(height: 10),
-              Text(
-                _message,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.body.copyWith(
-                  color: AppColors.textSecondary,
-                  height: 1.5,
-                ),
-              ),
-              if (state == _RestoreState.failed && error != null) ...[
-                const SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: .08),
-                    borderRadius: BorderRadius.circular(14),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(28, 32, 28, 24),
+              child: Column(
+                children: [
+                  const Spacer(),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 260),
+                    child: _statusIcon,
                   ),
-                  child: Text(
-                    error!,
+                  const SizedBox(height: 24),
+                  Text(_title, style: AppTextStyles.pageTitle),
+                  const SizedBox(height: 10),
+                  Text(
+                    _message,
                     textAlign: TextAlign.center,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.error,
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.textSecondary,
+                      height: 1.5,
                     ),
                   ),
-                ),
-              ],
-              const Spacer(),
-              if (state != _RestoreState.working && canContinue)
-                AppButton(
-                  label: 'Continue',
-                  icon: Icons.arrow_forward_rounded,
-                  onPressed: _continue,
-                ),
-            ],
+                  if (state == _RestoreState.failed && error != null) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withValues(alpha: .08),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        error!,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const Spacer(),
+                  if (state != _RestoreState.working && canContinue)
+                    AppConstrainedAction(
+                      child: AppButton(
+                        label: 'Continue',
+                        icon: Icons.arrow_forward_rounded,
+                        onPressed: _continue,
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

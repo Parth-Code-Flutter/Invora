@@ -43,3 +43,25 @@ class ResponsiveContent extends StatelessWidget {
     );
   }
 }
+
+/// Centres a form at a readable tablet width. Phone layouts pass through.
+class AppFormCanvas extends StatelessWidget {
+  const AppFormCanvas({required this.child, this.maxWidth, super.key});
+
+  final Widget child;
+  final double? maxWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!ResponsiveUtils.isTablet(context)) return child;
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: maxWidth ?? ResponsiveUtils.formMaxWidth(context),
+        ),
+        child: child,
+      ),
+    );
+  }
+}

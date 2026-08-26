@@ -4,6 +4,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_spacing.dart';
 import '../themes/app_text_styles.dart';
+import '../utils/responsive_utils.dart';
 
 Future<T?> showAppBottomSheet<T>({
   required BuildContext context,
@@ -11,6 +12,22 @@ Future<T?> showAppBottomSheet<T>({
   required Widget child,
   bool isScrollControlled = true,
 }) {
+  final tablet = ResponsiveUtils.isTablet(context);
+  if (tablet) {
+    return showDialog<T>(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: ResponsiveUtils.dialogMaxWidth(context),
+            maxHeight: ResponsiveUtils.sheetMaxHeight(context),
+          ),
+          child: AppBottomSheet(title: title, child: child),
+        ),
+      ),
+    );
+  }
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: isScrollControlled,

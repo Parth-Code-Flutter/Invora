@@ -12,6 +12,7 @@ import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_entity_header.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/product_details_controller.dart';
@@ -54,7 +55,7 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
             Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxWidth: ResponsiveUtils.contentMaxWidth(context),
+                  maxWidth: ResponsiveUtils.formMaxWidth(context),
                 ),
                 child: Column(
                   children: [
@@ -118,13 +119,15 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    AppButton(
-                      onPressed: () => Get.toNamed<void>(
-                        AppRoutes.invoiceCreate,
-                        arguments: InvoiceEditorArgs(productId: item.id),
+                    AppConstrainedAction(
+                      child: AppButton(
+                        onPressed: () => Get.toNamed<void>(
+                          AppRoutes.invoiceCreate,
+                          arguments: InvoiceEditorArgs(productId: item.id),
+                        ),
+                        icon: Icons.receipt_long_outlined,
+                        label: 'Create invoice with this item',
                       ),
-                      icon: Icons.receipt_long_outlined,
-                      label: 'Create invoice with this item',
                     ),
                   ],
                 ),

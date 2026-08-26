@@ -17,6 +17,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_dialog.dart';
@@ -86,66 +87,72 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
               final actionWidth = (MediaQuery.sizeOf(context).width * .56)
                   .clamp(210.0, 300.0)
                   .toDouble();
-              return Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          !hasItems
-                              ? 'NO ITEMS YET'
-                              : controller.calculation.value?.balanceDueMinor ==
-                                        0 &&
-                                    hasItems
-                              ? 'READY TO REVIEW'
-                              : 'INVOICE TOTAL',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textSecondary,
+              return AppConstrainedAction(
+                maxWidth: ResponsiveUtils.footerMaxWidth(context),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            !hasItems
+                                ? 'NO ITEMS YET'
+                                : controller
+                                              .calculation
+                                              .value
+                                              ?.balanceDueMinor ==
+                                          0 &&
+                                      hasItems
+                                ? 'READY TO REVIEW'
+                                : 'INVOICE TOTAL',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          hasItems
-                              ? CurrencyUtils.formatMinor(
-                                  controller
-                                          .calculation
-                                          .value
-                                          ?.grandTotalMinor ??
-                                      0,
-                                  symbol: controller.currencySymbol.value,
-                                )
-                              : CurrencyUtils.formatMinor(
-                                  0,
-                                  symbol: controller.currencySymbol.value,
-                                ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.sectionTitle,
-                        ),
-                      ],
+                          const SizedBox(height: 2),
+                          Text(
+                            hasItems
+                                ? CurrencyUtils.formatMinor(
+                                    controller
+                                            .calculation
+                                            .value
+                                            ?.grandTotalMinor ??
+                                        0,
+                                    symbol: controller.currencySymbol.value,
+                                  )
+                                : CurrencyUtils.formatMinor(
+                                    0,
+                                    symbol: controller.currencySymbol.value,
+                                  ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.sectionTitle,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: actionWidth,
-                    child: AppButton(
-                      onPressed: hasItems
-                          ? controller.preview
-                          : () => _showAddItemOptions(context, controller),
-                      icon: hasItems ? null : Icons.add_rounded,
-                      trailingIcon: hasItems
-                          ? Icons.arrow_forward_rounded
-                          : null,
-                      label: !hasItems
-                          ? 'Add first item'
-                          : controller.isQuotation
-                          ? 'Review estimate'
-                          : 'Review invoice',
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: actionWidth,
+                      child: AppButton(
+                        onPressed: hasItems
+                            ? controller.preview
+                            : () => _showAddItemOptions(context, controller),
+                        icon: hasItems ? null : Icons.add_rounded,
+                        trailingIcon: hasItems
+                            ? Icons.arrow_forward_rounded
+                            : null,
+                        label: !hasItems
+                            ? 'Add first item'
+                            : controller.isQuotation
+                            ? 'Review estimate'
+                            : 'Review invoice',
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             }),
           ),

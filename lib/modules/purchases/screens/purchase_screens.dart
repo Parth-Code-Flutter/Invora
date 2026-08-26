@@ -24,6 +24,9 @@ import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_list_motion.dart';
 import '../../../app/widgets/app_purchase_navigation.dart';
+import '../../../app/widgets/app_shell.dart';
+import '../../../app/widgets/app_form_grid.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_unit_field.dart';
 import '../../../app/widgets/app_workspace_switch.dart';
@@ -105,15 +108,13 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
   @override
   Widget build(BuildContext context) {
     final repo = Get.find<PurchaseRepository>();
-    return Scaffold(
+    return AppShell(
+      purchaseDestination: PurchaseDestination.bills,
       appBar: AppSearchAppBar(
         title: 'Purchase bills',
         hint: 'Bill number or supplier',
         onChanged: (value) => setState(() => query = value),
         actions: const [WorkspaceSwitchButton()],
-      ),
-      bottomNavigationBar: const AppPurchaseNavigation(
-        current: PurchaseDestination.bills,
       ),
       body: StreamBuilder<PurchaseDashboardSummary>(
         stream: repo.watchDashboard(),
@@ -201,18 +202,20 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
                                     AppRoutes.purchaseBillCreate,
                                   ),
                           )
-                        : ListView.separated(
+                        : ListView(
                             padding: EdgeInsets.fromLTRB(
                               ResponsiveUtils.horizontalPadding(context),
                               4,
                               ResponsiveUtils.horizontalPadding(context),
                               90,
                             ),
-                            itemCount: visible.length,
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: 8),
-                            itemBuilder: (_, i) =>
-                                PurchaseBillRow(bill: visible[i], index: i),
+                            children: [
+                              AppResponsiveCards(
+                                itemCount: visible.length,
+                                itemBuilder: (_, i) =>
+                                    PurchaseBillRow(bill: visible[i], index: i),
+                              ),
+                            ],
                           ),
                   ),
                 ],
@@ -235,15 +238,13 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
   String query = '';
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppShell(
+    purchaseDestination: PurchaseDestination.suppliers,
     appBar: AppSearchAppBar(
       title: 'Suppliers',
       hint: 'Name, mobile or GSTIN',
       onChanged: (value) => setState(() => query = value),
       actions: const [WorkspaceSwitchButton()],
-    ),
-    bottomNavigationBar: const AppPurchaseNavigation(
-      current: PurchaseDestination.suppliers,
     ),
     body: StreamBuilder<List<PurchaseBillSummary>>(
       stream: Get.find<PurchaseRepository>().watchBills(),
@@ -271,52 +272,55 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
               );
             }
             final bills = billsSnapshot.data ?? const <PurchaseBillSummary>[];
-            return ListView.separated(
+            return ListView(
               padding: EdgeInsets.fromLTRB(
                 ResponsiveUtils.horizontalPadding(context),
                 12,
                 ResponsiveUtils.horizontalPadding(context),
                 90,
               ),
-              itemCount: suppliers.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
-              itemBuilder: (_, index) {
-                final supplier = suppliers[index];
-                final own = bills
-                    .where((bill) => bill.supplierId == supplier.id)
-                    .toList(growable: false);
-                return AppListEntrance(
-                  index: index,
-                  child: SupplierSummaryCard(
-                    supplier: supplier,
-                    billCount: own.length,
-                    billedMinor: own.fold(
-                      0,
-                      (sum, bill) => sum + bill.totalMinor,
-                    ),
-                    payableMinor: own.fold(
-                      0,
-                      (sum, bill) => sum + bill.balanceMinor,
-                    ),
-                    onNewBill: () => Get.toNamed<void>(
-                      AppRoutes.purchaseBillCreate,
-                      arguments: supplier,
-                    ),
-                    onStatement: () => Get.toNamed<void>(
-                      AppRoutes.supplierStatement,
-                      arguments: supplier,
-                    ),
-                    onEdit: () => Get.toNamed<void>(
-                      AppRoutes.supplierAdd,
-                      arguments: supplier,
-                    ),
-                    onConfirmDelete: () =>
-                        _confirmDeleteSupplier(context, supplier),
-                    onDelete: () => Get.find<PurchaseRepository>()
-                        .deleteSupplier(supplier.id!),
-                  ),
-                );
-              },
+              children: [
+                AppResponsiveCards(
+                  itemCount: suppliers.length,
+                  itemBuilder: (_, index) {
+                    final supplier = suppliers[index];
+                    final own = bills
+                        .where((bill) => bill.supplierId == supplier.id)
+                        .toList(growable: false);
+                    return AppListEntrance(
+                      index: index,
+                      child: SupplierSummaryCard(
+                        supplier: supplier,
+                        billCount: own.length,
+                        billedMinor: own.fold(
+                          0,
+                          (sum, bill) => sum + bill.totalMinor,
+                        ),
+                        payableMinor: own.fold(
+                          0,
+                          (sum, bill) => sum + bill.balanceMinor,
+                        ),
+                        onNewBill: () => Get.toNamed<void>(
+                          AppRoutes.purchaseBillCreate,
+                          arguments: supplier,
+                        ),
+                        onStatement: () => Get.toNamed<void>(
+                          AppRoutes.supplierStatement,
+                          arguments: supplier,
+                        ),
+                        onEdit: () => Get.toNamed<void>(
+                          AppRoutes.supplierAdd,
+                          arguments: supplier,
+                        ),
+                        onConfirmDelete: () =>
+                            _confirmDeleteSupplier(context, supplier),
+                        onDelete: () => Get.find<PurchaseRepository>()
+                            .deleteSupplier(supplier.id!),
+                      ),
+                    );
+                  },
+                ),
+              ],
             );
           },
         );
@@ -651,10 +655,12 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
           color: Theme.of(context).colorScheme.surface,
           border: const Border(top: BorderSide(color: AppColors.border)),
         ),
-        child: AppButton(
-          label: existing == null ? 'Save supplier' : 'Update supplier',
-          icon: Icons.check_rounded,
-          onPressed: _save,
+        child: AppConstrainedAction(
+          child: AppButton(
+            label: existing == null ? 'Save supplier' : 'Update supplier',
+            icon: Icons.check_rounded,
+            onPressed: _save,
+          ),
         ),
       ),
     ),
@@ -1529,43 +1535,46 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
           color: Theme.of(context).colorScheme.surface,
           border: const Border(top: BorderSide(color: AppColors.border)),
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    items.isEmpty ? 'NO ITEMS YET' : 'PURCHASE TOTAL',
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textSecondary,
+        child: AppConstrainedAction(
+          maxWidth: ResponsiveUtils.footerMaxWidth(context),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      items.isEmpty ? 'NO ITEMS YET' : 'PURCHASE TOTAL',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _money(total),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.sectionTitle,
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      _money(total),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.sectionTitle,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: actionWidth,
-              child: AppButton(
-                label: items.isEmpty
-                    ? 'Add item'
-                    : existing == null
-                    ? 'Save bill'
-                    : 'Update bill',
-                icon: items.isEmpty ? Icons.add_rounded : Icons.check_rounded,
-                onPressed: items.isEmpty ? _showAddItemOptions : _save,
+              const SizedBox(width: 12),
+              SizedBox(
+                width: actionWidth,
+                child: AppButton(
+                  label: items.isEmpty
+                      ? 'Add item'
+                      : existing == null
+                      ? 'Save bill'
+                      : 'Update bill',
+                  icon: items.isEmpty ? Icons.add_rounded : Icons.check_rounded,
+                  onPressed: items.isEmpty ? _showAddItemOptions : _save,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -2141,10 +2150,12 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
                     top: BorderSide(color: AppColors.border),
                   ),
                 ),
-                child: AppButton(
-                  label: 'Record payment',
-                  icon: Icons.payments_outlined,
-                  onPressed: () => _payment(current),
+                child: AppConstrainedAction(
+                  child: AppButton(
+                    label: 'Record payment',
+                    icon: Icons.payments_outlined,
+                    onPressed: () => _payment(current),
+                  ),
                 ),
               ),
             )

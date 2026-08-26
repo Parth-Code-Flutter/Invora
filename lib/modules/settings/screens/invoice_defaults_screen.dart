@@ -24,7 +24,8 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
       title: const AppBarTitle('Invoice defaults'),
     ),
     body: ResponsiveContent(
-      tabletMaxWidth: 720,
+      tabletMaxWidth: 560,
+      largeTabletMaxWidth: 640,
       child: ListView(
         padding: const EdgeInsets.only(bottom: 28),
         children: [

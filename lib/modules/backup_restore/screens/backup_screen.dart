@@ -24,6 +24,8 @@ class BackupScreen extends GetView<BackupController> {
       title: const AppBarTitle('Backup & restore'),
     ),
     body: ResponsiveContent(
+      tabletMaxWidth: 640,
+      largeTabletMaxWidth: 720,
       child: ListView(
         children: [
           Container(

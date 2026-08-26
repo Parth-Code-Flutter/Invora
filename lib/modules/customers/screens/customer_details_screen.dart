@@ -10,6 +10,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../data/models/customer_model.dart';
@@ -90,28 +91,30 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                   hasOverdue: controller.hasOverdue,
                 ),
                 const SizedBox(height: 10),
-                AppButton(
-                  label: controller.invoices.isEmpty
-                      ? 'New invoice'
-                      : hasDue
-                      ? 'Collect outstanding'
-                      : 'View customer statement',
-                  icon: controller.invoices.isEmpty
-                      ? Icons.add_rounded
-                      : Icons.account_balance_wallet_outlined,
-                  onPressed: () {
-                    if (controller.invoices.isEmpty) {
+                AppConstrainedAction(
+                  child: AppButton(
+                    label: controller.invoices.isEmpty
+                        ? 'New invoice'
+                        : hasDue
+                        ? 'Collect outstanding'
+                        : 'View customer statement',
+                    icon: controller.invoices.isEmpty
+                        ? Icons.add_rounded
+                        : Icons.account_balance_wallet_outlined,
+                    onPressed: () {
+                      if (controller.invoices.isEmpty) {
+                        Get.toNamed<void>(
+                          AppRoutes.invoiceCreate,
+                          arguments: InvoiceEditorArgs(customerId: customer.id),
+                        );
+                        return;
+                      }
                       Get.toNamed<void>(
-                        AppRoutes.invoiceCreate,
-                        arguments: InvoiceEditorArgs(customerId: customer.id),
+                        AppRoutes.customerStatement,
+                        arguments: customer.id,
                       );
-                      return;
-                    }
-                    Get.toNamed<void>(
-                      AppRoutes.customerStatement,
-                      arguments: customer.id,
-                    );
-                  },
+                    },
+                  ),
                 ),
                 if (infoRows.isNotEmpty) ...[
                   const SizedBox(height: 16),

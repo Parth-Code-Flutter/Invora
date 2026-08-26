@@ -72,7 +72,10 @@ class AppButton extends StatelessWidget {
       enabled: enabled,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        height: ResponsiveUtils.height(context, AppSpacing.buttonHeight),
+        height: ResponsiveUtils.height(
+          context,
+          ResponsiveUtils.isTablet(context) ? 56 : AppSpacing.buttonHeight,
+        ),
         decoration: BoxDecoration(
           gradient: branded
               ? const LinearGradient(

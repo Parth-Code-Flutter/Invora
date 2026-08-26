@@ -13,6 +13,7 @@ import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/app_list_motion.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_model.dart';
@@ -25,7 +26,8 @@ class CustomerListScreen extends GetView<CustomerListController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppShell(
+      salesDestination: MainDestination.customers,
       appBar: AppSearchAppBar(
         title: 'Customers',
         titleSuffix: Obx(
@@ -43,9 +45,6 @@ class CustomerListScreen extends GetView<CustomerListController> {
         hint: 'Name, mobile or GSTIN',
         onChanged: controller.updateSearch,
         onScan: BarcodeCaptureScreen.captureQuery,
-      ),
-      bottomNavigationBar: const AppMainNavigation(
-        current: MainDestination.customers,
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
