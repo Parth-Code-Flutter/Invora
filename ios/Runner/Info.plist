@@ -31,7 +31,7 @@
 	<key>NSContactsUsageDescription</key>
 	<string>Creovo Billing uses a contact you select to fill the customer name and mobile number.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Creovo Billing uses the camera to scan product barcodes and add them to invoices or your catalog.</string>
+	<string>Creovo Billing uses the camera to scan product barcodes and to photograph a signature, logo, or payment QR for your invoices.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

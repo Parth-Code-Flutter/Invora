@@ -79,7 +79,8 @@ remain intentionally out of scope until explicitly requested.
 ## Native/manual device pass still required
 
 - Grant/deny Contacts permission and import a real phone contact.
-- Pick logo, signature, and payment QR images from Android and iOS libraries.
+- Pick logo and payment QR images from Android and iOS libraries. Signature
+  supports draw-on-pad, gallery, or camera.
 - Save, share, and print PDFs through native sheets and common printers.
 - Save/share each CSV export on Android and iOS, then open it in Excel, Numbers,
   and Google Sheets and verify Unicode text, columns, and decimal amounts.

@@ -80,7 +80,7 @@ class InvoicePdfService {
                   _notes(invoice),
                 ],
                 pw.SizedBox(height: style.spacing),
-                _paymentDetails(business, paymentQr, signature),
+                _paymentDetails(business, paymentQr, signature, style),
               ],
       ),
     );
@@ -677,39 +677,45 @@ class InvoicePdfService {
         ),
       ),
       pw.SizedBox(width: 28),
-      pw.SizedBox(
-        width: 175,
-        child: pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.center,
-          children: [
-            if (signature != null)
-              pw.Image(
-                signature,
-                width: 100,
-                height: 42,
-                fit: pw.BoxFit.contain,
-              )
-            else
-              pw.SizedBox(height: 42),
-            pw.Container(height: .7, color: PdfColors.grey500),
-            pw.SizedBox(height: 4),
-            pw.Text(
-              'Authorized signature',
-              style: pw.TextStyle(
-                fontSize: 8,
-                fontWeight: pw.FontWeight.bold,
-                color: style.accent,
-              ),
-            ),
-            pw.Text(
-              business.businessName,
-              style: const pw.TextStyle(fontSize: 7.5),
-            ),
-          ],
-        ),
-      ),
+      _authorizedSignatureBlock(business, signature, style),
     ],
   );
+
+  /// Same identity on every template: ink, line, label, and business name.
+  pw.Widget _authorizedSignatureBlock(
+    BusinessProfileModel business,
+    pw.MemoryImage? signature,
+    _PdfStyle style,
+  ) {
+    final labelColor = style.minimal ? PdfColors.black : style.accent;
+    return pw.SizedBox(
+      width: 175,
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.center,
+        children: [
+          if (signature != null)
+            pw.Image(signature, width: 100, height: 42, fit: pw.BoxFit.contain)
+          else
+            pw.SizedBox(height: 42),
+          pw.Container(height: .7, color: PdfColors.grey500),
+          pw.SizedBox(height: 4),
+          pw.Text(
+            'Authorized signature',
+            style: pw.TextStyle(
+              fontSize: 8,
+              fontWeight: pw.FontWeight.bold,
+              color: labelColor,
+            ),
+          ),
+          pw.Text(
+            business.businessName,
+            style: const pw.TextStyle(fontSize: 7.5),
+            textAlign: pw.TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
 
   pw.Widget _professionalLabel(String value, _PdfStyle style) => pw.Text(
     value,
@@ -974,6 +980,7 @@ class InvoicePdfService {
     BusinessProfileModel business,
     pw.MemoryImage? qr,
     pw.MemoryImage? signature,
+    _PdfStyle style,
   ) {
     return pw.Row(
       crossAxisAlignment: pw.CrossAxisAlignment.end,
@@ -991,11 +998,11 @@ class InvoicePdfService {
             ],
           ),
         ),
-        if (qr != null) pw.Image(qr, width: 60, height: 60),
-        if (signature != null) ...[
+        if (qr != null) ...[
+          pw.Image(qr, width: 60, height: 60),
           pw.SizedBox(width: 16),
-          pw.Image(signature, width: 90, height: 45),
         ],
+        _authorizedSignatureBlock(business, signature, style),
       ],
     );
   }

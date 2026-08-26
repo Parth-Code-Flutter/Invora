@@ -5,6 +5,7 @@ import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/validation_utils.dart';
 import '../../../app/utils/app_focus.dart';
+import '../../../app/widgets/app_signature_capture.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../../../data/models/business_category_model.dart';
 import '../../../data/repositories/business_repository.dart';
@@ -88,7 +89,16 @@ class BusinessSetupController extends GetxController {
 
   Future<void> pickLogo() => _pickImage('logo', logoPath);
   Future<void> pickPaymentQr() => _pickImage('payment_qr', paymentQrPath);
-  Future<void> pickSignature() => _pickImage('signature', signaturePath);
+
+  Future<void> pickSignature(BuildContext context) async {
+    final path = await captureBusinessSignature(
+      context: context,
+      pickImage: (source) =>
+          _imageStorage.pickAndStore('signature', source: source),
+      storeDrawing: (bytes) => _imageStorage.storeBytes('signature', bytes),
+    );
+    if (path != null) signaturePath.value = path;
+  }
 
   Future<void> _pickImage(String name, RxnString target) async {
     final path = await _imageStorage.pickAndStore(name);

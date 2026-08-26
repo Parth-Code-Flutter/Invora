@@ -87,7 +87,9 @@ backups.
   audit/tax/attachment fields; version 12 non-destructively adds supplier GST
   registration type and defaults existing suppliers to Unregistered. ZIP
   backup compatibility checks use this schema version.
-- Business profile, logo, signature, payment QR, bank, and UPI information
+- Business profile, logo, signature, payment QR, bank, and UPI information.
+  Signature capture offers draw-on-pad, gallery, or camera, then stores the
+  image with other business assets for invoice PDFs.
 - Responsive phone/tablet layouts and dark mode. Phone screens keep the existing
   bottom dock and stacked forms. Tablets use a shared `AppShell` NavigationRail
   on Sales and Purchase root tabs. Home screens are two-pane (actions +
@@ -326,11 +328,11 @@ backups.
 
 ### Documents and reporting
 
-- Five selectable invoice PDF styles
-- Professional PDF uses its own editorial A4 layout with a business/logo
+- Five selectable invoice PDF styles. Every template uses the same authorized
+  signature identity: ink, a line, “Authorized signature”, and the business
+  name. Professional keeps its editorial A4 layout with a business/logo
   identity header, full Bill To and invoice metadata, description-friendly
-  item table, payment instructions beside totals, amount-due emphasis, and an
-  authorization/signature finish
+  item table, payment instructions beside totals, and amount-due emphasis.
 - PDFs embed the bundled Plus Jakarta Sans TrueType font for Unicode currency glyphs and
   use explicit responsive table columns/alignment so real invoice values wrap
   predictably without overlapping
@@ -446,8 +448,9 @@ transfer automatically.
 As of 2026-08-26:
 
 - Flutter analysis: no issues
-- Automated suite: all 154 tests passing, including tablet shell, onboarding,
-  two-pane home, constrained-action, and first-launch routing coverage
+- Automated suite: all 157 tests passing, including tablet shell, onboarding,
+  two-pane home, constrained-action, signature capture, and first-launch
+  routing coverage
 - Android debug APK builds successfully
 - Full release builds and physical-device end-to-end testing remain required
 
@@ -482,6 +485,25 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-26 — Authorized signature identity on every PDF template
+
+- Minimal, Modern, Elegant, and Compact now use the same signature block as
+  Professional: drawn/uploaded ink, a line, “Authorized signature”, and the
+  business name. Previously those templates showed a floating image with no
+  label.
+- Important file: `invoice_pdf_service.dart`.
+- Verified with formatting, analysis, and the automated suite.
+
+### 2026-08-26 — Signature pad with gallery and camera
+
+- Add Signature now offers Draw signature, Pick from gallery, or Take a photo.
+  Drawn signatures save as a local PNG through the existing business-asset
+  store. Phone uses a sheet then a compact pad; tablet uses centred dialogs.
+  Logo and payment QR still pick from the gallery only.
+- Important files: `app_signature_capture.dart`, `image_storage_service.dart`,
+  `business_setup_controller.dart`.
+- Verified with formatting, analysis, and the automated suite.
 
 ### 2026-08-26 — Tablet composition pass (not stretched phone UI)
 

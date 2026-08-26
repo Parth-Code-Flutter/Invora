@@ -507,7 +507,8 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                                                     .signaturePath
                                                     .value,
                                                 icon: Icons.draw_outlined,
-                                                onTap: controller.pickSignature,
+                                                onTap: () => controller
+                                                    .pickSignature(context),
                                               ),
                                             ),
                                           ),
