@@ -31,10 +31,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Purchase overview'), findsOneWidget);
+    expect(find.text('Payables snapshot'), findsOneWidget);
+    expect(find.text('Amount to pay'), findsOneWidget);
     expect(find.text('Bills & payables'), findsOneWidget);
     expect(find.text('New bill'), findsOneWidget);
+    expect(find.text('Quick actions'), findsOneWidget);
+    await tester.drag(find.byType(ListView).first, const Offset(0, -180));
+    await tester.pumpAndSettle();
     expect(find.text('Supplier'), findsOneWidget);
+    await tester.drag(find.byType(ListView).first, const Offset(0, -180));
+    await tester.pumpAndSettle();
     expect(find.text('Record your first purchase bill'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());

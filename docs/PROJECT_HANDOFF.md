@@ -473,6 +473,24 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
 
+### 2026-08-26 — Action-first Purchase dashboard
+
+- Reframed the Purchase home around the decision users need first: the amount
+  still payable. The new soft-surface snapshot shows payable progress, purchased,
+  paid, and overdue totals with a clear On track / Action needed state.
+- Added a contextual payable prompt that identifies overdue or open bill count,
+  amount, and the first supplier requiring attention. Quick actions now use one
+  prominent New bill action plus compact Supplier and All bills destinations.
+- Simplified recent activity into a labelled, count-aware section using the
+  existing compact bill rows. The dashboard remains offline and uses only the
+  existing Purchase summary and bill streams; no accounting scope was added.
+- Added Hindi and Gujarati coverage and updated narrow-phone widget coverage.
+  No database, storage, migration, or Sales behavior changes.
+- Important files: `purchase_workspace_screen.dart`, `purchase_screens.dart`,
+  `coverage_translation_maps.dart`, `purchase_workspace_screen_test.dart`.
+- Verified with formatting, clean Flutter analysis, narrow-screen widget tests,
+  and the automated suite.
+
 ### 2026-08-26 — Purchase navigation icon parity
 
 - Matched the Purchase bottom navigation to the Sales visual treatment:

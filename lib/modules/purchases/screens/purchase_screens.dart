@@ -2566,143 +2566,143 @@ class PurchaseOverviewCard extends StatelessWidget {
       ),
     ];
     if (!compact) {
-      return Container(
-        clipBehavior: Clip.antiAlias,
-        padding: const EdgeInsets.fromLTRB(16, 15, 16, 14),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.secondary, AppColors.primary],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.secondary.withValues(alpha: .18),
-              blurRadius: 20,
-              offset: const Offset(0, 9),
-            ),
-          ],
-        ),
-        child: Stack(
+      final progress = data.totalSpendMinor <= 0
+          ? 0.0
+          : (data.paidMinor / data.totalSpendMinor).clamp(0.0, 1.0);
+      return AppCard(
+        color: isDark ? const Color(0xFF3B2038) : const Color(0xFFFCFAFF),
+        borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
+        padding: const EdgeInsets.fromLTRB(14, 13, 14, 13),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Positioned(
-              right: -38,
-              top: -52,
-              child: Container(
-                width: 135,
-                height: 135,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: .08),
+            Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.primary, AppColors.secondary],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.account_balance_wallet_outlined,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Payables snapshot', style: AppTextStyles.listName),
+                      Text(
+                        '${data.billCount} ${data.billCount == 1 ? 'bill' : 'bills'} · ${data.supplierCount} ${data.supplierCount == 1 ? 'supplier' : 'suppliers'}',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: data.overdueMinor > 0
+                        ? AppColors.errorLight
+                        : AppColors.successLight,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    data.overdueMinor > 0 ? 'Action needed' : 'On track',
+                    style: AppTextStyles.caption.copyWith(
+                      color: data.overdueMinor > 0
+                          ? AppColors.error
+                          : AppColors.success,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'Amount to pay',
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            const SizedBox(height: 3),
+            InkWell(
+              onTap: data.payableMinor > 0 ? onPayableTap : null,
+              borderRadius: BorderRadius.circular(8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: AppAmountText(
+                      amountMinor: data.payableMinor,
+                      symbol: '₹',
+                      color: AppColors.secondary,
+                      textAlign: TextAlign.start,
+                      style: AppTextStyles.pageTitle.copyWith(fontSize: 26),
+                    ),
+                  ),
+                  if (data.payableMinor > 0)
+                    const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: AppColors.secondary,
+                      size: 20,
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 6,
+                backgroundColor: isDark
+                    ? AppColors.darkSurfaceVariant
+                    : AppColors.surfaceMuted,
+                valueColor: const AlwaysStoppedAnimation(AppColors.success),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: .14),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.shopping_bag_outlined,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Purchase overview',
-                            style: AppTextStyles.listName.copyWith(
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            '${data.billCount} ${data.billCount == 1 ? 'bill' : 'bills'} · ${data.supplierCount} ${data.supplierCount == 1 ? 'supplier' : 'suppliers'}',
-                            style: AppTextStyles.caption.copyWith(
-                              color: Colors.white.withValues(alpha: .72),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  'Total recorded purchases',
-                  style: AppTextStyles.caption.copyWith(
-                    color: Colors.white.withValues(alpha: .72),
+                Expanded(
+                  child: _PurchaseSnapshotMetric(
+                    label: 'Purchased',
+                    amount: data.totalSpendMinor,
+                    color: AppColors.secondary,
                   ),
                 ),
-                const SizedBox(height: 3),
-                AppAmountText(
-                  amountMinor: data.totalSpendMinor,
-                  symbol: '₹',
-                  color: Colors.white,
-                  textAlign: TextAlign.start,
-                  style: AppTextStyles.pageTitle.copyWith(
-                    color: Colors.white,
-                    fontSize: 25,
+                const _PurchaseOverviewDivider(),
+                Expanded(
+                  child: _PurchaseSnapshotMetric(
+                    label: 'Paid',
+                    amount: data.paidMinor,
+                    color: AppColors.success,
                   ),
                 ),
-                const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: .11),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: .12),
+                const _PurchaseOverviewDivider(),
+                Expanded(
+                  child: InkWell(
+                    onTap: data.overdueMinor > 0 ? onOverdueTap : null,
+                    borderRadius: BorderRadius.circular(8),
+                    child: _PurchaseSnapshotMetric(
+                      label: 'Overdue',
+                      amount: data.overdueMinor,
+                      color: AppColors.error,
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      for (var i = 0; i < metrics.length; i++) ...[
-                        Expanded(
-                          child: InkWell(
-                            onTap: metrics[i].onTap,
-                            child: Column(
-                              children: [
-                                Text(
-                                  metrics[i].label,
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: Colors.white.withValues(alpha: .7),
-                                    fontSize: 9.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 3),
-                                AppAmountText(
-                                  amountMinor: metrics[i].amount,
-                                  symbol: '₹',
-                                  color: Colors.white,
-                                  style: AppTextStyles.listAmount.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 12.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        if (i != metrics.length - 1)
-                          Container(
-                            width: 1,
-                            height: 32,
-                            color: Colors.white.withValues(alpha: .16),
-                          ),
-                      ],
-                    ],
                   ),
                 ),
               ],
@@ -2830,6 +2830,62 @@ class PurchaseOverviewCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _PurchaseSnapshotMetric extends StatelessWidget {
+  const _PurchaseSnapshotMetric({
+    required this.label,
+    required this.amount,
+    required this.color,
+  });
+
+  final String label;
+  final int amount;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 2),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.textSecondary,
+            fontSize: 9.5,
+          ),
+        ),
+        const SizedBox(height: 4),
+        AppAmountText(
+          amountMinor: amount,
+          symbol: '₹',
+          color: color,
+          textAlign: TextAlign.start,
+          style: AppTextStyles.listAmount.copyWith(
+            color: color,
+            fontSize: 12.5,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _PurchaseOverviewDivider extends StatelessWidget {
+  const _PurchaseOverviewDivider();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 1,
+    height: 38,
+    margin: const EdgeInsets.symmetric(horizontal: 8),
+    color: Theme.of(context).brightness == Brightness.dark
+        ? AppColors.darkBorder
+        : AppColors.border,
+  );
 }
 
 class PurchaseBillRow extends StatelessWidget {
