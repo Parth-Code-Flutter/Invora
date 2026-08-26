@@ -43,7 +43,7 @@ void main() {
     expect(find.text('Invoiced'), findsOneWidget);
     expect(find.text('Received'), findsOneWidget);
     expect(find.text('Outstanding'), findsOneWidget);
-    expect(find.text('₹2,308,000'), findsOneWidget);
+    expect(find.text('₹2,308,000'), findsWidgets);
     expect(find.text('₹650'), findsOneWidget);
     expect(find.text('₹2,307,472'), findsOneWidget);
     expect(find.text('3 invoices'), findsOneWidget);
@@ -74,7 +74,7 @@ void main() {
       ),
     );
 
-    expect(find.text('₹99,999,999'), findsOneWidget);
+    expect(find.text('₹99,999,999'), findsWidgets);
     expect(find.text('₹12,345,678.90'), findsOneWidget);
     expect(find.text('₹87,654,321'), findsOneWidget);
     expect(tester.takeException(), isNull);

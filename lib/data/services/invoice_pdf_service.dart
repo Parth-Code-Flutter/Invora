@@ -408,6 +408,7 @@ class InvoicePdfService {
     final rows = <pw.TableRow>[
       pw.TableRow(
         children: [
+          header('SR.', alignment: pw.Alignment.center),
           header('ITEM / DESCRIPTION'),
           header('QTY', alignment: pw.Alignment.centerRight),
           header('RATE', alignment: pw.Alignment.centerRight),
@@ -423,6 +424,14 @@ class InvoicePdfService {
             : PdfColors.white;
         return pw.TableRow(
           children: [
+            cell(
+              pw.Text(
+                '${entry.key + 1}',
+                style: const pw.TextStyle(fontSize: 8.2),
+              ),
+              alignment: pw.Alignment.center,
+              color: background,
+            ),
             cell(
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -501,11 +510,12 @@ class InvoicePdfService {
     ];
     return pw.Table(
       columnWidths: const {
-        0: pw.FlexColumnWidth(3.8),
-        1: pw.FlexColumnWidth(1.15),
-        2: pw.FlexColumnWidth(1.25),
-        3: pw.FlexColumnWidth(.9),
-        4: pw.FlexColumnWidth(1.45),
+        0: pw.FlexColumnWidth(.55),
+        1: pw.FlexColumnWidth(3.5),
+        2: pw.FlexColumnWidth(1.1),
+        3: pw.FlexColumnWidth(1.2),
+        4: pw.FlexColumnWidth(.85),
+        5: pw.FlexColumnWidth(1.4),
       },
       border: const pw.TableBorder(
         horizontalInside: pw.BorderSide(color: PdfColors.grey300, width: .5),
@@ -857,11 +867,12 @@ class InvoicePdfService {
   }
 
   pw.Widget _items(InvoiceModel invoice, String symbol, _PdfStyle style) {
-    final headers = ['Item', 'HSN/SAC', 'Qty', 'Rate', 'Tax', 'Amount'];
+    final headers = ['Sr.', 'Item', 'HSN/SAC', 'Qty', 'Rate', 'Tax', 'Amount'];
     final data = invoice.items.asMap().entries.map((entry) {
       final item = entry.value;
       final result = invoice.calculation.items[entry.key];
       return [
+        '${entry.key + 1}',
         _itemTitle(item),
         item.hsnSac ?? '-',
         '${QuantityUtils.toInputValue(item.quantityScaled)} ${item.unit}',
@@ -874,28 +885,31 @@ class InvoicePdfService {
       headers: headers,
       data: data,
       columnWidths: const {
-        0: pw.FlexColumnWidth(3.2),
-        1: pw.FlexColumnWidth(1.25),
-        2: pw.FlexColumnWidth(1.25),
-        3: pw.FlexColumnWidth(1.35),
-        4: pw.FlexColumnWidth(1.05),
-        5: pw.FlexColumnWidth(1.5),
+        0: pw.FlexColumnWidth(.55),
+        1: pw.FlexColumnWidth(2.95),
+        2: pw.FlexColumnWidth(1.2),
+        3: pw.FlexColumnWidth(1.2),
+        4: pw.FlexColumnWidth(1.3),
+        5: pw.FlexColumnWidth(1.0),
+        6: pw.FlexColumnWidth(1.45),
       },
       headerAlignments: const {
-        0: pw.Alignment.centerLeft,
+        0: pw.Alignment.center,
         1: pw.Alignment.centerLeft,
-        2: pw.Alignment.centerRight,
+        2: pw.Alignment.centerLeft,
         3: pw.Alignment.centerRight,
         4: pw.Alignment.centerRight,
         5: pw.Alignment.centerRight,
+        6: pw.Alignment.centerRight,
       },
       cellAlignments: const {
-        0: pw.Alignment.centerLeft,
+        0: pw.Alignment.center,
         1: pw.Alignment.centerLeft,
-        2: pw.Alignment.centerRight,
+        2: pw.Alignment.centerLeft,
         3: pw.Alignment.centerRight,
         4: pw.Alignment.centerRight,
         5: pw.Alignment.centerRight,
+        6: pw.Alignment.centerRight,
       },
       headerDecoration: pw.BoxDecoration(color: style.accent),
       headerStyle: pw.TextStyle(

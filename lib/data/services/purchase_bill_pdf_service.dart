@@ -112,7 +112,7 @@ class PurchaseBillPdfService {
           ),
           pw.SizedBox(height: 18),
           pw.TableHelper.fromTextArray(
-            headers: const ['#', 'Item', 'Qty', 'Rate', 'GST', 'Amount'],
+            headers: const ['Sr.', 'Item', 'Qty', 'Rate', 'GST', 'Amount'],
             data: [
               for (var i = 0; i < bill.items.length; i++)
                 [
@@ -141,14 +141,14 @@ class PurchaseBillPdfService {
             ),
             cellStyle: const pw.TextStyle(fontSize: 8),
             cellAlignments: {
-              0: pw.Alignment.centerLeft,
+              0: pw.Alignment.center,
               2: pw.Alignment.centerRight,
               3: pw.Alignment.centerRight,
               4: pw.Alignment.centerRight,
               5: pw.Alignment.centerRight,
             },
             columnWidths: const {
-              0: pw.FixedColumnWidth(22),
+              0: pw.FixedColumnWidth(28),
               1: pw.FlexColumnWidth(3),
               2: pw.FixedColumnWidth(64),
               3: pw.FixedColumnWidth(62),

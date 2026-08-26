@@ -18,6 +18,7 @@ import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_bottom_sheet.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dialog.dart';
+import '../../../app/widgets/app_snapshot_visuals.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
@@ -2575,6 +2576,73 @@ class PurchaseOverviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (!compact) {
+      final progress = data.totalSpendMinor <= 0
+          ? 0.0
+          : (data.paidMinor / data.totalSpendMinor).clamp(0.0, 1.0);
+      return AppCard(
+        padding: EdgeInsets.zero,
+        color: isDark ? const Color(0xFF3B2038) : Colors.white,
+        borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppSnapshotHero(
+              title: 'Payables snapshot',
+              trailing: AppSnapshotBadge(
+                label: data.overdueMinor > 0 ? 'Action needed' : 'On track',
+              ),
+              subtitle:
+                  '${data.billCount} ${data.billCount == 1 ? 'bill' : 'bills'} · ${data.supplierCount} ${data.supplierCount == 1 ? 'supplier' : 'suppliers'}',
+              amountCaption: 'Amount to pay',
+              amountMinor: data.payableMinor,
+              symbol: '₹',
+              progress: progress,
+              ringCaption: 'Paid',
+              onAmountTap: data.payableMinor > 0 ? onPayableTap : null,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: AppMetricChip(
+                      label: 'Purchased',
+                      amountMinor: data.totalSpendMinor,
+                      symbol: '₹',
+                      color: AppColors.secondary,
+                      icon: Icons.shopping_bag_outlined,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: AppMetricChip(
+                      label: 'Paid',
+                      amountMinor: data.paidMinor,
+                      symbol: '₹',
+                      color: AppColors.success,
+                      icon: Icons.check_circle_outline_rounded,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: AppMetricChip(
+                      label: 'Overdue',
+                      amountMinor: data.overdueMinor,
+                      symbol: '₹',
+                      color: AppColors.error,
+                      icon: Icons.error_outline_rounded,
+                      onTap: data.overdueMinor > 0 ? onOverdueTap : null,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     final metrics = [
       (
         label: 'Paid',
@@ -2598,154 +2666,8 @@ class PurchaseOverviewCard extends StatelessWidget {
         onTap: onOverdueTap,
       ),
     ];
-    if (!compact) {
-      final progress = data.totalSpendMinor <= 0
-          ? 0.0
-          : (data.paidMinor / data.totalSpendMinor).clamp(0.0, 1.0);
-      return AppCard(
-        color: isDark ? const Color(0xFF3B2038) : const Color(0xFFFCFAFF),
-        borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
-        padding: const EdgeInsets.fromLTRB(14, 13, 14, 13),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.secondary],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.account_balance_wallet_outlined,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Payables snapshot', style: AppTextStyles.listName),
-                      Text(
-                        '${data.billCount} ${data.billCount == 1 ? 'bill' : 'bills'} · ${data.supplierCount} ${data.supplierCount == 1 ? 'supplier' : 'suppliers'}',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 9,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: data.overdueMinor > 0
-                        ? AppColors.errorLight
-                        : AppColors.successLight,
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                  child: Text(
-                    data.overdueMinor > 0 ? 'Action needed' : 'On track',
-                    style: AppTextStyles.caption.copyWith(
-                      color: data.overdueMinor > 0
-                          ? AppColors.error
-                          : AppColors.success,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'Amount to pay',
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 3),
-            InkWell(
-              onTap: data.payableMinor > 0 ? onPayableTap : null,
-              borderRadius: BorderRadius.circular(8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: AppAmountText(
-                      amountMinor: data.payableMinor,
-                      symbol: '₹',
-                      color: AppColors.secondary,
-                      textAlign: TextAlign.start,
-                      style: AppTextStyles.pageTitle.copyWith(fontSize: 26),
-                    ),
-                  ),
-                  if (data.payableMinor > 0)
-                    const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: AppColors.secondary,
-                      size: 20,
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 6,
-                backgroundColor: isDark
-                    ? AppColors.darkSurfaceVariant
-                    : AppColors.surfaceMuted,
-                valueColor: const AlwaysStoppedAnimation(AppColors.success),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _PurchaseSnapshotMetric(
-                    label: 'Purchased',
-                    amount: data.totalSpendMinor,
-                    color: AppColors.secondary,
-                  ),
-                ),
-                const _PurchaseOverviewDivider(),
-                Expanded(
-                  child: _PurchaseSnapshotMetric(
-                    label: 'Paid',
-                    amount: data.paidMinor,
-                    color: AppColors.success,
-                  ),
-                ),
-                const _PurchaseOverviewDivider(),
-                Expanded(
-                  child: InkWell(
-                    onTap: data.overdueMinor > 0 ? onOverdueTap : null,
-                    borderRadius: BorderRadius.circular(8),
-                    child: _PurchaseSnapshotMetric(
-                      label: 'Overdue',
-                      amount: data.overdueMinor,
-                      color: AppColors.error,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
     return Container(
-      padding: EdgeInsets.all(compact ? 10 : 14),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.surface,
         borderRadius: BorderRadius.circular(18),
@@ -2765,28 +2687,6 @@ class PurchaseOverviewCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!compact) ...[
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Purchase overview',
-                    style: AppTextStyles.listName,
-                  ),
-                ),
-                Text(
-                  '${data.billCount} ${data.billCount == 1 ? 'bill' : 'bills'} · ${data.supplierCount} ${data.supplierCount == 1 ? 'supplier' : 'suppliers'}',
-                  style: AppTextStyles.caption.copyWith(
-                    color: isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-          ],
           Row(
             children: [
               for (var i = 0; i < metrics.length; i++) ...[
@@ -2863,62 +2763,6 @@ class PurchaseOverviewCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _PurchaseSnapshotMetric extends StatelessWidget {
-  const _PurchaseSnapshotMetric({
-    required this.label,
-    required this.amount,
-    required this.color,
-  });
-
-  final String label;
-  final int amount;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 2),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.textSecondary,
-            fontSize: 9.5,
-          ),
-        ),
-        const SizedBox(height: 4),
-        AppAmountText(
-          amountMinor: amount,
-          symbol: '₹',
-          color: color,
-          textAlign: TextAlign.start,
-          style: AppTextStyles.listAmount.copyWith(
-            color: color,
-            fontSize: 12.5,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-class _PurchaseOverviewDivider extends StatelessWidget {
-  const _PurchaseOverviewDivider();
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 1,
-    height: 38,
-    margin: const EdgeInsets.symmetric(horizontal: 8),
-    color: Theme.of(context).brightness == Brightness.dark
-        ? AppColors.darkBorder
-        : AppColors.border,
-  );
 }
 
 class PurchaseBillRow extends StatelessWidget {

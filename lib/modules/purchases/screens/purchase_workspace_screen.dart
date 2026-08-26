@@ -100,23 +100,16 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
                       ),
                     ],
                     const SizedBox(height: AppSpacing.md),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Quick actions',
-                            style: AppTextStyles.listName.copyWith(
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          'Keep purchases up to date',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      'Quick actions',
+                      style: AppTextStyles.listName.copyWith(fontSize: 15),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Keep purchases up to date',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     _PrimaryPurchaseAction(

@@ -14,6 +14,7 @@ import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_shell.dart';
+import '../../../app/widgets/app_snapshot_visuals.dart';
 import '../../../app/widgets/app_workspace_switch.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/report_summary_model.dart';
@@ -152,18 +153,21 @@ class DashboardScreen extends GetView<DashboardController> {
                   _QuickAction(
                     label: 'Estimate',
                     icon: Icons.request_quote_outlined,
+                    tint: AppColors.primary,
                     onTap: () => Get.toNamed<void>(AppRoutes.quotationCreate),
                   ),
                   const SizedBox(width: 8),
                   _QuickAction(
                     label: 'Customer',
                     icon: Icons.person_add_alt_1_outlined,
+                    tint: AppColors.secondary,
                     onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
                   ),
                   const SizedBox(width: 8),
                   _QuickAction(
                     label: 'Product',
                     icon: Icons.add_box_outlined,
+                    tint: AppColors.accent,
                     onTap: () => Get.toNamed<void>(AppRoutes.productAdd),
                   ),
                 ],
@@ -372,12 +376,14 @@ class _TabletDashboardHome extends StatelessWidget {
                     label: 'Invoice',
                     icon: Icons.add_rounded,
                     emphasized: true,
+                    tint: AppColors.secondary,
                     onTap: () => Get.toNamed<void>(AppRoutes.invoiceCreate),
                   ),
                   const SizedBox(width: 8),
                   _QuickAction(
                     label: 'Estimate',
                     icon: Icons.request_quote_outlined,
+                    tint: AppColors.primary,
                     onTap: () => Get.toNamed<void>(AppRoutes.quotationCreate),
                   ),
                 ],
@@ -388,12 +394,14 @@ class _TabletDashboardHome extends StatelessWidget {
                   _QuickAction(
                     label: 'Customer',
                     icon: Icons.person_add_alt_1_outlined,
+                    tint: AppColors.secondary,
                     onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
                   ),
                   const SizedBox(width: 8),
                   _QuickAction(
                     label: 'Product',
                     icon: Icons.add_box_outlined,
+                    tint: AppColors.accent,
                     onTap: () => Get.toNamed<void>(AppRoutes.productAdd),
                   ),
                 ],
@@ -518,71 +526,88 @@ class DashboardOverviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final collected = report.totalSalesMinor <= 0
+        ? 0.0
+        : (report.totalReceivedMinor / report.totalSalesMinor).clamp(0.0, 1.0);
+    final sparkline = report.monthlySales
+        .map((point) => point.amountMinor.toDouble())
+        .toList(growable: false);
     return AppCard(
-      color: isDark ? const Color(0xFF3B2038) : const Color(0xFFFCFAFF),
+      padding: EdgeInsets.zero,
+      color: isDark ? const Color(0xFF3B2038) : Colors.white,
       borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text('This month', style: AppTextStyles.listName),
-              ),
-              Text(
-                '${report.invoiceCount} ${report.invoiceCount == 1 ? 'invoice' : 'invoices'}',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+          AppSnapshotHero(
+            title: 'This month',
+            trailing: AppSnapshotBadge(
+              label:
+                  '${report.invoiceCount} ${report.invoiceCount == 1 ? 'invoice' : 'invoices'}',
+            ),
+            amountCaption: 'Total invoiced',
+            amountMinor: report.totalSalesMinor,
+            symbol: symbol,
+            progress: collected,
+            ringCaption: 'Collected',
+            sparkline: sparkline,
+            trendLabel: _monthOverMonthTrend(report.monthlySales),
           ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _OverviewMetric(
-                  label: 'Invoiced',
-                  amountMinor: report.totalSalesMinor,
-                  symbol: symbol,
-                  color: AppColors.secondary,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppMetricChip(
+                    label: 'Invoiced',
+                    amountMinor: report.totalSalesMinor,
+                    symbol: symbol,
+                    color: AppColors.secondary,
+                    icon: Icons.receipt_long_outlined,
+                  ),
                 ),
-              ),
-              const _OverviewDivider(),
-              Expanded(
-                child: _OverviewMetric(
-                  label: 'Received',
-                  amountMinor: report.totalReceivedMinor,
-                  symbol: symbol,
-                  color: AppColors.success,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: AppMetricChip(
+                    label: 'Received',
+                    amountMinor: report.totalReceivedMinor,
+                    symbol: symbol,
+                    color: AppColors.success,
+                    icon: Icons.payments_outlined,
+                  ),
                 ),
-              ),
-              const _OverviewDivider(),
-              Expanded(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
+                const SizedBox(width: 8),
+                Expanded(
+                  child: AppMetricChip(
+                    label: 'Outstanding',
+                    amountMinor: report.outstandingMinor,
+                    symbol: symbol,
+                    color: AppColors.warning,
+                    icon: Icons.schedule_rounded,
                     onTap: report.outstandingMinor > 0
                         ? onOutstandingTap
                         : null,
-                    borderRadius: BorderRadius.circular(8),
-                    child: _OverviewMetric(
-                      label: 'Outstanding',
-                      amountMinor: report.outstandingMinor,
-                      symbol: symbol,
-                      color: AppColors.warning,
-                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+String? _monthOverMonthTrend(List<MonthlySalesPoint> points) {
+  if (points.length < 2) return null;
+  final previous = points[points.length - 2].amountMinor;
+  final current = points.last.amountMinor;
+  if (previous <= 0) return current > 0 ? 'Up from last month' : null;
+  final percent = ((current - previous) / previous * 100).round();
+  if (percent == 0) return 'Flat vs last month';
+  if (percent.abs() > 400) return null;
+  return '${percent > 0 ? '+' : ''}$percent% vs last month';
 }
 
 class _DashboardOverviewLoadingCard extends StatelessWidget {
@@ -596,7 +621,7 @@ class _DashboardOverviewLoadingCard extends StatelessWidget {
         : const Color(0xFFFCFAFF),
     padding: const EdgeInsets.all(14),
     child: const SizedBox(
-      height: 72,
+      height: 148,
       child: Center(
         child: SizedBox(
           width: 24,
@@ -677,122 +702,76 @@ class _SectionHeader extends StatelessWidget {
   );
 }
 
-class _OverviewMetric extends StatelessWidget {
-  const _OverviewMetric({
-    required this.label,
-    required this.amountMinor,
-    required this.symbol,
-    required this.color,
-  });
-
-  final String label;
-  final int amountMinor;
-  final String symbol;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 2),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.caption.copyWith(
-            color: AppColors.textSecondary,
-            fontSize: 10,
-          ),
-        ),
-        const SizedBox(height: 4),
-        AppAmountText(
-          amountMinor: amountMinor,
-          symbol: symbol,
-          color: color,
-          textAlign: TextAlign.start,
-          style: AppTextStyles.listAmount.copyWith(fontSize: 13, color: color),
-        ),
-      ],
-    ),
-  );
-}
-
-class _OverviewDivider extends StatelessWidget {
-  const _OverviewDivider();
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 1,
-    height: 38,
-    margin: const EdgeInsets.symmetric(horizontal: 8),
-    color: Theme.of(context).brightness == Brightness.dark
-        ? AppColors.darkBorder
-        : AppColors.border,
-  );
-}
-
 class _QuickAction extends StatelessWidget {
   const _QuickAction({
     required this.label,
     required this.icon,
     required this.onTap,
     this.emphasized = false,
+    this.tint,
   });
   final String label;
   final IconData icon;
   final VoidCallback onTap;
   final bool emphasized;
+  final Color? tint;
   @override
-  Widget build(BuildContext context) => Expanded(
-    child: Material(
-      color: emphasized
-          ? AppColors.primaryLight
-          : Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(17),
-        side: BorderSide(
-          color: emphasized
-              ? AppColors.secondary.withValues(alpha: .35)
-              : AppColors.border,
-        ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 6,
-            vertical: emphasized ? 14 : 9,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: emphasized ? 36 : 32,
-                height: emphasized ? 36 : 32,
-                decoration: BoxDecoration(
-                  color: emphasized
-                      ? AppColors.secondary
-                      : AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  icon,
-                  color: emphasized ? Colors.white : AppColors.primary,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(label, style: AppTextStyles.caption),
-            ],
+  Widget build(BuildContext context) {
+    final color = tint ?? AppColors.primary;
+    return Expanded(
+      child: Material(
+        color: emphasized
+            ? AppColors.primaryLight
+            : Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(17),
+          side: BorderSide(
+            color: emphasized
+                ? AppColors.secondary.withValues(alpha: .35)
+                : AppColors.border,
           ),
         ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 6,
+              vertical: emphasized ? 14 : 12,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: emphasized ? 38 : 36,
+                  height: emphasized ? 38 : 36,
+                  decoration: BoxDecoration(
+                    color: emphasized
+                        ? AppColors.secondary
+                        : color.withValues(alpha: .14),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: emphasized ? Colors.white : color,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _AttentionCard extends StatelessWidget {

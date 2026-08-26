@@ -328,11 +328,12 @@ backups.
 
 ### Documents and reporting
 
-- Five selectable invoice PDF styles. Every template uses the same authorized
-  signature identity: ink, a line, “Authorized signature”, and the business
-  name. Professional keeps its editorial A4 layout with a business/logo
-  identity header, full Bill To and invoice metadata, description-friendly
-  item table, payment instructions beside totals, and amount-due emphasis.
+- Five selectable invoice PDF styles. Every item table starts with a serial
+  number column. Every template uses the same authorized signature identity:
+  ink, a line, “Authorized signature”, and the business name. Professional
+  keeps its editorial A4 layout with a business/logo identity header, full
+  Bill To and invoice metadata, description-friendly item table, payment
+  instructions beside totals, and amount-due emphasis.
 - PDFs embed the bundled Plus Jakarta Sans TrueType font for Unicode currency glyphs and
   use explicit responsive table columns/alignment so real invoice values wrap
   predictably without overlapping
@@ -344,14 +345,16 @@ backups.
   amounts, and explicit status/tax/payment fields. Date-range sales summaries
   export as CSV or a Unicode A4 PDF and are also reachable from Reports.
 - Dashboard totals and basic reports
-- Dashboard Home is an action surface: a compact this-month Invoiced /
-  Received / Outstanding card, overdue and due-this-week follow-up rows
-  instead of repeating the outstanding rupee amount, backup when due, quick
-  create actions, and either invoices that need collection or the latest five.
-  Tapping overdue/outstanding opens the invoice list on the matching filter.
-  Phone Home omits the duplicate full-width Create invoice button because the
-  center dock already creates invoices; tablets keep the button because they
-  use a navigation rail.
+- Dashboard Home is an action surface: a branded this-month snapshot with a
+  collection ring, sparkline, month-over-month trend, and Invoiced / Received /
+  Outstanding chips, overdue and due-this-week follow-up rows, backup when due,
+  tinted quick create actions, and either invoices that need collection or the
+  latest five. Tapping overdue/outstanding opens the invoice list on the
+  matching filter. Phone Home omits the duplicate full-width Create invoice
+  button because the center dock already creates invoices; tablets keep the
+  button because they use a navigation rail. Purchase Home uses the same
+  snapshot language for payables (amount to pay, paid ring, and Purchased /
+  Paid / Overdue chips).
 - Automated whole-flow QA covers the offline GST lifecycle from business,
   customer, and catalog data through invoice payments/reversal, quotation
   conversion, PDF generation, and backup validation. Native picker/share/print
@@ -485,6 +488,26 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-26 — Serial numbers on every invoice PDF
+
+- Item tables in Minimal, Professional, Modern, Elegant, and Compact now
+  start with a Sr. column numbered from 1. Purchase bill PDFs use the same
+  Sr. header instead of a bare hash.
+- Important files: `invoice_pdf_service.dart`, `purchase_bill_pdf_service.dart`.
+- Verified with formatting, analysis, and the automated suite (157 tests).
+
+### 2026-08-26 — Stronger Sales and Purchase home snapshots
+
+- Replaced the flat this-month metric row with a branded snapshot: large
+  invoiced total, collection ring, optional sparkline, month-over-month
+  trend, and tinted Invoiced / Received / Outstanding chips. Quick actions
+  use colored icon wells. Purchase Home uses the same snapshot language for
+  amount to pay and Purchased / Paid / Overdue. Phone still has no duplicate
+  Create invoice button.
+- Important files: `dashboard_screen.dart`, `purchase_screens.dart`,
+  `purchase_workspace_screen.dart`, `app_snapshot_visuals.dart`.
+- Verified with formatting, analysis, and the automated suite (157 tests).
 
 ### 2026-08-26 — Authorized signature identity on every PDF template
 
