@@ -13,6 +13,9 @@ features so the product stays simple.
 The live implementation status remains in [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md).
 The fixed V1 scope remains in
 [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md).
+The approved post-foundation market priorities and their offline behavior are
+defined in
+[OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md).
 
 ## First feature we are picking
 

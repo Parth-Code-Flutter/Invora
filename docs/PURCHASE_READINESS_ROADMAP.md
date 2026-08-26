@@ -4,6 +4,11 @@ Last reviewed against implementation: 2026-08-26
 Target: Client handoff first, then public Google Play release
 Product boundary: Fast offline sales and purchase billing, not full accounting
 
+The broader approved returns, expenses, inventory, barcode, ordering, and
+market-expansion sequence is maintained in
+[OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md).
+This file remains the readiness record for the current Purchase foundation.
+
 ## Decision
 
 Keep Purchase as a focused, separate workspace. Before adding Purchase Orders,

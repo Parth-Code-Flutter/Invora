@@ -4,6 +4,13 @@
 > [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md). This file remains the product scope
 > and design reference.
 
+> **Approved expansion:** The exclusions below protected the original
+> invoice-only V1. Sales and Purchase are now established. The prioritized,
+> offline market scope is defined in
+> [OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md),
+> which overrides conflicting original exclusions only when its dependencies
+> and acceptance criteria are followed.
+
 > **Project Type:** Flutter mobile app  
 > **Core Goal:** Fast, beautiful, privacy-first invoice generation with **100% offline support**  
 > **Platforms:** Android + iOS, with responsive phone and tablet layouts  
@@ -99,9 +106,11 @@ The app should allow a user to create a professional invoice in approximately **
 
 ---
 
-## Do NOT Implement in V1
+## Original V1 exclusions
 
-Do not add any of these unless explicitly requested later:
+These were excluded from the first invoice-only build. They are not a ban on
+the approved offline roadmap linked above. Items that roadmap still marks as
+explicitly deferred require a separate product decision.
 
 - Firebase
 - Supabase
