@@ -28,6 +28,8 @@ import '../../modules/invoices/scan/product_scan_screen.dart';
 import '../../modules/products/screens/catalog_barcode_scan_screen.dart';
 import '../../modules/scan/barcode_capture_screen.dart';
 import '../../modules/invoices/screens/invoice_details_screen.dart';
+import '../../modules/invoices/screens/credit_note_create_screen.dart';
+import '../../modules/invoices/screens/credit_note_details_screen.dart';
 import '../../modules/invoices/screens/invoice_list_screen.dart';
 import '../../modules/invoices/screens/invoice_preview_screen.dart';
 import '../../modules/invoices/screens/payment_receipt_screen.dart';
@@ -195,6 +197,16 @@ abstract final class AppRouter {
       name: AppRoutes.invoiceDetails,
       page: InvoiceDetailsScreen.new,
       binding: InvoiceDetailsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.creditNoteCreate,
+      page: CreditNoteCreateScreen.new,
+      binding: CreditNoteCreateBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.creditNoteDetails,
+      page: CreditNoteDetailsScreen.new,
+      binding: CreditNoteDetailsBinding(),
     ),
     GetPage(
       name: AppRoutes.more,

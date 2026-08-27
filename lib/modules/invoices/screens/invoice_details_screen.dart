@@ -23,6 +23,7 @@ import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_notification.dart';
 import '../../../app/widgets/app_status_chip.dart';
+import '../../../data/models/credit_note_model.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/invoice_payment_model.dart';
 import '../../../data/services/invoice_defaults_service.dart';
@@ -98,6 +99,7 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
             _PaymentHistoryCard(
               payments: controller.payments,
               paidMinor: invoice.calculation.paidAmountMinor,
+              creditedMinor: invoice.calculation.creditedAmountMinor,
               balanceMinor: invoice.calculation.balanceDueMinor,
               totalMinor: invoice.calculation.grandTotalMinor,
               symbol: symbol,
@@ -109,6 +111,20 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
                   paymentId: payment.id!,
                 ),
               ),
+            ),
+          if (invoice.documentType == DocumentType.invoice)
+            _CreditNotesCard(
+              notes: controller.creditNotes,
+              unapplied: controller.unappliedCredits
+                  .where((note) => note.invoiceId != invoice.id)
+                  .toList(),
+              symbol: symbol,
+              canApply: invoice.calculation.balanceDueMinor > 0,
+              onOpen: (note) => Get.toNamed<void>(
+                AppRoutes.creditNoteDetails,
+                arguments: note.id,
+              ),
+              onApply: (note) => _applyCredit(context, note),
             ),
           _InvoiceItemsCard(invoice: invoice, symbol: symbol),
           if (invoice.notes != null || invoice.terms != null)
@@ -172,6 +188,20 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         return;
       case 'duplicate':
         await controller.duplicate();
+        return;
+      case 'credit':
+        if (!controller.canIssueCreditNote) {
+          AppNotification.warning(
+            'Cannot issue credit note',
+            'Credit notes can only be issued for posted invoices.',
+          );
+          return;
+        }
+        await Get.toNamed<void>(
+          AppRoutes.creditNoteCreate,
+          arguments: controller.invoice.value?.id,
+        );
+        await controller.reload();
         return;
       case 'payment':
         await _showPaymentDialog(context);
@@ -274,6 +304,12 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
         : const [
             ('edit', Icons.edit_outlined, 'Edit invoice', false),
             ('duplicate', Icons.copy_outlined, 'Duplicate invoice', false),
+            (
+              'credit',
+              Icons.assignment_return_outlined,
+              'Credit note / Sales return',
+              false,
+            ),
             ('payment', Icons.payments_outlined, 'Update payment', false),
             ('cancel', Icons.block_outlined, 'Cancel invoice', true),
             ('delete', Icons.delete_outline_rounded, 'Delete invoice', true),
@@ -352,6 +388,36 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
       AppNotification.success(
         'Payment reversed',
         'The invoice balance and status were updated.',
+      );
+    }
+  }
+
+  Future<void> _applyCredit(
+    BuildContext context,
+    CreditNoteSummaryModel note,
+  ) async {
+    final invoice = controller.invoice.value;
+    if (invoice == null) return;
+    final amount = note.unappliedMinor < invoice.calculation.balanceDueMinor
+        ? note.unappliedMinor
+        : invoice.calculation.balanceDueMinor;
+    if (amount <= 0) return;
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      title: 'Apply customer credit?',
+      message:
+          'Apply ${CurrencyUtils.formatMinor(amount, symbol: controller.currencySymbol.value)} from ${note.creditNoteNumber} to this invoice.',
+      confirmLabel: 'Apply credit',
+      confirmIcon: Icons.assignment_return_outlined,
+    );
+    if (!confirmed) return;
+    final error = await controller.applyCustomerCredit(note, amount);
+    if (error != null) {
+      AppNotification.warning('Cannot apply credit', error);
+    } else {
+      AppNotification.success(
+        'Credit applied',
+        'The invoice balance was updated.',
       );
     }
   }
@@ -999,6 +1065,7 @@ class _PaymentHistoryCard extends StatelessWidget {
   const _PaymentHistoryCard({
     required this.payments,
     required this.paidMinor,
+    required this.creditedMinor,
     required this.balanceMinor,
     required this.totalMinor,
     required this.symbol,
@@ -1008,6 +1075,7 @@ class _PaymentHistoryCard extends StatelessWidget {
 
   final List<InvoicePaymentModel> payments;
   final int paidMinor;
+  final int creditedMinor;
   final int balanceMinor;
   final int totalMinor;
   final String symbol;
@@ -1038,6 +1106,14 @@ class _PaymentHistoryCard extends StatelessWidget {
         color: AppColors.success,
         fill: AppColors.successLight,
       ),
+      if (creditedMinor > 0)
+        _PaymentMetricCard(
+          label: l10n('Credited'),
+          amount: creditedMinor,
+          symbol: symbol,
+          color: AppColors.secondary,
+          fill: AppColors.secondaryLight,
+        ),
       _PaymentMetricCard(
         label: l10n('Remaining'),
         amount: balanceMinor,
@@ -1099,6 +1175,10 @@ class _PaymentHistoryCard extends StatelessWidget {
                     Expanded(child: metrics[2]),
                   ],
                 ),
+                if (metrics.length > 3) ...[
+                  const SizedBox(height: 10),
+                  metrics[3],
+                ],
               ],
               if (payments.isNotEmpty) ...[
                 const SizedBox(height: 4),
@@ -1428,6 +1508,12 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               amount: invoice.calculation.paidAmountMinor,
               symbol: symbol,
             ),
+            if (invoice.calculation.creditedAmountMinor > 0)
+              _PaymentRow(
+                label: l10n('Credited'),
+                amount: invoice.calculation.creditedAmountMinor,
+                symbol: symbol,
+              ),
             _PaymentRow(
               label: l10n('Balance due'),
               amount: invoice.calculation.balanceDueMinor,
@@ -1581,6 +1667,64 @@ class _PaymentSheetState extends State<_PaymentSheet> {
       isSaving = false;
       error = validation;
     });
+  }
+}
+
+class _CreditNotesCard extends StatelessWidget {
+  const _CreditNotesCard({
+    required this.notes,
+    required this.unapplied,
+    required this.symbol,
+    required this.canApply,
+    required this.onOpen,
+    required this.onApply,
+  });
+
+  final List<CreditNoteSummaryModel> notes;
+  final List<CreditNoteSummaryModel> unapplied;
+  final String symbol;
+  final bool canApply;
+  final ValueChanged<CreditNoteSummaryModel> onOpen;
+  final ValueChanged<CreditNoteSummaryModel> onApply;
+
+  @override
+  Widget build(BuildContext context) {
+    if (notes.isEmpty && unapplied.isEmpty) return const SizedBox.shrink();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Credit notes', style: AppTextStyles.sectionTitle),
+          const SizedBox(height: 8),
+          for (final note in notes)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(note.creditNoteNumber),
+              subtitle: Text(note.reason),
+              trailing: Text(
+                CurrencyUtils.formatMinor(note.grandTotalMinor, symbol: symbol),
+              ),
+              onTap: () => onOpen(note),
+            ),
+          if (canApply && unapplied.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text('Customer credit', style: AppTextStyles.cardTitle),
+            for (final note in unapplied)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(note.creditNoteNumber),
+                subtitle: Text(
+                  'Available ${CurrencyUtils.formatMinor(note.unappliedMinor, symbol: symbol)}',
+                ),
+                trailing: TextButton(
+                  onPressed: () => onApply(note),
+                  child: const Text('Apply'),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
   }
 }
 

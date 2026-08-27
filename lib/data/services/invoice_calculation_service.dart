@@ -72,12 +72,10 @@ class InvoiceCalculationService {
       );
     }
 
-    final balanceDueMinor = math.max(
-      0,
-      grandTotalMinor - input.paidAmountMinor,
-    );
+    final settledMinor = input.paidAmountMinor + input.creditedAmountMinor;
+    final balanceDueMinor = math.max(0, grandTotalMinor - settledMinor);
     final paymentStatus = _paymentStatus(
-      paidAmountMinor: input.paidAmountMinor,
+      settledMinor: settledMinor,
       grandTotalMinor: grandTotalMinor,
     );
 
@@ -103,6 +101,7 @@ class InvoiceCalculationService {
       roundOffMinor: roundOffMinor,
       grandTotalMinor: grandTotalMinor,
       paidAmountMinor: input.paidAmountMinor,
+      creditedAmountMinor: input.creditedAmountMinor,
       balanceDueMinor: balanceDueMinor,
       paymentStatus: paymentStatus,
     );
@@ -134,13 +133,13 @@ class InvoiceCalculationService {
   }
 
   InvoicePaymentStatus _paymentStatus({
-    required int paidAmountMinor,
+    required int settledMinor,
     required int grandTotalMinor,
   }) {
-    if (paidAmountMinor == 0 && grandTotalMinor > 0) {
+    if (settledMinor == 0 && grandTotalMinor > 0) {
       return InvoicePaymentStatus.unpaid;
     }
-    if (paidAmountMinor < grandTotalMinor) {
+    if (settledMinor < grandTotalMinor) {
       return InvoicePaymentStatus.partiallyPaid;
     }
     return InvoicePaymentStatus.paid;
@@ -155,6 +154,13 @@ class InvoiceCalculationService {
       throw ArgumentError.value(
         input.paidAmountMinor,
         'paidAmountMinor',
+        'Cannot be negative.',
+      );
+    }
+    if (input.creditedAmountMinor < 0) {
+      throw ArgumentError.value(
+        input.creditedAmountMinor,
+        'creditedAmountMinor',
         'Cannot be negative.',
       );
     }

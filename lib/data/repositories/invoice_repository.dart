@@ -22,8 +22,9 @@ class InvoiceRepository extends BaseRepository {
       watchMonthlyReport(DateTime.now());
 
   Stream<ReportSummaryModel> watchMonthlyReport(DateTime selectedMonth) {
-    return database.select(database.invoices).watch().map((rows) {
+    return database.select(database.invoices).watch().asyncMap((rows) async {
       final monthStart = DateTime(selectedMonth.year, selectedMonth.month);
+      final credits = await database.select(database.creditNotes).get();
       final current = rows.where(
         (row) =>
             row.documentType == DocumentType.invoice.name &&
@@ -61,6 +62,24 @@ class InvoiceRepository extends BaseRepository {
             month: monthStarts[index],
             amountMinor: monthlySales[index].amountMinor + row.grandTotalMinor,
           );
+        }
+      }
+      for (final credit in credits) {
+        final index = monthStarts.indexWhere(
+          (month) =>
+              month.year == credit.creditNoteDate.year &&
+              month.month == credit.creditNoteDate.month,
+        );
+        if (index >= 0) {
+          monthlySales[index] = MonthlySalesPoint(
+            month: monthStarts[index],
+            amountMinor:
+                monthlySales[index].amountMinor - credit.grandTotalMinor,
+          );
+        }
+        if (credit.creditNoteDate.year == monthStart.year &&
+            credit.creditNoteDate.month == monthStart.month) {
+          sales -= credit.grandTotalMinor;
         }
       }
       for (final row in current) {
@@ -303,9 +322,9 @@ class InvoiceRepository extends BaseRepository {
               entryType: const Value('payment'),
             ),
           );
-      await _writePaymentTotal(
+      await _writeSettledTotals(
         invoice,
-        invoice.calculation.paidAmountMinor + amountMinor,
+        paidAmountMinor: invoice.calculation.paidAmountMinor + amountMinor,
       );
     });
   }
@@ -357,33 +376,79 @@ class InvoiceRepository extends BaseRepository {
               reversesPaymentId: Value(paymentId),
             ),
           );
-      await _writePaymentTotal(
+      await _writeSettledTotals(
         invoice,
-        invoice.calculation.paidAmountMinor - original.amountMinor,
+        paidAmountMinor:
+            invoice.calculation.paidAmountMinor - original.amountMinor,
       );
     });
   }
 
-  Future<void> _writePaymentTotal(
-    InvoiceModel invoice,
-    int paidAmountMinor,
-  ) async {
-    final balance = invoice.calculation.grandTotalMinor - paidAmountMinor;
-    final status = paidAmountMinor == 0
-        ? InvoiceStatus.unpaid
-        : balance == 0
-        ? InvoiceStatus.paid
-        : InvoiceStatus.partiallyPaid;
+  Future<void> applyCredit({
+    required int invoiceId,
+    required int amountMinor,
+  }) async {
+    if (amountMinor <= 0) {
+      throw ArgumentError('Credit amount must be greater than zero.');
+    }
+    final invoice = await getById(invoiceId);
+    if (invoice == null) throw StateError('Invoice not found.');
+    if (invoice.status == InvoiceStatus.cancelled) {
+      throw StateError('A cancelled invoice cannot receive credit notes.');
+    }
+    if (invoice.status == InvoiceStatus.draft) {
+      throw StateError('Finalize the invoice before issuing a credit note.');
+    }
+    if (invoice.documentType != DocumentType.invoice) {
+      throw StateError('Quotations cannot receive credit notes.');
+    }
+    if (amountMinor > invoice.calculation.balanceDueMinor) {
+      throw ArgumentError('Credit cannot exceed the remaining balance.');
+    }
+    await _writeSettledTotals(
+      invoice,
+      paidAmountMinor: invoice.calculation.paidAmountMinor,
+      creditedAmountMinor:
+          invoice.calculation.creditedAmountMinor + amountMinor,
+    );
+  }
+
+  Future<void> _writeSettledTotals(
+    InvoiceModel invoice, {
+    required int paidAmountMinor,
+    int? creditedAmountMinor,
+  }) async {
+    final credited =
+        creditedAmountMinor ?? invoice.calculation.creditedAmountMinor;
+    final balance =
+        invoice.calculation.grandTotalMinor - paidAmountMinor - credited;
+    final status = _settlementStatus(
+      grandTotalMinor: invoice.calculation.grandTotalMinor,
+      paidAmountMinor: paidAmountMinor,
+      creditedAmountMinor: credited,
+    );
     await (database.update(
       database.invoices,
     )..where((table) => table.id.equals(invoice.id!))).write(
       InvoicesCompanion(
         paidAmountMinor: Value(paidAmountMinor),
+        creditedAmountMinor: Value(credited),
         balanceMinor: Value(balance),
         status: Value(status.name),
         updatedAt: Value(DateTime.now()),
       ),
     );
+  }
+
+  InvoiceStatus _settlementStatus({
+    required int grandTotalMinor,
+    required int paidAmountMinor,
+    required int creditedAmountMinor,
+  }) {
+    final settled = paidAmountMinor + creditedAmountMinor;
+    if (settled == 0) return InvoiceStatus.unpaid;
+    if (settled < grandTotalMinor) return InvoiceStatus.partiallyPaid;
+    return InvoiceStatus.paid;
   }
 
   String? _optional(String? value) {
@@ -392,6 +457,10 @@ class InvoiceRepository extends BaseRepository {
   }
 
   Future<void> cancel(int id) async {
+    await _assertNoCreditNotes(
+      id,
+      'This invoice has a credit note and cannot be cancelled.',
+    );
     await (database.update(
       database.invoices,
     )..where((table) => table.id.equals(id))).write(
@@ -435,9 +504,20 @@ class InvoiceRepository extends BaseRepository {
   }
 
   Future<void> delete(int id) async {
+    await _assertNoCreditNotes(
+      id,
+      'This invoice has a credit note and cannot be deleted.',
+    );
     await (database.delete(
       database.invoices,
     )..where((table) => table.id.equals(id))).go();
+  }
+
+  Future<void> _assertNoCreditNotes(int invoiceId, String message) async {
+    final notes = await (database.select(
+      database.creditNotes,
+    )..where((table) => table.invoiceId.equals(invoiceId))).get();
+    if (notes.isNotEmpty) throw StateError(message);
   }
 
   Future<InvoiceModel> duplicate({
@@ -521,11 +601,35 @@ class InvoiceRepository extends BaseRepository {
           'Existing invoice payments can only be changed from Payment activity.',
         );
       }
-      if (ledgerTotal > model.calculation.grandTotalMinor) {
+      var credited = 0;
+      if (model.id != null) {
+        final existing = await (database.select(
+          database.invoices,
+        )..where((table) => table.id.equals(model.id!))).getSingle();
+        credited = existing.creditedAmountMinor;
+      }
+      // New invoices may carry an opening payment that is inserted after this
+      // row; existing invoices are settled only from the payment ledger.
+      final paidAmountMinor = model.id == null
+          ? model.calculation.paidAmountMinor
+          : ledgerTotal;
+      if (paidAmountMinor + credited > model.calculation.grandTotalMinor) {
         throw StateError(
-          'Invoice total cannot be lower than the amount already paid.',
+          'Invoice total cannot be lower than payments and credit notes already applied.',
         );
       }
+      final balance =
+          model.calculation.grandTotalMinor - paidAmountMinor - credited;
+      final settledStatus =
+          model.status == InvoiceStatus.draft ||
+              model.status == InvoiceStatus.cancelled ||
+              model.documentType == DocumentType.quotation
+          ? model.status
+          : _settlementStatus(
+              grandTotalMinor: model.calculation.grandTotalMinor,
+              paidAmountMinor: paidAmountMinor,
+              creditedAmountMinor: credited,
+            );
       final invoice = InvoicesCompanion(
         id: model.id == null ? const Value.absent() : Value(model.id!),
         invoiceNumber: Value(model.invoiceNumber),
@@ -542,7 +646,7 @@ class InvoiceRepository extends BaseRepository {
         customerGstin: Value(model.customer.gstin),
         invoiceDate: Value(model.invoiceDate),
         dueDate: Value(model.dueDate),
-        status: Value(model.status.name),
+        status: Value(settledStatus.name),
         taxType: Value(model.taxType.name),
         discountType: Value(model.invoiceDiscount.type.name),
         discountValue: Value(discountStorageValue(model.invoiceDiscount)),
@@ -558,7 +662,8 @@ class InvoiceRepository extends BaseRepository {
         roundOffMinor: Value(model.calculation.roundOffMinor),
         grandTotalMinor: Value(model.calculation.grandTotalMinor),
         paidAmountMinor: Value(model.calculation.paidAmountMinor),
-        balanceMinor: Value(model.calculation.balanceDueMinor),
+        creditedAmountMinor: Value(credited),
+        balanceMinor: Value(balance),
         notes: Value(model.notes),
         terms: Value(model.terms),
         createdAt: Value(model.createdAt),
@@ -733,11 +838,12 @@ class InvoiceRepository extends BaseRepository {
         roundOffMinor: row.roundOffMinor,
         grandTotalMinor: row.grandTotalMinor,
         paidAmountMinor: row.paidAmountMinor,
+        creditedAmountMinor: row.creditedAmountMinor,
         balanceDueMinor: row.balanceMinor,
-        paymentStatus: row.paidAmountMinor == 0
-            ? InvoicePaymentStatus.unpaid
-            : row.balanceMinor == 0
+        paymentStatus: row.balanceMinor == 0 && row.grandTotalMinor > 0
             ? InvoicePaymentStatus.paid
+            : row.paidAmountMinor + row.creditedAmountMinor == 0
+            ? InvoicePaymentStatus.unpaid
             : InvoicePaymentStatus.partiallyPaid,
       ),
       notes: row.notes,

@@ -1,7 +1,13 @@
 import 'business_profile_model.dart';
 import 'customer_model.dart';
 
-enum CustomerStatementEntryType { invoice, payment, reversal }
+enum CustomerStatementEntryType {
+  invoice,
+  payment,
+  reversal,
+  creditNote,
+  refund,
+}
 
 class CustomerStatementEntry {
   const CustomerStatementEntry({

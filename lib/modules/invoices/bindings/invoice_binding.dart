@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../controllers/credit_note_create_controller.dart';
+import '../controllers/credit_note_details_controller.dart';
 import '../controllers/invoice_create_controller.dart';
 import '../controllers/invoice_details_controller.dart';
 import '../controllers/invoice_list_controller.dart';
@@ -74,7 +76,24 @@ class InvoiceDetailsBinding extends Bindings {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
+    );
+  }
+}
+
+class CreditNoteCreateBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut(() => CreditNoteCreateController(Get.find(), Get.find()));
+  }
+}
+
+class CreditNoteDetailsBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut(
+      () => CreditNoteDetailsController(Get.find(), Get.find(), Get.find()),
     );
   }
 }

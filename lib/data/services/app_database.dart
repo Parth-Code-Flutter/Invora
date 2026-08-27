@@ -123,6 +123,8 @@ class Invoices extends Table {
   IntColumn get roundOffMinor => integer()();
   IntColumn get grandTotalMinor => integer()();
   IntColumn get paidAmountMinor => integer()();
+  IntColumn get creditedAmountMinor =>
+      integer().withDefault(const Constant(0))();
   IntColumn get balanceMinor => integer()();
   TextColumn get notes => text().nullable()();
   TextColumn get terms => text().nullable()();
@@ -175,6 +177,71 @@ class InvoicePayments extends Table {
   IntColumn get reversesPaymentId => integer().nullable()();
   DateTimeColumn get paidAt => dateTime()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@TableIndex(
+  name: 'credit_notes_number',
+  columns: {#creditNoteNumber},
+  unique: true,
+)
+@TableIndex(name: 'credit_notes_invoice', columns: {#invoiceId})
+class CreditNotes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get creditNoteNumber => text()();
+  IntColumn get invoiceId => integer().references(Invoices, #id)();
+  IntColumn get customerId => integer().nullable()();
+  TextColumn get customerName => text()();
+  DateTimeColumn get creditNoteDate => dateTime()();
+  TextColumn get reason => text()();
+  TextColumn get taxType => text()();
+  IntColumn get subtotalMinor => integer()();
+  IntColumn get itemDiscountMinor => integer().withDefault(const Constant(0))();
+  IntColumn get taxableMinor => integer()();
+  IntColumn get taxMinor => integer()();
+  IntColumn get cgstMinor => integer()();
+  IntColumn get sgstMinor => integer()();
+  IntColumn get igstMinor => integer()();
+  IntColumn get roundOffMinor => integer().withDefault(const Constant(0))();
+  IntColumn get grandTotalMinor => integer()();
+  IntColumn get refundedMinor => integer().withDefault(const Constant(0))();
+  TextColumn get refundMethod => text().nullable()();
+  DateTimeColumn get refundedAt => dateTime().nullable()();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class CreditNoteItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get creditNoteId =>
+      integer().references(CreditNotes, #id, onDelete: KeyAction.cascade)();
+  IntColumn get invoiceItemId => integer().nullable()();
+  TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+  IntColumn get quantityScaled => integer()();
+  TextColumn get unit => text()();
+  IntColumn get rateMinor => integer()();
+  TextColumn get hsnSac => text().nullable()();
+  IntColumn get taxRateBasisPoints => integer()();
+  TextColumn get discountType => text()();
+  IntColumn get discountValue => integer().withDefault(const Constant(0))();
+  IntColumn get baseAmountMinor => integer()();
+  IntColumn get discountAmountMinor => integer()();
+  IntColumn get taxableAmountMinor => integer()();
+  IntColumn get taxAmountMinor => integer()();
+  IntColumn get totalMinor => integer()();
+  IntColumn get sortOrder => integer()();
+}
+
+@TableIndex(name: 'credit_note_applications_note', columns: {#creditNoteId})
+@TableIndex(name: 'credit_note_applications_invoice', columns: {#invoiceId})
+class CreditNoteApplications extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get creditNoteId =>
+      integer().references(CreditNotes, #id, onDelete: KeyAction.cascade)();
+  IntColumn get invoiceId => integer().references(Invoices, #id)();
+  IntColumn get amountMinor => integer()();
+  DateTimeColumn get appliedAt => dateTime()();
 }
 
 @TableIndex(name: 'suppliers_name', columns: {#name})
@@ -272,6 +339,9 @@ class PurchaseBillAttachments extends Table {
     InvoiceItems,
     InvoiceCharges,
     InvoicePayments,
+    CreditNotes,
+    CreditNoteItems,
+    CreditNoteApplications,
     Suppliers,
     PurchaseBills,
     PurchaseItems,
@@ -407,6 +477,19 @@ class AppDatabase extends _$AppDatabase {
         if (tables.contains('suppliers')) {
           await migrator.addColumn(suppliers, suppliers.gstRegistrationType);
         }
+      }
+      if (from >= 5 && from < 13) {
+        final tables = (await customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table'",
+        ).get()).map((row) => row.read<String>('name')).toSet();
+        if (tables.contains('invoices')) {
+          await migrator.addColumn(invoices, invoices.creditedAmountMinor);
+        }
+      }
+      if (from < 13) {
+        await migrator.createTable(creditNotes);
+        await migrator.createTable(creditNoteItems);
+        await migrator.createTable(creditNoteApplications);
       }
     },
   );

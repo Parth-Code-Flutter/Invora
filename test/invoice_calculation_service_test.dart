@@ -167,6 +167,25 @@ void main() {
       expect(calculate(12000).balanceDueMinor, 0);
     });
 
+    test('treats credited amounts as reducing the outstanding balance', () {
+      final result = service.calculate(
+        const InvoiceCalculationInput(
+          items: [
+            InvoiceCalculationItemInput(
+              id: 'credit',
+              quantityScaled: 1000,
+              rateMinor: 10000,
+            ),
+          ],
+          paidAmountMinor: 2000,
+          creditedAmountMinor: 8000,
+        ),
+      );
+      expect(result.balanceDueMinor, 0);
+      expect(result.paymentStatus, InvoicePaymentStatus.paid);
+      expect(result.creditedAmountMinor, 8000);
+    });
+
     test('rejects invalid quantities, percentages, payments and round off', () {
       expect(
         () => service.calculate(

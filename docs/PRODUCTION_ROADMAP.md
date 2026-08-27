@@ -326,7 +326,8 @@ Prioritize only after public V1 is stable:
 - Recurring invoices
 - Local due-date notifications
 - One-tap WhatsApp/email reminder templates
-- Credit notes and refunds
+- Sales credit notes shipped 2026-08-27 (see PROJECT_HANDOFF.md); purchase
+  returns/debit notes and restock remain later work
 - Proforma invoice and delivery challan
 - Multiple businesses
 - Additional languages

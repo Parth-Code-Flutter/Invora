@@ -83,10 +83,12 @@ backups.
   Sales, and Purchase bottom navigation mirrors the Sales Material Symbol
   weights, selected states, raised create action, dark-mode border, and focus
   handling while retaining Purchase-specific routes.
-- Current Drift database schema is version 12. Version 11 adds the Purchase
+- Current Drift database schema is version 13. Version 11 adds the Purchase
   audit/tax/attachment fields; version 12 non-destructively adds supplier GST
-  registration type and defaults existing suppliers to Unregistered. ZIP
-  backup compatibility checks use this schema version.
+  registration type and defaults existing suppliers to Unregistered. Version 13
+  adds `invoices.credited_amount_minor` plus `credit_notes`,
+  `credit_note_items`, and `credit_note_applications`. ZIP backup compatibility
+  checks use this schema version.
 - Business profile, logo, signature, payment QR, bank, and UPI information.
   Signature capture offers draw-on-pad, gallery, or camera, then stores the
   image with other business assets for invoice PDFs.
@@ -255,14 +257,24 @@ backups.
 - Invoice details reads like an open document: the AppBar shows the invoice
   number, and a compact status-aware hero holds billed-to (tappable), tax
   mode, item count, issued/due dates, and a due countdown. Payment activity
-  (Total, Paid, Remaining, and the payment timeline) sits immediately under
-  that identity card, then line items with a GST/totals footer. Record
-  payment / Share stay pinned in a sticky footer. Share and Share / print open
-  native share or print sheets for a saved invoice; they do not open the
-  composer preview. The AppBar PDF icon opens a read-only generated PDF with
-  share, save, and print. Swipe-to-create/update stays on Review from the
-  invoice composer. Edit, duplicate, reverse, cancel, and quotation actions
-  stay in the AppBar overflow.
+  (Total, Paid, optional Credited, Remaining, and the payment timeline) sits
+  immediately under that identity card, then line items with a GST/totals
+  footer. Record payment / Share stay pinned in a sticky footer. Share and
+  Share / print open native share or print sheets for a saved invoice; they do
+  not open the composer preview. The AppBar PDF icon opens a read-only
+  generated PDF with share, save, and print. Swipe-to-create/update stays on
+  Review from the invoice composer. Edit, duplicate, reverse, cancel, and
+  quotation actions stay in the AppBar overflow.
+- Posted invoices can issue a separately numbered credit note / sales return
+  (`CN-0001`). Original invoice totals stay on the invoice; outstanding falls
+  by the amount applied. Over-return of quantity or remaining invoice value is
+  rejected. Restock is out of scope until inventory exists. If the credit is
+  larger than the invoice outstanding, the remainder can be kept as customer
+  credit (apply later to another invoice of the same customer) or recorded as a
+  refund. Invoices with credit notes cannot be edited, cancelled, or deleted.
+  Credit-note PDFs are their own `CREDIT NOTE` document against the original
+  invoice number. Return date cannot precede the invoice date. Reason uses a
+  common-reason dropdown, with Other revealing a custom text field.
 - Line-item edit, duplicate, and remove actions
 - Re-selecting the same saved catalog item increases its existing quantity;
   selected-item cards expose direct minus/plus quantity controls and line
@@ -311,7 +323,9 @@ backups.
   as a quiet caption) sit immediately underneath. Period is one calendar-style
   row (From → To) that opens a native date-range picker. Activity uses
   accent-grouped ledger tiles, and Preview statement PDF stays pinned in a
-  sticky footer. Save and print remain in the AppBar overflow.
+  sticky footer. Save and print remain in the AppBar overflow. Credit notes
+  appear as credits and refunds as debits alongside invoices, payments, and
+  reversals.
 - Invoice creation uses a focused composer hierarchy: compact customer/invoice
   header, equal-width metadata controls, count-labelled line items, secondary
   tax/discount disclosure, and a non-duplicated empty-item flow. Phone layouts
@@ -351,7 +365,9 @@ backups.
   for invoices; paid-at date for payments) with ISO dates, decimal major-unit
   amounts, and explicit status/tax/payment fields. Date-range sales summaries
   export as CSV or a Unicode A4 PDF and are also reachable from Reports.
-- Dashboard totals and basic reports
+- Dashboard totals and basic reports. Monthly sales are posted invoices minus
+  credit notes dated in that month; received stays actual payments; outstanding
+  uses each invoice’s remaining balance after payments and applied credit.
 - Dashboard Home is an action surface: a branded this-month snapshot with a
   collection ring, sparkline, month-over-month trend, and Invoiced / Received /
   Outstanding chips, overdue and due-this-week follow-up rows, backup when due,
@@ -370,10 +386,11 @@ backups.
 
 ## Persisted data notes
 
-- Database schema version 9 includes product/invoice attribute snapshots; its
-  version 8 migration classifies `invoice_payments` entries and links
-  reversals to original payments. The v7 migration preserves every older
-  non-zero cumulative payment as a dated `Previous payment` entry.
+- Database schema version 13 adds sales credit notes. Version 9 includes
+  product/invoice attribute snapshots; its version 8 migration classifies
+  `invoice_payments` entries and links reversals to original payments. The v7
+  migration preserves every older non-zero cumulative payment as a dated
+  `Previous payment` entry.
 - Invoice numbers have a unique database index.
 - Historical documents use snapshots so later catalog edits do not alter them.
 - Managed units and the default selection use
@@ -393,8 +410,11 @@ backups.
 - Item name and unit are required; quantity and rate must exceed zero.
 - GST and percentage discounts must be between 0 and 100.
 - Due date cannot precede invoice date.
-- Paid amount cannot exceed the grand total.
+- Paid amount cannot exceed the remaining balance after applied credit notes.
 - Invoice number must be unique; cancelled invoices cannot be edited.
+- Credit notes require a reason, cannot predate the invoice, and cannot exceed
+  remaining line quantity or remaining invoice value. The original invoice is
+  never rewritten.
 - Invalid invoices cannot be shared, printed, or recorded as paid.
 
 ## Setup on another computer
@@ -478,13 +498,18 @@ As of 2026-08-27:
 5. Physical-device QA of encrypted backup: wrong password, verify without
    restore, airplane-mode restore, legacy unencrypted ZIP, and second-device
    media path remapping.
-6. Complete store privacy declarations and iOS privacy-manifest review.
-7. Test all PDFs with long, multi-page, and Unicode content.
-8. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
+6. Physical-device QA of sales credit notes: partial return, over-return
+   blocked, paid-invoice refund vs customer credit, apply leftover credit to
+   another invoice, customer statement, credit-note PDF, and airplane mode.
+7. Next implementation: GST/CA export (offline file, labelled Prepared not
+   Submitted) per [OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md).
+8. Complete store privacy declarations and iOS privacy-manifest review.
+9. Test all PDFs with long, multi-page, and Unicode content.
+10. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
    Tablet presentation (rail, two-column lists, capped CTAs, onboarding) is
    implemented; remaining work is device QA, not missing layout primitives.
-9. Add CI for formatting, analysis, tests, and release validation.
-10. Licensing / monetization is design-only. When picked up, follow
+11. Add CI for formatting, analysis, tests, and release validation.
+12. Licensing / monetization is design-only. When picked up, follow
     [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md): store builds use
     RevenueCat/Play/App Store billing; direct APKs use GSTIN-bound keys;
     client demos use a dated `demo` flavor kill switch, not a first-launch
@@ -496,6 +521,37 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-27 — Credit note create polish
+
+- Return date can no longer open the calendar with today before the invoice
+  date. The picker clamps to the invoice date and keeps lastDate on or after
+  firstDate. Reason is a common-reason dropdown; Other reveals a text field.
+  The create screen now follows the invoice composer: identity card, segmented
+  return mode, quantity steppers, and credit total in the sticky footer.
+- Important files: `credit_note_create_screen.dart`,
+  `credit_note_create_controller.dart`, `credit_note_model.dart`.
+- Verified with formatting, analysis, and the automated suite.
+
+### 2026-08-27 — Sales credit notes / returns
+
+- Posted invoices can issue a separately numbered credit note / sales return
+  without rewriting original invoice totals. Users return line quantities or
+  enter a value adjustment, choose a reason and date, and apply the credit to
+  the source invoice first. Leftover value on a paid (or over-credited)
+  invoice can be kept as customer credit or refunded. Unapplied credit can be
+  applied to another invoice of the same customer. Over-return is rejected.
+  Restock is not in this slice. Invoices with credit notes cannot be edited,
+  cancelled, or deleted. Reports subtract credit notes from monthly sales;
+  customer statements show credit notes and refunds; backup/restore includes
+  the new tables because the archive copies the SQLite file.
+- Schema v13: `invoices.credited_amount_minor`, `credit_notes`,
+  `credit_note_items`, `credit_note_applications`. Numbering is `CN-0001`.
+- Important files: `credit_note_repository.dart`, `credit_note_model.dart`,
+  `credit_note_pdf_service.dart`, credit-note create/details screens,
+  `invoice_details_screen.dart`, `customer_statement_service.dart`,
+  `app_database.dart`.
+- Verified with formatting, analysis, and the automated suite (170 tests).
 
 ### 2026-08-27 — Password-protected backups
 

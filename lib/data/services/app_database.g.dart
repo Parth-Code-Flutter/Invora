@@ -3516,6 +3516,17 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _creditedAmountMinorMeta =
+      const VerificationMeta('creditedAmountMinor');
+  @override
+  late final GeneratedColumn<int> creditedAmountMinor = GeneratedColumn<int>(
+    'credited_amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _balanceMinorMeta = const VerificationMeta(
     'balanceMinor',
   );
@@ -3602,6 +3613,7 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
     roundOffMinor,
     grandTotalMinor,
     paidAmountMinor,
+    creditedAmountMinor,
     balanceMinor,
     notes,
     terms,
@@ -3905,6 +3917,15 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
     } else if (isInserting) {
       context.missing(_paidAmountMinorMeta);
     }
+    if (data.containsKey('credited_amount_minor')) {
+      context.handle(
+        _creditedAmountMinorMeta,
+        creditedAmountMinor.isAcceptableOrUnknown(
+          data['credited_amount_minor']!,
+          _creditedAmountMinorMeta,
+        ),
+      );
+    }
     if (data.containsKey('balance_minor')) {
       context.handle(
         _balanceMinorMeta,
@@ -4073,6 +4094,10 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
         DriftSqlType.int,
         data['${effectivePrefix}paid_amount_minor'],
       )!,
+      creditedAmountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}credited_amount_minor'],
+      )!,
       balanceMinor: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}balance_minor'],
@@ -4134,6 +4159,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
   final int roundOffMinor;
   final int grandTotalMinor;
   final int paidAmountMinor;
+  final int creditedAmountMinor;
   final int balanceMinor;
   final String? notes;
   final String? terms;
@@ -4171,6 +4197,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     required this.roundOffMinor,
     required this.grandTotalMinor,
     required this.paidAmountMinor,
+    required this.creditedAmountMinor,
     required this.balanceMinor,
     this.notes,
     this.terms,
@@ -4231,6 +4258,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     map['round_off_minor'] = Variable<int>(roundOffMinor);
     map['grand_total_minor'] = Variable<int>(grandTotalMinor);
     map['paid_amount_minor'] = Variable<int>(paidAmountMinor);
+    map['credited_amount_minor'] = Variable<int>(creditedAmountMinor);
     map['balance_minor'] = Variable<int>(balanceMinor);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -4296,6 +4324,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
       roundOffMinor: Value(roundOffMinor),
       grandTotalMinor: Value(grandTotalMinor),
       paidAmountMinor: Value(paidAmountMinor),
+      creditedAmountMinor: Value(creditedAmountMinor),
       balanceMinor: Value(balanceMinor),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
@@ -4347,6 +4376,9 @@ class Invoice extends DataClass implements Insertable<Invoice> {
       roundOffMinor: serializer.fromJson<int>(json['roundOffMinor']),
       grandTotalMinor: serializer.fromJson<int>(json['grandTotalMinor']),
       paidAmountMinor: serializer.fromJson<int>(json['paidAmountMinor']),
+      creditedAmountMinor: serializer.fromJson<int>(
+        json['creditedAmountMinor'],
+      ),
       balanceMinor: serializer.fromJson<int>(json['balanceMinor']),
       notes: serializer.fromJson<String?>(json['notes']),
       terms: serializer.fromJson<String?>(json['terms']),
@@ -4389,6 +4421,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
       'roundOffMinor': serializer.toJson<int>(roundOffMinor),
       'grandTotalMinor': serializer.toJson<int>(grandTotalMinor),
       'paidAmountMinor': serializer.toJson<int>(paidAmountMinor),
+      'creditedAmountMinor': serializer.toJson<int>(creditedAmountMinor),
       'balanceMinor': serializer.toJson<int>(balanceMinor),
       'notes': serializer.toJson<String?>(notes),
       'terms': serializer.toJson<String?>(terms),
@@ -4429,6 +4462,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     int? roundOffMinor,
     int? grandTotalMinor,
     int? paidAmountMinor,
+    int? creditedAmountMinor,
     int? balanceMinor,
     Value<String?> notes = const Value.absent(),
     Value<String?> terms = const Value.absent(),
@@ -4480,6 +4514,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     roundOffMinor: roundOffMinor ?? this.roundOffMinor,
     grandTotalMinor: grandTotalMinor ?? this.grandTotalMinor,
     paidAmountMinor: paidAmountMinor ?? this.paidAmountMinor,
+    creditedAmountMinor: creditedAmountMinor ?? this.creditedAmountMinor,
     balanceMinor: balanceMinor ?? this.balanceMinor,
     notes: notes.present ? notes.value : this.notes,
     terms: terms.present ? terms.value : this.terms,
@@ -4565,6 +4600,9 @@ class Invoice extends DataClass implements Insertable<Invoice> {
       paidAmountMinor: data.paidAmountMinor.present
           ? data.paidAmountMinor.value
           : this.paidAmountMinor,
+      creditedAmountMinor: data.creditedAmountMinor.present
+          ? data.creditedAmountMinor.value
+          : this.creditedAmountMinor,
       balanceMinor: data.balanceMinor.present
           ? data.balanceMinor.value
           : this.balanceMinor,
@@ -4609,6 +4647,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
           ..write('roundOffMinor: $roundOffMinor, ')
           ..write('grandTotalMinor: $grandTotalMinor, ')
           ..write('paidAmountMinor: $paidAmountMinor, ')
+          ..write('creditedAmountMinor: $creditedAmountMinor, ')
           ..write('balanceMinor: $balanceMinor, ')
           ..write('notes: $notes, ')
           ..write('terms: $terms, ')
@@ -4651,6 +4690,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     roundOffMinor,
     grandTotalMinor,
     paidAmountMinor,
+    creditedAmountMinor,
     balanceMinor,
     notes,
     terms,
@@ -4692,6 +4732,7 @@ class Invoice extends DataClass implements Insertable<Invoice> {
           other.roundOffMinor == this.roundOffMinor &&
           other.grandTotalMinor == this.grandTotalMinor &&
           other.paidAmountMinor == this.paidAmountMinor &&
+          other.creditedAmountMinor == this.creditedAmountMinor &&
           other.balanceMinor == this.balanceMinor &&
           other.notes == this.notes &&
           other.terms == this.terms &&
@@ -4731,6 +4772,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
   final Value<int> roundOffMinor;
   final Value<int> grandTotalMinor;
   final Value<int> paidAmountMinor;
+  final Value<int> creditedAmountMinor;
   final Value<int> balanceMinor;
   final Value<String?> notes;
   final Value<String?> terms;
@@ -4768,6 +4810,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     this.roundOffMinor = const Value.absent(),
     this.grandTotalMinor = const Value.absent(),
     this.paidAmountMinor = const Value.absent(),
+    this.creditedAmountMinor = const Value.absent(),
     this.balanceMinor = const Value.absent(),
     this.notes = const Value.absent(),
     this.terms = const Value.absent(),
@@ -4806,6 +4849,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     required int roundOffMinor,
     required int grandTotalMinor,
     required int paidAmountMinor,
+    this.creditedAmountMinor = const Value.absent(),
     required int balanceMinor,
     this.notes = const Value.absent(),
     this.terms = const Value.absent(),
@@ -4862,6 +4906,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     Expression<int>? roundOffMinor,
     Expression<int>? grandTotalMinor,
     Expression<int>? paidAmountMinor,
+    Expression<int>? creditedAmountMinor,
     Expression<int>? balanceMinor,
     Expression<String>? notes,
     Expression<String>? terms,
@@ -4901,6 +4946,8 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
       if (roundOffMinor != null) 'round_off_minor': roundOffMinor,
       if (grandTotalMinor != null) 'grand_total_minor': grandTotalMinor,
       if (paidAmountMinor != null) 'paid_amount_minor': paidAmountMinor,
+      if (creditedAmountMinor != null)
+        'credited_amount_minor': creditedAmountMinor,
       if (balanceMinor != null) 'balance_minor': balanceMinor,
       if (notes != null) 'notes': notes,
       if (terms != null) 'terms': terms,
@@ -4941,6 +4988,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     Value<int>? roundOffMinor,
     Value<int>? grandTotalMinor,
     Value<int>? paidAmountMinor,
+    Value<int>? creditedAmountMinor,
     Value<int>? balanceMinor,
     Value<String?>? notes,
     Value<String?>? terms,
@@ -4979,6 +5027,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
       roundOffMinor: roundOffMinor ?? this.roundOffMinor,
       grandTotalMinor: grandTotalMinor ?? this.grandTotalMinor,
       paidAmountMinor: paidAmountMinor ?? this.paidAmountMinor,
+      creditedAmountMinor: creditedAmountMinor ?? this.creditedAmountMinor,
       balanceMinor: balanceMinor ?? this.balanceMinor,
       notes: notes ?? this.notes,
       terms: terms ?? this.terms,
@@ -5083,6 +5132,9 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     if (paidAmountMinor.present) {
       map['paid_amount_minor'] = Variable<int>(paidAmountMinor.value);
     }
+    if (creditedAmountMinor.present) {
+      map['credited_amount_minor'] = Variable<int>(creditedAmountMinor.value);
+    }
     if (balanceMinor.present) {
       map['balance_minor'] = Variable<int>(balanceMinor.value);
     }
@@ -5135,6 +5187,7 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
           ..write('roundOffMinor: $roundOffMinor, ')
           ..write('grandTotalMinor: $grandTotalMinor, ')
           ..write('paidAmountMinor: $paidAmountMinor, ')
+          ..write('creditedAmountMinor: $creditedAmountMinor, ')
           ..write('balanceMinor: $balanceMinor, ')
           ..write('notes: $notes, ')
           ..write('terms: $terms, ')
@@ -7183,6 +7236,2690 @@ class InvoicePaymentsCompanion extends UpdateCompanion<InvoicePayment> {
           ..write('reversesPaymentId: $reversesPaymentId, ')
           ..write('paidAt: $paidAt, ')
           ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CreditNotesTable extends CreditNotes
+    with TableInfo<$CreditNotesTable, CreditNote> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CreditNotesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _creditNoteNumberMeta = const VerificationMeta(
+    'creditNoteNumber',
+  );
+  @override
+  late final GeneratedColumn<String> creditNoteNumber = GeneratedColumn<String>(
+    'credit_note_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _invoiceIdMeta = const VerificationMeta(
+    'invoiceId',
+  );
+  @override
+  late final GeneratedColumn<int> invoiceId = GeneratedColumn<int>(
+    'invoice_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES invoices (id)',
+    ),
+  );
+  static const VerificationMeta _customerIdMeta = const VerificationMeta(
+    'customerId',
+  );
+  @override
+  late final GeneratedColumn<int> customerId = GeneratedColumn<int>(
+    'customer_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerNameMeta = const VerificationMeta(
+    'customerName',
+  );
+  @override
+  late final GeneratedColumn<String> customerName = GeneratedColumn<String>(
+    'customer_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _creditNoteDateMeta = const VerificationMeta(
+    'creditNoteDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> creditNoteDate =
+      GeneratedColumn<DateTime>(
+        'credit_note_date',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _reasonMeta = const VerificationMeta('reason');
+  @override
+  late final GeneratedColumn<String> reason = GeneratedColumn<String>(
+    'reason',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taxTypeMeta = const VerificationMeta(
+    'taxType',
+  );
+  @override
+  late final GeneratedColumn<String> taxType = GeneratedColumn<String>(
+    'tax_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subtotalMinorMeta = const VerificationMeta(
+    'subtotalMinor',
+  );
+  @override
+  late final GeneratedColumn<int> subtotalMinor = GeneratedColumn<int>(
+    'subtotal_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _itemDiscountMinorMeta = const VerificationMeta(
+    'itemDiscountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> itemDiscountMinor = GeneratedColumn<int>(
+    'item_discount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _taxableMinorMeta = const VerificationMeta(
+    'taxableMinor',
+  );
+  @override
+  late final GeneratedColumn<int> taxableMinor = GeneratedColumn<int>(
+    'taxable_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taxMinorMeta = const VerificationMeta(
+    'taxMinor',
+  );
+  @override
+  late final GeneratedColumn<int> taxMinor = GeneratedColumn<int>(
+    'tax_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _cgstMinorMeta = const VerificationMeta(
+    'cgstMinor',
+  );
+  @override
+  late final GeneratedColumn<int> cgstMinor = GeneratedColumn<int>(
+    'cgst_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sgstMinorMeta = const VerificationMeta(
+    'sgstMinor',
+  );
+  @override
+  late final GeneratedColumn<int> sgstMinor = GeneratedColumn<int>(
+    'sgst_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _igstMinorMeta = const VerificationMeta(
+    'igstMinor',
+  );
+  @override
+  late final GeneratedColumn<int> igstMinor = GeneratedColumn<int>(
+    'igst_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _roundOffMinorMeta = const VerificationMeta(
+    'roundOffMinor',
+  );
+  @override
+  late final GeneratedColumn<int> roundOffMinor = GeneratedColumn<int>(
+    'round_off_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _grandTotalMinorMeta = const VerificationMeta(
+    'grandTotalMinor',
+  );
+  @override
+  late final GeneratedColumn<int> grandTotalMinor = GeneratedColumn<int>(
+    'grand_total_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _refundedMinorMeta = const VerificationMeta(
+    'refundedMinor',
+  );
+  @override
+  late final GeneratedColumn<int> refundedMinor = GeneratedColumn<int>(
+    'refunded_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _refundMethodMeta = const VerificationMeta(
+    'refundMethod',
+  );
+  @override
+  late final GeneratedColumn<String> refundMethod = GeneratedColumn<String>(
+    'refund_method',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _refundedAtMeta = const VerificationMeta(
+    'refundedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> refundedAt = GeneratedColumn<DateTime>(
+    'refunded_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    creditNoteNumber,
+    invoiceId,
+    customerId,
+    customerName,
+    creditNoteDate,
+    reason,
+    taxType,
+    subtotalMinor,
+    itemDiscountMinor,
+    taxableMinor,
+    taxMinor,
+    cgstMinor,
+    sgstMinor,
+    igstMinor,
+    roundOffMinor,
+    grandTotalMinor,
+    refundedMinor,
+    refundMethod,
+    refundedAt,
+    notes,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'credit_notes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CreditNote> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('credit_note_number')) {
+      context.handle(
+        _creditNoteNumberMeta,
+        creditNoteNumber.isAcceptableOrUnknown(
+          data['credit_note_number']!,
+          _creditNoteNumberMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_creditNoteNumberMeta);
+    }
+    if (data.containsKey('invoice_id')) {
+      context.handle(
+        _invoiceIdMeta,
+        invoiceId.isAcceptableOrUnknown(data['invoice_id']!, _invoiceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_invoiceIdMeta);
+    }
+    if (data.containsKey('customer_id')) {
+      context.handle(
+        _customerIdMeta,
+        customerId.isAcceptableOrUnknown(data['customer_id']!, _customerIdMeta),
+      );
+    }
+    if (data.containsKey('customer_name')) {
+      context.handle(
+        _customerNameMeta,
+        customerName.isAcceptableOrUnknown(
+          data['customer_name']!,
+          _customerNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_customerNameMeta);
+    }
+    if (data.containsKey('credit_note_date')) {
+      context.handle(
+        _creditNoteDateMeta,
+        creditNoteDate.isAcceptableOrUnknown(
+          data['credit_note_date']!,
+          _creditNoteDateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_creditNoteDateMeta);
+    }
+    if (data.containsKey('reason')) {
+      context.handle(
+        _reasonMeta,
+        reason.isAcceptableOrUnknown(data['reason']!, _reasonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_reasonMeta);
+    }
+    if (data.containsKey('tax_type')) {
+      context.handle(
+        _taxTypeMeta,
+        taxType.isAcceptableOrUnknown(data['tax_type']!, _taxTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_taxTypeMeta);
+    }
+    if (data.containsKey('subtotal_minor')) {
+      context.handle(
+        _subtotalMinorMeta,
+        subtotalMinor.isAcceptableOrUnknown(
+          data['subtotal_minor']!,
+          _subtotalMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_subtotalMinorMeta);
+    }
+    if (data.containsKey('item_discount_minor')) {
+      context.handle(
+        _itemDiscountMinorMeta,
+        itemDiscountMinor.isAcceptableOrUnknown(
+          data['item_discount_minor']!,
+          _itemDiscountMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('taxable_minor')) {
+      context.handle(
+        _taxableMinorMeta,
+        taxableMinor.isAcceptableOrUnknown(
+          data['taxable_minor']!,
+          _taxableMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_taxableMinorMeta);
+    }
+    if (data.containsKey('tax_minor')) {
+      context.handle(
+        _taxMinorMeta,
+        taxMinor.isAcceptableOrUnknown(data['tax_minor']!, _taxMinorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_taxMinorMeta);
+    }
+    if (data.containsKey('cgst_minor')) {
+      context.handle(
+        _cgstMinorMeta,
+        cgstMinor.isAcceptableOrUnknown(data['cgst_minor']!, _cgstMinorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cgstMinorMeta);
+    }
+    if (data.containsKey('sgst_minor')) {
+      context.handle(
+        _sgstMinorMeta,
+        sgstMinor.isAcceptableOrUnknown(data['sgst_minor']!, _sgstMinorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sgstMinorMeta);
+    }
+    if (data.containsKey('igst_minor')) {
+      context.handle(
+        _igstMinorMeta,
+        igstMinor.isAcceptableOrUnknown(data['igst_minor']!, _igstMinorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_igstMinorMeta);
+    }
+    if (data.containsKey('round_off_minor')) {
+      context.handle(
+        _roundOffMinorMeta,
+        roundOffMinor.isAcceptableOrUnknown(
+          data['round_off_minor']!,
+          _roundOffMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('grand_total_minor')) {
+      context.handle(
+        _grandTotalMinorMeta,
+        grandTotalMinor.isAcceptableOrUnknown(
+          data['grand_total_minor']!,
+          _grandTotalMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_grandTotalMinorMeta);
+    }
+    if (data.containsKey('refunded_minor')) {
+      context.handle(
+        _refundedMinorMeta,
+        refundedMinor.isAcceptableOrUnknown(
+          data['refunded_minor']!,
+          _refundedMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('refund_method')) {
+      context.handle(
+        _refundMethodMeta,
+        refundMethod.isAcceptableOrUnknown(
+          data['refund_method']!,
+          _refundMethodMeta,
+        ),
+      );
+    }
+    if (data.containsKey('refunded_at')) {
+      context.handle(
+        _refundedAtMeta,
+        refundedAt.isAcceptableOrUnknown(data['refunded_at']!, _refundedAtMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CreditNote map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CreditNote(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      creditNoteNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}credit_note_number'],
+      )!,
+      invoiceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}invoice_id'],
+      )!,
+      customerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}customer_id'],
+      ),
+      customerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_name'],
+      )!,
+      creditNoteDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}credit_note_date'],
+      )!,
+      reason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reason'],
+      )!,
+      taxType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tax_type'],
+      )!,
+      subtotalMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}subtotal_minor'],
+      )!,
+      itemDiscountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}item_discount_minor'],
+      )!,
+      taxableMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}taxable_minor'],
+      )!,
+      taxMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tax_minor'],
+      )!,
+      cgstMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}cgst_minor'],
+      )!,
+      sgstMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sgst_minor'],
+      )!,
+      igstMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}igst_minor'],
+      )!,
+      roundOffMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}round_off_minor'],
+      )!,
+      grandTotalMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}grand_total_minor'],
+      )!,
+      refundedMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}refunded_minor'],
+      )!,
+      refundMethod: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}refund_method'],
+      ),
+      refundedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}refunded_at'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CreditNotesTable createAlias(String alias) {
+    return $CreditNotesTable(attachedDatabase, alias);
+  }
+}
+
+class CreditNote extends DataClass implements Insertable<CreditNote> {
+  final int id;
+  final String creditNoteNumber;
+  final int invoiceId;
+  final int? customerId;
+  final String customerName;
+  final DateTime creditNoteDate;
+  final String reason;
+  final String taxType;
+  final int subtotalMinor;
+  final int itemDiscountMinor;
+  final int taxableMinor;
+  final int taxMinor;
+  final int cgstMinor;
+  final int sgstMinor;
+  final int igstMinor;
+  final int roundOffMinor;
+  final int grandTotalMinor;
+  final int refundedMinor;
+  final String? refundMethod;
+  final DateTime? refundedAt;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const CreditNote({
+    required this.id,
+    required this.creditNoteNumber,
+    required this.invoiceId,
+    this.customerId,
+    required this.customerName,
+    required this.creditNoteDate,
+    required this.reason,
+    required this.taxType,
+    required this.subtotalMinor,
+    required this.itemDiscountMinor,
+    required this.taxableMinor,
+    required this.taxMinor,
+    required this.cgstMinor,
+    required this.sgstMinor,
+    required this.igstMinor,
+    required this.roundOffMinor,
+    required this.grandTotalMinor,
+    required this.refundedMinor,
+    this.refundMethod,
+    this.refundedAt,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['credit_note_number'] = Variable<String>(creditNoteNumber);
+    map['invoice_id'] = Variable<int>(invoiceId);
+    if (!nullToAbsent || customerId != null) {
+      map['customer_id'] = Variable<int>(customerId);
+    }
+    map['customer_name'] = Variable<String>(customerName);
+    map['credit_note_date'] = Variable<DateTime>(creditNoteDate);
+    map['reason'] = Variable<String>(reason);
+    map['tax_type'] = Variable<String>(taxType);
+    map['subtotal_minor'] = Variable<int>(subtotalMinor);
+    map['item_discount_minor'] = Variable<int>(itemDiscountMinor);
+    map['taxable_minor'] = Variable<int>(taxableMinor);
+    map['tax_minor'] = Variable<int>(taxMinor);
+    map['cgst_minor'] = Variable<int>(cgstMinor);
+    map['sgst_minor'] = Variable<int>(sgstMinor);
+    map['igst_minor'] = Variable<int>(igstMinor);
+    map['round_off_minor'] = Variable<int>(roundOffMinor);
+    map['grand_total_minor'] = Variable<int>(grandTotalMinor);
+    map['refunded_minor'] = Variable<int>(refundedMinor);
+    if (!nullToAbsent || refundMethod != null) {
+      map['refund_method'] = Variable<String>(refundMethod);
+    }
+    if (!nullToAbsent || refundedAt != null) {
+      map['refunded_at'] = Variable<DateTime>(refundedAt);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  CreditNotesCompanion toCompanion(bool nullToAbsent) {
+    return CreditNotesCompanion(
+      id: Value(id),
+      creditNoteNumber: Value(creditNoteNumber),
+      invoiceId: Value(invoiceId),
+      customerId: customerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerId),
+      customerName: Value(customerName),
+      creditNoteDate: Value(creditNoteDate),
+      reason: Value(reason),
+      taxType: Value(taxType),
+      subtotalMinor: Value(subtotalMinor),
+      itemDiscountMinor: Value(itemDiscountMinor),
+      taxableMinor: Value(taxableMinor),
+      taxMinor: Value(taxMinor),
+      cgstMinor: Value(cgstMinor),
+      sgstMinor: Value(sgstMinor),
+      igstMinor: Value(igstMinor),
+      roundOffMinor: Value(roundOffMinor),
+      grandTotalMinor: Value(grandTotalMinor),
+      refundedMinor: Value(refundedMinor),
+      refundMethod: refundMethod == null && nullToAbsent
+          ? const Value.absent()
+          : Value(refundMethod),
+      refundedAt: refundedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(refundedAt),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory CreditNote.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CreditNote(
+      id: serializer.fromJson<int>(json['id']),
+      creditNoteNumber: serializer.fromJson<String>(json['creditNoteNumber']),
+      invoiceId: serializer.fromJson<int>(json['invoiceId']),
+      customerId: serializer.fromJson<int?>(json['customerId']),
+      customerName: serializer.fromJson<String>(json['customerName']),
+      creditNoteDate: serializer.fromJson<DateTime>(json['creditNoteDate']),
+      reason: serializer.fromJson<String>(json['reason']),
+      taxType: serializer.fromJson<String>(json['taxType']),
+      subtotalMinor: serializer.fromJson<int>(json['subtotalMinor']),
+      itemDiscountMinor: serializer.fromJson<int>(json['itemDiscountMinor']),
+      taxableMinor: serializer.fromJson<int>(json['taxableMinor']),
+      taxMinor: serializer.fromJson<int>(json['taxMinor']),
+      cgstMinor: serializer.fromJson<int>(json['cgstMinor']),
+      sgstMinor: serializer.fromJson<int>(json['sgstMinor']),
+      igstMinor: serializer.fromJson<int>(json['igstMinor']),
+      roundOffMinor: serializer.fromJson<int>(json['roundOffMinor']),
+      grandTotalMinor: serializer.fromJson<int>(json['grandTotalMinor']),
+      refundedMinor: serializer.fromJson<int>(json['refundedMinor']),
+      refundMethod: serializer.fromJson<String?>(json['refundMethod']),
+      refundedAt: serializer.fromJson<DateTime?>(json['refundedAt']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'creditNoteNumber': serializer.toJson<String>(creditNoteNumber),
+      'invoiceId': serializer.toJson<int>(invoiceId),
+      'customerId': serializer.toJson<int?>(customerId),
+      'customerName': serializer.toJson<String>(customerName),
+      'creditNoteDate': serializer.toJson<DateTime>(creditNoteDate),
+      'reason': serializer.toJson<String>(reason),
+      'taxType': serializer.toJson<String>(taxType),
+      'subtotalMinor': serializer.toJson<int>(subtotalMinor),
+      'itemDiscountMinor': serializer.toJson<int>(itemDiscountMinor),
+      'taxableMinor': serializer.toJson<int>(taxableMinor),
+      'taxMinor': serializer.toJson<int>(taxMinor),
+      'cgstMinor': serializer.toJson<int>(cgstMinor),
+      'sgstMinor': serializer.toJson<int>(sgstMinor),
+      'igstMinor': serializer.toJson<int>(igstMinor),
+      'roundOffMinor': serializer.toJson<int>(roundOffMinor),
+      'grandTotalMinor': serializer.toJson<int>(grandTotalMinor),
+      'refundedMinor': serializer.toJson<int>(refundedMinor),
+      'refundMethod': serializer.toJson<String?>(refundMethod),
+      'refundedAt': serializer.toJson<DateTime?>(refundedAt),
+      'notes': serializer.toJson<String?>(notes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  CreditNote copyWith({
+    int? id,
+    String? creditNoteNumber,
+    int? invoiceId,
+    Value<int?> customerId = const Value.absent(),
+    String? customerName,
+    DateTime? creditNoteDate,
+    String? reason,
+    String? taxType,
+    int? subtotalMinor,
+    int? itemDiscountMinor,
+    int? taxableMinor,
+    int? taxMinor,
+    int? cgstMinor,
+    int? sgstMinor,
+    int? igstMinor,
+    int? roundOffMinor,
+    int? grandTotalMinor,
+    int? refundedMinor,
+    Value<String?> refundMethod = const Value.absent(),
+    Value<DateTime?> refundedAt = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => CreditNote(
+    id: id ?? this.id,
+    creditNoteNumber: creditNoteNumber ?? this.creditNoteNumber,
+    invoiceId: invoiceId ?? this.invoiceId,
+    customerId: customerId.present ? customerId.value : this.customerId,
+    customerName: customerName ?? this.customerName,
+    creditNoteDate: creditNoteDate ?? this.creditNoteDate,
+    reason: reason ?? this.reason,
+    taxType: taxType ?? this.taxType,
+    subtotalMinor: subtotalMinor ?? this.subtotalMinor,
+    itemDiscountMinor: itemDiscountMinor ?? this.itemDiscountMinor,
+    taxableMinor: taxableMinor ?? this.taxableMinor,
+    taxMinor: taxMinor ?? this.taxMinor,
+    cgstMinor: cgstMinor ?? this.cgstMinor,
+    sgstMinor: sgstMinor ?? this.sgstMinor,
+    igstMinor: igstMinor ?? this.igstMinor,
+    roundOffMinor: roundOffMinor ?? this.roundOffMinor,
+    grandTotalMinor: grandTotalMinor ?? this.grandTotalMinor,
+    refundedMinor: refundedMinor ?? this.refundedMinor,
+    refundMethod: refundMethod.present ? refundMethod.value : this.refundMethod,
+    refundedAt: refundedAt.present ? refundedAt.value : this.refundedAt,
+    notes: notes.present ? notes.value : this.notes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  CreditNote copyWithCompanion(CreditNotesCompanion data) {
+    return CreditNote(
+      id: data.id.present ? data.id.value : this.id,
+      creditNoteNumber: data.creditNoteNumber.present
+          ? data.creditNoteNumber.value
+          : this.creditNoteNumber,
+      invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
+      customerId: data.customerId.present
+          ? data.customerId.value
+          : this.customerId,
+      customerName: data.customerName.present
+          ? data.customerName.value
+          : this.customerName,
+      creditNoteDate: data.creditNoteDate.present
+          ? data.creditNoteDate.value
+          : this.creditNoteDate,
+      reason: data.reason.present ? data.reason.value : this.reason,
+      taxType: data.taxType.present ? data.taxType.value : this.taxType,
+      subtotalMinor: data.subtotalMinor.present
+          ? data.subtotalMinor.value
+          : this.subtotalMinor,
+      itemDiscountMinor: data.itemDiscountMinor.present
+          ? data.itemDiscountMinor.value
+          : this.itemDiscountMinor,
+      taxableMinor: data.taxableMinor.present
+          ? data.taxableMinor.value
+          : this.taxableMinor,
+      taxMinor: data.taxMinor.present ? data.taxMinor.value : this.taxMinor,
+      cgstMinor: data.cgstMinor.present ? data.cgstMinor.value : this.cgstMinor,
+      sgstMinor: data.sgstMinor.present ? data.sgstMinor.value : this.sgstMinor,
+      igstMinor: data.igstMinor.present ? data.igstMinor.value : this.igstMinor,
+      roundOffMinor: data.roundOffMinor.present
+          ? data.roundOffMinor.value
+          : this.roundOffMinor,
+      grandTotalMinor: data.grandTotalMinor.present
+          ? data.grandTotalMinor.value
+          : this.grandTotalMinor,
+      refundedMinor: data.refundedMinor.present
+          ? data.refundedMinor.value
+          : this.refundedMinor,
+      refundMethod: data.refundMethod.present
+          ? data.refundMethod.value
+          : this.refundMethod,
+      refundedAt: data.refundedAt.present
+          ? data.refundedAt.value
+          : this.refundedAt,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CreditNote(')
+          ..write('id: $id, ')
+          ..write('creditNoteNumber: $creditNoteNumber, ')
+          ..write('invoiceId: $invoiceId, ')
+          ..write('customerId: $customerId, ')
+          ..write('customerName: $customerName, ')
+          ..write('creditNoteDate: $creditNoteDate, ')
+          ..write('reason: $reason, ')
+          ..write('taxType: $taxType, ')
+          ..write('subtotalMinor: $subtotalMinor, ')
+          ..write('itemDiscountMinor: $itemDiscountMinor, ')
+          ..write('taxableMinor: $taxableMinor, ')
+          ..write('taxMinor: $taxMinor, ')
+          ..write('cgstMinor: $cgstMinor, ')
+          ..write('sgstMinor: $sgstMinor, ')
+          ..write('igstMinor: $igstMinor, ')
+          ..write('roundOffMinor: $roundOffMinor, ')
+          ..write('grandTotalMinor: $grandTotalMinor, ')
+          ..write('refundedMinor: $refundedMinor, ')
+          ..write('refundMethod: $refundMethod, ')
+          ..write('refundedAt: $refundedAt, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    creditNoteNumber,
+    invoiceId,
+    customerId,
+    customerName,
+    creditNoteDate,
+    reason,
+    taxType,
+    subtotalMinor,
+    itemDiscountMinor,
+    taxableMinor,
+    taxMinor,
+    cgstMinor,
+    sgstMinor,
+    igstMinor,
+    roundOffMinor,
+    grandTotalMinor,
+    refundedMinor,
+    refundMethod,
+    refundedAt,
+    notes,
+    createdAt,
+    updatedAt,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CreditNote &&
+          other.id == this.id &&
+          other.creditNoteNumber == this.creditNoteNumber &&
+          other.invoiceId == this.invoiceId &&
+          other.customerId == this.customerId &&
+          other.customerName == this.customerName &&
+          other.creditNoteDate == this.creditNoteDate &&
+          other.reason == this.reason &&
+          other.taxType == this.taxType &&
+          other.subtotalMinor == this.subtotalMinor &&
+          other.itemDiscountMinor == this.itemDiscountMinor &&
+          other.taxableMinor == this.taxableMinor &&
+          other.taxMinor == this.taxMinor &&
+          other.cgstMinor == this.cgstMinor &&
+          other.sgstMinor == this.sgstMinor &&
+          other.igstMinor == this.igstMinor &&
+          other.roundOffMinor == this.roundOffMinor &&
+          other.grandTotalMinor == this.grandTotalMinor &&
+          other.refundedMinor == this.refundedMinor &&
+          other.refundMethod == this.refundMethod &&
+          other.refundedAt == this.refundedAt &&
+          other.notes == this.notes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CreditNotesCompanion extends UpdateCompanion<CreditNote> {
+  final Value<int> id;
+  final Value<String> creditNoteNumber;
+  final Value<int> invoiceId;
+  final Value<int?> customerId;
+  final Value<String> customerName;
+  final Value<DateTime> creditNoteDate;
+  final Value<String> reason;
+  final Value<String> taxType;
+  final Value<int> subtotalMinor;
+  final Value<int> itemDiscountMinor;
+  final Value<int> taxableMinor;
+  final Value<int> taxMinor;
+  final Value<int> cgstMinor;
+  final Value<int> sgstMinor;
+  final Value<int> igstMinor;
+  final Value<int> roundOffMinor;
+  final Value<int> grandTotalMinor;
+  final Value<int> refundedMinor;
+  final Value<String?> refundMethod;
+  final Value<DateTime?> refundedAt;
+  final Value<String?> notes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const CreditNotesCompanion({
+    this.id = const Value.absent(),
+    this.creditNoteNumber = const Value.absent(),
+    this.invoiceId = const Value.absent(),
+    this.customerId = const Value.absent(),
+    this.customerName = const Value.absent(),
+    this.creditNoteDate = const Value.absent(),
+    this.reason = const Value.absent(),
+    this.taxType = const Value.absent(),
+    this.subtotalMinor = const Value.absent(),
+    this.itemDiscountMinor = const Value.absent(),
+    this.taxableMinor = const Value.absent(),
+    this.taxMinor = const Value.absent(),
+    this.cgstMinor = const Value.absent(),
+    this.sgstMinor = const Value.absent(),
+    this.igstMinor = const Value.absent(),
+    this.roundOffMinor = const Value.absent(),
+    this.grandTotalMinor = const Value.absent(),
+    this.refundedMinor = const Value.absent(),
+    this.refundMethod = const Value.absent(),
+    this.refundedAt = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  CreditNotesCompanion.insert({
+    this.id = const Value.absent(),
+    required String creditNoteNumber,
+    required int invoiceId,
+    this.customerId = const Value.absent(),
+    required String customerName,
+    required DateTime creditNoteDate,
+    required String reason,
+    required String taxType,
+    required int subtotalMinor,
+    this.itemDiscountMinor = const Value.absent(),
+    required int taxableMinor,
+    required int taxMinor,
+    required int cgstMinor,
+    required int sgstMinor,
+    required int igstMinor,
+    this.roundOffMinor = const Value.absent(),
+    required int grandTotalMinor,
+    this.refundedMinor = const Value.absent(),
+    this.refundMethod = const Value.absent(),
+    this.refundedAt = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : creditNoteNumber = Value(creditNoteNumber),
+       invoiceId = Value(invoiceId),
+       customerName = Value(customerName),
+       creditNoteDate = Value(creditNoteDate),
+       reason = Value(reason),
+       taxType = Value(taxType),
+       subtotalMinor = Value(subtotalMinor),
+       taxableMinor = Value(taxableMinor),
+       taxMinor = Value(taxMinor),
+       cgstMinor = Value(cgstMinor),
+       sgstMinor = Value(sgstMinor),
+       igstMinor = Value(igstMinor),
+       grandTotalMinor = Value(grandTotalMinor);
+  static Insertable<CreditNote> custom({
+    Expression<int>? id,
+    Expression<String>? creditNoteNumber,
+    Expression<int>? invoiceId,
+    Expression<int>? customerId,
+    Expression<String>? customerName,
+    Expression<DateTime>? creditNoteDate,
+    Expression<String>? reason,
+    Expression<String>? taxType,
+    Expression<int>? subtotalMinor,
+    Expression<int>? itemDiscountMinor,
+    Expression<int>? taxableMinor,
+    Expression<int>? taxMinor,
+    Expression<int>? cgstMinor,
+    Expression<int>? sgstMinor,
+    Expression<int>? igstMinor,
+    Expression<int>? roundOffMinor,
+    Expression<int>? grandTotalMinor,
+    Expression<int>? refundedMinor,
+    Expression<String>? refundMethod,
+    Expression<DateTime>? refundedAt,
+    Expression<String>? notes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (creditNoteNumber != null) 'credit_note_number': creditNoteNumber,
+      if (invoiceId != null) 'invoice_id': invoiceId,
+      if (customerId != null) 'customer_id': customerId,
+      if (customerName != null) 'customer_name': customerName,
+      if (creditNoteDate != null) 'credit_note_date': creditNoteDate,
+      if (reason != null) 'reason': reason,
+      if (taxType != null) 'tax_type': taxType,
+      if (subtotalMinor != null) 'subtotal_minor': subtotalMinor,
+      if (itemDiscountMinor != null) 'item_discount_minor': itemDiscountMinor,
+      if (taxableMinor != null) 'taxable_minor': taxableMinor,
+      if (taxMinor != null) 'tax_minor': taxMinor,
+      if (cgstMinor != null) 'cgst_minor': cgstMinor,
+      if (sgstMinor != null) 'sgst_minor': sgstMinor,
+      if (igstMinor != null) 'igst_minor': igstMinor,
+      if (roundOffMinor != null) 'round_off_minor': roundOffMinor,
+      if (grandTotalMinor != null) 'grand_total_minor': grandTotalMinor,
+      if (refundedMinor != null) 'refunded_minor': refundedMinor,
+      if (refundMethod != null) 'refund_method': refundMethod,
+      if (refundedAt != null) 'refunded_at': refundedAt,
+      if (notes != null) 'notes': notes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  CreditNotesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? creditNoteNumber,
+    Value<int>? invoiceId,
+    Value<int?>? customerId,
+    Value<String>? customerName,
+    Value<DateTime>? creditNoteDate,
+    Value<String>? reason,
+    Value<String>? taxType,
+    Value<int>? subtotalMinor,
+    Value<int>? itemDiscountMinor,
+    Value<int>? taxableMinor,
+    Value<int>? taxMinor,
+    Value<int>? cgstMinor,
+    Value<int>? sgstMinor,
+    Value<int>? igstMinor,
+    Value<int>? roundOffMinor,
+    Value<int>? grandTotalMinor,
+    Value<int>? refundedMinor,
+    Value<String?>? refundMethod,
+    Value<DateTime?>? refundedAt,
+    Value<String?>? notes,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return CreditNotesCompanion(
+      id: id ?? this.id,
+      creditNoteNumber: creditNoteNumber ?? this.creditNoteNumber,
+      invoiceId: invoiceId ?? this.invoiceId,
+      customerId: customerId ?? this.customerId,
+      customerName: customerName ?? this.customerName,
+      creditNoteDate: creditNoteDate ?? this.creditNoteDate,
+      reason: reason ?? this.reason,
+      taxType: taxType ?? this.taxType,
+      subtotalMinor: subtotalMinor ?? this.subtotalMinor,
+      itemDiscountMinor: itemDiscountMinor ?? this.itemDiscountMinor,
+      taxableMinor: taxableMinor ?? this.taxableMinor,
+      taxMinor: taxMinor ?? this.taxMinor,
+      cgstMinor: cgstMinor ?? this.cgstMinor,
+      sgstMinor: sgstMinor ?? this.sgstMinor,
+      igstMinor: igstMinor ?? this.igstMinor,
+      roundOffMinor: roundOffMinor ?? this.roundOffMinor,
+      grandTotalMinor: grandTotalMinor ?? this.grandTotalMinor,
+      refundedMinor: refundedMinor ?? this.refundedMinor,
+      refundMethod: refundMethod ?? this.refundMethod,
+      refundedAt: refundedAt ?? this.refundedAt,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (creditNoteNumber.present) {
+      map['credit_note_number'] = Variable<String>(creditNoteNumber.value);
+    }
+    if (invoiceId.present) {
+      map['invoice_id'] = Variable<int>(invoiceId.value);
+    }
+    if (customerId.present) {
+      map['customer_id'] = Variable<int>(customerId.value);
+    }
+    if (customerName.present) {
+      map['customer_name'] = Variable<String>(customerName.value);
+    }
+    if (creditNoteDate.present) {
+      map['credit_note_date'] = Variable<DateTime>(creditNoteDate.value);
+    }
+    if (reason.present) {
+      map['reason'] = Variable<String>(reason.value);
+    }
+    if (taxType.present) {
+      map['tax_type'] = Variable<String>(taxType.value);
+    }
+    if (subtotalMinor.present) {
+      map['subtotal_minor'] = Variable<int>(subtotalMinor.value);
+    }
+    if (itemDiscountMinor.present) {
+      map['item_discount_minor'] = Variable<int>(itemDiscountMinor.value);
+    }
+    if (taxableMinor.present) {
+      map['taxable_minor'] = Variable<int>(taxableMinor.value);
+    }
+    if (taxMinor.present) {
+      map['tax_minor'] = Variable<int>(taxMinor.value);
+    }
+    if (cgstMinor.present) {
+      map['cgst_minor'] = Variable<int>(cgstMinor.value);
+    }
+    if (sgstMinor.present) {
+      map['sgst_minor'] = Variable<int>(sgstMinor.value);
+    }
+    if (igstMinor.present) {
+      map['igst_minor'] = Variable<int>(igstMinor.value);
+    }
+    if (roundOffMinor.present) {
+      map['round_off_minor'] = Variable<int>(roundOffMinor.value);
+    }
+    if (grandTotalMinor.present) {
+      map['grand_total_minor'] = Variable<int>(grandTotalMinor.value);
+    }
+    if (refundedMinor.present) {
+      map['refunded_minor'] = Variable<int>(refundedMinor.value);
+    }
+    if (refundMethod.present) {
+      map['refund_method'] = Variable<String>(refundMethod.value);
+    }
+    if (refundedAt.present) {
+      map['refunded_at'] = Variable<DateTime>(refundedAt.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CreditNotesCompanion(')
+          ..write('id: $id, ')
+          ..write('creditNoteNumber: $creditNoteNumber, ')
+          ..write('invoiceId: $invoiceId, ')
+          ..write('customerId: $customerId, ')
+          ..write('customerName: $customerName, ')
+          ..write('creditNoteDate: $creditNoteDate, ')
+          ..write('reason: $reason, ')
+          ..write('taxType: $taxType, ')
+          ..write('subtotalMinor: $subtotalMinor, ')
+          ..write('itemDiscountMinor: $itemDiscountMinor, ')
+          ..write('taxableMinor: $taxableMinor, ')
+          ..write('taxMinor: $taxMinor, ')
+          ..write('cgstMinor: $cgstMinor, ')
+          ..write('sgstMinor: $sgstMinor, ')
+          ..write('igstMinor: $igstMinor, ')
+          ..write('roundOffMinor: $roundOffMinor, ')
+          ..write('grandTotalMinor: $grandTotalMinor, ')
+          ..write('refundedMinor: $refundedMinor, ')
+          ..write('refundMethod: $refundMethod, ')
+          ..write('refundedAt: $refundedAt, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CreditNoteItemsTable extends CreditNoteItems
+    with TableInfo<$CreditNoteItemsTable, CreditNoteItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CreditNoteItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _creditNoteIdMeta = const VerificationMeta(
+    'creditNoteId',
+  );
+  @override
+  late final GeneratedColumn<int> creditNoteId = GeneratedColumn<int>(
+    'credit_note_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES credit_notes (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _invoiceItemIdMeta = const VerificationMeta(
+    'invoiceItemId',
+  );
+  @override
+  late final GeneratedColumn<int> invoiceItemId = GeneratedColumn<int>(
+    'invoice_item_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _quantityScaledMeta = const VerificationMeta(
+    'quantityScaled',
+  );
+  @override
+  late final GeneratedColumn<int> quantityScaled = GeneratedColumn<int>(
+    'quantity_scaled',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rateMinorMeta = const VerificationMeta(
+    'rateMinor',
+  );
+  @override
+  late final GeneratedColumn<int> rateMinor = GeneratedColumn<int>(
+    'rate_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hsnSacMeta = const VerificationMeta('hsnSac');
+  @override
+  late final GeneratedColumn<String> hsnSac = GeneratedColumn<String>(
+    'hsn_sac',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _taxRateBasisPointsMeta =
+      const VerificationMeta('taxRateBasisPoints');
+  @override
+  late final GeneratedColumn<int> taxRateBasisPoints = GeneratedColumn<int>(
+    'tax_rate_basis_points',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _discountTypeMeta = const VerificationMeta(
+    'discountType',
+  );
+  @override
+  late final GeneratedColumn<String> discountType = GeneratedColumn<String>(
+    'discount_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _discountValueMeta = const VerificationMeta(
+    'discountValue',
+  );
+  @override
+  late final GeneratedColumn<int> discountValue = GeneratedColumn<int>(
+    'discount_value',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _baseAmountMinorMeta = const VerificationMeta(
+    'baseAmountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> baseAmountMinor = GeneratedColumn<int>(
+    'base_amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _discountAmountMinorMeta =
+      const VerificationMeta('discountAmountMinor');
+  @override
+  late final GeneratedColumn<int> discountAmountMinor = GeneratedColumn<int>(
+    'discount_amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taxableAmountMinorMeta =
+      const VerificationMeta('taxableAmountMinor');
+  @override
+  late final GeneratedColumn<int> taxableAmountMinor = GeneratedColumn<int>(
+    'taxable_amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taxAmountMinorMeta = const VerificationMeta(
+    'taxAmountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> taxAmountMinor = GeneratedColumn<int>(
+    'tax_amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalMinorMeta = const VerificationMeta(
+    'totalMinor',
+  );
+  @override
+  late final GeneratedColumn<int> totalMinor = GeneratedColumn<int>(
+    'total_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    creditNoteId,
+    invoiceItemId,
+    name,
+    description,
+    quantityScaled,
+    unit,
+    rateMinor,
+    hsnSac,
+    taxRateBasisPoints,
+    discountType,
+    discountValue,
+    baseAmountMinor,
+    discountAmountMinor,
+    taxableAmountMinor,
+    taxAmountMinor,
+    totalMinor,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'credit_note_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CreditNoteItem> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('credit_note_id')) {
+      context.handle(
+        _creditNoteIdMeta,
+        creditNoteId.isAcceptableOrUnknown(
+          data['credit_note_id']!,
+          _creditNoteIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_creditNoteIdMeta);
+    }
+    if (data.containsKey('invoice_item_id')) {
+      context.handle(
+        _invoiceItemIdMeta,
+        invoiceItemId.isAcceptableOrUnknown(
+          data['invoice_item_id']!,
+          _invoiceItemIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('quantity_scaled')) {
+      context.handle(
+        _quantityScaledMeta,
+        quantityScaled.isAcceptableOrUnknown(
+          data['quantity_scaled']!,
+          _quantityScaledMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_quantityScaledMeta);
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_unitMeta);
+    }
+    if (data.containsKey('rate_minor')) {
+      context.handle(
+        _rateMinorMeta,
+        rateMinor.isAcceptableOrUnknown(data['rate_minor']!, _rateMinorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rateMinorMeta);
+    }
+    if (data.containsKey('hsn_sac')) {
+      context.handle(
+        _hsnSacMeta,
+        hsnSac.isAcceptableOrUnknown(data['hsn_sac']!, _hsnSacMeta),
+      );
+    }
+    if (data.containsKey('tax_rate_basis_points')) {
+      context.handle(
+        _taxRateBasisPointsMeta,
+        taxRateBasisPoints.isAcceptableOrUnknown(
+          data['tax_rate_basis_points']!,
+          _taxRateBasisPointsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_taxRateBasisPointsMeta);
+    }
+    if (data.containsKey('discount_type')) {
+      context.handle(
+        _discountTypeMeta,
+        discountType.isAcceptableOrUnknown(
+          data['discount_type']!,
+          _discountTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_discountTypeMeta);
+    }
+    if (data.containsKey('discount_value')) {
+      context.handle(
+        _discountValueMeta,
+        discountValue.isAcceptableOrUnknown(
+          data['discount_value']!,
+          _discountValueMeta,
+        ),
+      );
+    }
+    if (data.containsKey('base_amount_minor')) {
+      context.handle(
+        _baseAmountMinorMeta,
+        baseAmountMinor.isAcceptableOrUnknown(
+          data['base_amount_minor']!,
+          _baseAmountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_baseAmountMinorMeta);
+    }
+    if (data.containsKey('discount_amount_minor')) {
+      context.handle(
+        _discountAmountMinorMeta,
+        discountAmountMinor.isAcceptableOrUnknown(
+          data['discount_amount_minor']!,
+          _discountAmountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_discountAmountMinorMeta);
+    }
+    if (data.containsKey('taxable_amount_minor')) {
+      context.handle(
+        _taxableAmountMinorMeta,
+        taxableAmountMinor.isAcceptableOrUnknown(
+          data['taxable_amount_minor']!,
+          _taxableAmountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_taxableAmountMinorMeta);
+    }
+    if (data.containsKey('tax_amount_minor')) {
+      context.handle(
+        _taxAmountMinorMeta,
+        taxAmountMinor.isAcceptableOrUnknown(
+          data['tax_amount_minor']!,
+          _taxAmountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_taxAmountMinorMeta);
+    }
+    if (data.containsKey('total_minor')) {
+      context.handle(
+        _totalMinorMeta,
+        totalMinor.isAcceptableOrUnknown(data['total_minor']!, _totalMinorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_totalMinorMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CreditNoteItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CreditNoteItem(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      creditNoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}credit_note_id'],
+      )!,
+      invoiceItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}invoice_item_id'],
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      quantityScaled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}quantity_scaled'],
+      )!,
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      )!,
+      rateMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rate_minor'],
+      )!,
+      hsnSac: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hsn_sac'],
+      ),
+      taxRateBasisPoints: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tax_rate_basis_points'],
+      )!,
+      discountType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}discount_type'],
+      )!,
+      discountValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}discount_value'],
+      )!,
+      baseAmountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}base_amount_minor'],
+      )!,
+      discountAmountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}discount_amount_minor'],
+      )!,
+      taxableAmountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}taxable_amount_minor'],
+      )!,
+      taxAmountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tax_amount_minor'],
+      )!,
+      totalMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_minor'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $CreditNoteItemsTable createAlias(String alias) {
+    return $CreditNoteItemsTable(attachedDatabase, alias);
+  }
+}
+
+class CreditNoteItem extends DataClass implements Insertable<CreditNoteItem> {
+  final int id;
+  final int creditNoteId;
+  final int? invoiceItemId;
+  final String name;
+  final String? description;
+  final int quantityScaled;
+  final String unit;
+  final int rateMinor;
+  final String? hsnSac;
+  final int taxRateBasisPoints;
+  final String discountType;
+  final int discountValue;
+  final int baseAmountMinor;
+  final int discountAmountMinor;
+  final int taxableAmountMinor;
+  final int taxAmountMinor;
+  final int totalMinor;
+  final int sortOrder;
+  const CreditNoteItem({
+    required this.id,
+    required this.creditNoteId,
+    this.invoiceItemId,
+    required this.name,
+    this.description,
+    required this.quantityScaled,
+    required this.unit,
+    required this.rateMinor,
+    this.hsnSac,
+    required this.taxRateBasisPoints,
+    required this.discountType,
+    required this.discountValue,
+    required this.baseAmountMinor,
+    required this.discountAmountMinor,
+    required this.taxableAmountMinor,
+    required this.taxAmountMinor,
+    required this.totalMinor,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['credit_note_id'] = Variable<int>(creditNoteId);
+    if (!nullToAbsent || invoiceItemId != null) {
+      map['invoice_item_id'] = Variable<int>(invoiceItemId);
+    }
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['quantity_scaled'] = Variable<int>(quantityScaled);
+    map['unit'] = Variable<String>(unit);
+    map['rate_minor'] = Variable<int>(rateMinor);
+    if (!nullToAbsent || hsnSac != null) {
+      map['hsn_sac'] = Variable<String>(hsnSac);
+    }
+    map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints);
+    map['discount_type'] = Variable<String>(discountType);
+    map['discount_value'] = Variable<int>(discountValue);
+    map['base_amount_minor'] = Variable<int>(baseAmountMinor);
+    map['discount_amount_minor'] = Variable<int>(discountAmountMinor);
+    map['taxable_amount_minor'] = Variable<int>(taxableAmountMinor);
+    map['tax_amount_minor'] = Variable<int>(taxAmountMinor);
+    map['total_minor'] = Variable<int>(totalMinor);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  CreditNoteItemsCompanion toCompanion(bool nullToAbsent) {
+    return CreditNoteItemsCompanion(
+      id: Value(id),
+      creditNoteId: Value(creditNoteId),
+      invoiceItemId: invoiceItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(invoiceItemId),
+      name: Value(name),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      quantityScaled: Value(quantityScaled),
+      unit: Value(unit),
+      rateMinor: Value(rateMinor),
+      hsnSac: hsnSac == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hsnSac),
+      taxRateBasisPoints: Value(taxRateBasisPoints),
+      discountType: Value(discountType),
+      discountValue: Value(discountValue),
+      baseAmountMinor: Value(baseAmountMinor),
+      discountAmountMinor: Value(discountAmountMinor),
+      taxableAmountMinor: Value(taxableAmountMinor),
+      taxAmountMinor: Value(taxAmountMinor),
+      totalMinor: Value(totalMinor),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory CreditNoteItem.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CreditNoteItem(
+      id: serializer.fromJson<int>(json['id']),
+      creditNoteId: serializer.fromJson<int>(json['creditNoteId']),
+      invoiceItemId: serializer.fromJson<int?>(json['invoiceItemId']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String?>(json['description']),
+      quantityScaled: serializer.fromJson<int>(json['quantityScaled']),
+      unit: serializer.fromJson<String>(json['unit']),
+      rateMinor: serializer.fromJson<int>(json['rateMinor']),
+      hsnSac: serializer.fromJson<String?>(json['hsnSac']),
+      taxRateBasisPoints: serializer.fromJson<int>(json['taxRateBasisPoints']),
+      discountType: serializer.fromJson<String>(json['discountType']),
+      discountValue: serializer.fromJson<int>(json['discountValue']),
+      baseAmountMinor: serializer.fromJson<int>(json['baseAmountMinor']),
+      discountAmountMinor: serializer.fromJson<int>(
+        json['discountAmountMinor'],
+      ),
+      taxableAmountMinor: serializer.fromJson<int>(json['taxableAmountMinor']),
+      taxAmountMinor: serializer.fromJson<int>(json['taxAmountMinor']),
+      totalMinor: serializer.fromJson<int>(json['totalMinor']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'creditNoteId': serializer.toJson<int>(creditNoteId),
+      'invoiceItemId': serializer.toJson<int?>(invoiceItemId),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String?>(description),
+      'quantityScaled': serializer.toJson<int>(quantityScaled),
+      'unit': serializer.toJson<String>(unit),
+      'rateMinor': serializer.toJson<int>(rateMinor),
+      'hsnSac': serializer.toJson<String?>(hsnSac),
+      'taxRateBasisPoints': serializer.toJson<int>(taxRateBasisPoints),
+      'discountType': serializer.toJson<String>(discountType),
+      'discountValue': serializer.toJson<int>(discountValue),
+      'baseAmountMinor': serializer.toJson<int>(baseAmountMinor),
+      'discountAmountMinor': serializer.toJson<int>(discountAmountMinor),
+      'taxableAmountMinor': serializer.toJson<int>(taxableAmountMinor),
+      'taxAmountMinor': serializer.toJson<int>(taxAmountMinor),
+      'totalMinor': serializer.toJson<int>(totalMinor),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  CreditNoteItem copyWith({
+    int? id,
+    int? creditNoteId,
+    Value<int?> invoiceItemId = const Value.absent(),
+    String? name,
+    Value<String?> description = const Value.absent(),
+    int? quantityScaled,
+    String? unit,
+    int? rateMinor,
+    Value<String?> hsnSac = const Value.absent(),
+    int? taxRateBasisPoints,
+    String? discountType,
+    int? discountValue,
+    int? baseAmountMinor,
+    int? discountAmountMinor,
+    int? taxableAmountMinor,
+    int? taxAmountMinor,
+    int? totalMinor,
+    int? sortOrder,
+  }) => CreditNoteItem(
+    id: id ?? this.id,
+    creditNoteId: creditNoteId ?? this.creditNoteId,
+    invoiceItemId: invoiceItemId.present
+        ? invoiceItemId.value
+        : this.invoiceItemId,
+    name: name ?? this.name,
+    description: description.present ? description.value : this.description,
+    quantityScaled: quantityScaled ?? this.quantityScaled,
+    unit: unit ?? this.unit,
+    rateMinor: rateMinor ?? this.rateMinor,
+    hsnSac: hsnSac.present ? hsnSac.value : this.hsnSac,
+    taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+    discountType: discountType ?? this.discountType,
+    discountValue: discountValue ?? this.discountValue,
+    baseAmountMinor: baseAmountMinor ?? this.baseAmountMinor,
+    discountAmountMinor: discountAmountMinor ?? this.discountAmountMinor,
+    taxableAmountMinor: taxableAmountMinor ?? this.taxableAmountMinor,
+    taxAmountMinor: taxAmountMinor ?? this.taxAmountMinor,
+    totalMinor: totalMinor ?? this.totalMinor,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  CreditNoteItem copyWithCompanion(CreditNoteItemsCompanion data) {
+    return CreditNoteItem(
+      id: data.id.present ? data.id.value : this.id,
+      creditNoteId: data.creditNoteId.present
+          ? data.creditNoteId.value
+          : this.creditNoteId,
+      invoiceItemId: data.invoiceItemId.present
+          ? data.invoiceItemId.value
+          : this.invoiceItemId,
+      name: data.name.present ? data.name.value : this.name,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      quantityScaled: data.quantityScaled.present
+          ? data.quantityScaled.value
+          : this.quantityScaled,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      rateMinor: data.rateMinor.present ? data.rateMinor.value : this.rateMinor,
+      hsnSac: data.hsnSac.present ? data.hsnSac.value : this.hsnSac,
+      taxRateBasisPoints: data.taxRateBasisPoints.present
+          ? data.taxRateBasisPoints.value
+          : this.taxRateBasisPoints,
+      discountType: data.discountType.present
+          ? data.discountType.value
+          : this.discountType,
+      discountValue: data.discountValue.present
+          ? data.discountValue.value
+          : this.discountValue,
+      baseAmountMinor: data.baseAmountMinor.present
+          ? data.baseAmountMinor.value
+          : this.baseAmountMinor,
+      discountAmountMinor: data.discountAmountMinor.present
+          ? data.discountAmountMinor.value
+          : this.discountAmountMinor,
+      taxableAmountMinor: data.taxableAmountMinor.present
+          ? data.taxableAmountMinor.value
+          : this.taxableAmountMinor,
+      taxAmountMinor: data.taxAmountMinor.present
+          ? data.taxAmountMinor.value
+          : this.taxAmountMinor,
+      totalMinor: data.totalMinor.present
+          ? data.totalMinor.value
+          : this.totalMinor,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CreditNoteItem(')
+          ..write('id: $id, ')
+          ..write('creditNoteId: $creditNoteId, ')
+          ..write('invoiceItemId: $invoiceItemId, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('quantityScaled: $quantityScaled, ')
+          ..write('unit: $unit, ')
+          ..write('rateMinor: $rateMinor, ')
+          ..write('hsnSac: $hsnSac, ')
+          ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('discountType: $discountType, ')
+          ..write('discountValue: $discountValue, ')
+          ..write('baseAmountMinor: $baseAmountMinor, ')
+          ..write('discountAmountMinor: $discountAmountMinor, ')
+          ..write('taxableAmountMinor: $taxableAmountMinor, ')
+          ..write('taxAmountMinor: $taxAmountMinor, ')
+          ..write('totalMinor: $totalMinor, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    creditNoteId,
+    invoiceItemId,
+    name,
+    description,
+    quantityScaled,
+    unit,
+    rateMinor,
+    hsnSac,
+    taxRateBasisPoints,
+    discountType,
+    discountValue,
+    baseAmountMinor,
+    discountAmountMinor,
+    taxableAmountMinor,
+    taxAmountMinor,
+    totalMinor,
+    sortOrder,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CreditNoteItem &&
+          other.id == this.id &&
+          other.creditNoteId == this.creditNoteId &&
+          other.invoiceItemId == this.invoiceItemId &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.quantityScaled == this.quantityScaled &&
+          other.unit == this.unit &&
+          other.rateMinor == this.rateMinor &&
+          other.hsnSac == this.hsnSac &&
+          other.taxRateBasisPoints == this.taxRateBasisPoints &&
+          other.discountType == this.discountType &&
+          other.discountValue == this.discountValue &&
+          other.baseAmountMinor == this.baseAmountMinor &&
+          other.discountAmountMinor == this.discountAmountMinor &&
+          other.taxableAmountMinor == this.taxableAmountMinor &&
+          other.taxAmountMinor == this.taxAmountMinor &&
+          other.totalMinor == this.totalMinor &&
+          other.sortOrder == this.sortOrder);
+}
+
+class CreditNoteItemsCompanion extends UpdateCompanion<CreditNoteItem> {
+  final Value<int> id;
+  final Value<int> creditNoteId;
+  final Value<int?> invoiceItemId;
+  final Value<String> name;
+  final Value<String?> description;
+  final Value<int> quantityScaled;
+  final Value<String> unit;
+  final Value<int> rateMinor;
+  final Value<String?> hsnSac;
+  final Value<int> taxRateBasisPoints;
+  final Value<String> discountType;
+  final Value<int> discountValue;
+  final Value<int> baseAmountMinor;
+  final Value<int> discountAmountMinor;
+  final Value<int> taxableAmountMinor;
+  final Value<int> taxAmountMinor;
+  final Value<int> totalMinor;
+  final Value<int> sortOrder;
+  const CreditNoteItemsCompanion({
+    this.id = const Value.absent(),
+    this.creditNoteId = const Value.absent(),
+    this.invoiceItemId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.quantityScaled = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.rateMinor = const Value.absent(),
+    this.hsnSac = const Value.absent(),
+    this.taxRateBasisPoints = const Value.absent(),
+    this.discountType = const Value.absent(),
+    this.discountValue = const Value.absent(),
+    this.baseAmountMinor = const Value.absent(),
+    this.discountAmountMinor = const Value.absent(),
+    this.taxableAmountMinor = const Value.absent(),
+    this.taxAmountMinor = const Value.absent(),
+    this.totalMinor = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+  });
+  CreditNoteItemsCompanion.insert({
+    this.id = const Value.absent(),
+    required int creditNoteId,
+    this.invoiceItemId = const Value.absent(),
+    required String name,
+    this.description = const Value.absent(),
+    required int quantityScaled,
+    required String unit,
+    required int rateMinor,
+    this.hsnSac = const Value.absent(),
+    required int taxRateBasisPoints,
+    required String discountType,
+    this.discountValue = const Value.absent(),
+    required int baseAmountMinor,
+    required int discountAmountMinor,
+    required int taxableAmountMinor,
+    required int taxAmountMinor,
+    required int totalMinor,
+    required int sortOrder,
+  }) : creditNoteId = Value(creditNoteId),
+       name = Value(name),
+       quantityScaled = Value(quantityScaled),
+       unit = Value(unit),
+       rateMinor = Value(rateMinor),
+       taxRateBasisPoints = Value(taxRateBasisPoints),
+       discountType = Value(discountType),
+       baseAmountMinor = Value(baseAmountMinor),
+       discountAmountMinor = Value(discountAmountMinor),
+       taxableAmountMinor = Value(taxableAmountMinor),
+       taxAmountMinor = Value(taxAmountMinor),
+       totalMinor = Value(totalMinor),
+       sortOrder = Value(sortOrder);
+  static Insertable<CreditNoteItem> custom({
+    Expression<int>? id,
+    Expression<int>? creditNoteId,
+    Expression<int>? invoiceItemId,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<int>? quantityScaled,
+    Expression<String>? unit,
+    Expression<int>? rateMinor,
+    Expression<String>? hsnSac,
+    Expression<int>? taxRateBasisPoints,
+    Expression<String>? discountType,
+    Expression<int>? discountValue,
+    Expression<int>? baseAmountMinor,
+    Expression<int>? discountAmountMinor,
+    Expression<int>? taxableAmountMinor,
+    Expression<int>? taxAmountMinor,
+    Expression<int>? totalMinor,
+    Expression<int>? sortOrder,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (creditNoteId != null) 'credit_note_id': creditNoteId,
+      if (invoiceItemId != null) 'invoice_item_id': invoiceItemId,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (quantityScaled != null) 'quantity_scaled': quantityScaled,
+      if (unit != null) 'unit': unit,
+      if (rateMinor != null) 'rate_minor': rateMinor,
+      if (hsnSac != null) 'hsn_sac': hsnSac,
+      if (taxRateBasisPoints != null)
+        'tax_rate_basis_points': taxRateBasisPoints,
+      if (discountType != null) 'discount_type': discountType,
+      if (discountValue != null) 'discount_value': discountValue,
+      if (baseAmountMinor != null) 'base_amount_minor': baseAmountMinor,
+      if (discountAmountMinor != null)
+        'discount_amount_minor': discountAmountMinor,
+      if (taxableAmountMinor != null)
+        'taxable_amount_minor': taxableAmountMinor,
+      if (taxAmountMinor != null) 'tax_amount_minor': taxAmountMinor,
+      if (totalMinor != null) 'total_minor': totalMinor,
+      if (sortOrder != null) 'sort_order': sortOrder,
+    });
+  }
+
+  CreditNoteItemsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? creditNoteId,
+    Value<int?>? invoiceItemId,
+    Value<String>? name,
+    Value<String?>? description,
+    Value<int>? quantityScaled,
+    Value<String>? unit,
+    Value<int>? rateMinor,
+    Value<String?>? hsnSac,
+    Value<int>? taxRateBasisPoints,
+    Value<String>? discountType,
+    Value<int>? discountValue,
+    Value<int>? baseAmountMinor,
+    Value<int>? discountAmountMinor,
+    Value<int>? taxableAmountMinor,
+    Value<int>? taxAmountMinor,
+    Value<int>? totalMinor,
+    Value<int>? sortOrder,
+  }) {
+    return CreditNoteItemsCompanion(
+      id: id ?? this.id,
+      creditNoteId: creditNoteId ?? this.creditNoteId,
+      invoiceItemId: invoiceItemId ?? this.invoiceItemId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      quantityScaled: quantityScaled ?? this.quantityScaled,
+      unit: unit ?? this.unit,
+      rateMinor: rateMinor ?? this.rateMinor,
+      hsnSac: hsnSac ?? this.hsnSac,
+      taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+      discountType: discountType ?? this.discountType,
+      discountValue: discountValue ?? this.discountValue,
+      baseAmountMinor: baseAmountMinor ?? this.baseAmountMinor,
+      discountAmountMinor: discountAmountMinor ?? this.discountAmountMinor,
+      taxableAmountMinor: taxableAmountMinor ?? this.taxableAmountMinor,
+      taxAmountMinor: taxAmountMinor ?? this.taxAmountMinor,
+      totalMinor: totalMinor ?? this.totalMinor,
+      sortOrder: sortOrder ?? this.sortOrder,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (creditNoteId.present) {
+      map['credit_note_id'] = Variable<int>(creditNoteId.value);
+    }
+    if (invoiceItemId.present) {
+      map['invoice_item_id'] = Variable<int>(invoiceItemId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (quantityScaled.present) {
+      map['quantity_scaled'] = Variable<int>(quantityScaled.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (rateMinor.present) {
+      map['rate_minor'] = Variable<int>(rateMinor.value);
+    }
+    if (hsnSac.present) {
+      map['hsn_sac'] = Variable<String>(hsnSac.value);
+    }
+    if (taxRateBasisPoints.present) {
+      map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints.value);
+    }
+    if (discountType.present) {
+      map['discount_type'] = Variable<String>(discountType.value);
+    }
+    if (discountValue.present) {
+      map['discount_value'] = Variable<int>(discountValue.value);
+    }
+    if (baseAmountMinor.present) {
+      map['base_amount_minor'] = Variable<int>(baseAmountMinor.value);
+    }
+    if (discountAmountMinor.present) {
+      map['discount_amount_minor'] = Variable<int>(discountAmountMinor.value);
+    }
+    if (taxableAmountMinor.present) {
+      map['taxable_amount_minor'] = Variable<int>(taxableAmountMinor.value);
+    }
+    if (taxAmountMinor.present) {
+      map['tax_amount_minor'] = Variable<int>(taxAmountMinor.value);
+    }
+    if (totalMinor.present) {
+      map['total_minor'] = Variable<int>(totalMinor.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CreditNoteItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('creditNoteId: $creditNoteId, ')
+          ..write('invoiceItemId: $invoiceItemId, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('quantityScaled: $quantityScaled, ')
+          ..write('unit: $unit, ')
+          ..write('rateMinor: $rateMinor, ')
+          ..write('hsnSac: $hsnSac, ')
+          ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('discountType: $discountType, ')
+          ..write('discountValue: $discountValue, ')
+          ..write('baseAmountMinor: $baseAmountMinor, ')
+          ..write('discountAmountMinor: $discountAmountMinor, ')
+          ..write('taxableAmountMinor: $taxableAmountMinor, ')
+          ..write('taxAmountMinor: $taxAmountMinor, ')
+          ..write('totalMinor: $totalMinor, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CreditNoteApplicationsTable extends CreditNoteApplications
+    with TableInfo<$CreditNoteApplicationsTable, CreditNoteApplication> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CreditNoteApplicationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _creditNoteIdMeta = const VerificationMeta(
+    'creditNoteId',
+  );
+  @override
+  late final GeneratedColumn<int> creditNoteId = GeneratedColumn<int>(
+    'credit_note_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES credit_notes (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _invoiceIdMeta = const VerificationMeta(
+    'invoiceId',
+  );
+  @override
+  late final GeneratedColumn<int> invoiceId = GeneratedColumn<int>(
+    'invoice_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES invoices (id)',
+    ),
+  );
+  static const VerificationMeta _amountMinorMeta = const VerificationMeta(
+    'amountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> amountMinor = GeneratedColumn<int>(
+    'amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _appliedAtMeta = const VerificationMeta(
+    'appliedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> appliedAt = GeneratedColumn<DateTime>(
+    'applied_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    creditNoteId,
+    invoiceId,
+    amountMinor,
+    appliedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'credit_note_applications';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CreditNoteApplication> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('credit_note_id')) {
+      context.handle(
+        _creditNoteIdMeta,
+        creditNoteId.isAcceptableOrUnknown(
+          data['credit_note_id']!,
+          _creditNoteIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_creditNoteIdMeta);
+    }
+    if (data.containsKey('invoice_id')) {
+      context.handle(
+        _invoiceIdMeta,
+        invoiceId.isAcceptableOrUnknown(data['invoice_id']!, _invoiceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_invoiceIdMeta);
+    }
+    if (data.containsKey('amount_minor')) {
+      context.handle(
+        _amountMinorMeta,
+        amountMinor.isAcceptableOrUnknown(
+          data['amount_minor']!,
+          _amountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMinorMeta);
+    }
+    if (data.containsKey('applied_at')) {
+      context.handle(
+        _appliedAtMeta,
+        appliedAt.isAcceptableOrUnknown(data['applied_at']!, _appliedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_appliedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CreditNoteApplication map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CreditNoteApplication(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      creditNoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}credit_note_id'],
+      )!,
+      invoiceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}invoice_id'],
+      )!,
+      amountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount_minor'],
+      )!,
+      appliedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}applied_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CreditNoteApplicationsTable createAlias(String alias) {
+    return $CreditNoteApplicationsTable(attachedDatabase, alias);
+  }
+}
+
+class CreditNoteApplication extends DataClass
+    implements Insertable<CreditNoteApplication> {
+  final int id;
+  final int creditNoteId;
+  final int invoiceId;
+  final int amountMinor;
+  final DateTime appliedAt;
+  const CreditNoteApplication({
+    required this.id,
+    required this.creditNoteId,
+    required this.invoiceId,
+    required this.amountMinor,
+    required this.appliedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['credit_note_id'] = Variable<int>(creditNoteId);
+    map['invoice_id'] = Variable<int>(invoiceId);
+    map['amount_minor'] = Variable<int>(amountMinor);
+    map['applied_at'] = Variable<DateTime>(appliedAt);
+    return map;
+  }
+
+  CreditNoteApplicationsCompanion toCompanion(bool nullToAbsent) {
+    return CreditNoteApplicationsCompanion(
+      id: Value(id),
+      creditNoteId: Value(creditNoteId),
+      invoiceId: Value(invoiceId),
+      amountMinor: Value(amountMinor),
+      appliedAt: Value(appliedAt),
+    );
+  }
+
+  factory CreditNoteApplication.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CreditNoteApplication(
+      id: serializer.fromJson<int>(json['id']),
+      creditNoteId: serializer.fromJson<int>(json['creditNoteId']),
+      invoiceId: serializer.fromJson<int>(json['invoiceId']),
+      amountMinor: serializer.fromJson<int>(json['amountMinor']),
+      appliedAt: serializer.fromJson<DateTime>(json['appliedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'creditNoteId': serializer.toJson<int>(creditNoteId),
+      'invoiceId': serializer.toJson<int>(invoiceId),
+      'amountMinor': serializer.toJson<int>(amountMinor),
+      'appliedAt': serializer.toJson<DateTime>(appliedAt),
+    };
+  }
+
+  CreditNoteApplication copyWith({
+    int? id,
+    int? creditNoteId,
+    int? invoiceId,
+    int? amountMinor,
+    DateTime? appliedAt,
+  }) => CreditNoteApplication(
+    id: id ?? this.id,
+    creditNoteId: creditNoteId ?? this.creditNoteId,
+    invoiceId: invoiceId ?? this.invoiceId,
+    amountMinor: amountMinor ?? this.amountMinor,
+    appliedAt: appliedAt ?? this.appliedAt,
+  );
+  CreditNoteApplication copyWithCompanion(
+    CreditNoteApplicationsCompanion data,
+  ) {
+    return CreditNoteApplication(
+      id: data.id.present ? data.id.value : this.id,
+      creditNoteId: data.creditNoteId.present
+          ? data.creditNoteId.value
+          : this.creditNoteId,
+      invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
+      amountMinor: data.amountMinor.present
+          ? data.amountMinor.value
+          : this.amountMinor,
+      appliedAt: data.appliedAt.present ? data.appliedAt.value : this.appliedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CreditNoteApplication(')
+          ..write('id: $id, ')
+          ..write('creditNoteId: $creditNoteId, ')
+          ..write('invoiceId: $invoiceId, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('appliedAt: $appliedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, creditNoteId, invoiceId, amountMinor, appliedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CreditNoteApplication &&
+          other.id == this.id &&
+          other.creditNoteId == this.creditNoteId &&
+          other.invoiceId == this.invoiceId &&
+          other.amountMinor == this.amountMinor &&
+          other.appliedAt == this.appliedAt);
+}
+
+class CreditNoteApplicationsCompanion
+    extends UpdateCompanion<CreditNoteApplication> {
+  final Value<int> id;
+  final Value<int> creditNoteId;
+  final Value<int> invoiceId;
+  final Value<int> amountMinor;
+  final Value<DateTime> appliedAt;
+  const CreditNoteApplicationsCompanion({
+    this.id = const Value.absent(),
+    this.creditNoteId = const Value.absent(),
+    this.invoiceId = const Value.absent(),
+    this.amountMinor = const Value.absent(),
+    this.appliedAt = const Value.absent(),
+  });
+  CreditNoteApplicationsCompanion.insert({
+    this.id = const Value.absent(),
+    required int creditNoteId,
+    required int invoiceId,
+    required int amountMinor,
+    required DateTime appliedAt,
+  }) : creditNoteId = Value(creditNoteId),
+       invoiceId = Value(invoiceId),
+       amountMinor = Value(amountMinor),
+       appliedAt = Value(appliedAt);
+  static Insertable<CreditNoteApplication> custom({
+    Expression<int>? id,
+    Expression<int>? creditNoteId,
+    Expression<int>? invoiceId,
+    Expression<int>? amountMinor,
+    Expression<DateTime>? appliedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (creditNoteId != null) 'credit_note_id': creditNoteId,
+      if (invoiceId != null) 'invoice_id': invoiceId,
+      if (amountMinor != null) 'amount_minor': amountMinor,
+      if (appliedAt != null) 'applied_at': appliedAt,
+    });
+  }
+
+  CreditNoteApplicationsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? creditNoteId,
+    Value<int>? invoiceId,
+    Value<int>? amountMinor,
+    Value<DateTime>? appliedAt,
+  }) {
+    return CreditNoteApplicationsCompanion(
+      id: id ?? this.id,
+      creditNoteId: creditNoteId ?? this.creditNoteId,
+      invoiceId: invoiceId ?? this.invoiceId,
+      amountMinor: amountMinor ?? this.amountMinor,
+      appliedAt: appliedAt ?? this.appliedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (creditNoteId.present) {
+      map['credit_note_id'] = Variable<int>(creditNoteId.value);
+    }
+    if (invoiceId.present) {
+      map['invoice_id'] = Variable<int>(invoiceId.value);
+    }
+    if (amountMinor.present) {
+      map['amount_minor'] = Variable<int>(amountMinor.value);
+    }
+    if (appliedAt.present) {
+      map['applied_at'] = Variable<DateTime>(appliedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CreditNoteApplicationsCompanion(')
+          ..write('id: $id, ')
+          ..write('creditNoteId: $creditNoteId, ')
+          ..write('invoiceId: $invoiceId, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('appliedAt: $appliedAt')
           ..write(')'))
         .toString();
   }
@@ -10824,6 +13561,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $InvoicePaymentsTable invoicePayments = $InvoicePaymentsTable(
     this,
   );
+  late final $CreditNotesTable creditNotes = $CreditNotesTable(this);
+  late final $CreditNoteItemsTable creditNoteItems = $CreditNoteItemsTable(
+    this,
+  );
+  late final $CreditNoteApplicationsTable creditNoteApplications =
+      $CreditNoteApplicationsTable(this);
   late final $SuppliersTable suppliers = $SuppliersTable(this);
   late final $PurchaseBillsTable purchaseBills = $PurchaseBillsTable(this);
   late final $PurchaseItemsTable purchaseItems = $PurchaseItemsTable(this);
@@ -10864,6 +13607,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'invoice_payments_invoice',
     'CREATE INDEX invoice_payments_invoice ON invoice_payments (invoice_id)',
   );
+  late final Index creditNotesNumber = Index(
+    'credit_notes_number',
+    'CREATE UNIQUE INDEX credit_notes_number ON credit_notes (credit_note_number)',
+  );
+  late final Index creditNotesInvoice = Index(
+    'credit_notes_invoice',
+    'CREATE INDEX credit_notes_invoice ON credit_notes (invoice_id)',
+  );
+  late final Index creditNoteApplicationsNote = Index(
+    'credit_note_applications_note',
+    'CREATE INDEX credit_note_applications_note ON credit_note_applications (credit_note_id)',
+  );
+  late final Index creditNoteApplicationsInvoice = Index(
+    'credit_note_applications_invoice',
+    'CREATE INDEX credit_note_applications_invoice ON credit_note_applications (invoice_id)',
+  );
   late final Index suppliersName = Index(
     'suppliers_name',
     'CREATE INDEX suppliers_name ON suppliers (name)',
@@ -10885,6 +13644,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     invoiceItems,
     invoiceCharges,
     invoicePayments,
+    creditNotes,
+    creditNoteItems,
+    creditNoteApplications,
     suppliers,
     purchaseBills,
     purchaseItems,
@@ -10898,6 +13660,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     invoicesNumber,
     invoicesStatus,
     invoicePaymentsInvoice,
+    creditNotesNumber,
+    creditNotesInvoice,
+    creditNoteApplicationsNote,
+    creditNoteApplicationsInvoice,
     suppliersName,
     purchaseBillsNumber,
   ];
@@ -10923,6 +13689,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('invoice_payments', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'credit_notes',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('credit_note_items', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'credit_notes',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('credit_note_applications', kind: UpdateKind.delete),
+      ],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -12476,6 +15258,7 @@ typedef $$InvoicesTableCreateCompanionBuilder =
       required int roundOffMinor,
       required int grandTotalMinor,
       required int paidAmountMinor,
+      Value<int> creditedAmountMinor,
       required int balanceMinor,
       Value<String?> notes,
       Value<String?> terms,
@@ -12515,6 +15298,7 @@ typedef $$InvoicesTableUpdateCompanionBuilder =
       Value<int> roundOffMinor,
       Value<int> grandTotalMinor,
       Value<int> paidAmountMinor,
+      Value<int> creditedAmountMinor,
       Value<int> balanceMinor,
       Value<String?> notes,
       Value<String?> terms,
@@ -12576,6 +15360,49 @@ final class $$InvoicesTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _invoicePaymentsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$CreditNotesTable, List<CreditNote>>
+  _creditNotesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.creditNotes,
+    aliasName: 'invoices__id__credit_notes__invoice_id',
+  );
+
+  $$CreditNotesTableProcessedTableManager get creditNotesRefs {
+    final manager = $$CreditNotesTableTableManager(
+      $_db,
+      $_db.creditNotes,
+    ).filter((f) => f.invoiceId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_creditNotesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $CreditNoteApplicationsTable,
+    List<CreditNoteApplication>
+  >
+  _creditNoteApplicationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.creditNoteApplications,
+        aliasName: 'invoices__id__credit_note_applications__invoice_id',
+      );
+
+  $$CreditNoteApplicationsTableProcessedTableManager
+  get creditNoteApplicationsRefs {
+    final manager = $$CreditNoteApplicationsTableTableManager(
+      $_db,
+      $_db.creditNoteApplications,
+    ).filter((f) => f.invoiceId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _creditNoteApplicationsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -12747,6 +15574,11 @@ class $$InvoicesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get creditedAmountMinor => $composableBuilder(
+    column: $table.creditedAmountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get balanceMinor => $composableBuilder(
     column: $table.balanceMinor,
     builder: (column) => ColumnFilters(column),
@@ -12844,6 +15676,57 @@ class $$InvoicesTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> creditNotesRefs(
+    Expression<bool> Function($$CreditNotesTableFilterComposer f) f,
+  ) {
+    final $$CreditNotesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.creditNotes,
+      getReferencedColumn: (t) => t.invoiceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CreditNotesTableFilterComposer(
+            $db: $db,
+            $table: $db.creditNotes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> creditNoteApplicationsRefs(
+    Expression<bool> Function($$CreditNoteApplicationsTableFilterComposer f) f,
+  ) {
+    final $$CreditNoteApplicationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.creditNoteApplications,
+          getReferencedColumn: (t) => t.invoiceId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CreditNoteApplicationsTableFilterComposer(
+                $db: $db,
+                $table: $db.creditNoteApplications,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -13009,6 +15892,11 @@ class $$InvoicesTableOrderingComposer
 
   ColumnOrderings<int> get paidAmountMinor => $composableBuilder(
     column: $table.paidAmountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get creditedAmountMinor => $composableBuilder(
+    column: $table.creditedAmountMinor,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -13186,6 +16074,11 @@ class $$InvoicesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get creditedAmountMinor => $composableBuilder(
+    column: $table.creditedAmountMinor,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get balanceMinor => $composableBuilder(
     column: $table.balanceMinor,
     builder: (column) => column,
@@ -13277,6 +16170,57 @@ class $$InvoicesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> creditNotesRefs<T extends Object>(
+    Expression<T> Function($$CreditNotesTableAnnotationComposer a) f,
+  ) {
+    final $$CreditNotesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.creditNotes,
+      getReferencedColumn: (t) => t.invoiceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CreditNotesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.creditNotes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> creditNoteApplicationsRefs<T extends Object>(
+    Expression<T> Function($$CreditNoteApplicationsTableAnnotationComposer a) f,
+  ) {
+    final $$CreditNoteApplicationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.creditNoteApplications,
+          getReferencedColumn: (t) => t.invoiceId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CreditNoteApplicationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.creditNoteApplications,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$InvoicesTableTableManager
@@ -13296,6 +16240,8 @@ class $$InvoicesTableTableManager
             bool invoiceItemsRefs,
             bool invoiceChargesRefs,
             bool invoicePaymentsRefs,
+            bool creditNotesRefs,
+            bool creditNoteApplicationsRefs,
           })
         > {
   $$InvoicesTableTableManager(_$AppDatabase db, $InvoicesTable table)
@@ -13342,6 +16288,7 @@ class $$InvoicesTableTableManager
                 Value<int> roundOffMinor = const Value.absent(),
                 Value<int> grandTotalMinor = const Value.absent(),
                 Value<int> paidAmountMinor = const Value.absent(),
+                Value<int> creditedAmountMinor = const Value.absent(),
                 Value<int> balanceMinor = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String?> terms = const Value.absent(),
@@ -13379,6 +16326,7 @@ class $$InvoicesTableTableManager
                 roundOffMinor: roundOffMinor,
                 grandTotalMinor: grandTotalMinor,
                 paidAmountMinor: paidAmountMinor,
+                creditedAmountMinor: creditedAmountMinor,
                 balanceMinor: balanceMinor,
                 notes: notes,
                 terms: terms,
@@ -13418,6 +16366,7 @@ class $$InvoicesTableTableManager
                 required int roundOffMinor,
                 required int grandTotalMinor,
                 required int paidAmountMinor,
+                Value<int> creditedAmountMinor = const Value.absent(),
                 required int balanceMinor,
                 Value<String?> notes = const Value.absent(),
                 Value<String?> terms = const Value.absent(),
@@ -13455,6 +16404,7 @@ class $$InvoicesTableTableManager
                 roundOffMinor: roundOffMinor,
                 grandTotalMinor: grandTotalMinor,
                 paidAmountMinor: paidAmountMinor,
+                creditedAmountMinor: creditedAmountMinor,
                 balanceMinor: balanceMinor,
                 notes: notes,
                 terms: terms,
@@ -13474,6 +16424,8 @@ class $$InvoicesTableTableManager
                 invoiceItemsRefs = false,
                 invoiceChargesRefs = false,
                 invoicePaymentsRefs = false,
+                creditNotesRefs = false,
+                creditNoteApplicationsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -13481,6 +16433,8 @@ class $$InvoicesTableTableManager
                     if (invoiceItemsRefs) db.invoiceItems,
                     if (invoiceChargesRefs) db.invoiceCharges,
                     if (invoicePaymentsRefs) db.invoicePayments,
+                    if (creditNotesRefs) db.creditNotes,
+                    if (creditNoteApplicationsRefs) db.creditNoteApplications,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -13548,6 +16502,48 @@ class $$InvoicesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (creditNotesRefs)
+                        await $_getPrefetchedData<
+                          Invoice,
+                          $InvoicesTable,
+                          CreditNote
+                        >(
+                          currentTable: table,
+                          referencedTable: $$InvoicesTableReferences
+                              ._creditNotesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$InvoicesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).creditNotesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.invoiceId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (creditNoteApplicationsRefs)
+                        await $_getPrefetchedData<
+                          Invoice,
+                          $InvoicesTable,
+                          CreditNoteApplication
+                        >(
+                          currentTable: table,
+                          referencedTable: $$InvoicesTableReferences
+                              ._creditNoteApplicationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$InvoicesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).creditNoteApplicationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.invoiceId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -13572,6 +16568,8 @@ typedef $$InvoicesTableProcessedTableManager =
         bool invoiceItemsRefs,
         bool invoiceChargesRefs,
         bool invoicePaymentsRefs,
+        bool creditNotesRefs,
+        bool creditNoteApplicationsRefs,
       })
     >;
 typedef $$InvoiceItemsTableCreateCompanionBuilder =
@@ -14911,6 +17909,1906 @@ typedef $$InvoicePaymentsTableProcessedTableManager =
       (InvoicePayment, $$InvoicePaymentsTableReferences),
       InvoicePayment,
       PrefetchHooks Function({bool invoiceId})
+    >;
+typedef $$CreditNotesTableCreateCompanionBuilder =
+    CreditNotesCompanion Function({
+      Value<int> id,
+      required String creditNoteNumber,
+      required int invoiceId,
+      Value<int?> customerId,
+      required String customerName,
+      required DateTime creditNoteDate,
+      required String reason,
+      required String taxType,
+      required int subtotalMinor,
+      Value<int> itemDiscountMinor,
+      required int taxableMinor,
+      required int taxMinor,
+      required int cgstMinor,
+      required int sgstMinor,
+      required int igstMinor,
+      Value<int> roundOffMinor,
+      required int grandTotalMinor,
+      Value<int> refundedMinor,
+      Value<String?> refundMethod,
+      Value<DateTime?> refundedAt,
+      Value<String?> notes,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$CreditNotesTableUpdateCompanionBuilder =
+    CreditNotesCompanion Function({
+      Value<int> id,
+      Value<String> creditNoteNumber,
+      Value<int> invoiceId,
+      Value<int?> customerId,
+      Value<String> customerName,
+      Value<DateTime> creditNoteDate,
+      Value<String> reason,
+      Value<String> taxType,
+      Value<int> subtotalMinor,
+      Value<int> itemDiscountMinor,
+      Value<int> taxableMinor,
+      Value<int> taxMinor,
+      Value<int> cgstMinor,
+      Value<int> sgstMinor,
+      Value<int> igstMinor,
+      Value<int> roundOffMinor,
+      Value<int> grandTotalMinor,
+      Value<int> refundedMinor,
+      Value<String?> refundMethod,
+      Value<DateTime?> refundedAt,
+      Value<String?> notes,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$CreditNotesTableReferences
+    extends BaseReferences<_$AppDatabase, $CreditNotesTable, CreditNote> {
+  $$CreditNotesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $InvoicesTable _invoiceIdTable(_$AppDatabase db) =>
+      db.invoices.createAlias('credit_notes__invoice_id__invoices__id');
+
+  $$InvoicesTableProcessedTableManager get invoiceId {
+    final $_column = $_itemColumn<int>('invoice_id')!;
+
+    final manager = $$InvoicesTableTableManager(
+      $_db,
+      $_db.invoices,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_invoiceIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$CreditNoteItemsTable, List<CreditNoteItem>>
+  _creditNoteItemsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.creditNoteItems,
+    aliasName: 'credit_notes__id__credit_note_items__credit_note_id',
+  );
+
+  $$CreditNoteItemsTableProcessedTableManager get creditNoteItemsRefs {
+    final manager = $$CreditNoteItemsTableTableManager(
+      $_db,
+      $_db.creditNoteItems,
+    ).filter((f) => f.creditNoteId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _creditNoteItemsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $CreditNoteApplicationsTable,
+    List<CreditNoteApplication>
+  >
+  _creditNoteApplicationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.creditNoteApplications,
+        aliasName: 'credit_notes__id__credit_note_applications__credit_note_id',
+      );
+
+  $$CreditNoteApplicationsTableProcessedTableManager
+  get creditNoteApplicationsRefs {
+    final manager = $$CreditNoteApplicationsTableTableManager(
+      $_db,
+      $_db.creditNoteApplications,
+    ).filter((f) => f.creditNoteId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _creditNoteApplicationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$CreditNotesTableFilterComposer
+    extends Composer<_$AppDatabase, $CreditNotesTable> {
+  $$CreditNotesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get creditNoteNumber => $composableBuilder(
+    column: $table.creditNoteNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get customerId => $composableBuilder(
+    column: $table.customerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerName => $composableBuilder(
+    column: $table.customerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get creditNoteDate => $composableBuilder(
+    column: $table.creditNoteDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get taxType => $composableBuilder(
+    column: $table.taxType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get subtotalMinor => $composableBuilder(
+    column: $table.subtotalMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get itemDiscountMinor => $composableBuilder(
+    column: $table.itemDiscountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxableMinor => $composableBuilder(
+    column: $table.taxableMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxMinor => $composableBuilder(
+    column: $table.taxMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get cgstMinor => $composableBuilder(
+    column: $table.cgstMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sgstMinor => $composableBuilder(
+    column: $table.sgstMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get igstMinor => $composableBuilder(
+    column: $table.igstMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get roundOffMinor => $composableBuilder(
+    column: $table.roundOffMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get grandTotalMinor => $composableBuilder(
+    column: $table.grandTotalMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get refundedMinor => $composableBuilder(
+    column: $table.refundedMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get refundMethod => $composableBuilder(
+    column: $table.refundMethod,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get refundedAt => $composableBuilder(
+    column: $table.refundedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$InvoicesTableFilterComposer get invoiceId {
+    final $$InvoicesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.invoiceId,
+      referencedTable: $db.invoices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvoicesTableFilterComposer(
+            $db: $db,
+            $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> creditNoteItemsRefs(
+    Expression<bool> Function($$CreditNoteItemsTableFilterComposer f) f,
+  ) {
+    final $$CreditNoteItemsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.creditNoteItems,
+      getReferencedColumn: (t) => t.creditNoteId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CreditNoteItemsTableFilterComposer(
+            $db: $db,
+            $table: $db.creditNoteItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> creditNoteApplicationsRefs(
+    Expression<bool> Function($$CreditNoteApplicationsTableFilterComposer f) f,
+  ) {
+    final $$CreditNoteApplicationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.creditNoteApplications,
+          getReferencedColumn: (t) => t.creditNoteId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CreditNoteApplicationsTableFilterComposer(
+                $db: $db,
+                $table: $db.creditNoteApplications,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$CreditNotesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CreditNotesTable> {
+  $$CreditNotesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get creditNoteNumber => $composableBuilder(
+    column: $table.creditNoteNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get customerId => $composableBuilder(
+    column: $table.customerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerName => $composableBuilder(
+    column: $table.customerName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get creditNoteDate => $composableBuilder(
+    column: $table.creditNoteDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get taxType => $composableBuilder(
+    column: $table.taxType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get subtotalMinor => $composableBuilder(
+    column: $table.subtotalMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get itemDiscountMinor => $composableBuilder(
+    column: $table.itemDiscountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxableMinor => $composableBuilder(
+    column: $table.taxableMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxMinor => $composableBuilder(
+    column: $table.taxMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get cgstMinor => $composableBuilder(
+    column: $table.cgstMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sgstMinor => $composableBuilder(
+    column: $table.sgstMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get igstMinor => $composableBuilder(
+    column: $table.igstMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get roundOffMinor => $composableBuilder(
+    column: $table.roundOffMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get grandTotalMinor => $composableBuilder(
+    column: $table.grandTotalMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get refundedMinor => $composableBuilder(
+    column: $table.refundedMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get refundMethod => $composableBuilder(
+    column: $table.refundMethod,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get refundedAt => $composableBuilder(
+    column: $table.refundedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$InvoicesTableOrderingComposer get invoiceId {
+    final $$InvoicesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.invoiceId,
+      referencedTable: $db.invoices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvoicesTableOrderingComposer(
+            $db: $db,
+            $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CreditNotesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CreditNotesTable> {
+  $$CreditNotesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get creditNoteNumber => $composableBuilder(
+    column: $table.creditNoteNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get customerId => $composableBuilder(
+    column: $table.customerId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerName => $composableBuilder(
+    column: $table.customerName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get creditNoteDate => $composableBuilder(
+    column: $table.creditNoteDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reason =>
+      $composableBuilder(column: $table.reason, builder: (column) => column);
+
+  GeneratedColumn<String> get taxType =>
+      $composableBuilder(column: $table.taxType, builder: (column) => column);
+
+  GeneratedColumn<int> get subtotalMinor => $composableBuilder(
+    column: $table.subtotalMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get itemDiscountMinor => $composableBuilder(
+    column: $table.itemDiscountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get taxableMinor => $composableBuilder(
+    column: $table.taxableMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get taxMinor =>
+      $composableBuilder(column: $table.taxMinor, builder: (column) => column);
+
+  GeneratedColumn<int> get cgstMinor =>
+      $composableBuilder(column: $table.cgstMinor, builder: (column) => column);
+
+  GeneratedColumn<int> get sgstMinor =>
+      $composableBuilder(column: $table.sgstMinor, builder: (column) => column);
+
+  GeneratedColumn<int> get igstMinor =>
+      $composableBuilder(column: $table.igstMinor, builder: (column) => column);
+
+  GeneratedColumn<int> get roundOffMinor => $composableBuilder(
+    column: $table.roundOffMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get grandTotalMinor => $composableBuilder(
+    column: $table.grandTotalMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get refundedMinor => $composableBuilder(
+    column: $table.refundedMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get refundMethod => $composableBuilder(
+    column: $table.refundMethod,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get refundedAt => $composableBuilder(
+    column: $table.refundedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$InvoicesTableAnnotationComposer get invoiceId {
+    final $$InvoicesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.invoiceId,
+      referencedTable: $db.invoices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvoicesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> creditNoteItemsRefs<T extends Object>(
+    Expression<T> Function($$CreditNoteItemsTableAnnotationComposer a) f,
+  ) {
+    final $$CreditNoteItemsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.creditNoteItems,
+      getReferencedColumn: (t) => t.creditNoteId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CreditNoteItemsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.creditNoteItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> creditNoteApplicationsRefs<T extends Object>(
+    Expression<T> Function($$CreditNoteApplicationsTableAnnotationComposer a) f,
+  ) {
+    final $$CreditNoteApplicationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.creditNoteApplications,
+          getReferencedColumn: (t) => t.creditNoteId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CreditNoteApplicationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.creditNoteApplications,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$CreditNotesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CreditNotesTable,
+          CreditNote,
+          $$CreditNotesTableFilterComposer,
+          $$CreditNotesTableOrderingComposer,
+          $$CreditNotesTableAnnotationComposer,
+          $$CreditNotesTableCreateCompanionBuilder,
+          $$CreditNotesTableUpdateCompanionBuilder,
+          (CreditNote, $$CreditNotesTableReferences),
+          CreditNote,
+          PrefetchHooks Function({
+            bool invoiceId,
+            bool creditNoteItemsRefs,
+            bool creditNoteApplicationsRefs,
+          })
+        > {
+  $$CreditNotesTableTableManager(_$AppDatabase db, $CreditNotesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CreditNotesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CreditNotesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CreditNotesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> creditNoteNumber = const Value.absent(),
+                Value<int> invoiceId = const Value.absent(),
+                Value<int?> customerId = const Value.absent(),
+                Value<String> customerName = const Value.absent(),
+                Value<DateTime> creditNoteDate = const Value.absent(),
+                Value<String> reason = const Value.absent(),
+                Value<String> taxType = const Value.absent(),
+                Value<int> subtotalMinor = const Value.absent(),
+                Value<int> itemDiscountMinor = const Value.absent(),
+                Value<int> taxableMinor = const Value.absent(),
+                Value<int> taxMinor = const Value.absent(),
+                Value<int> cgstMinor = const Value.absent(),
+                Value<int> sgstMinor = const Value.absent(),
+                Value<int> igstMinor = const Value.absent(),
+                Value<int> roundOffMinor = const Value.absent(),
+                Value<int> grandTotalMinor = const Value.absent(),
+                Value<int> refundedMinor = const Value.absent(),
+                Value<String?> refundMethod = const Value.absent(),
+                Value<DateTime?> refundedAt = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => CreditNotesCompanion(
+                id: id,
+                creditNoteNumber: creditNoteNumber,
+                invoiceId: invoiceId,
+                customerId: customerId,
+                customerName: customerName,
+                creditNoteDate: creditNoteDate,
+                reason: reason,
+                taxType: taxType,
+                subtotalMinor: subtotalMinor,
+                itemDiscountMinor: itemDiscountMinor,
+                taxableMinor: taxableMinor,
+                taxMinor: taxMinor,
+                cgstMinor: cgstMinor,
+                sgstMinor: sgstMinor,
+                igstMinor: igstMinor,
+                roundOffMinor: roundOffMinor,
+                grandTotalMinor: grandTotalMinor,
+                refundedMinor: refundedMinor,
+                refundMethod: refundMethod,
+                refundedAt: refundedAt,
+                notes: notes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String creditNoteNumber,
+                required int invoiceId,
+                Value<int?> customerId = const Value.absent(),
+                required String customerName,
+                required DateTime creditNoteDate,
+                required String reason,
+                required String taxType,
+                required int subtotalMinor,
+                Value<int> itemDiscountMinor = const Value.absent(),
+                required int taxableMinor,
+                required int taxMinor,
+                required int cgstMinor,
+                required int sgstMinor,
+                required int igstMinor,
+                Value<int> roundOffMinor = const Value.absent(),
+                required int grandTotalMinor,
+                Value<int> refundedMinor = const Value.absent(),
+                Value<String?> refundMethod = const Value.absent(),
+                Value<DateTime?> refundedAt = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => CreditNotesCompanion.insert(
+                id: id,
+                creditNoteNumber: creditNoteNumber,
+                invoiceId: invoiceId,
+                customerId: customerId,
+                customerName: customerName,
+                creditNoteDate: creditNoteDate,
+                reason: reason,
+                taxType: taxType,
+                subtotalMinor: subtotalMinor,
+                itemDiscountMinor: itemDiscountMinor,
+                taxableMinor: taxableMinor,
+                taxMinor: taxMinor,
+                cgstMinor: cgstMinor,
+                sgstMinor: sgstMinor,
+                igstMinor: igstMinor,
+                roundOffMinor: roundOffMinor,
+                grandTotalMinor: grandTotalMinor,
+                refundedMinor: refundedMinor,
+                refundMethod: refundMethod,
+                refundedAt: refundedAt,
+                notes: notes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CreditNotesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                invoiceId = false,
+                creditNoteItemsRefs = false,
+                creditNoteApplicationsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (creditNoteItemsRefs) db.creditNoteItems,
+                    if (creditNoteApplicationsRefs) db.creditNoteApplications,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (invoiceId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.invoiceId,
+                                    referencedTable:
+                                        $$CreditNotesTableReferences
+                                            ._invoiceIdTable(db),
+                                    referencedColumn:
+                                        $$CreditNotesTableReferences
+                                            ._invoiceIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (creditNoteItemsRefs)
+                        await $_getPrefetchedData<
+                          CreditNote,
+                          $CreditNotesTable,
+                          CreditNoteItem
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CreditNotesTableReferences
+                              ._creditNoteItemsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CreditNotesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).creditNoteItemsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.creditNoteId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (creditNoteApplicationsRefs)
+                        await $_getPrefetchedData<
+                          CreditNote,
+                          $CreditNotesTable,
+                          CreditNoteApplication
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CreditNotesTableReferences
+                              ._creditNoteApplicationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CreditNotesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).creditNoteApplicationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.creditNoteId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$CreditNotesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CreditNotesTable,
+      CreditNote,
+      $$CreditNotesTableFilterComposer,
+      $$CreditNotesTableOrderingComposer,
+      $$CreditNotesTableAnnotationComposer,
+      $$CreditNotesTableCreateCompanionBuilder,
+      $$CreditNotesTableUpdateCompanionBuilder,
+      (CreditNote, $$CreditNotesTableReferences),
+      CreditNote,
+      PrefetchHooks Function({
+        bool invoiceId,
+        bool creditNoteItemsRefs,
+        bool creditNoteApplicationsRefs,
+      })
+    >;
+typedef $$CreditNoteItemsTableCreateCompanionBuilder =
+    CreditNoteItemsCompanion Function({
+      Value<int> id,
+      required int creditNoteId,
+      Value<int?> invoiceItemId,
+      required String name,
+      Value<String?> description,
+      required int quantityScaled,
+      required String unit,
+      required int rateMinor,
+      Value<String?> hsnSac,
+      required int taxRateBasisPoints,
+      required String discountType,
+      Value<int> discountValue,
+      required int baseAmountMinor,
+      required int discountAmountMinor,
+      required int taxableAmountMinor,
+      required int taxAmountMinor,
+      required int totalMinor,
+      required int sortOrder,
+    });
+typedef $$CreditNoteItemsTableUpdateCompanionBuilder =
+    CreditNoteItemsCompanion Function({
+      Value<int> id,
+      Value<int> creditNoteId,
+      Value<int?> invoiceItemId,
+      Value<String> name,
+      Value<String?> description,
+      Value<int> quantityScaled,
+      Value<String> unit,
+      Value<int> rateMinor,
+      Value<String?> hsnSac,
+      Value<int> taxRateBasisPoints,
+      Value<String> discountType,
+      Value<int> discountValue,
+      Value<int> baseAmountMinor,
+      Value<int> discountAmountMinor,
+      Value<int> taxableAmountMinor,
+      Value<int> taxAmountMinor,
+      Value<int> totalMinor,
+      Value<int> sortOrder,
+    });
+
+final class $$CreditNoteItemsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $CreditNoteItemsTable, CreditNoteItem> {
+  $$CreditNoteItemsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CreditNotesTable _creditNoteIdTable(_$AppDatabase db) => db
+      .creditNotes
+      .createAlias('credit_note_items__credit_note_id__credit_notes__id');
+
+  $$CreditNotesTableProcessedTableManager get creditNoteId {
+    final $_column = $_itemColumn<int>('credit_note_id')!;
+
+    final manager = $$CreditNotesTableTableManager(
+      $_db,
+      $_db.creditNotes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_creditNoteIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CreditNoteItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $CreditNoteItemsTable> {
+  $$CreditNoteItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get invoiceItemId => $composableBuilder(
+    column: $table.invoiceItemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get quantityScaled => $composableBuilder(
+    column: $table.quantityScaled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rateMinor => $composableBuilder(
+    column: $table.rateMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get hsnSac => $composableBuilder(
+    column: $table.hsnSac,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get discountType => $composableBuilder(
+    column: $table.discountType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get discountValue => $composableBuilder(
+    column: $table.discountValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get baseAmountMinor => $composableBuilder(
+    column: $table.baseAmountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get discountAmountMinor => $composableBuilder(
+    column: $table.discountAmountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxableAmountMinor => $composableBuilder(
+    column: $table.taxableAmountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxAmountMinor => $composableBuilder(
+    column: $table.taxAmountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalMinor => $composableBuilder(
+    column: $table.totalMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CreditNotesTableFilterComposer get creditNoteId {
+    final $$CreditNotesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.creditNoteId,
+      referencedTable: $db.creditNotes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CreditNotesTableFilterComposer(
+            $db: $db,
+            $table: $db.creditNotes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CreditNoteItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CreditNoteItemsTable> {
+  $$CreditNoteItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get invoiceItemId => $composableBuilder(
+    column: $table.invoiceItemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get quantityScaled => $composableBuilder(
+    column: $table.quantityScaled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rateMinor => $composableBuilder(
+    column: $table.rateMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get hsnSac => $composableBuilder(
+    column: $table.hsnSac,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get discountType => $composableBuilder(
+    column: $table.discountType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get discountValue => $composableBuilder(
+    column: $table.discountValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get baseAmountMinor => $composableBuilder(
+    column: $table.baseAmountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get discountAmountMinor => $composableBuilder(
+    column: $table.discountAmountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxableAmountMinor => $composableBuilder(
+    column: $table.taxableAmountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxAmountMinor => $composableBuilder(
+    column: $table.taxAmountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalMinor => $composableBuilder(
+    column: $table.totalMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CreditNotesTableOrderingComposer get creditNoteId {
+    final $$CreditNotesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.creditNoteId,
+      referencedTable: $db.creditNotes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CreditNotesTableOrderingComposer(
+            $db: $db,
+            $table: $db.creditNotes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CreditNoteItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CreditNoteItemsTable> {
+  $$CreditNoteItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get invoiceItemId => $composableBuilder(
+    column: $table.invoiceItemId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get quantityScaled => $composableBuilder(
+    column: $table.quantityScaled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<int> get rateMinor =>
+      $composableBuilder(column: $table.rateMinor, builder: (column) => column);
+
+  GeneratedColumn<String> get hsnSac =>
+      $composableBuilder(column: $table.hsnSac, builder: (column) => column);
+
+  GeneratedColumn<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get discountType => $composableBuilder(
+    column: $table.discountType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get discountValue => $composableBuilder(
+    column: $table.discountValue,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get baseAmountMinor => $composableBuilder(
+    column: $table.baseAmountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get discountAmountMinor => $composableBuilder(
+    column: $table.discountAmountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get taxableAmountMinor => $composableBuilder(
+    column: $table.taxableAmountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get taxAmountMinor => $composableBuilder(
+    column: $table.taxAmountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalMinor => $composableBuilder(
+    column: $table.totalMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  $$CreditNotesTableAnnotationComposer get creditNoteId {
+    final $$CreditNotesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.creditNoteId,
+      referencedTable: $db.creditNotes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CreditNotesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.creditNotes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CreditNoteItemsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CreditNoteItemsTable,
+          CreditNoteItem,
+          $$CreditNoteItemsTableFilterComposer,
+          $$CreditNoteItemsTableOrderingComposer,
+          $$CreditNoteItemsTableAnnotationComposer,
+          $$CreditNoteItemsTableCreateCompanionBuilder,
+          $$CreditNoteItemsTableUpdateCompanionBuilder,
+          (CreditNoteItem, $$CreditNoteItemsTableReferences),
+          CreditNoteItem,
+          PrefetchHooks Function({bool creditNoteId})
+        > {
+  $$CreditNoteItemsTableTableManager(
+    _$AppDatabase db,
+    $CreditNoteItemsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CreditNoteItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CreditNoteItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CreditNoteItemsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> creditNoteId = const Value.absent(),
+                Value<int?> invoiceItemId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<int> quantityScaled = const Value.absent(),
+                Value<String> unit = const Value.absent(),
+                Value<int> rateMinor = const Value.absent(),
+                Value<String?> hsnSac = const Value.absent(),
+                Value<int> taxRateBasisPoints = const Value.absent(),
+                Value<String> discountType = const Value.absent(),
+                Value<int> discountValue = const Value.absent(),
+                Value<int> baseAmountMinor = const Value.absent(),
+                Value<int> discountAmountMinor = const Value.absent(),
+                Value<int> taxableAmountMinor = const Value.absent(),
+                Value<int> taxAmountMinor = const Value.absent(),
+                Value<int> totalMinor = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+              }) => CreditNoteItemsCompanion(
+                id: id,
+                creditNoteId: creditNoteId,
+                invoiceItemId: invoiceItemId,
+                name: name,
+                description: description,
+                quantityScaled: quantityScaled,
+                unit: unit,
+                rateMinor: rateMinor,
+                hsnSac: hsnSac,
+                taxRateBasisPoints: taxRateBasisPoints,
+                discountType: discountType,
+                discountValue: discountValue,
+                baseAmountMinor: baseAmountMinor,
+                discountAmountMinor: discountAmountMinor,
+                taxableAmountMinor: taxableAmountMinor,
+                taxAmountMinor: taxAmountMinor,
+                totalMinor: totalMinor,
+                sortOrder: sortOrder,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int creditNoteId,
+                Value<int?> invoiceItemId = const Value.absent(),
+                required String name,
+                Value<String?> description = const Value.absent(),
+                required int quantityScaled,
+                required String unit,
+                required int rateMinor,
+                Value<String?> hsnSac = const Value.absent(),
+                required int taxRateBasisPoints,
+                required String discountType,
+                Value<int> discountValue = const Value.absent(),
+                required int baseAmountMinor,
+                required int discountAmountMinor,
+                required int taxableAmountMinor,
+                required int taxAmountMinor,
+                required int totalMinor,
+                required int sortOrder,
+              }) => CreditNoteItemsCompanion.insert(
+                id: id,
+                creditNoteId: creditNoteId,
+                invoiceItemId: invoiceItemId,
+                name: name,
+                description: description,
+                quantityScaled: quantityScaled,
+                unit: unit,
+                rateMinor: rateMinor,
+                hsnSac: hsnSac,
+                taxRateBasisPoints: taxRateBasisPoints,
+                discountType: discountType,
+                discountValue: discountValue,
+                baseAmountMinor: baseAmountMinor,
+                discountAmountMinor: discountAmountMinor,
+                taxableAmountMinor: taxableAmountMinor,
+                taxAmountMinor: taxAmountMinor,
+                totalMinor: totalMinor,
+                sortOrder: sortOrder,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CreditNoteItemsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({creditNoteId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (creditNoteId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.creditNoteId,
+                                referencedTable:
+                                    $$CreditNoteItemsTableReferences
+                                        ._creditNoteIdTable(db),
+                                referencedColumn:
+                                    $$CreditNoteItemsTableReferences
+                                        ._creditNoteIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CreditNoteItemsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CreditNoteItemsTable,
+      CreditNoteItem,
+      $$CreditNoteItemsTableFilterComposer,
+      $$CreditNoteItemsTableOrderingComposer,
+      $$CreditNoteItemsTableAnnotationComposer,
+      $$CreditNoteItemsTableCreateCompanionBuilder,
+      $$CreditNoteItemsTableUpdateCompanionBuilder,
+      (CreditNoteItem, $$CreditNoteItemsTableReferences),
+      CreditNoteItem,
+      PrefetchHooks Function({bool creditNoteId})
+    >;
+typedef $$CreditNoteApplicationsTableCreateCompanionBuilder =
+    CreditNoteApplicationsCompanion Function({
+      Value<int> id,
+      required int creditNoteId,
+      required int invoiceId,
+      required int amountMinor,
+      required DateTime appliedAt,
+    });
+typedef $$CreditNoteApplicationsTableUpdateCompanionBuilder =
+    CreditNoteApplicationsCompanion Function({
+      Value<int> id,
+      Value<int> creditNoteId,
+      Value<int> invoiceId,
+      Value<int> amountMinor,
+      Value<DateTime> appliedAt,
+    });
+
+final class $$CreditNoteApplicationsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CreditNoteApplicationsTable,
+          CreditNoteApplication
+        > {
+  $$CreditNoteApplicationsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CreditNotesTable _creditNoteIdTable(_$AppDatabase db) =>
+      db.creditNotes.createAlias(
+        'credit_note_applications__credit_note_id__credit_notes__id',
+      );
+
+  $$CreditNotesTableProcessedTableManager get creditNoteId {
+    final $_column = $_itemColumn<int>('credit_note_id')!;
+
+    final manager = $$CreditNotesTableTableManager(
+      $_db,
+      $_db.creditNotes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_creditNoteIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $InvoicesTable _invoiceIdTable(_$AppDatabase db) => db.invoices
+      .createAlias('credit_note_applications__invoice_id__invoices__id');
+
+  $$InvoicesTableProcessedTableManager get invoiceId {
+    final $_column = $_itemColumn<int>('invoice_id')!;
+
+    final manager = $$InvoicesTableTableManager(
+      $_db,
+      $_db.invoices,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_invoiceIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CreditNoteApplicationsTableFilterComposer
+    extends Composer<_$AppDatabase, $CreditNoteApplicationsTable> {
+  $$CreditNoteApplicationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amountMinor => $composableBuilder(
+    column: $table.amountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get appliedAt => $composableBuilder(
+    column: $table.appliedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CreditNotesTableFilterComposer get creditNoteId {
+    final $$CreditNotesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.creditNoteId,
+      referencedTable: $db.creditNotes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CreditNotesTableFilterComposer(
+            $db: $db,
+            $table: $db.creditNotes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$InvoicesTableFilterComposer get invoiceId {
+    final $$InvoicesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.invoiceId,
+      referencedTable: $db.invoices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvoicesTableFilterComposer(
+            $db: $db,
+            $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CreditNoteApplicationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CreditNoteApplicationsTable> {
+  $$CreditNoteApplicationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amountMinor => $composableBuilder(
+    column: $table.amountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get appliedAt => $composableBuilder(
+    column: $table.appliedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CreditNotesTableOrderingComposer get creditNoteId {
+    final $$CreditNotesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.creditNoteId,
+      referencedTable: $db.creditNotes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CreditNotesTableOrderingComposer(
+            $db: $db,
+            $table: $db.creditNotes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$InvoicesTableOrderingComposer get invoiceId {
+    final $$InvoicesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.invoiceId,
+      referencedTable: $db.invoices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvoicesTableOrderingComposer(
+            $db: $db,
+            $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CreditNoteApplicationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CreditNoteApplicationsTable> {
+  $$CreditNoteApplicationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get amountMinor => $composableBuilder(
+    column: $table.amountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get appliedAt =>
+      $composableBuilder(column: $table.appliedAt, builder: (column) => column);
+
+  $$CreditNotesTableAnnotationComposer get creditNoteId {
+    final $$CreditNotesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.creditNoteId,
+      referencedTable: $db.creditNotes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CreditNotesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.creditNotes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$InvoicesTableAnnotationComposer get invoiceId {
+    final $$InvoicesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.invoiceId,
+      referencedTable: $db.invoices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvoicesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CreditNoteApplicationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CreditNoteApplicationsTable,
+          CreditNoteApplication,
+          $$CreditNoteApplicationsTableFilterComposer,
+          $$CreditNoteApplicationsTableOrderingComposer,
+          $$CreditNoteApplicationsTableAnnotationComposer,
+          $$CreditNoteApplicationsTableCreateCompanionBuilder,
+          $$CreditNoteApplicationsTableUpdateCompanionBuilder,
+          (CreditNoteApplication, $$CreditNoteApplicationsTableReferences),
+          CreditNoteApplication,
+          PrefetchHooks Function({bool creditNoteId, bool invoiceId})
+        > {
+  $$CreditNoteApplicationsTableTableManager(
+    _$AppDatabase db,
+    $CreditNoteApplicationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CreditNoteApplicationsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CreditNoteApplicationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CreditNoteApplicationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> creditNoteId = const Value.absent(),
+                Value<int> invoiceId = const Value.absent(),
+                Value<int> amountMinor = const Value.absent(),
+                Value<DateTime> appliedAt = const Value.absent(),
+              }) => CreditNoteApplicationsCompanion(
+                id: id,
+                creditNoteId: creditNoteId,
+                invoiceId: invoiceId,
+                amountMinor: amountMinor,
+                appliedAt: appliedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int creditNoteId,
+                required int invoiceId,
+                required int amountMinor,
+                required DateTime appliedAt,
+              }) => CreditNoteApplicationsCompanion.insert(
+                id: id,
+                creditNoteId: creditNoteId,
+                invoiceId: invoiceId,
+                amountMinor: amountMinor,
+                appliedAt: appliedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CreditNoteApplicationsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({creditNoteId = false, invoiceId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (creditNoteId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.creditNoteId,
+                                referencedTable:
+                                    $$CreditNoteApplicationsTableReferences
+                                        ._creditNoteIdTable(db),
+                                referencedColumn:
+                                    $$CreditNoteApplicationsTableReferences
+                                        ._creditNoteIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (invoiceId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.invoiceId,
+                                referencedTable:
+                                    $$CreditNoteApplicationsTableReferences
+                                        ._invoiceIdTable(db),
+                                referencedColumn:
+                                    $$CreditNoteApplicationsTableReferences
+                                        ._invoiceIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CreditNoteApplicationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CreditNoteApplicationsTable,
+      CreditNoteApplication,
+      $$CreditNoteApplicationsTableFilterComposer,
+      $$CreditNoteApplicationsTableOrderingComposer,
+      $$CreditNoteApplicationsTableAnnotationComposer,
+      $$CreditNoteApplicationsTableCreateCompanionBuilder,
+      $$CreditNoteApplicationsTableUpdateCompanionBuilder,
+      (CreditNoteApplication, $$CreditNoteApplicationsTableReferences),
+      CreditNoteApplication,
+      PrefetchHooks Function({bool creditNoteId, bool invoiceId})
     >;
 typedef $$SuppliersTableCreateCompanionBuilder =
     SuppliersCompanion Function({
@@ -17541,6 +22439,15 @@ class $AppDatabaseManager {
       $$InvoiceChargesTableTableManager(_db, _db.invoiceCharges);
   $$InvoicePaymentsTableTableManager get invoicePayments =>
       $$InvoicePaymentsTableTableManager(_db, _db.invoicePayments);
+  $$CreditNotesTableTableManager get creditNotes =>
+      $$CreditNotesTableTableManager(_db, _db.creditNotes);
+  $$CreditNoteItemsTableTableManager get creditNoteItems =>
+      $$CreditNoteItemsTableTableManager(_db, _db.creditNoteItems);
+  $$CreditNoteApplicationsTableTableManager get creditNoteApplications =>
+      $$CreditNoteApplicationsTableTableManager(
+        _db,
+        _db.creditNoteApplications,
+      );
   $$SuppliersTableTableManager get suppliers =>
       $$SuppliersTableTableManager(_db, _db.suppliers);
   $$PurchaseBillsTableTableManager get purchaseBills =>

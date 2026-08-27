@@ -2,12 +2,14 @@ import '../../app/enums/invoice_status.dart';
 import '../models/business_profile_model.dart';
 import '../models/customer_model.dart';
 import '../models/customer_statement_model.dart';
+import '../repositories/credit_note_repository.dart';
 import '../repositories/invoice_repository.dart';
 
 class CustomerStatementService {
-  const CustomerStatementService(this._invoices);
+  const CustomerStatementService(this._invoices, this._creditNotes);
 
   final InvoiceRepository _invoices;
+  final CreditNoteRepository _creditNotes;
 
   Future<CustomerStatementModel> build({
     required CustomerModel customer,
@@ -52,6 +54,33 @@ class CustomerStatementService {
         );
       }
     }
+    final notes = await _creditNotes.listForCustomer(customer.id!);
+    for (final note in notes) {
+      events.add(
+        _RawStatementEvent(
+          date: note.creditNoteDate,
+          type: CustomerStatementEntryType.creditNote,
+          reference: note.creditNoteNumber,
+          description: 'Credit note · ${note.reason}',
+          debitMinor: 0,
+          creditMinor: note.grandTotalMinor,
+          order: 3,
+        ),
+      );
+      if (note.refundedMinor > 0) {
+        events.add(
+          _RawStatementEvent(
+            date: note.creditNoteDate,
+            type: CustomerStatementEntryType.refund,
+            reference: note.creditNoteNumber,
+            description: 'Refund · ${note.creditNoteNumber}',
+            debitMinor: note.refundedMinor,
+            creditMinor: 0,
+            order: 4,
+          ),
+        );
+      }
+    }
     events.sort((a, b) {
       final date = a.date.compareTo(b.date);
       return date == 0 ? a.order.compareTo(b.order) : date;
@@ -69,7 +98,9 @@ class CustomerStatementService {
     )) {
       balance += event.debitMinor - event.creditMinor;
       invoiced += event.debitMinor;
-      received += event.creditMinor;
+      if (event.type == CustomerStatementEntryType.payment) {
+        received += event.creditMinor;
+      }
       entries.add(
         CustomerStatementEntry(
           date: event.date,

@@ -6,6 +6,7 @@ import '../../data/services/app_storage.dart';
 import '../../data/services/local_database_service.dart';
 import '../../data/services/invoice_calculation_service.dart';
 import '../../data/services/invoice_pdf_service.dart';
+import '../../data/services/credit_note_pdf_service.dart';
 import '../../data/services/invoice_defaults_service.dart';
 import '../../data/services/data_export_service.dart';
 import '../../data/services/product_settings_service.dart';
@@ -20,6 +21,7 @@ import '../../data/repositories/business_repository.dart';
 import '../../data/repositories/customer_repository.dart';
 import '../../data/repositories/product_repository.dart';
 import '../../data/repositories/invoice_repository.dart';
+import '../../data/repositories/credit_note_repository.dart';
 import '../../data/repositories/purchase_repository.dart';
 import '../../modules/dashboard/controllers/dashboard_controller.dart';
 import '../../modules/invoices/controllers/invoice_list_controller.dart';
@@ -51,6 +53,10 @@ class InitialBinding extends Bindings {
     );
     Get.put<InvoicePdfService>(
       InvoicePdfService(productSettings: Get.find<ProductSettingsService>()),
+      permanent: true,
+    );
+    Get.put<CreditNotePdfService>(
+      const CreditNotePdfService(),
       permanent: true,
     );
     Get.put<PaymentReceiptPdfService>(
@@ -87,6 +93,7 @@ class InitialBinding extends Bindings {
     );
     await Get.delete<DataExportService>(force: true);
     await Get.delete<BackupService>(force: true);
+    await Get.delete<CreditNoteRepository>(force: true);
     await Get.delete<InvoiceRepository>(force: true);
     await Get.delete<PurchaseRepository>(force: true);
     await Get.delete<ProductRepository>(force: true);
@@ -130,6 +137,13 @@ class InitialBinding extends Bindings {
     );
     Get.put<InvoiceRepository>(
       InvoiceRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<CreditNoteRepository>(
+      CreditNoteRepository(
+        databaseService.database,
+        Get.find<InvoiceRepository>(),
+      ),
       permanent: true,
     );
     Get.put<PurchaseRepository>(

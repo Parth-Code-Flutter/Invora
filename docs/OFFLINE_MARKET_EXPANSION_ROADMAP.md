@@ -102,12 +102,17 @@ Reference: [Zoho invoice import workflow](https://www.zoho.com/in/invoice/help/i
 
 ## P0.3 Sales returns and credit notes
 
+Status: **Shipped 2026-08-27** (sales credit notes from posted invoices,
+separately numbered `CN-0001`, original invoice totals unchanged, leftover
+kept as customer credit or refunded). Restock is out of scope until Inventory
+exists. Purchase returns / debit notes remain P0.4.
+
 ### Workflow
 
 1. From a posted invoice choose **Credit note / Sales return**.
 2. Select returned lines/quantities or a value-only adjustment and reason.
-3. Choose return date, tax treatment, restock decision, refund or customer
-   credit.
+3. Choose return date, tax treatment, refund or customer credit. Restock is
+   offered only after Inventory ships.
 4. Review tax/balance impact and issue a separately numbered immutable PDF.
 5. Apply customer credit across invoices or record a refund.
 

@@ -68,6 +68,10 @@ remain intentionally out of scope until explicitly requested.
   successful restore, failed replacement rollback, and reminder preferences.
 - Encrypted backup round-trip, wrong/missing password rejection, verify without
   touching live data, five local generations, and legacy unencrypted ZIP restore.
+- Sales credit notes: partial line return, over-return rejection, paid-invoice
+  leftover kept as customer credit or refunded, apply leftover to another
+  invoice of the same customer, statement credit-note/refund rows, credit-note
+  PDF bytes, and invoice lock after a credit note.
 - Database V5/V6/V7 upgrades through V9 and failed-migration data preservation.
 - Required-field, mobile, email, money, quantity, tax, payment, and date rules.
 - Unsaved-change clean exit, continue editing, discard, and Save draft.
@@ -99,6 +103,14 @@ remain intentionally out of scope until explicitly requested.
 - Restore an older unencrypted Creovo ZIP without being asked for a password.
 - Restore an encrypted backup on a second device and confirm logo, signature,
   and payment QR paths work.
+- From a posted invoice, issue a partial credit note / sales return. Confirm
+  the original invoice total is unchanged and outstanding dropped. Try an
+  over-return and confirm it is blocked.
+- On a fully paid invoice, issue a full return: keep leftover as customer
+  credit, then apply it to another invoice of the same customer. Repeat with
+  Refund the remainder and confirm the statement shows both the credit note
+  and the refund.
+- Share/print the credit-note PDF in airplane mode.
 - Exercise iOS swipe-back and Android system-back on every protected form.
 - Run invoice creation with keyboard open on smallest supported phones.
 - Check tablet portrait/landscape for all main lists, forms, and PDF preview.

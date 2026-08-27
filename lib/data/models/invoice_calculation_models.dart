@@ -52,6 +52,7 @@ class InvoiceCalculationInput {
     this.roundOffMinor = 0,
     this.automaticRoundOff = false,
     this.paidAmountMinor = 0,
+    this.creditedAmountMinor = 0,
   });
 
   final List<InvoiceCalculationItemInput> items;
@@ -61,6 +62,7 @@ class InvoiceCalculationInput {
   final int roundOffMinor;
   final bool automaticRoundOff;
   final int paidAmountMinor;
+  final int creditedAmountMinor;
 }
 
 class InvoiceCalculationItemResult {
@@ -96,6 +98,7 @@ class InvoiceCalculationResult {
     required this.roundOffMinor,
     required this.grandTotalMinor,
     required this.paidAmountMinor,
+    this.creditedAmountMinor = 0,
     required this.balanceDueMinor,
     required this.paymentStatus,
   });
@@ -113,6 +116,7 @@ class InvoiceCalculationResult {
   final int roundOffMinor;
   final int grandTotalMinor;
   final int paidAmountMinor;
+  final int creditedAmountMinor;
   final int balanceDueMinor;
   final InvoicePaymentStatus paymentStatus;
 }

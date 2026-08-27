@@ -23,11 +23,13 @@ abstract final class AppRoutes {
   static const productDetails = '/product/details';
   static const invoices = '/invoices';
   static const invoiceCreate = '/invoice/create';
+  static const invoiceDetails = '/invoice/details';
   static const invoiceItemPicker = '/invoice/item-picker';
   static const productScan = '/invoice/scan-items';
   static const catalogScan = '/product/scan';
   static const barcodeCapture = '/scan/barcode';
-  static const invoiceDetails = '/invoice/details';
+  static const creditNoteCreate = '/invoice/credit-note/create';
+  static const creditNoteDetails = '/invoice/credit-note/details';
   static const invoicePreview = '/invoice/preview';
   static const paymentReceipt = '/invoice/payment-receipt';
   static const quotations = '/quotations';

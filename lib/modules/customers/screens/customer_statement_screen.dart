@@ -807,18 +807,24 @@ Color _entryColor(CustomerStatementEntryType type) => switch (type) {
   CustomerStatementEntryType.invoice => AppColors.warning,
   CustomerStatementEntryType.payment => AppColors.success,
   CustomerStatementEntryType.reversal => AppColors.error,
+  CustomerStatementEntryType.creditNote => AppColors.success,
+  CustomerStatementEntryType.refund => AppColors.error,
 };
 
 Color _entryFill(CustomerStatementEntryType type) => switch (type) {
   CustomerStatementEntryType.invoice => AppColors.warningLight,
   CustomerStatementEntryType.payment => AppColors.successLight,
   CustomerStatementEntryType.reversal => AppColors.errorLight,
+  CustomerStatementEntryType.creditNote => AppColors.successLight,
+  CustomerStatementEntryType.refund => AppColors.errorLight,
 };
 
 IconData _entryIcon(CustomerStatementEntryType type) => switch (type) {
   CustomerStatementEntryType.invoice => Icons.receipt_long_outlined,
   CustomerStatementEntryType.payment => Icons.payments_outlined,
   CustomerStatementEntryType.reversal => Icons.undo_rounded,
+  CustomerStatementEntryType.creditNote => Icons.assignment_return_outlined,
+  CustomerStatementEntryType.refund => Icons.payments_outlined,
 };
 
 String _initials(String value) {

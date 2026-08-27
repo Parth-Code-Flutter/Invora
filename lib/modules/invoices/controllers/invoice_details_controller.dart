@@ -1,10 +1,12 @@
 import 'package:get/get.dart';
 
 import '../../../app/enums/invoice_status.dart';
+import '../../../data/models/credit_note_model.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/invoice_payment_model.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../../../data/repositories/business_repository.dart';
+import '../../../data/repositories/credit_note_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
 import '../../../data/services/app_storage.dart';
 import '../../../data/services/invoice_pdf_service.dart';
@@ -17,11 +19,13 @@ import '../../../app/widgets/app_notification.dart';
 class InvoiceDetailsController extends GetxController {
   InvoiceDetailsController(
     this._repository,
+    this._creditNotes,
     this._businessRepository,
     this._pdf,
     this._storage,
   );
   final InvoiceRepository _repository;
+  final CreditNoteRepository _creditNotes;
   final BusinessRepository _businessRepository;
   final InvoicePdfService _pdf;
   final AppStorage _storage;
@@ -31,6 +35,8 @@ class InvoiceDetailsController extends GetxController {
   final isLoading = true.obs;
   final isWorking = false.obs;
   final payments = <InvoicePaymentModel>[].obs;
+  final creditNotes = <CreditNoteSummaryModel>[].obs;
+  final unappliedCredits = <CreditNoteSummaryModel>[].obs;
   final lastRecordedPayment = Rxn<InvoicePaymentModel>();
   int? _invoiceId;
 
@@ -55,6 +61,13 @@ class InvoiceDetailsController extends GetxController {
       invoice.refresh();
       payments.assignAll(refreshedPayments);
       payments.refresh();
+      creditNotes.assignAll(await _creditNotes.listForInvoice(id));
+      final customerId = refreshedInvoice?.customer.customerId;
+      unappliedCredits.assignAll(
+        customerId == null
+            ? const []
+            : await _creditNotes.unappliedForCustomer(customerId),
+      );
     }
     isLoading.value = false;
   }
@@ -62,6 +75,13 @@ class InvoiceDetailsController extends GetxController {
   Future<void> edit() async {
     final value = invoice.value;
     if (value?.id == null || value!.status.name == 'cancelled') return;
+    if (creditNotes.isNotEmpty) {
+      AppNotification.warning(
+        'Invoice locked',
+        'This invoice has a credit note and can no longer be edited.',
+      );
+      return;
+    }
     await Get.toNamed<void>(
       value.documentType == DocumentType.quotation
           ? AppRoutes.quotationCreate
@@ -245,6 +265,13 @@ class InvoiceDetailsController extends GetxController {
   Future<void> cancel() async {
     final id = invoice.value?.id;
     if (id == null) return;
+    if (creditNotes.isNotEmpty) {
+      AppNotification.warning(
+        'Invoice locked',
+        'This invoice has a credit note and cannot be cancelled.',
+      );
+      return;
+    }
     await _repository.cancel(id);
     await reload();
   }
@@ -272,9 +299,52 @@ class InvoiceDetailsController extends GetxController {
     Get.toNamed<void>(AppRoutes.invoiceDetails, arguments: converted.id);
   }
 
+  bool get canIssueCreditNote {
+    final value = invoice.value;
+    if (value == null || value.id == null) return false;
+    if (value.documentType != DocumentType.invoice) return false;
+    if (value.status == InvoiceStatus.draft ||
+        value.status == InvoiceStatus.cancelled) {
+      return false;
+    }
+    final creditedValue = creditNotes.fold<int>(
+      0,
+      (total, note) => total + note.grandTotalMinor,
+    );
+    return creditedValue < value.calculation.grandTotalMinor;
+  }
+
+  Future<String?> applyCustomerCredit(
+    CreditNoteSummaryModel note,
+    int amountMinor,
+  ) async {
+    final value = invoice.value;
+    if (value?.id == null) return 'Invoice not found.';
+    try {
+      await _creditNotes.applyUnapplied(
+        creditNoteId: note.id,
+        invoiceId: value!.id!,
+        amountMinor: amountMinor,
+      );
+      await reload();
+      return null;
+    } on ArgumentError catch (error) {
+      return error.message?.toString() ?? 'Could not apply credit.';
+    } on StateError catch (error) {
+      return error.message;
+    }
+  }
+
   Future<void> delete() async {
     final id = invoice.value?.id;
     if (id == null) return;
+    if (creditNotes.isNotEmpty) {
+      AppNotification.warning(
+        'Invoice locked',
+        'This invoice has a credit note and cannot be deleted.',
+      );
+      return;
+    }
     await _repository.delete(id);
     Get.back(result: true);
   }

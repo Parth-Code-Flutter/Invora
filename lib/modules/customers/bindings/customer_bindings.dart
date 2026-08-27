@@ -52,7 +52,7 @@ class CustomerStatementBinding extends Bindings {
       () => CustomerStatementController(
         Get.find(),
         Get.find(),
-        CustomerStatementService(Get.find()),
+        CustomerStatementService(Get.find(), Get.find()),
         const CustomerStatementPdfService(),
       ),
     );
