@@ -10,6 +10,7 @@ import 'package:creovo_invoice/app/constants/app_storage_key_const.dart';
 import 'package:creovo_invoice/data/repositories/business_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
+import 'package:creovo_invoice/data/services/backup_crypto.dart';
 import 'package:creovo_invoice/data/services/backup_service.dart';
 
 void main() {
@@ -122,6 +123,98 @@ void main() {
     await expectLater(service.restore(backup), throwsA(isA<FormatException>()));
     expect(await target.readAsBytes(), original);
     expect(await File('${target.path}.before_restore').exists(), isFalse);
+  });
+
+  test(
+    'encrypts new backups and restores them with the password',
+    () async {
+      final target = File('${temporaryDirectory.path}/active.sqlite');
+      await target.writeAsBytes(_sqliteBytes('old live data'));
+      final storage = await AppStorage.create();
+      service = BackupService(
+        database,
+        BusinessRepository(database),
+        storage,
+        databaseFileProvider: () async => target,
+      );
+      const password = 'correct horse';
+      final backup = await _encryptedBackup(
+        temporaryDirectory,
+        password: password,
+        schemaVersion: 8,
+        databaseBytes: _sqliteBytes('encrypted restored'),
+        businessName: 'Creovo MDF',
+      );
+
+      expect(await service.isEncryptedBackup(backup), isTrue);
+      final missing = await service.validate(backup);
+      expect(missing.isValid, isFalse);
+      expect(missing.message, contains('password protected'));
+      expect(missing.preview?.businessName, 'Creovo MDF');
+
+      final wrong = await service.validate(backup, password: 'wrong-pass');
+      expect(wrong.isValid, isFalse);
+      expect(wrong.message, contains('Wrong backup password'));
+
+      final original = await target.readAsBytes();
+      final inspected = await service.validate(backup, password: password);
+      expect(inspected.isValid, isTrue);
+      expect(inspected.preview?.encrypted, isTrue);
+      expect(await target.readAsBytes(), original);
+
+      await expectLater(
+        service.restore(backup, password: 'wrong-pass'),
+        throwsA(isA<StateError>()),
+      );
+      expect(await target.readAsBytes(), original);
+
+      final result = await service.restore(backup, password: password);
+      expect(await target.readAsBytes(), _sqliteBytes('encrypted restored'));
+      expect(result.mediaPaths.values, everyElement(isNull));
+      expect(storage.getBool(AppStorageKeyConst.restoreCompleted), isTrue);
+    },
+    timeout: const Timeout(Duration(minutes: 1)),
+  );
+
+  test(
+    'keeps five local encrypted generations',
+    () async {
+      final liveDb = File('${temporaryDirectory.path}/live.sqlite');
+      await database.close();
+      database = AppDatabase.forTesting(NativeDatabase(liveDb));
+      final generations = Directory('${temporaryDirectory.path}/generations');
+      final output = Directory('${temporaryDirectory.path}/share');
+      await generations.create();
+      await output.create();
+      service = BackupService(
+        database,
+        BusinessRepository(database),
+        await AppStorage.create(),
+        databaseFileProvider: () async => liveDb,
+        outputDirectoryProvider: () async => output,
+        generationsDirectoryProvider: () async => generations,
+      );
+
+      await database.customSelect('SELECT 1').get();
+      for (var i = 0; i < 6; i++) {
+        await service.createBackup(password: 'correct horse');
+      }
+
+      final kept = await service.listLocalGenerations();
+      expect(kept, hasLength(5));
+      expect(
+        output.listSync().whereType<File>().length,
+        greaterThanOrEqualTo(1),
+      );
+    },
+    timeout: const Timeout(Duration(minutes: 2)),
+  );
+
+  test('rejects a backup password shorter than eight characters', () async {
+    await expectLater(
+      service.createBackup(password: 'short'),
+      throwsArgumentError,
+    );
   });
 
   test('successful restore replaces data and records restart state', () async {
@@ -262,6 +355,45 @@ Future<File> _backupFile(
   }
   final file = File('${directory.path}/backup_$schemaVersion.zip');
   await file.writeAsBytes(ZipEncoder().encode(archive), flush: true);
+  return file;
+}
+
+Future<File> _encryptedBackup(
+  Directory directory, {
+  required String password,
+  required int schemaVersion,
+  required List<int> databaseBytes,
+  String? businessName,
+}) async {
+  final inner = await _backupFile(
+    directory,
+    schemaVersion: schemaVersion,
+    databaseBytes: databaseBytes,
+  );
+  final payload = await const BackupCrypto().encrypt(
+    await inner.readAsBytes(),
+    password,
+  );
+  final outer = Archive()
+    ..addFile(
+      ArchiveFile.string(
+        'manifest.json',
+        jsonEncode({
+          'format': 'creovo-invoice-backup',
+          'version': 2,
+          'encrypted': true,
+          'schemaVersion': schemaVersion,
+          'createdAt': '2026-08-26T10:00:00.000Z',
+          'businessName': businessName,
+          'invoiceCount': 3,
+          'billCount': 1,
+          'attachmentCount': 0,
+        }),
+      ),
+    )
+    ..addFile(ArchiveFile('payload.bin', payload.length, payload));
+  final file = File('${directory.path}/encrypted_$schemaVersion.zip');
+  await file.writeAsBytes(ZipEncoder().encode(outer), flush: true);
   return file;
 }
 

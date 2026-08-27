@@ -7,7 +7,6 @@ import 'package:creovo_invoice/data/repositories/business_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/backup_service.dart';
-import 'package:creovo_invoice/app/widgets/app_dialog.dart';
 import 'package:creovo_invoice/app/widgets/app_button.dart';
 import 'package:creovo_invoice/modules/backup_restore/controllers/backup_controller.dart';
 import 'package:creovo_invoice/modules/backup_restore/screens/backup_screen.dart';
@@ -33,25 +32,27 @@ void main() {
     Get.reset();
   });
 
-  testWidgets('warns about sensitive unencrypted data before backup', (
+  testWidgets('asks for a backup password before creating a file', (
     tester,
   ) async {
     await tester.pumpWidget(const GetMaterialApp(home: BackupScreen()));
     await tester.pumpAndSettle();
 
     expect(find.text('Backup recommended'), findsOneWidget);
+    expect(find.textContaining('Password protected'), findsOneWidget);
 
-    final createButton = find.widgetWithText(AppButton, 'Create and share ZIP');
+    final createButton = find.widgetWithText(
+      AppButton,
+      'Create and share backup',
+    );
     await tester.ensureVisible(createButton);
     await tester.pumpAndSettle();
     await tester.tap(createButton);
     await tester.pumpAndSettle();
 
-    expect(find.text('Create sensitive-data backup?'), findsOneWidget);
-    expect(find.textContaining('unencrypted ZIP'), findsOneWidget);
-    expect(
-      find.widgetWithText(AppDialogButton, 'Create backup'),
-      findsOneWidget,
-    );
+    expect(find.text('Create encrypted backup'), findsOneWidget);
+    expect(find.text('Backup password'), findsOneWidget);
+    expect(find.text('Confirm password'), findsOneWidget);
+    expect(find.widgetWithText(AppButton, 'Create backup'), findsOneWidget);
   });
 }

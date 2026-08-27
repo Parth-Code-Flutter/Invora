@@ -236,10 +236,15 @@ void main() {
       storage,
       databaseFileProvider: () async => databaseFile,
       outputDirectoryProvider: () async => directory,
+      generationsDirectoryProvider: () async => directory,
     );
-    final backup = await backupService.createBackup();
+    const password = 'correct horse';
+    final backup = await backupService.createBackup(password: password);
     expect(backup.path, endsWith('.zip'));
-    expect((await backupService.validate(backup)).isValid, isTrue);
+    expect(
+      (await backupService.validate(backup, password: password)).isValid,
+      isTrue,
+    );
     expect(backupService.lastBackupAt, isNotNull);
 
     await customerRepository.softDelete(customer.id!);

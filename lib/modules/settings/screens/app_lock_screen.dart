@@ -168,7 +168,7 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Your PIN protects access to this app on this device. It does not encrypt exported files or backups.',
+            'Your PIN protects access to this app on this device. Backups use a separate password. CSV exports remain unencrypted.',
             style: AppTextStyles.caption.copyWith(
               color: AppColors.textTertiary,
             ),

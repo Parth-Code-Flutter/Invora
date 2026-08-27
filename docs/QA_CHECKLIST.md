@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-08-12
+Last updated: 2026-08-27
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -66,6 +66,8 @@ remain intentionally out of scope until explicitly requested.
 - PDF byte generation for every template and a professional lifecycle PDF.
 - Backup creation/validation, corrupt/incomplete/newer-version rejection,
   successful restore, failed replacement rollback, and reminder preferences.
+- Encrypted backup round-trip, wrong/missing password rejection, verify without
+  touching live data, five local generations, and legacy unencrypted ZIP restore.
 - Database V5/V6/V7 upgrades through V9 and failed-migration data preservation.
 - Required-field, mobile, email, money, quantity, tax, payment, and date rules.
 - Unsaved-change clean exit, continue editing, discard, and Save draft.
@@ -90,6 +92,13 @@ remain intentionally out of scope until explicitly requested.
   account histories on both platforms.
 - Select a backup with the native file picker, restore it, restart the app, and
   compare customer/invoice/media/settings data.
+- Create an encrypted backup with a password of 8+ characters, share it, then
+  restore it on the same device with the correct password (airplane mode on).
+- Enter the wrong password and confirm live invoices are unchanged.
+- Use Verify backup and confirm it reports valid without replacing data.
+- Restore an older unencrypted Creovo ZIP without being asked for a password.
+- Restore an encrypted backup on a second device and confirm logo, signature,
+  and payment QR paths work.
 - Exercise iOS swipe-back and Android system-back on every protected form.
 - Run invoice creation with keyboard open on smallest supported phones.
 - Check tablet portrait/landscape for all main lists, forms, and PDF preview.

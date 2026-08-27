@@ -9,10 +9,13 @@ import '../../../app/routes/app_routes.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_button.dart';
+import '../../../app/widgets/app_bottom_sheet.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_notification.dart';
+import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/responsive_content.dart';
+import '../../../data/services/backup_service.dart';
 import '../controllers/backup_controller.dart';
 
 class BackupScreen extends GetView<BackupController> {
@@ -78,13 +81,13 @@ class BackupScreen extends GetView<BackupController> {
                 Text('Create backup', style: AppTextStyles.sectionTitle),
                 const SizedBox(height: 8),
                 const Text(
-                  'Includes customers, invoices, bank details, signature, payment QR, business media, and app settings.',
+                  'Includes customers, invoices, bank details, signature, payment QR, business media, and app settings. The file is encrypted with a password you choose.',
                 ),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.warning.withValues(alpha: .09),
+                    color: AppColors.success.withValues(alpha: .09),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Row(
@@ -92,13 +95,13 @@ class BackupScreen extends GetView<BackupController> {
                     children: [
                       Icon(
                         Icons.lock_outline_rounded,
-                        color: AppColors.warning,
+                        color: AppColors.success,
                         size: 20,
                       ),
                       SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'The ZIP is not encrypted. Store it only in a private, trusted location.',
+                          'Password protected. Creovo never sends this file to a server. If you forget the password, the backup cannot be opened.',
                         ),
                       ),
                     ],
@@ -111,7 +114,7 @@ class BackupScreen extends GetView<BackupController> {
                         ? null
                         : () => _confirmCreate(context),
                     icon: Icons.archive_outlined,
-                    label: 'Create and share ZIP',
+                    label: 'Create and share backup',
                     isLoading: controller.isWorking.value,
                   ),
                 ),
@@ -153,16 +156,26 @@ class BackupScreen extends GetView<BackupController> {
                 Text('Restore backup', style: AppTextStyles.sectionTitle),
                 const SizedBox(height: 8),
                 const Text(
-                  'The ZIP is fully validated before existing local data is replaced.',
+                  'The file is decrypted and validated in a temporary folder before existing local data is replaced. Older unencrypted backups still restore.',
                 ),
                 const SizedBox(height: 16),
                 Obx(
                   () => OutlinedButton.icon(
                     onPressed: controller.isWorking.value
                         ? null
-                        : () => _restore(context),
+                        : () => _openBackup(context, restore: false),
+                    icon: const Icon(Icons.verified_user_outlined),
+                    label: const Text('Verify backup'),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Obx(
+                  () => OutlinedButton.icon(
+                    onPressed: controller.isWorking.value
+                        ? null
+                        : () => _openBackup(context, restore: true),
                     icon: const Icon(Icons.restore_rounded),
-                    label: const Text('Select backup ZIP'),
+                    label: const Text('Select backup file'),
                   ),
                 ),
               ],
@@ -174,25 +187,57 @@ class BackupScreen extends GetView<BackupController> {
   );
 
   Future<void> _confirmCreate(BuildContext context) async {
-    final confirmed = await showAppConfirmDialog(
-      context: context,
-      tone: AppDialogTone.warning,
-      confirmIcon: Icons.archive_outlined,
-      title: 'Create sensitive-data backup?',
-      message:
-          'This unencrypted ZIP contains customer, invoice, bank, signature, and payment QR information. Share it only to a private location you trust.',
+    final password = await _askBackupPassword(
+      context,
+      title: 'Create encrypted backup',
       confirmLabel: 'Create backup',
+      confirmPassword: true,
     );
-    if (confirmed) await controller.createAndShare();
+    if (password == null) return;
+    await controller.createAndShare(password);
   }
 
-  Future<void> _restore(BuildContext context) async {
-    final result = await controller.selectAndValidate();
-    if (result == null) return;
-    if (!result.endsWith('.zip')) {
-      AppNotification.error('Invalid backup', result);
+  Future<void> _openBackup(
+    BuildContext context, {
+    required bool restore,
+  }) async {
+    final file = await controller.pickBackup();
+    if (file == null) return;
+    if (!context.mounted) return;
+    var password = '';
+    if (await controller.isEncrypted(file)) {
+      if (!context.mounted) return;
+      final entered = await _askBackupPassword(
+        context,
+        title: restore ? 'Unlock backup' : 'Verify backup',
+        confirmLabel: restore ? 'Continue' : 'Verify',
+      );
+      if (entered == null) return;
+      password = entered;
+    }
+    controller.isWorking.value = true;
+    late final BackupValidation validation;
+    try {
+      validation = await controller.validateBackup(
+        file,
+        password: password.isEmpty ? null : password,
+      );
+    } finally {
+      controller.isWorking.value = false;
+    }
+    if (!validation.isValid) {
+      AppNotification.error('Invalid backup', validation.message);
       return;
     }
+    if (!context.mounted) return;
+    final previewText = _previewMessage(validation.preview);
+    await showAppNoticeDialog(
+      context: context,
+      title: restore ? 'Backup preview' : 'Backup is valid',
+      message: previewText,
+      icon: Icons.verified_user_outlined,
+    );
+    if (!restore) return;
     if (!context.mounted) return;
     final confirmed = await showAppConfirmDialog(
       context: context,
@@ -206,7 +251,54 @@ class BackupScreen extends GetView<BackupController> {
     );
     if (!confirmed) return;
     if (!context.mounted) return;
-    Get.offAllNamed<void>(AppRoutes.restoreStatus, arguments: result);
+    Get.offAllNamed<void>(
+      AppRoutes.restoreStatus,
+      arguments: RestoreBackupRequest(
+        path: file.path,
+        password: password.isEmpty ? null : password,
+      ),
+    );
+  }
+
+  String _previewMessage(BackupPreview? preview) {
+    if (preview == null) {
+      return 'This backup passed validation.';
+    }
+    final created = preview.createdAt;
+    final createdLabel = created == null
+        ? 'Unknown date'
+        : '${created.toLocal().day.toString().padLeft(2, '0')}/${created.toLocal().month.toString().padLeft(2, '0')}/${created.toLocal().year}';
+    final kind = preview.legacy
+        ? 'Legacy unencrypted backup'
+        : 'Password-protected backup';
+    final name = (preview.businessName ?? '').trim();
+    final invoices = preview.invoiceCount;
+    final bills = preview.billCount;
+    final attachments = preview.attachmentCount;
+    return [
+      kind,
+      if (name.isNotEmpty) 'Business: $name',
+      'Created: $createdLabel',
+      if (invoices != null) 'Invoices: $invoices',
+      if (bills != null) 'Purchase bills: $bills',
+      if (attachments != null) 'Attachments: $attachments',
+    ].join('\n');
+  }
+
+  Future<String?> _askBackupPassword(
+    BuildContext context, {
+    required String title,
+    required String confirmLabel,
+    bool confirmPassword = false,
+  }) {
+    return showAppBottomSheet<String>(
+      context: context,
+      title: title,
+      child: _BackupPasswordForm(
+        confirmLabel: confirmLabel,
+        confirmPassword: confirmPassword,
+      ),
+    );
   }
 }
 
@@ -263,5 +355,105 @@ class _BackupStatusCard extends StatelessWidget {
     final hour = value.hour % 12 == 0 ? 12 : value.hour % 12;
     final minute = value.minute.toString().padLeft(2, '0');
     return '$date at $hour:$minute ${value.hour < 12 ? 'AM' : 'PM'}';
+  }
+}
+
+class _BackupPasswordForm extends StatefulWidget {
+  const _BackupPasswordForm({
+    required this.confirmLabel,
+    required this.confirmPassword,
+  });
+
+  final String confirmLabel;
+  final bool confirmPassword;
+
+  @override
+  State<_BackupPasswordForm> createState() => _BackupPasswordFormState();
+}
+
+class _BackupPasswordFormState extends State<_BackupPasswordForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _password = TextEditingController();
+  final _confirm = TextEditingController();
+  var _hidePassword = true;
+  var _hideConfirm = true;
+
+  @override
+  void dispose() {
+    _password.dispose();
+    _confirm.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppTextField(
+              controller: _password,
+              label: 'Backup password',
+              prefixIcon: Icons.lock_outline_rounded,
+              obscureText: _hidePassword,
+              textInputAction: widget.confirmPassword
+                  ? TextInputAction.next
+                  : TextInputAction.done,
+              validator: (value) {
+                if (value == null ||
+                    value.length < BackupService.minPasswordLength) {
+                  return 'Use at least 8 characters.';
+                }
+                return null;
+              },
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _hidePassword = !_hidePassword),
+                icon: Icon(
+                  _hidePassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+              ),
+            ),
+            if (widget.confirmPassword) ...[
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: _confirm,
+                label: 'Confirm password',
+                prefixIcon: Icons.lock_reset_rounded,
+                obscureText: _hideConfirm,
+                textInputAction: TextInputAction.done,
+                validator: (value) {
+                  if (value != _password.text) {
+                    return 'Passwords do not match.';
+                  }
+                  return null;
+                },
+                suffixIcon: IconButton(
+                  onPressed: () => setState(() => _hideConfirm = !_hideConfirm),
+                  icon: Icon(
+                    _hideConfirm
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+            AppButton(
+              label: widget.confirmLabel,
+              icon: Icons.lock_rounded,
+              onPressed: () {
+                if (!(_formKey.currentState?.validate() ?? false)) return;
+                Navigator.of(context).pop(_password.text);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

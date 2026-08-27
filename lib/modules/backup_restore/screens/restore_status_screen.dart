@@ -17,6 +17,7 @@ import '../../../data/services/backup_service.dart';
 class RestoreStatusScreen extends StatefulWidget {
   const RestoreStatusScreen({
     required this.path,
+    this.password,
     this.restoreOperation,
     this.reloadOperation,
     this.onContinue,
@@ -25,6 +26,7 @@ class RestoreStatusScreen extends StatefulWidget {
   });
 
   final String path;
+  final String? password;
   final Future<void> Function(String path)? restoreOperation;
   final Future<void> Function()? reloadOperation;
   final VoidCallback? onContinue;
@@ -57,6 +59,7 @@ class _RestoreStatusScreenState extends State<RestoreStatusScreen> {
       } else {
         restoreResult = await Get.find<BackupService>().restore(
           File(widget.path),
+          password: widget.password,
         );
       }
       await _reloadRuntime();

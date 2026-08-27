@@ -13,7 +13,7 @@ is required.
 
 Creovo is offline. Business data lives in Drift/SQLite. Settings live in
 `AppStorage` (SharedPreferences). Backup copies the **whole SQLite file** plus
-a **whitelist** of settings into an unencrypted ZIP.
+a **whitelist** of settings into a password-protected ZIP.
 
 | User action | What happens to app data | If Pro lives in SQLite or `settings.json` |
 |---|---|---|

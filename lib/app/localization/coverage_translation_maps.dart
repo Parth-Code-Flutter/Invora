@@ -522,8 +522,8 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Change PIN': 'पिन बदलें',
   'Disable app lock': 'ऐप लॉक बंद करें',
   'Set up PIN': 'पिन सेट करें',
-  'Your PIN protects access to this app on this device. It does not encrypt exported files or backups.':
-      'आपका पिन इस डिवाइस पर ऐप की पहुँच सुरक्षित करता है। यह एक्सपोर्ट की गई फ़ाइलों या बैकअप को एन्क्रिप्ट नहीं करता।',
+  'Your PIN protects access to this app on this device. Backups use a separate password. CSV exports remain unencrypted.':
+      'आपका पिन इस डिवाइस पर ऐप की पहुँच सुरक्षित करता है। बैकअप के लिए अलग पासवर्ड लगता है। CSV एक्सपोर्ट अनएन्क्रिप्टेड रहते हैं।',
   'Create PIN': 'पिन बनाएँ',
   'Confirm PIN': 'पिन की पुष्टि करें',
   'Verify PIN': 'पिन सत्यापित करें',
@@ -825,6 +825,33 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Notes added to this purchase bill': 'इस खरीद बिल में नोट जोड़े गए',
   'Add delivery, reference or internal notes':
       'डिलीवरी, संदर्भ या आंतरिक नोट जोड़ें',
+  'Includes customers, invoices, bank details, signature, payment QR, business media, and app settings. The file is encrypted with a password you choose.':
+      'इसमें ग्राहक, चालान, बैंक विवरण, हस्ताक्षर, भुगतान QR, व्यवसाय मीडिया और ऐप सेटिंग्स शामिल हैं। फ़ाइल आपके चुने पासवर्ड से एन्क्रिप्ट होती है।',
+  'Password protected. Creovo never sends this file to a server. If you forget the password, the backup cannot be opened.':
+      'पासवर्ड से सुरक्षित। Creovo इस फ़ाइल को सर्वर पर नहीं भेजता। पासवर्ड भूलने पर बैकअप नहीं खुल सकता।',
+  'Create and share backup': 'बैकअप बनाएँ और साझा करें',
+  'The file is decrypted and validated in a temporary folder before existing local data is replaced. Older unencrypted backups still restore.':
+      'मौजूदा डेटा बदलने से पहले फ़ाइल अस्थायी फ़ोल्डर में डिक्रिप्ट और जाँची जाती है। पुराने अनएन्क्रिप्टेड बैकअप भी पुनर्स्थापित होते हैं।',
+  'Verify backup': 'बैकअप सत्यापित करें',
+  'Select backup file': 'बैकअप फ़ाइल चुनें',
+  'Create encrypted backup': 'एन्क्रिप्टेड बैकअप बनाएँ',
+  'Unlock backup': 'बैकअप अनलॉक करें',
+  'Backup preview': 'बैकअप पूर्वावलोकन',
+  'Backup is valid': 'बैकअप मान्य है',
+  'Backup password': 'बैकअप पासवर्ड',
+  'Confirm password': 'पासवर्ड की पुष्टि करें',
+  'Use at least 8 characters.': 'कम से कम 8 अक्षर उपयोग करें।',
+  'Passwords do not match.': 'पासवर्ड मेल नहीं खाते।',
+  'This backup passed validation.': 'यह बैकअप मान्यता जाँच में पास हो गया।',
+  'Legacy unencrypted backup': 'पुराना अनएन्क्रिप्टेड बैकअप',
+  'Password-protected backup': 'पासवर्ड-सुरक्षित बैकअप',
+  'Keep this file and the password in a safe place.':
+      'इस फ़ाइल और पासवर्ड को सुरक्षित स्थान पर रखें।',
+  'Wrong backup password.': 'गलत बैकअप पासवर्ड।',
+  'This backup is password protected.': 'यह बैकअप पासवर्ड से सुरक्षित है।',
+  'Unsupported backup encryption version.':
+      'असमर्थित बैकअप एन्क्रिप्शन संस्करण।',
+  'Invalid backup': 'अमान्य बैकअप',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -1345,8 +1372,8 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Change PIN': 'પિન બદલો',
   'Disable app lock': 'એપ લૉક બંધ કરો',
   'Set up PIN': 'પિન સેટ કરો',
-  'Your PIN protects access to this app on this device. It does not encrypt exported files or backups.':
-      'તમારો પિન આ ડિવાઇસ પર એપની ઍક્સેસ સુરક્ષિત કરે છે. તે એક્સપોર્ટ કરેલી ફાઇલો અથવા બેકઅપને એન્ક્રિપ્ટ કરતો નથી.',
+  'Your PIN protects access to this app on this device. Backups use a separate password. CSV exports remain unencrypted.':
+      'તમારો પિન આ ડિવાઇસ પર એપની ઍક્સેસ સુરક્ષિત કરે છે. બૅકઅપ માટે અલગ પાસવર્ડ લાગે છે. CSV એક્સપોર્ટ અનએન્ક્રિપ્ટેડ રહે છે.',
   'Create PIN': 'પિન બનાવો',
   'Confirm PIN': 'પિનની પુષ્ટિ કરો',
   'Verify PIN': 'પિન ચકાસો',
@@ -1644,4 +1671,30 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Notes added to this purchase bill': 'આ ખરીદ બિલમાં નોંધ ઉમેરાઈ છે',
   'Add delivery, reference or internal notes':
       'ડિલિવરી, સંદર્ભ અથવા આંતરિક નોંધ ઉમેરો',
+  'Includes customers, invoices, bank details, signature, payment QR, business media, and app settings. The file is encrypted with a password you choose.':
+      'આમાં ગ્રાહક, ઇન્વૉઇસ, બેંક વિગતો, સહી, ચુકવણી QR, વ્યવસાય મીડિયા અને એપ સેટિંગ્સ છે. ફાઇલ તમે પસંદ કરો તે પાસવર્ડથી એન્ક્રિપ્ટ થાય છે.',
+  'Password protected. Creovo never sends this file to a server. If you forget the password, the backup cannot be opened.':
+      'પાસવર્ડથી સુરક્ષિત. Creovo આ ફાઇલ સર્વર પર મોકલતું નથી. પાસવર્ડ ભૂલી જાઓ તો બૅકઅપ ખુલી શકતો નથી.',
+  'Create and share backup': 'બૅકઅપ બનાવો અને શેર કરો',
+  'The file is decrypted and validated in a temporary folder before existing local data is replaced. Older unencrypted backups still restore.':
+      'હાલનો ડેટા બદલતા પહેલાં ફાઇલ કામચલાઉ ફોલ્ડરમાં ડિક્રિપ્ટ અને ચકાસાય છે. જૂના અનએન્ક્રિપ્ટેડ બૅકઅપ પણ પુનઃસ્થાપિત થાય છે.',
+  'Verify backup': 'બૅકઅપ ચકાસો',
+  'Select backup file': 'બૅકઅપ ફાઇલ પસંદ કરો',
+  'Create encrypted backup': 'એન્ક્રિપ્ટેડ બૅકઅપ બનાવો',
+  'Unlock backup': 'બૅકઅપ અનલૉક કરો',
+  'Backup preview': 'બૅકઅપ પૂર્વાવલોકન',
+  'Backup is valid': 'બૅકઅપ માન્ય છે',
+  'Backup password': 'બૅકઅપ પાસવર્ડ',
+  'Confirm password': 'પાસવર્ડની પુષ્ટિ કરો',
+  'Use at least 8 characters.': 'ઓછામાં ઓછા 8 અક્ષર વાપરો.',
+  'Passwords do not match.': 'પાસવર્ડ મેળ ખાતા નથી.',
+  'This backup passed validation.': 'આ બૅકઅપ માન્યતા ચકાસણીમાં પાસ થયો.',
+  'Legacy unencrypted backup': 'જૂનો અનએન્ક્રિપ્ટેડ બૅકઅપ',
+  'Password-protected backup': 'પાસવર્ડ-સુરક્ષિત બૅકઅપ',
+  'Keep this file and the password in a safe place.':
+      'આ ફાઇલ અને પાસવર્ડ સુરક્ષિત જગ્યાએ રાખો.',
+  'Wrong backup password.': 'ખોટો બૅકઅપ પાસવર્ડ.',
+  'This backup is password protected.': 'આ બૅકઅપ પાસવર્ડથી સુરક્ષિત છે.',
+  'Unsupported backup encryption version.': 'અસમર્થિત બૅકઅપ એન્ક્રિપ્શન વર્ઝન.',
+  'Invalid backup': 'અમાન્ય બૅકઅપ',
 };

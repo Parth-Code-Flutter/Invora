@@ -1681,10 +1681,14 @@ Backup & Restore
 ↓
 Create Backup
 ↓
-Generate file
+Choose password
+↓
+Generate encrypted file
 ↓
 Share / Save using native file sheet
 ```
+
+New backups are password-protected. Older unencrypted ZIP backups still restore.
 
 ---
 
@@ -1693,9 +1697,11 @@ Share / Save using native file sheet
 ```text
 Select backup file
 ↓
+Enter password if the backup is encrypted
+↓
 Validate backup structure
 ↓
-Show confirmation
+Show preview and confirmation
 ↓
 Restore data
 ↓

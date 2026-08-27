@@ -1,6 +1,6 @@
 # Creovo Billing — Offline Market Expansion Roadmap
 
-Last reviewed: 2026-08-26  
+Last reviewed: 2026-08-27  
 Status: Approved product direction  
 Goal: Capture a broad Indian small-business market without losing Creovo's
 fast, private, offline-first invoicing experience.
@@ -54,6 +54,10 @@ POS or barcode quantity changes until the stock-ledger foundation is complete.
 # P0 — Professional trust and lifecycle completeness
 
 ## P0.1 Secure backup and recovery
+
+Status: **Shipped 2026-08-27** (password-protected ZIP, verify without restore,
+preview, transactional restore, last 5 local generations in app Documents).
+User-selected backup folder is not in this slice.
 
 ### Workflow
 

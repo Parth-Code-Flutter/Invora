@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-08-26
+Last updated: 2026-08-27
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -100,7 +100,8 @@ backups.
   confirmation; changing or disabling requires the current PIN. Enabled locks
   cover cold launch and foreground return, while the stored credential is a
   salted, iterated SHA-256 hash rather than plain PIN text. This is an access
-  guard for the local app and does not encrypt SQLite data, exports, or backups.
+  guard for the local app and does not encrypt SQLite data or CSV exports.
+  Backup files use a separate password.
 - App-wide interface localization with English as the default and selectable
   Hindi or Gujarati under Settings > Appearance. The selected language is
   stored in `AppStorage`, applies immediately, and survives restart. Shared
@@ -165,14 +166,20 @@ backups.
 - Offline backup/restore with validation and database rollback; validation
   rejects missing/invalid schema metadata and embedded files without a valid
   SQLite signature before replacing application data
-- Backup workspace warns that ZIP exports are sensitive and unencrypted, shows
-  the last successful device backup, supports 7/14/30-day or disabled local
-  reminders, and moves restore work onto a dedicated database-free status route
-  before replacing the Drift database. It rebuilds the database-bound runtime
-  after replacement and only then allows navigation to resume, preventing live
-  controllers from querying a closed isolate. Restored logo, signature, and QR
-  assets are remapped to current-device paths instead of retaining absolute
-  paths from the source installation. Due reminders also appear on the dashboard.
+- New backups are password-protected ZIP files (AES-256-GCM, PBKDF2-HMAC-SHA256).
+  The workspace asks for a password on create, verify, and restore; shows a
+  restore preview (business, date, counts); verifies without touching live
+  data; and keeps the last 5 encrypted copies under the app Documents folder.
+  Older unencrypted v1 ZIPs still restore without a password. Wrong passwords
+  do not replace the live database. PIN lock remains a separate access guard.
+- Backup workspace shows the last successful device backup, supports 7/14/30-day
+  or disabled local reminders, and moves restore work onto a dedicated
+  database-free status route before replacing the Drift database. It rebuilds
+  the database-bound runtime after replacement and only then allows navigation
+  to resume, preventing live controllers from querying a closed isolate.
+  Restored logo, signature, and QR assets are remapped to current-device paths
+  instead of retaining absolute paths from the source installation. Due
+  reminders also appear on the dashboard.
 
 ### Customers
 
@@ -448,11 +455,11 @@ transfer automatically.
 
 ## Verification baseline
 
-As of 2026-08-26:
+As of 2026-08-27:
 
 - Flutter analysis: no issues
-- Automated suite: all 157 tests passing, including tablet shell, onboarding,
-  two-pane home, constrained-action, signature capture, and first-launch
+- Automated suite: 161 tests passing, including encrypted backup create/verify/
+  restore, legacy unencrypted ZIP restore, tablet shell, and first-launch
   routing coverage
 - Android debug APK builds successfully
 - Full release builds and physical-device end-to-end testing remain required
@@ -468,8 +475,9 @@ As of 2026-08-26:
 3. Verify Android AAB and iOS archive release builds.
 4. Complete native Android/iOS picker, share, print, restore/restart, gesture,
    and high-volume checks in `docs/QA_CHECKLIST.md`.
-5. Consider password-encrypted backup exports after V1; core compatibility,
-   database rollback, and corruption coverage are implemented.
+5. Physical-device QA of encrypted backup: wrong password, verify without
+   restore, airplane-mode restore, legacy unencrypted ZIP, and second-device
+   media path remapping.
 6. Complete store privacy declarations and iOS privacy-manifest review.
 7. Test all PDFs with long, multi-page, and Unicode content.
 8. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
@@ -488,6 +496,19 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-27 — Password-protected backups
+
+- New backups are encrypted ZIP files with a plaintext `manifest.json` and an
+  AES-256-GCM `payload.bin`. Create, verify, and restore ask for a password
+  (minimum 8 characters). Verify decrypts in memory and does not replace live
+  data. Restore still uses the isolated status route, WAL checkpoint, and
+  `.before_restore` rollback. The last 5 local copies are kept under
+  `Documents/creovo_backups`. Older unencrypted v1 ZIPs still restore without
+  a password. App lock PIN remains separate; CSV exports stay unencrypted.
+- Important files: `backup_crypto.dart`, `backup_service.dart`,
+  `backup_screen.dart`, `backup_controller.dart`, `restore_status_screen.dart`.
+- Verified with formatting, analysis, and the automated suite (161 tests).
 
 ### 2026-08-26 — Serial numbers on every invoice PDF
 

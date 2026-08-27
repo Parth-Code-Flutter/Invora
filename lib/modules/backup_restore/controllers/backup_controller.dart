@@ -28,20 +28,28 @@ class BackupController extends GetxController {
     return DateTime.now().difference(created).inDays >= days;
   }
 
-  Future<void> createAndShare() async {
+  Future<void> createAndShare(String password) async {
     isWorking.value = true;
     try {
-      final file = await _service.createBackup();
+      final file = await _service.createBackup(password: password);
       lastBackup.value = file;
       lastBackupAt.value = _service.lastBackupAt;
       await _service.shareBackup(file);
       AppNotification.success(
         'Backup created',
-        'Keep this ZIP file in a safe location.',
+        'Keep this file and the password in a safe place.',
       );
     } finally {
       isWorking.value = false;
     }
+  }
+
+  Future<File?> pickBackup() => _service.pickBackup();
+
+  Future<bool> isEncrypted(File file) => _service.isEncryptedBackup(file);
+
+  Future<BackupValidation> validateBackup(File file, {String? password}) {
+    return _service.validate(file, password: password);
   }
 
   Future<void> setReminderDays(int days) async {
@@ -52,13 +60,5 @@ class BackupController extends GetxController {
       reminderDays.value = _service.reminderDays;
       rethrow;
     }
-  }
-
-  Future<String?> selectAndValidate() async {
-    final file = await _service.pickBackup();
-    if (file == null) return null;
-    final validation = await _service.validate(file);
-    if (!validation.isValid) return validation.message;
-    return file.path;
   }
 }

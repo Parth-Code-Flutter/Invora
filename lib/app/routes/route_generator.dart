@@ -33,6 +33,7 @@ import '../../modules/invoices/screens/invoice_preview_screen.dart';
 import '../../modules/invoices/screens/payment_receipt_screen.dart';
 import '../../modules/reports/bindings/report_binding.dart';
 import '../../modules/reports/screens/report_screen.dart';
+import '../../data/services/backup_service.dart';
 import '../../modules/backup_restore/bindings/backup_binding.dart';
 import '../../modules/backup_restore/screens/backup_screen.dart';
 import '../../modules/backup_restore/screens/restore_status_screen.dart';
@@ -235,7 +236,13 @@ abstract final class AppRouter {
     ),
     GetPage(
       name: AppRoutes.restoreStatus,
-      page: () => RestoreStatusScreen(path: Get.arguments as String),
+      page: () {
+        final args = Get.arguments;
+        if (args is RestoreBackupRequest) {
+          return RestoreStatusScreen(path: args.path, password: args.password);
+        }
+        return RestoreStatusScreen(path: args as String);
+      },
     ),
     GetPage(
       name: AppRoutes.reports,

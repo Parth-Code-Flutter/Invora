@@ -1,6 +1,6 @@
 # Creovo Billing — Production Roadmap
 
-Last reviewed: 2026-08-12  
+Last reviewed: 2026-08-27  
 Target: Public Android and iOS release for real end-users  
 Product boundary: Fast, private, offline GST invoicing—not full accounting
 
@@ -88,13 +88,14 @@ Status: **Implemented for every historical launch schema through v8**
 
 Status: **Implemented for V1 launch safety**
 
-- Warn before export that ZIPs contain customer, invoice, bank, signature, and
-  QR information and are not encrypted.
+- Warn before export that backups contain customer, invoice, bank, signature,
+  and QR information and require a password to open.
 - Show the last successful backup date and whether a backup is due.
 - Provide configurable 7/14/30-day local reminders, surfaced on the dashboard.
 - Cover damaged, incomplete, old-version, newer-version, successful restore,
   and failed database-replacement rollback behaviour with automated tests.
-- Consider optional password-encrypted backup files.
+- Password-protected backups (AES-256-GCM) with verify-without-restore, restore
+  preview, five local generations, and legacy unencrypted ZIP restore.
 - Restore completion now provides explicit, non-dismissible restart guidance.
 
 #### 4. Unsaved-change protection
