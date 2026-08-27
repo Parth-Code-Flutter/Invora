@@ -16,6 +16,9 @@ The fixed V1 scope remains in
 The approved post-foundation market priorities and their offline behavior are
 defined in
 [OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md).
+Locked store names, listing copy, and the upload sequence are in
+[STORE_DEPLOYMENT.md](STORE_DEPLOYMENT.md). Do not invent a new brand at
+submit time.
 
 ## First feature we are picking
 
@@ -366,7 +369,8 @@ Prioritize only after public V1 is stable:
 9. Release signing and release artifacts
 10. End-to-end, PDF visual, accessibility, and physical-device QA
 11. Closed beta with 10–20 real businesses
-12. Fix beta findings and submit public V1
+12. Fix beta findings and submit public V1 using
+    [STORE_DEPLOYMENT.md](STORE_DEPLOYMENT.md)
 
 ## Definition of ready for public launch
 

@@ -4,6 +4,7 @@ Last updated: 2026-08-27
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
+Store listing and upload (do not submit yet): [STORE_DEPLOYMENT.md](STORE_DEPLOYMENT.md)
 Licensing and demo APK (design only): [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md)
 Purchase readiness priorities: [PURCHASE_READINESS_ROADMAP.md](PURCHASE_READINESS_ROADMAP.md)
 
@@ -30,6 +31,15 @@ backups.
 - Local PDF generation, preview, save, share, and print
 
 ## Current implementation
+
+### Store identity (not submitted)
+
+Public listing names are locked in [STORE_DEPLOYMENT.md](STORE_DEPLOYMENT.md).
+Brand is **Creovo** (say Kree-oh-vo). Play / App Store title is
+**Creovo: GST Invoice Billing**. Do not submit store builds from this document
+alone; complete the pre-submit checklist there. Android/iOS package IDs remain
+`com.creovo.billing`. The in-app and launcher label is still Creovo Billing
+until a dedicated launch identity pass shortens the home-screen name to Creovo.
 
 ### Application foundation
 
@@ -565,6 +575,9 @@ As of 2026-08-27:
     RevenueCat/Play/App Store billing; direct APKs use GSTIN-bound keys;
     client demos use a dated `demo` flavor kill switch, not a first-launch
     timer in local storage. Do not put Pro or demo expiry in the backup ZIP.
+16. Play / App Store submission is not started. When features and release
+    signing are ready, follow [STORE_DEPLOYMENT.md](STORE_DEPLOYMENT.md). Do
+    not change `com.creovo.billing` or reopen the brand name.
 
 Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
@@ -572,6 +585,18 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-27 — Play / App Store deployment guide
+
+- Added `docs/STORE_DEPLOYMENT.md` so a later session can publish without
+  re-deciding the brand. Locked names: brand **Creovo**, store title
+  **Creovo: GST Invoice Billing**, package ID `com.creovo.billing`. Includes
+  listing copy, Data Safety stance, signing/upload sequence, and a pre-submit
+  blocker list. Linked from Start Here and the production roadmap.
+- No code, schema, or store-account changes. Do not submit until the checklist
+  in that file is complete.
+- Important files: `docs/STORE_DEPLOYMENT.md`, `docs/START_HERE.md`,
+  `docs/PRODUCTION_ROADMAP.md`, and this handoff.
 
 ### 2026-08-27 — To collect is a chase queue
 

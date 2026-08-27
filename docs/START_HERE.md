@@ -40,6 +40,7 @@ expansion-roadmap item, the expansion roadmap wins.
 
 - Purchase foundation: `PURCHASE_READINESS_ROADMAP.md`
 - Public release: `PRODUCTION_ROADMAP.md`
+- Play / App Store listing and upload: `STORE_DEPLOYMENT.md`
 - Licensing/demo: `LICENSING_AND_DEMO.md`
 
 These add detail but do not override current facts in `PROJECT_HANDOFF.md` or
