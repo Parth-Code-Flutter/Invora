@@ -329,8 +329,8 @@ Status: **Implemented**
 Prioritize only after public V1 is stable:
 
 - Recurring invoices
-- Local due-date notifications
-- One-tap WhatsApp/email reminder templates
+- Local due-date notifications (ageing reminder share shipped 2026-08-27;
+  scheduled notifications remain later work)
 - Sales credit notes shipped 2026-08-27 (see PROJECT_HANDOFF.md); purchase
   returns/debit notes and restock remain later work
 - GST / CA export shipped 2026-08-27 (Prepared pack only; GST return filing

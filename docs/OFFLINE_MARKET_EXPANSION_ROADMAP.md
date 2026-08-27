@@ -186,6 +186,11 @@ Reference: [Zoho expense features](https://www.zoho.com/in/invoice/features/)
 
 ## P0.8 Receivable/payable ageing and reminders
 
+Status: **Shipped this slice 2026-08-27** (Not due / 1–30 / 31–60 / 61–90 /
+90+ buckets for open invoices and purchase bills; localized reminder text;
+native share; Prepared / Shared / Skipped, never Delivered). Local due-date
+notifications and snooze remain later work.
+
 - Buckets: Not due, 1–30, 31–60, 61–90, 90+ days; each drills into exact records.
 - Prepare localized reminder messages in bulk or individually.
 - Open native share/WhatsApp/SMS; record Prepared/Shared/Skipped, never falsely

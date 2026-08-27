@@ -27,4 +27,5 @@ abstract final class AppStorageKeyConst {
   static const appLockEnabled = 'app_lock_enabled';
   static const appLockPinHash = 'app_lock_pin_hash';
   static const appLockPinSalt = 'app_lock_pin_salt';
+  static const ageingReminderEvents = 'ageing_reminder_events';
 }

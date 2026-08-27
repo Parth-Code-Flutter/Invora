@@ -36,6 +36,7 @@ import '../../modules/invoices/screens/payment_receipt_screen.dart';
 import '../../modules/reports/bindings/report_binding.dart';
 import '../../modules/reports/screens/report_screen.dart';
 import '../../modules/reports/screens/gst_export_screen.dart';
+import '../../modules/reports/screens/ageing_screen.dart';
 import '../../data/services/backup_service.dart';
 import '../../modules/backup_restore/bindings/backup_binding.dart';
 import '../../modules/backup_restore/screens/backup_screen.dart';
@@ -266,6 +267,11 @@ abstract final class AppRouter {
       name: AppRoutes.gstExport,
       page: GstExportScreen.new,
       binding: GstExportBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.ageing,
+      page: AgeingScreen.new,
+      binding: AgeingBinding(),
     ),
     GetPage(
       name: AppRoutes.invoicePreview,

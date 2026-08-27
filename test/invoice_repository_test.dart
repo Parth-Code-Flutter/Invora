@@ -343,6 +343,7 @@ void main() {
         customer: 'February Client',
         company: 'February Studio',
         totalMinor: 34000,
+        paidMinor: 34000,
         status: InvoiceStatus.paid,
         date: DateTime(2025, 2, 8),
       ),
@@ -357,6 +358,35 @@ void main() {
     expect(january.pendingCount, 1);
     expect(january.monthlySales.last.month, DateTime(2025, 1));
     expect(january.monthlySales.last.amountMinor, 12000);
+    expect(january.previousTotalSalesMinor, 0);
+
+    final february = await repository
+        .watchMonthlyReport(DateTime(2025, 2))
+        .first;
+    expect(february.totalSalesMinor, 34000);
+    expect(february.previousTotalSalesMinor, 12000);
+    expect(february.salesChangePercent, closeTo(183.33, 0.1));
+    expect(february.paidCount, 1);
+
+    final fy = await repository
+        .watchPeriodReport(
+          from: DateTime(2025, 1, 1),
+          to: DateTime(2025, 2, 28),
+          previousFrom: DateTime(2024, 1, 1),
+          previousTo: DateTime(2024, 2, 29),
+        )
+        .first;
+    expect(fy.totalSalesMinor, 46000);
+    expect(fy.invoiceCount, 2);
+    expect(fy.monthlySales.length, 12);
+    expect(
+      fy.monthlySales.take(10).every((point) => point.amountMinor == 0),
+      isTrue,
+    );
+    expect(fy.monthlySales[10].month, DateTime(2025, 1));
+    expect(fy.monthlySales[10].amountMinor, 12000);
+    expect(fy.monthlySales.last.amountMinor, 34000);
+    expect(fy.monthlySales.last.receivedMinor, 34000);
   });
 
   test('renders every PDF template with the INR Unicode font', () async {

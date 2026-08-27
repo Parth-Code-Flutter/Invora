@@ -57,6 +57,14 @@ class PurchaseRepository extends BaseRepository {
     return _supplier(row);
   }
 
+  Future<List<PurchaseBillSummary>> listOpenPayables() async {
+    final rows = await database.select(database.purchaseBills).get();
+    return rows
+        .map(_summary)
+        .where((bill) => bill.status != 'cancelled' && bill.balanceMinor > 0)
+        .toList();
+  }
+
   Stream<List<PurchaseBillSummary>> watchBills({String query = ''}) {
     final statement = database.select(database.purchaseBills)
       ..orderBy([

@@ -187,6 +187,9 @@ class BackupService {
       AppStorageKeyConst.backupReminderDays: _storage.getInt(
         AppStorageKeyConst.backupReminderDays,
       ),
+      AppStorageKeyConst.ageingReminderEvents: _storage.getString(
+        AppStorageKeyConst.ageingReminderEvents,
+      ),
     });
     archive.addFile(ArchiveFile.string('settings.json', settings));
     final innerBytes = ZipEncoder().encode(archive);

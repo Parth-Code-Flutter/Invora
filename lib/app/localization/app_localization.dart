@@ -73,6 +73,9 @@ abstract final class AppLocalizer {
       'recommendations · all optional',
       'active',
       'field',
+      'vs last period',
+      'from last period',
+      'collected',
     ];
     for (final suffix in translatedSuffixes) {
       final marker = ' $suffix';

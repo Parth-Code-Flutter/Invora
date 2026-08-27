@@ -14,6 +14,30 @@ abstract final class CurrencyUtils {
     return '$whole.$fraction';
   }
 
+  static String compactMinor(int minor, {required String symbol}) {
+    final rupees = minor / 100;
+    final sign = rupees < 0 ? '-' : '';
+    final abs = rupees.abs();
+    if (abs >= 10000000) {
+      return '$sign$symbol${_oneDecimal(abs / 10000000)}Cr';
+    }
+    if (abs >= 100000) {
+      return '$sign$symbol${_oneDecimal(abs / 100000)}L';
+    }
+    if (abs >= 1000) {
+      return '$sign$symbol${_oneDecimal(abs / 1000)}k';
+    }
+    return formatMinor(minor, symbol: symbol);
+  }
+
+  static String _oneDecimal(double value) {
+    final rounded = value >= 10
+        ? value.roundToDouble()
+        : (value * 10).round() / 10;
+    if (rounded == rounded.roundToDouble()) return '${rounded.round()}';
+    return rounded.toStringAsFixed(1);
+  }
+
   static String formatMinor(int minor, {required String symbol}) {
     final whole = minor ~/ 100;
     final fraction = (minor % 100).abs();

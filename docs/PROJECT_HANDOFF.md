@@ -155,8 +155,8 @@ backups.
 - More and App Settings use classic grouped settings panels: one bordered
   card per section, inset hairline dividers, compact 14px rows, plum icon
   wells, and a chevron instead of a circular arrow. More is the daily hub:
-  workspace switch, product fields, units, catalog, estimates, reports, GST /
-  CA export, and backup. App Settings is unique preferences only: business
+  workspace switch, product fields, units, catalog, estimates, reports, ageing
+  and reminders, GST / CA export, and backup. App Settings is unique preferences only: business
   profile, invoice defaults, dark mode, language, app lock, CSV export, and
   about. Product settings, units, GST / CA export, and backup are not repeated
   inside Settings. More leads with a quiet business identity card (name plus
@@ -377,9 +377,21 @@ backups.
   Credit notes / Purchases / HSN / Issues). Preview PDF opens the CA summary
   the same way as a customer statement. Exception rows open the source
   document. GSTN GSTR-1 JSON, OTP filing, IRN, and e-way are out of this slice.
-- Dashboard totals and basic reports. Monthly sales are posted invoices minus
-  credit notes dated in that month; received stays actual payments; outstanding
-  uses each invoice’s remaining balance after payments and applied credit.
+- Ageing & reminders groups open receivables and payables into Not due, 1–30,
+  31–60, 61–90, and 90+ day buckets (as of today). Tapping a row opens the
+  invoice or purchase bill. Users can share one reminder or the visible bucket
+  through the native share sheet. Status is Prepared, Shared, or Skipped —
+  never Delivered. Local due-date notifications and snooze are out of this
+  slice. Reminder status is stored in app preferences and included in backup.
+  Entry points: More and Reports.
+- Dashboard totals and Reports. Monthly sales are posted invoices minus
+  credit notes dated in that period; received stays actual payments;
+  outstanding uses each invoice’s remaining balance after payments and applied
+  credit. Reports now offer This month / Last month / This FY / Last FY /
+  Custom, a collection progress bar, received/outstanding KPI tiles, and a
+  12-month Line or Bars chart with a y-axis, grid, and selected-month
+  amounts. Empty months stay a faint baseline. Paid and pending counts sit
+  in an invoice-mix donut and open the invoice list; outstanding opens Ageing.
 - Dashboard Home is an action surface: a branded this-month snapshot with a
   collection ring, sparkline, month-over-month trend, and Invoiced / Received /
   Outstanding chips, overdue and due-this-week follow-up rows, backup when due,
@@ -412,6 +424,9 @@ backups.
   points, notes, terms, and payment method. All are included in ZIP settings
   backup/restore; no database migration is required.
 - Evaluate every new `AppStorage` value for inclusion in `BackupService`.
+- Ageing reminder statuses use `AppStorageKeyConst.ageingReminderEvents` and
+  are included in ZIP settings backup/restore; no database migration is
+  required.
 - `last_backup_at` records device-local export history and is intentionally not
   restored. `backup_reminder_days` is included in settings backup/restore;
   `restore_completed` records that the app must reload restored state.
@@ -498,10 +513,10 @@ As of 2026-08-27:
 
 ## Known issues / next work
 
-1. Add purchase CSV export and payable ageing buckets after field-testing the
-   new supplier statement, reversal, cancellation, tax-evidence, and attachment
-   workflows. Purchase bills already generate, preview, share, save, and print
-   their own PDFs.
+1. Add purchase CSV export after field-testing the new supplier statement,
+   reversal, cancellation, tax-evidence, and attachment workflows. Purchase
+   bills already generate, preview, share, save, and print their own PDFs.
+   Payable ageing buckets shipped 2026-08-27 with receivable ageing.
 2. Configure secure Android release signing; release still references debug
    signing.
 3. Verify Android AAB and iOS archive release builds.
@@ -513,18 +528,23 @@ As of 2026-08-27:
 6. Physical-device QA of sales credit notes: partial return, over-return
    blocked, paid-invoice refund vs customer credit, apply leftover credit to
    another invoice, customer statement, credit-note PDF, and airplane mode.
-7. Next implementation: receivable/payable ageing and reminder share per
+7. Next implementation: immutable stock ledger per
    [OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md).
+   Do not start barcode quantity changes or POS until that ledger exists.
 8. Physical-device QA of GST / CA export: This month / This FY / custom range,
    B2B vs B2C, credit notes, purchase ITC, exception list, share/save ZIP pack
    in airplane mode, and confirm no file is labelled Submitted.
-9. Complete store privacy declarations and iOS privacy-manifest review.
-10. Test all PDFs with long, multi-page, and Unicode content.
-11. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
+9. Physical-device QA of ageing & reminders: Not due / 1–30 / 90+ buckets for
+   invoices and bills, share one reminder and a bucket list in airplane mode,
+   confirm status is Prepared / Shared / Skipped and never Delivered, and
+   restore reminder status from backup.
+10. Complete store privacy declarations and iOS privacy-manifest review.
+11. Test all PDFs with long, multi-page, and Unicode content.
+12. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
    Tablet presentation (rail, two-column lists, capped CTAs, onboarding) is
    implemented; remaining work is device QA, not missing layout primitives.
-12. Add CI for formatting, analysis, tests, and release validation.
-13. Licensing / monetization is design-only. When picked up, follow
+13. Add CI for formatting, analysis, tests, and release validation.
+14. Licensing / monetization is design-only. When picked up, follow
     [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md): store builds use
     RevenueCat/Play/App Store billing; direct APKs use GSTIN-bound keys;
     client demos use a dated `demo` flavor kill switch, not a first-launch
@@ -536,6 +556,32 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-27 — Reports period options and trend charts
+
+- Reports is a dashboard: period chips, net sales with a collection progress
+  bar, received/outstanding tiles, a 12-month Line/Bars chart (y-axis, grid,
+  sales vs received, selected-month amounts), and an invoice-mix donut.
+  Empty months stay a faint baseline so one busy month cannot fill the card.
+  Paid / pending open the invoice list; outstanding opens Ageing.
+- Important files: `report_screen.dart`, `report_controller.dart`,
+  `report_charts.dart`, `report_summary_model.dart`, `invoice_repository.dart`.
+- Verification: Dart formatting, `flutter analyze`, and monthly/period report
+  tests.
+
+### 2026-08-27 — Ageing buckets and reminder share
+
+- Receivable and payable ageing groups open invoices and purchase bills into
+  Not due, 1–30, 31–60, 61–90, and 90+ day buckets as of today. Users drill
+  into a bucket, open the document, and share a localized reminder (one row
+  or the visible bucket) through the native share sheet. Status is Prepared,
+  Shared, or Skipped — never Delivered. Local notifications and snooze are
+  out of this slice. Reminder status is stored in app preferences and backed
+  up. Entry points: More and Reports.
+- Important files: `ageing_model.dart`, `ageing_service.dart`,
+  `ageing_controller.dart`, `ageing_screen.dart`, routes, More / Reports
+  entry points, backup settings key, and `ageing_service_test.dart`.
+- Verified with formatting, analysis, and ageing tests.
 
 ### 2026-08-27 — Distinct More hub and App Settings
 

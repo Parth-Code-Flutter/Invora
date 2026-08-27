@@ -1,5 +1,49 @@
 // Reviewed translations for screen-level UI copy not covered by the core map.
 const Map<String, String> appHindiCoverageTranslations = {
+  'Ageing & reminders': 'बकाया आयु और अनुस्मारक',
+  'Buckets to collect or pay, then share a reminder':
+      'वसूली या भुगतान के बकेट, फिर अनुस्मारक साझा करें',
+  'Not due through 90+ days, then share a prepared reminder':
+      'अदेय से 90+ दिन तक, फिर तैयार अनुस्मारक साझा करें',
+  'To collect': 'वसूली',
+  'To pay': 'भुगतान',
+  'Not due': 'अभी देय नहीं',
+  'Share reminders': 'अनुस्मारक साझा करें',
+  'Share reminder': 'अनुस्मारक साझा करें',
+  'Nothing outstanding in this bucket.': 'इस बकेट में कोई बकाया नहीं है।',
+  'Reminders stay Prepared, Shared, or Skipped — never Delivered.':
+      'अनुस्मारक Prepared, Shared या Skipped रहते हैं — Delivered कभी नहीं।',
+  'Prepared, never Delivered': 'तैयार, डिलीवर नहीं',
+  'Ageing is unavailable.': 'आयु रिपोर्ट उपलब्ध नहीं है।',
+  'Ageing failed': 'आयु रिपोर्ट विफल',
+  'Outstanding documents could not be grouped. Please try again.':
+      'बकाया दस्तावेज़ समूहित नहीं हो सके। कृपया फिर कोशिश करें।',
+  'Reminder failed': 'अनुस्मारक विफल',
+  'The message could not be shared. Please try again.':
+      'संदेश साझा नहीं हो सका। कृपया फिर कोशिश करें।',
+  'Skipped': 'छोड़ा गया',
+  'Shared': 'साझा किया',
+  'Collection': 'वसूली',
+  'Net sales': 'शुद्ध बिक्री',
+  'Your sales': 'आपकी बिक्री',
+  'Invoice mix': 'चालान मिश्रण',
+  'Line': 'रेखा',
+  'Last 12 months': 'पिछले 12 महीने',
+  'from last period': 'पिछली अवधि से',
+  'From last period': 'पिछली अवधि से',
+  'All collected': 'सब वसूला गया',
+  'collected': 'वसूला',
+  'Received against invoices in this period':
+      'इस अवधि के चालानों के मुकाबले प्राप्त',
+  'Trend': 'रुझान',
+  'Bars': 'बार',
+  'New vs last period': 'पिछली अवधि से नया',
+  'vs last period': 'पिछली अवधि से',
+  'Net of': 'घटाने के बाद',
+  'Net of 1 credit note': '1 क्रेडिट नोट घटाने के बाद',
+  'credit note': 'क्रेडिट नोट',
+  'credit notes': 'क्रेडिट नोट',
+  'This period': 'इस अवधि',
   'Choose language': 'भाषा चुनें',
   'You can change the app language anytime.':
       'आप कभी भी ऐप की भाषा बदल सकते हैं।',
@@ -968,6 +1012,49 @@ const Map<String, String> appHindiCoverageTranslations = {
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
+  'Ageing & reminders': 'બાકી આયુ અને યાદ',
+  'Buckets to collect or pay, then share a reminder':
+      'વસૂલવા અથવા ચૂકવવાના બકેટ, પછી યાદ શેર કરો',
+  'Not due through 90+ days, then share a prepared reminder':
+      'બાકી નથી થી 90+ દિવસ, પછી તૈયાર યાદ શેર કરો',
+  'To collect': 'વસૂલવું',
+  'To pay': 'ચૂકવવું',
+  'Not due': 'હજુ બાકી નથી',
+  'Share reminders': 'યાદ શેર કરો',
+  'Share reminder': 'યાદ શેર કરો',
+  'Nothing outstanding in this bucket.': 'આ બકેટમાં કશું બાકી નથી.',
+  'Reminders stay Prepared, Shared, or Skipped — never Delivered.':
+      'યાદ Prepared, Shared અથવા Skipped રહે છે — Delivered ક્યારેય નહીં.',
+  'Prepared, never Delivered': 'તૈયાર, ડિલિવર નહીં',
+  'Ageing is unavailable.': 'આયુ રિપોર્ટ ઉપલબ્ધ નથી.',
+  'Ageing failed': 'આયુ રિપોર્ટ નિષ્ફળ',
+  'Outstanding documents could not be grouped. Please try again.':
+      'બાકી દસ્તાવેજો ગ્રુપ ન થયા. કૃપા કરી ફરી પ્રયાસ કરો.',
+  'Reminder failed': 'યાદ નિષ્ફળ',
+  'The message could not be shared. Please try again.':
+      'સંદેશ શેર ન થયો. કૃપા કરી ફરી પ્રયાસ કરો.',
+  'Skipped': 'છોડ્યું',
+  'Shared': 'શેર કર્યું',
+  'Collection': 'વસૂલાત',
+  'Net sales': 'ચોખ્ખી વેચાણ',
+  'Your sales': 'તમારું વેચાણ',
+  'Invoice mix': 'ઇન્વૉઇસ મિશ્રણ',
+  'Line': 'લાઇન',
+  'Last 12 months': 'છેલ્લા 12 મહિના',
+  'from last period': 'પાછલા સમયગાળા કરતાં',
+  'From last period': 'પાછલા સમયગાળા કરતાં',
+  'All collected': 'બધું વસૂલ થયું',
+  'collected': 'વસૂલ થયું',
+  'Received against invoices in this period': 'આ સમયગાળાના ઇન્વૉઇસ સામે મળેલું',
+  'Trend': 'વલણ',
+  'Bars': 'બાર',
+  'New vs last period': 'પાછલા સમયગાળા કરતાં નવું',
+  'vs last period': 'પાછલા સમયગાળા કરતાં',
+  'Net of': 'બાદબાકી પછી',
+  'Net of 1 credit note': '1 ક્રેડિટ નોટ બાદબાકી પછી',
+  'credit note': 'ક્રેડિટ નોટ',
+  'credit notes': 'ક્રેડિટ નોટ',
+  'This period': 'આ સમયગાળો',
   'Choose language': 'ભાષા પસંદ કરો',
   'You can change the app language anytime.':
       'તમે એપની ભાષા કોઈપણ સમયે બદલી શકો છો.',

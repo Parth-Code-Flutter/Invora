@@ -22,14 +22,59 @@ class InvoiceRepository extends BaseRepository {
       watchMonthlyReport(DateTime.now());
 
   Stream<ReportSummaryModel> watchMonthlyReport(DateTime selectedMonth) {
+    final monthStart = DateTime(selectedMonth.year, selectedMonth.month);
+    final monthEnd = DateTime(selectedMonth.year, selectedMonth.month + 1, 0);
+    final previousStart = DateTime(monthStart.year, monthStart.month - 1);
+    final previousEnd = DateTime(monthStart.year, monthStart.month, 0);
+    final trendMonths = List.generate(6, (index) {
+      final offset = 5 - index;
+      return DateTime(monthStart.year, monthStart.month - offset);
+    });
+    return _watchReport(
+      from: monthStart,
+      to: monthEnd,
+      previousFrom: previousStart,
+      previousTo: previousEnd,
+      trendMonths: trendMonths,
+    );
+  }
+
+  Stream<ReportSummaryModel> watchPeriodReport({
+    required DateTime from,
+    required DateTime to,
+    required DateTime previousFrom,
+    required DateTime previousTo,
+  }) {
+    final end = DateTime(to.year, to.month);
+    final trendMonths = List.generate(12, (index) {
+      final offset = 11 - index;
+      return DateTime(end.year, end.month - offset);
+    });
+    return _watchReport(
+      from: DateTime(from.year, from.month, from.day),
+      to: DateTime(to.year, to.month, to.day),
+      previousFrom: DateTime(
+        previousFrom.year,
+        previousFrom.month,
+        previousFrom.day,
+      ),
+      previousTo: DateTime(previousTo.year, previousTo.month, previousTo.day),
+      trendMonths: trendMonths,
+    );
+  }
+
+  Stream<ReportSummaryModel> _watchReport({
+    required DateTime from,
+    required DateTime to,
+    required DateTime previousFrom,
+    required DateTime previousTo,
+    required List<DateTime> trendMonths,
+  }) {
     return database.select(database.invoices).watch().asyncMap((rows) async {
-      final monthStart = DateTime(selectedMonth.year, selectedMonth.month);
       final credits = await database.select(database.creditNotes).get();
-      final current = rows.where(
+      final posted = rows.where(
         (row) =>
             row.documentType == DocumentType.invoice.name &&
-            row.invoiceDate.year == monthStart.year &&
-            row.invoiceDate.month == monthStart.month &&
             row.status != InvoiceStatus.draft.name &&
             row.status != InvoiceStatus.cancelled.name,
       );
@@ -39,58 +84,65 @@ class InvoiceRepository extends BaseRepository {
       var count = 0;
       var paid = 0;
       var pending = 0;
-      final monthStarts = List.generate(6, (index) {
-        final offset = 5 - index;
-        return DateTime(monthStart.year, monthStart.month - offset);
-      });
-      final monthlySales = monthStarts
+      var previousSales = 0;
+      var previousReceived = 0;
+      var creditCount = 0;
+      var creditMinor = 0;
+      final monthlySales = trendMonths
           .map((month) => MonthlySalesPoint(month: month, amountMinor: 0))
           .toList();
-      for (final row in rows.where(
-        (row) =>
-            row.documentType == DocumentType.invoice.name &&
-            row.status != InvoiceStatus.draft.name &&
-            row.status != InvoiceStatus.cancelled.name,
-      )) {
-        final index = monthStarts.indexWhere(
+
+      for (final row in posted) {
+        final index = trendMonths.indexWhere(
           (month) =>
               month.year == row.invoiceDate.year &&
               month.month == row.invoiceDate.month,
         );
         if (index >= 0) {
           monthlySales[index] = MonthlySalesPoint(
-            month: monthStarts[index],
+            month: trendMonths[index],
             amountMinor: monthlySales[index].amountMinor + row.grandTotalMinor,
+            receivedMinor:
+                monthlySales[index].receivedMinor + row.paidAmountMinor,
           );
+        }
+        if (_inRange(row.invoiceDate, from, to)) {
+          sales += row.grandTotalMinor;
+          received += row.paidAmountMinor;
+          outstanding += row.balanceMinor;
+          count++;
+          if (row.status == InvoiceStatus.paid.name) {
+            paid++;
+          } else {
+            pending++;
+          }
+        }
+        if (_inRange(row.invoiceDate, previousFrom, previousTo)) {
+          previousSales += row.grandTotalMinor;
+          previousReceived += row.paidAmountMinor;
         }
       }
       for (final credit in credits) {
-        final index = monthStarts.indexWhere(
+        final index = trendMonths.indexWhere(
           (month) =>
               month.year == credit.creditNoteDate.year &&
               month.month == credit.creditNoteDate.month,
         );
         if (index >= 0) {
           monthlySales[index] = MonthlySalesPoint(
-            month: monthStarts[index],
+            month: trendMonths[index],
             amountMinor:
                 monthlySales[index].amountMinor - credit.grandTotalMinor,
+            receivedMinor: monthlySales[index].receivedMinor,
           );
         }
-        if (credit.creditNoteDate.year == monthStart.year &&
-            credit.creditNoteDate.month == monthStart.month) {
+        if (_inRange(credit.creditNoteDate, from, to)) {
           sales -= credit.grandTotalMinor;
+          creditCount++;
+          creditMinor += credit.grandTotalMinor;
         }
-      }
-      for (final row in current) {
-        sales += row.grandTotalMinor;
-        received += row.paidAmountMinor;
-        outstanding += row.balanceMinor;
-        count++;
-        if (row.status == InvoiceStatus.paid.name) {
-          paid++;
-        } else {
-          pending++;
+        if (_inRange(credit.creditNoteDate, previousFrom, previousTo)) {
+          previousSales -= credit.grandTotalMinor;
         }
       }
       return ReportSummaryModel(
@@ -100,9 +152,20 @@ class InvoiceRepository extends BaseRepository {
         invoiceCount: count,
         paidCount: paid,
         pendingCount: pending,
+        creditNoteCount: creditCount,
+        creditNoteMinor: creditMinor,
+        previousTotalSalesMinor: previousSales,
+        previousReceivedMinor: previousReceived,
         monthlySales: monthlySales,
       );
     });
+  }
+
+  static bool _inRange(DateTime date, DateTime from, DateTime to) {
+    final day = DateTime(date.year, date.month, date.day);
+    final start = DateTime(from.year, from.month, from.day);
+    final end = DateTime(to.year, to.month, to.day);
+    return !day.isBefore(start) && !day.isAfter(end);
   }
 
   Stream<List<InvoiceSummaryModel>> watchSummaries({
@@ -253,6 +316,33 @@ class InvoiceRepository extends BaseRepository {
       database.invoices,
     )..where((table) => table.id.equals(id))).getSingleOrNull();
     return row == null ? null : _load(row);
+  }
+
+  Future<List<InvoiceSummaryModel>> listOpenReceivables() async {
+    final rows =
+        await (database.select(database.invoices)..where(
+              (table) => table.documentType.equals(DocumentType.invoice.name),
+            ))
+            .get();
+    return [
+      for (final row in rows)
+        InvoiceSummaryModel(
+          id: row.id,
+          customerId: row.customerId,
+          invoiceNumber: row.invoiceNumber,
+          customerName: row.customerName,
+          companyName: row.customerCompany,
+          invoiceDate: row.invoiceDate,
+          dueDate: row.dueDate,
+          status: InvoiceStatus.values.byName(row.status),
+          grandTotalMinor: row.grandTotalMinor,
+          balanceMinor: row.balanceMinor,
+        ),
+    ].where((invoice) {
+      if (invoice.balanceMinor <= 0) return false;
+      return invoice.status != InvoiceStatus.draft &&
+          invoice.status != InvoiceStatus.cancelled;
+    }).toList();
   }
 
   Future<List<InvoicePaymentModel>> getPayments(int invoiceId) async {

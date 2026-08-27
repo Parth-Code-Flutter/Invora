@@ -134,6 +134,13 @@ class MoreScreen extends GetView<MoreController> {
                     onTap: () => Get.toNamed<void>(AppRoutes.reports),
                   ),
                   AppMenuTile(
+                    icon: Icons.hourglass_bottom_rounded,
+                    title: 'Ageing & reminders',
+                    subtitle:
+                        'Buckets to collect or pay, then share a reminder',
+                    onTap: () => Get.toNamed<void>(AppRoutes.ageing),
+                  ),
+                  AppMenuTile(
                     icon: Icons.account_balance_outlined,
                     title: 'GST / CA export',
                     subtitle: 'Prepared registers for your accountant',

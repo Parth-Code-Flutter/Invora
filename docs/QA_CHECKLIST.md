@@ -114,10 +114,19 @@ remain intentionally out of scope until explicitly requested.
   Refund the remainder and confirm the statement shows both the credit note
   and the refund.
 - Share/print the credit-note PDF in airplane mode.
+- Open Reports. Switch This month / Last month / This FY. Confirm twelve
+  months on the chart with a y-axis (empty months are a faint baseline, not a
+  filled bar), Line and Bars, collection progress, KPI tiles, and the
+  invoice-mix donut. Tap a month on the chart. Tap Paid, Pending, and
+  Outstanding.
 - Open GST / CA export from More and Reports. Confirm This month,
   This FY, and a custom range. Share the ZIP pack in airplane mode and confirm
   every file says Prepared / Not submitted — never Submitted. Check B2B vs B2C,
   a credit note, a purchase ITC row, and the exception list.
+- Open Ageing & reminders from More and Reports. Confirm To collect and To pay
+  buckets (Not due, 1–30, 90+). Share one reminder and the visible list in
+  airplane mode. Confirm status is Prepared / Shared / Skipped — never
+  Delivered. Restore a backup and confirm reminder status returns.
 - Exercise iOS swipe-back and Android system-back on every protected form.
 - Run invoice creation with keyboard open on smallest supported phones.
 - Check tablet portrait/landscape for all main lists, forms, and PDF preview.
