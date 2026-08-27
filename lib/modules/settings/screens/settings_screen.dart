@@ -131,6 +131,12 @@ class SettingsScreen extends GetView<SettingsController> {
                 onTap: () => Get.toNamed<void>(AppRoutes.dataExport),
               ),
               AppMenuTile(
+                icon: Icons.account_balance_outlined,
+                title: 'GST / CA export',
+                subtitle: 'Prepared registers for your accountant',
+                onTap: () => Get.toNamed<void>(AppRoutes.gstExport),
+              ),
+              AppMenuTile(
                 icon: Icons.settings_backup_restore,
                 title: 'Backup & restore',
                 subtitle: 'Protect your offline records',

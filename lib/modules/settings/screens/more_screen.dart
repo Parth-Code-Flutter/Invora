@@ -134,6 +134,12 @@ class MoreScreen extends GetView<MoreController> {
                     onTap: () => Get.toNamed<void>(AppRoutes.reports),
                   ),
                   AppMenuTile(
+                    icon: Icons.account_balance_outlined,
+                    title: 'GST / CA export',
+                    subtitle: 'Prepared registers for your accountant',
+                    onTap: () => Get.toNamed<void>(AppRoutes.gstExport),
+                  ),
+                  AppMenuTile(
                     icon: Icons.settings_backup_restore_rounded,
                     title: 'Backup & restore',
                     subtitle: 'Export or restore your offline records',

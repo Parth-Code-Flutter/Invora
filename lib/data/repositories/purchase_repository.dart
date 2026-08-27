@@ -575,6 +575,13 @@ class PurchaseRepository extends BaseRepository {
   int _financialYear(DateTime date) =>
       date.month >= 4 ? date.year : date.year - 1;
 
+  Future<SupplierModel?> getSupplier(int id) async {
+    final row = await (database.select(
+      database.suppliers,
+    )..where((table) => table.id.equals(id))).getSingleOrNull();
+    return row == null ? null : _supplier(row);
+  }
+
   SupplierModel _supplier(Supplier s) => SupplierModel(
     id: s.id,
     name: s.name,

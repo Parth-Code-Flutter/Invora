@@ -171,6 +171,44 @@ class ReportScreen extends GetView<ReportController> {
                 ],
               ),
             ),
+            const SizedBox(height: 14),
+            AppCard(
+              onTap: () => Get.toNamed<void>(AppRoutes.gstExport),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.account_balance_outlined,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('GST / CA export', style: AppTextStyles.cardTitle),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Prepared registers for your accountant',
+                          style: AppTextStyles.small,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textTertiary,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       );

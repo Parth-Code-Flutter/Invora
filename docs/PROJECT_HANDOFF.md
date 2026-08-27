@@ -365,6 +365,15 @@ backups.
   for invoices; paid-at date for payments) with ISO dates, decimal major-unit
   amounts, and explicit status/tax/payment fields. Date-range sales summaries
   export as CSV or a Unicode A4 PDF and are also reachable from Reports.
+- GST / CA export prepares period and financial-year sales, credit-note, and
+  purchase registers plus HSN/SAC and missing-data exceptions. The workspace
+  is reachable from More, Reports, and Settings > Data. Files are always
+  labelled Prepared / Not submitted. CSV registers, a CA summary PDF, and a
+  ZIP pack can be saved or shared offline. The workspace shows the register
+  on screen (Sales / Credit notes / Purchases / HSN / Issues). Preview PDF
+  opens the CA summary the same way as a customer statement. Exception rows
+  open the source document. GSTN GSTR-1 JSON, OTP filing, IRN, and e-way
+  are out of this slice.
 - Dashboard totals and basic reports. Monthly sales are posted invoices minus
   credit notes dated in that month; received stays actual payments; outstanding
   uses each invoice’s remaining balance after payments and applied credit.
@@ -501,15 +510,18 @@ As of 2026-08-27:
 6. Physical-device QA of sales credit notes: partial return, over-return
    blocked, paid-invoice refund vs customer credit, apply leftover credit to
    another invoice, customer statement, credit-note PDF, and airplane mode.
-7. Next implementation: GST/CA export (offline file, labelled Prepared not
-   Submitted) per [OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md).
-8. Complete store privacy declarations and iOS privacy-manifest review.
-9. Test all PDFs with long, multi-page, and Unicode content.
-10. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
+7. Next implementation: receivable/payable ageing and reminder share per
+   [OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md).
+8. Physical-device QA of GST / CA export: This month / This FY / custom range,
+   B2B vs B2C, credit notes, purchase ITC, exception list, share/save ZIP pack
+   in airplane mode, and confirm no file is labelled Submitted.
+9. Complete store privacy declarations and iOS privacy-manifest review.
+10. Test all PDFs with long, multi-page, and Unicode content.
+11. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
    Tablet presentation (rail, two-column lists, capped CTAs, onboarding) is
    implemented; remaining work is device QA, not missing layout primitives.
-11. Add CI for formatting, analysis, tests, and release validation.
-12. Licensing / monetization is design-only. When picked up, follow
+12. Add CI for formatting, analysis, tests, and release validation.
+13. Licensing / monetization is design-only. When picked up, follow
     [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md): store builds use
     RevenueCat/Play/App Store billing; direct APKs use GSTIN-bound keys;
     client demos use a dated `demo` flavor kill switch, not a first-launch
@@ -521,6 +533,34 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-27 — GST / CA export view and layout
+
+- GST / CA export now follows the same pattern as customer statements and
+  apps such as Vyapar: the register is on this screen (Sales, Credit notes,
+  Purchases, HSN/SAC, Issues). Tap a row to open the document. Preview PDF
+  opens the CA summary in the native PDF sheet, with share/print there.
+  Share pack stays in the AppBar; save pack / share this register / print
+  are in the overflow menu. There is no separate View page.
+- Important files: `gst_export_screen.dart`, `gst_export_controller.dart`.
+- Verified with formatting, analysis, and the automated suite.
+
+### 2026-08-27 — GST / CA export
+
+- Offline GST / accountant export prepares period and financial-year sales,
+  credit-note, and purchase registers, an HSN/SAC summary, and missing GSTIN /
+  HSN exceptions. Files are always labelled Prepared / Not submitted. Users can
+  save or share individual CSVs, a CA summary PDF, or a ZIP pack. GSTN GSTR-1
+  JSON, OTP filing, IRN, and e-way are out of this slice. Entry points: More,
+  Reports, and Settings > Data.
+- Indian FY presets start on 1 April. B2B is a 15-character GSTIN; anything
+  else is B2C. Credit notes dated in the period are included even when the
+  source invoice is outside the range. ITC is tax on ITC-eligible purchase
+  bills only. Draft, cancelled, and quotation documents are excluded.
+- Important files: `gst_export_model.dart`, `gst_export_service.dart`,
+  `gst_export_screen.dart`, `gst_export_controller.dart`, routes, More /
+  Reports / Settings entry points, and `gst_export_service_test.dart`.
+- Verified with formatting, analysis, and the automated suite.
 
 ### 2026-08-27 — Credit note create polish
 

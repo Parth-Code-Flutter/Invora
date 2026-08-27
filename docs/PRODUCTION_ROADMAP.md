@@ -195,6 +195,11 @@ Status: **Implemented**
   and a Unicode A4 report PDF. Invoice ranges use invoice date and payment
   ranges use ledger-entry date.
 
+GST / CA export (shipped 2026-08-27) is a separate workspace: period/FY
+registers, B2B/B2C, credit notes, purchases/ITC, HSN/SAC, and exceptions as
+CSV + PDF + ZIP, always labelled Prepared / Not submitted. GSTN portal JSON
+and filing are still out of V1.
+
 #### 11. Invoice defaults
 
 Status: **Implemented**
@@ -328,6 +333,8 @@ Prioritize only after public V1 is stable:
 - One-tap WhatsApp/email reminder templates
 - Sales credit notes shipped 2026-08-27 (see PROJECT_HANDOFF.md); purchase
   returns/debit notes and restock remain later work
+- GST / CA export shipped 2026-08-27 (Prepared pack only; GST return filing
+  remains out of V1)
 - Proforma invoice and delivery challan
 - Multiple businesses
 - Additional languages

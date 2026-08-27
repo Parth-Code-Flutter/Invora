@@ -212,6 +212,12 @@ Reference: [Square deposits/payment schedules](https://squareup.com/us/en/invoic
 
 ## P0.10 GST reporting and accountant export
 
+Status: **Shipped this slice 2026-08-27** (period/FY sales, credit-note, and
+purchase registers; B2B/B2C; HSN/SAC; missing-data exceptions; CSV + CA PDF +
+ZIP pack labelled Prepared / Not submitted). GSTN GSTR-1 JSON, OTP filing,
+IRN, e-way generation, XLSX, and import of signed portal acknowledgements
+remain later work.
+
 Generate period/financial-year sales/purchase registers, B2B/B2C/exempt/export,
 HSN/SAC, rate/tax, ITC, reverse charge, credit/debit notes and missing-data
 exceptions. Export CSV/XLSX/PDF and supported portal JSON with schema version.

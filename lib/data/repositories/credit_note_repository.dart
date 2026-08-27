@@ -48,6 +48,21 @@ class CreditNoteRepository extends BaseRepository {
     return Future.wait(rows.map(_toSummary));
   }
 
+  Future<List<CreditNoteModel>> listInRange(DateTime from, DateTime to) async {
+    final start = DateTime(from.year, from.month, from.day);
+    final end = DateTime(to.year, to.month, to.day, 23, 59, 59, 999);
+    final rows =
+        await (database.select(database.creditNotes)
+              ..where(
+                (table) =>
+                    table.creditNoteDate.isBiggerOrEqualValue(start) &
+                    table.creditNoteDate.isSmallerOrEqualValue(end),
+              )
+              ..orderBy([(table) => OrderingTerm.asc(table.creditNoteDate)]))
+            .get();
+    return Future.wait(rows.map(_load));
+  }
+
   Future<List<CreditNoteSummaryModel>> unappliedForCustomer(
     int customerId,
   ) async {

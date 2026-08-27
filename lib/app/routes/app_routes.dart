@@ -35,6 +35,7 @@ abstract final class AppRoutes {
   static const quotations = '/quotations';
   static const quotationCreate = '/quotation/create';
   static const reports = '/reports';
+  static const gstExport = '/reports/gst-export';
   static const settings = '/settings';
   static const invoiceDefaults = '/settings/invoice-defaults';
   static const dataExport = '/settings/data-export';

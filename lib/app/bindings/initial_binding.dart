@@ -9,6 +9,7 @@ import '../../data/services/invoice_pdf_service.dart';
 import '../../data/services/credit_note_pdf_service.dart';
 import '../../data/services/invoice_defaults_service.dart';
 import '../../data/services/data_export_service.dart';
+import '../../data/services/gst_export_service.dart';
 import '../../data/services/product_settings_service.dart';
 import '../../data/services/payment_receipt_pdf_service.dart';
 import '../../data/services/purchase_bill_pdf_service.dart';
@@ -91,6 +92,7 @@ class InitialBinding extends Bindings {
     await _deleteDataController<InvoiceListController>(
       tag: InvoiceListController.quotationTag,
     );
+    await Get.delete<GstExportService>(force: true);
     await Get.delete<DataExportService>(force: true);
     await Get.delete<BackupService>(force: true);
     await Get.delete<CreditNoteRepository>(force: true);
@@ -155,6 +157,15 @@ class InitialBinding extends Bindings {
         Get.find<CustomerRepository>(),
         Get.find<ProductRepository>(),
         Get.find<InvoiceRepository>(),
+      ),
+      permanent: true,
+    );
+    Get.put<GstExportService>(
+      GstExportService(
+        Get.find<BusinessRepository>(),
+        Get.find<InvoiceRepository>(),
+        Get.find<CreditNoteRepository>(),
+        Get.find<PurchaseRepository>(),
       ),
       permanent: true,
     );

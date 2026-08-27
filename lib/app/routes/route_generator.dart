@@ -35,6 +35,7 @@ import '../../modules/invoices/screens/invoice_preview_screen.dart';
 import '../../modules/invoices/screens/payment_receipt_screen.dart';
 import '../../modules/reports/bindings/report_binding.dart';
 import '../../modules/reports/screens/report_screen.dart';
+import '../../modules/reports/screens/gst_export_screen.dart';
 import '../../data/services/backup_service.dart';
 import '../../modules/backup_restore/bindings/backup_binding.dart';
 import '../../modules/backup_restore/screens/backup_screen.dart';
@@ -260,6 +261,11 @@ abstract final class AppRouter {
       name: AppRoutes.reports,
       page: ReportScreen.new,
       binding: ReportBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.gstExport,
+      page: GstExportScreen.new,
+      binding: GstExportBinding(),
     ),
     GetPage(
       name: AppRoutes.invoicePreview,

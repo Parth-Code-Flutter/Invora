@@ -72,6 +72,9 @@ remain intentionally out of scope until explicitly requested.
   leftover kept as customer credit or refunded, apply leftover to another
   invoice of the same customer, statement credit-note/refund rows, credit-note
   PDF bytes, and invoice lock after a credit note.
+- GST / CA export: B2B vs B2C, credit notes in period, missing HSN exception,
+  ITC from eligible purchases, FY helper, CSV headers on empty ranges,
+  Prepared never Submitted, and a non-empty ZIP pack.
 - Database V5/V6/V7 upgrades through V9 and failed-migration data preservation.
 - Required-field, mobile, email, money, quantity, tax, payment, and date rules.
 - Unsaved-change clean exit, continue editing, discard, and Save draft.
@@ -111,6 +114,10 @@ remain intentionally out of scope until explicitly requested.
   Refund the remainder and confirm the statement shows both the credit note
   and the refund.
 - Share/print the credit-note PDF in airplane mode.
+- Open GST / CA export from More, Reports, and Settings. Confirm This month,
+  This FY, and a custom range. Share the ZIP pack in airplane mode and confirm
+  every file says Prepared / Not submitted — never Submitted. Check B2B vs B2C,
+  a credit note, a purchase ITC row, and the exception list.
 - Exercise iOS swipe-back and Android system-back on every protected form.
 - Run invoice creation with keyboard open on smallest supported phones.
 - Check tablet portrait/landscape for all main lists, forms, and PDF preview.
