@@ -119,6 +119,8 @@ void main() {
     expect(find.text('Expenses'), findsOneWidget);
     expect(find.text('Reports'), findsOneWidget);
     expect(find.text('Create invoice'), findsNothing);
+    expect(find.text('Needs follow-up'), findsNothing);
+    expect(find.text('Recent invoices'), findsNothing);
     expect(tester.takeException(), isNull);
 
     await tester.pumpWidget(const SizedBox.shrink());

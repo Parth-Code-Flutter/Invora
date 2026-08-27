@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
+import '../../../app/enums/invoice_status.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
@@ -114,19 +115,19 @@ class DashboardScreen extends GetView<DashboardController> {
               if (!controller.recentLoading.value &&
                   (overdue.isNotEmpty || dueSoon.isNotEmpty)) ...[
                 const SizedBox(height: AppSpacing.sm),
-                _AttentionCard(
-                  overdueCount: overdue.length,
-                  overdueAmount: controller.overdueAmount(),
-                  dueSoonCount: dueSoon.length,
-                  dueSoonAmount: controller.dueSoonAmount(),
-                  oldestName: overdue.isNotEmpty
-                      ? overdue.first.customerName
-                      : dueSoon.first.customerName,
+                _CollectCard(
+                  overdue: overdue,
+                  dueSoon: dueSoon,
                   symbol: _symbol,
                   onOverdue: () =>
                       controller.openInvoiceList(InvoiceListFilter.overdue),
                   onDueSoon: () =>
                       controller.openInvoiceList(InvoiceListFilter.unpaid),
+                  onViewAll: () => controller.openInvoiceList(
+                    overdue.isNotEmpty
+                        ? InvoiceListFilter.overdue
+                        : InvoiceListFilter.unpaid,
+                  ),
                 ),
               ],
               if (!controller.reportLoading.value &&
@@ -138,105 +139,6 @@ class DashboardScreen extends GetView<DashboardController> {
                     controller.refreshBackupStatus();
                   },
                 ),
-              ],
-              const SizedBox(height: AppSpacing.lg),
-              _SectionHeader(
-                title: showFollowUp ? 'Needs follow-up' : 'Recent invoices',
-                subtitle: controller.recentLoading.value
-                    ? 'Loading billing activity'
-                    : showFollowUp
-                    ? '${followUp.length} ${followUp.length == 1 ? 'invoice' : 'invoices'} to collect'
-                    : controller.recentInvoices.isEmpty
-                    ? 'Latest billing activity'
-                    : '${controller.recentInvoices.length} most recent',
-                actionLabel: 'View all',
-                onAction: () => controller.openInvoiceList(
-                  overdue.isNotEmpty
-                      ? InvoiceListFilter.overdue
-                      : showFollowUp
-                      ? InvoiceListFilter.unpaid
-                      : InvoiceListFilter.all,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              if (controller.recentLoading.value)
-                const _RecentInvoicesLoading()
-              else if (!showFollowUp && controller.recentInvoices.isEmpty)
-                AppCard(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 16,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.receipt_long_outlined,
-                          color: AppColors.primary,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'No invoices yet',
-                              style: AppTextStyles.listName,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Create an invoice to see activity here.',
-                              style: AppTextStyles.small.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else ...[
-                for (
-                  var i = 0;
-                  i <
-                      (showFollowUp
-                          ? followUp.length
-                          : controller.recentInvoices.length);
-                  i++
-                )
-                  Padding(
-                    padding: EdgeInsets.only(
-                      bottom:
-                          i ==
-                              (showFollowUp
-                                      ? followUp.length
-                                      : controller.recentInvoices.length) -
-                                  1
-                          ? 0
-                          : 8,
-                    ),
-                    child: AppInvoiceSummaryCard(
-                      invoice: showFollowUp
-                          ? followUp[i]
-                          : controller.recentInvoices[i],
-                      currencySymbol: _symbol,
-                      onTap: () => Get.toNamed<void>(
-                        AppRoutes.invoiceDetails,
-                        arguments: showFollowUp
-                            ? followUp[i].id
-                            : controller.recentInvoices[i].id,
-                      ),
-                    ),
-                  ),
               ],
             ],
           );
@@ -303,19 +205,19 @@ class _TabletDashboardHome extends StatelessWidget {
               if (!controller.recentLoading.value &&
                   (overdue.isNotEmpty || dueSoon.isNotEmpty)) ...[
                 const SizedBox(height: AppSpacing.sm),
-                _AttentionCard(
-                  overdueCount: overdue.length,
-                  overdueAmount: controller.overdueAmount(),
-                  dueSoonCount: dueSoon.length,
-                  dueSoonAmount: controller.dueSoonAmount(),
-                  oldestName: overdue.isNotEmpty
-                      ? overdue.first.customerName
-                      : dueSoon.first.customerName,
+                _CollectCard(
+                  overdue: overdue,
+                  dueSoon: dueSoon,
                   symbol: symbol,
                   onOverdue: () =>
                       controller.openInvoiceList(InvoiceListFilter.overdue),
                   onDueSoon: () =>
                       controller.openInvoiceList(InvoiceListFilter.unpaid),
+                  onViewAll: () => controller.openInvoiceList(
+                    overdue.isNotEmpty
+                        ? InvoiceListFilter.overdue
+                        : InvoiceListFilter.unpaid,
+                  ),
                 ),
               ],
               if (!controller.reportLoading.value &&
@@ -709,145 +611,340 @@ class _JumpAction extends StatelessWidget {
   }
 }
 
-class _AttentionCard extends StatelessWidget {
-  const _AttentionCard({
-    required this.overdueCount,
-    required this.overdueAmount,
-    required this.dueSoonCount,
-    required this.dueSoonAmount,
-    required this.oldestName,
+class _CollectCard extends StatelessWidget {
+  const _CollectCard({
+    required this.overdue,
+    required this.dueSoon,
     required this.symbol,
     required this.onOverdue,
     required this.onDueSoon,
+    required this.onViewAll,
   });
 
-  final int overdueCount;
-  final int overdueAmount;
-  final int dueSoonCount;
-  final int dueSoonAmount;
-  final String oldestName;
+  final List<InvoiceSummaryModel> overdue;
+  final List<InvoiceSummaryModel> dueSoon;
   final String symbol;
   final VoidCallback onOverdue;
   final VoidCallback onDueSoon;
+  final VoidCallback onViewAll;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppCard(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      padding: EdgeInsets.zero,
+      color: isDark ? const Color(0xFF3B2038) : Colors.white,
+      borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
+      child: _CollectQueue(
+        overdue: overdue,
+        dueSoon: dueSoon,
+        symbol: symbol,
+        onOverdue: onOverdue,
+        onDueSoon: onDueSoon,
+        onViewAll: onViewAll,
+      ),
+    );
+  }
+}
+
+class _CollectQueue extends StatelessWidget {
+  const _CollectQueue({
+    required this.overdue,
+    required this.dueSoon,
+    required this.symbol,
+    required this.onOverdue,
+    required this.onDueSoon,
+    required this.onViewAll,
+  });
+
+  static const _visibleCount = 3;
+
+  final List<InvoiceSummaryModel> overdue;
+  final List<InvoiceSummaryModel> dueSoon;
+  final String symbol;
+  final VoidCallback onOverdue;
+  final VoidCallback onDueSoon;
+  final VoidCallback onViewAll;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final queue = [...overdue, ...dueSoon];
+    final visible = queue.take(_visibleCount).toList();
+    final overdueAmount = overdue.fold<int>(
+      0,
+      (sum, invoice) => sum + invoice.balanceMinor,
+    );
+    final dueSoonAmount = dueSoon.fold<int>(
+      0,
+      (sum, invoice) => sum + invoice.balanceMinor,
+    );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (overdueCount > 0)
-            _AttentionRow(
-              icon: Icons.error_outline_rounded,
-              color: AppColors.error,
-              fill: AppColors.errorLight,
-              title: overdueCount == 1
-                  ? '1 invoice overdue'
-                  : '$overdueCount invoices overdue',
-              subtitle: oldestName.trim().isEmpty ? null : oldestName,
-              amountMinor: overdueAmount,
-              symbol: symbol,
-              onTap: onOverdue,
-            ),
-          if (overdueCount > 0 && dueSoonCount > 0) const Divider(height: 1),
-          if (dueSoonCount > 0)
-            _AttentionRow(
-              icon: Icons.event_available_outlined,
-              color: AppColors.warning,
-              fill: AppColors.warningLight,
-              title: dueSoonCount == 1
-                  ? '1 due this week'
-                  : '$dueSoonCount due this week',
-              amountMinor: dueSoonAmount,
-              symbol: symbol,
-              onTap: onDueSoon,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  'To collect',
+                  style: AppTextStyles.listName.copyWith(fontSize: 14),
+                ),
+              ),
+              TextButton(
+                onPressed: onViewAll,
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  minimumSize: const Size(0, 32),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  textStyle: AppTextStyles.caption.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                child: const Text('View all'),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              if (overdue.isNotEmpty)
+                Expanded(
+                  child: _CollectFilter(
+                    label: 'Overdue',
+                    count: overdue.length,
+                    amountMinor: overdueAmount,
+                    symbol: symbol,
+                    color: AppColors.error,
+                    onTap: onOverdue,
+                  ),
+                ),
+              if (overdue.isNotEmpty && dueSoon.isNotEmpty)
+                const SizedBox(width: 8),
+              if (dueSoon.isNotEmpty)
+                Expanded(
+                  child: _CollectFilter(
+                    label: 'This week',
+                    count: dueSoon.length,
+                    amountMinor: dueSoonAmount,
+                    symbol: symbol,
+                    color: AppColors.warning,
+                    onTap: onDueSoon,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          for (var i = 0; i < visible.length; i++) ...[
+            if (i > 0)
+              Divider(
+                height: 1,
+                color: isDark ? AppColors.darkBorder : const Color(0xFFF0E6EA),
+              ),
+            _CollectPersonRow(invoice: visible[i], symbol: symbol),
+          ],
         ],
       ),
     );
   }
 }
 
-class _AttentionRow extends StatelessWidget {
-  const _AttentionRow({
-    required this.icon,
-    required this.color,
-    required this.fill,
-    required this.title,
+class _CollectFilter extends StatelessWidget {
+  const _CollectFilter({
+    required this.label,
+    required this.count,
     required this.amountMinor,
     required this.symbol,
+    required this.color,
     required this.onTap,
-    this.subtitle,
   });
 
-  final IconData icon;
-  final Color color;
-  final Color fill;
-  final String title;
-  final String? subtitle;
+  final String label;
+  final int count;
   final int amountMinor;
   final String symbol;
+  final Color color;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      color: color.withValues(alpha: isDark ? 0.18 : 0.12),
       borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '$label · $count',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: color,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              AppAmountText(
+                amountMinor: amountMinor,
+                symbol: symbol,
+                color: color,
+                style: AppTextStyles.listAmount.copyWith(
+                  fontSize: 12,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CollectPersonRow extends StatelessWidget {
+  const _CollectPersonRow({required this.invoice, required this.symbol});
+
+  final InvoiceSummaryModel invoice;
+  final String symbol;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final now = DateTime.now();
+    final overdue = invoice.effectiveStatus(now) == InvoiceStatus.overdue;
+    final color = overdue ? AppColors.error : AppColors.warning;
+    final name = invoice.customerName.trim().isEmpty
+        ? 'Customer not selected'
+        : invoice.customerName.trim();
+    final secondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+    return InkWell(
+      onTap: () =>
+          Get.toNamed<void>(AppRoutes.invoiceDetails, arguments: invoice.id),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 34,
-              height: 34,
+              width: 36,
+              height: 36,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: fill,
-                borderRadius: BorderRadius.circular(10),
+                color: color.withValues(alpha: isDark ? 0.22 : 0.12),
+                shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 18),
+              child: Text(
+                _collectInitials(name),
+                style: AppTextStyles.caption.copyWith(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTextStyles.listName),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 1),
-                    Text(
-                      subtitle!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.listName.copyWith(
+                            fontSize: 13.5,
+                          ),
+                        ),
                       ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        width: 88,
+                        child: AppAmountText(
+                          amountMinor: invoice.balanceMinor,
+                          symbol: symbol,
+                          color: color,
+                          textAlign: TextAlign.end,
+                          style: AppTextStyles.listAmount.copyWith(
+                            fontSize: 13.5,
+                            color: color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${invoice.invoiceNumber} · ${_collectDueLabel(invoice, overdue, now)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(
+                      color: overdue ? AppColors.error : secondary,
+                      fontSize: 11,
                     ),
-                  ],
+                  ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            AppAmountColumn(
-              maxWidth: 110,
-              children: [
-                AppAmountText(
-                  amountMinor: amountMinor,
-                  symbol: symbol,
-                  color: color,
-                  style: AppTextStyles.listAmount.copyWith(
-                    fontSize: 13,
-                    color: color,
-                  ),
-                ),
-              ],
-            ),
-            Icon(Icons.chevron_right_rounded, color: color, size: 20),
           ],
         ),
       ),
     );
   }
+}
+
+String _collectInitials(String value) {
+  final words = value
+      .split(RegExp(r'\s+'))
+      .where((word) => word.isNotEmpty)
+      .toList();
+  if (words.isEmpty) return '?';
+  if (words.length == 1) return words.first.substring(0, 1).toUpperCase();
+  return '${words.first[0]}${words.last[0]}'.toUpperCase();
+}
+
+String _collectDueLabel(
+  InvoiceSummaryModel invoice,
+  bool overdue,
+  DateTime now,
+) {
+  if (overdue) return 'Overdue';
+  final due = invoice.dueDate;
+  if (due == null) return 'Due this week';
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  final stamp = due.year == now.year
+      ? '${due.day} ${months[due.month - 1]}'
+      : '${due.day} ${months[due.month - 1]} ${due.year}';
+  return 'Due $stamp';
 }
 
 class _BackupReminderPrompt extends StatelessWidget {

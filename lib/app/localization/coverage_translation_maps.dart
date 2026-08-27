@@ -6,6 +6,8 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Not due through 90+ days, then share a prepared reminder':
       'अदेय से 90+ दिन तक, फिर तैयार अनुस्मारक साझा करें',
   'To collect': 'वसूली',
+  'This week': 'इस सप्ताह',
+  'Due this week': 'इस सप्ताह देय',
   'To pay': 'भुगतान',
   'Not due': 'अभी देय नहीं',
   'Share reminders': 'अनुस्मारक साझा करें',
@@ -1070,6 +1072,8 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Not due through 90+ days, then share a prepared reminder':
       'બાકી નથી થી 90+ દિવસ, પછી તૈયાર યાદ શેર કરો',
   'To collect': 'વસૂલવું',
+  'This week': 'આ અઠવાડિયે',
+  'Due this week': 'આ અઠવાડિયે ચૂકવવાનું',
   'To pay': 'ચૂકવવું',
   'Not due': 'હજુ બાકી નથી',
   'Share reminders': 'યાદ શેર કરો',

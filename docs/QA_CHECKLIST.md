@@ -79,9 +79,9 @@ remain intentionally out of scope until explicitly requested.
 - Required-field, mobile, email, money, quantity, tax, payment, and date rules.
 - Unsaved-change clean exit, continue editing, discard, and Save draft.
 - Onboarding tablet-landscape layout and dashboard small-phone dark-mode layout.
-- Dashboard Home: snapshot jump strip (Products, Estimates, Expenses, Reports)
-  then overdue and the follow-up list. The center + still creates. Invoices
-  and Customers stay in the dock.
+- Dashboard Home: snapshot jump strip (Products, Estimates, Expenses, Reports).
+  To collect shows Overdue/This week filters and up to three people to chase.
+  Phone has no extra invoice stack. The center + still creates.
 - Customer and invoice lists use animated skeleton loading and staggered row
   entry; reduced-motion accessibility bypasses list entrance animation.
 - All app-owned dialogs use the shared modern modal surface. Recheck unsaved

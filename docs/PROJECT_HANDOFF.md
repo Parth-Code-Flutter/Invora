@@ -400,14 +400,15 @@ backups.
   amounts. Empty months stay a faint baseline. Paid and pending counts sit
   in an invoice-mix donut and open the invoice list; outstanding opens Ageing.
 - Dashboard Home is an action surface: a branded this-month snapshot with a
-  collection ring, sparkline, month-over-month trend, and Invoiced / Received /
-  Outstanding chips, overdue and due-this-week follow-up rows, backup when due,
-  a PhonePe-style jump strip on the snapshot (Products, Estimates, Expenses,
-  Reports), and either invoices that need collection or the latest five.
-  Tapping overdue/outstanding opens the invoice list on the matching filter.
-  Create stays on the center + (phone) and the sales rail FAB (tablet).
-  Invoices, Customers, and GST / CA export are not duplicated on Home.
-  The invoiced total is not repeated as a third chip. Purchase Home uses the
+  collection ring, sparkline, month-over-month trend, Received / Outstanding
+  chips, and a PhonePe-style jump strip (Products, Estimates, Expenses,
+  Reports). To collect is a separate card under that snapshot: compact Overdue
+  / This week filters, then up to three people with the balance due. Tap a
+  name to open that invoice; View all opens the filtered list. Phone Home
+  does not repeat a full invoice stack. Tablets still show follow-up or recent
+  invoices in the right pane. Backup appears when due. Create stays on the
+  center + (phone) and the sales rail FAB (tablet). Invoices, Customers, and
+  GST / CA export are not duplicated as Home tiles. Purchase Home uses the
   same snapshot language for payables (amount to pay, paid ring, and Purchased /
   Paid / Overdue chips).
 - Automated whole-flow QA covers the offline GST lifecycle from business,
@@ -571,6 +572,31 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-27 — To collect is a chase queue
+
+- Home To collect is now a work list, not two summary tiles. Overdue and
+  This week are compact filters; up to three customers show the amount still
+  due. Tap a row to open that invoice. View all opens the matching list.
+- Important file: `dashboard_screen.dart`. No schema/storage changes.
+- Verification: Dart formatting, `flutter analyze`, and dashboard layout tests.
+
+### 2026-08-27 — To-collect tiles on Home
+
+- Outstanding on Home now splits into two tappable tiles: Overdue (amount,
+  invoice count, oldest customer) and Due this week. Tap opens the matching
+  invoice filter. Replaces the stacked list rows under the jump strip.
+- Important file: `dashboard_screen.dart`. No schema/storage changes.
+- Verification: Dart formatting, `flutter analyze`, and dashboard layout tests.
+
+### 2026-08-27 — Phone Home drops the invoice stack
+
+- Phone Home no longer lists follow-up/recent invoices under the snapshot.
+  That duplicated the overdue rows and the Invoices tab. Overdue and due-this-
+  week stay on the snapshot card so collect actions remain one tap. Tablets
+  keep the right-pane invoice list.
+- Important file: `dashboard_screen.dart`. No schema/storage changes.
+- Verification: Dart formatting, `flutter analyze`, and dashboard layout tests.
 
 ### 2026-08-27 — Home jump strip, collect-first
 
