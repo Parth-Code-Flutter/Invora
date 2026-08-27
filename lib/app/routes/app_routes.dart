@@ -37,6 +37,10 @@ abstract final class AppRoutes {
   static const reports = '/reports';
   static const gstExport = '/reports/gst-export';
   static const ageing = '/reports/ageing';
+  static const expenses = '/expenses';
+  static const expenseCreate = '/expenses/create';
+  static const expenseEdit = '/expenses/edit';
+  static const expenseDetails = '/expenses/details';
   static const settings = '/settings';
   static const invoiceDefaults = '/settings/invoice-defaults';
   static const dataExport = '/settings/data-export';

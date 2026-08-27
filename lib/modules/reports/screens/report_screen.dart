@@ -174,6 +174,13 @@ class ReportScreen extends GetView<ReportController> {
             ),
             const SizedBox(height: 14),
             _DestinationCard(
+              icon: Icons.payments_outlined,
+              title: 'Expenses',
+              subtitle: 'Rent, fuel, salary and other cash spends',
+              onTap: controller.openExpenses,
+            ),
+            const SizedBox(height: 14),
+            _DestinationCard(
               icon: Icons.hourglass_bottom_rounded,
               title: 'Ageing & reminders',
               subtitle:

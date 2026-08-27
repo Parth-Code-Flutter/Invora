@@ -40,7 +40,6 @@ void main() {
     );
 
     expect(find.text('This month'), findsOneWidget);
-    expect(find.text('Invoiced'), findsOneWidget);
     expect(find.text('Received'), findsOneWidget);
     expect(find.text('Outstanding'), findsOneWidget);
     expect(find.text('₹2,308,000'), findsWidgets);

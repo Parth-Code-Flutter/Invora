@@ -75,6 +75,8 @@ class ReportController extends GetxController {
 
   void openGst() => Get.toNamed<void>(AppRoutes.gstExport);
 
+  void openExpenses() => Get.toNamed<void>(AppRoutes.expenses);
+
   void openExport() => Get.toNamed<void>(AppRoutes.dataExport);
 
   DateTime _shift(DateTime value, {required int years, required int months}) {

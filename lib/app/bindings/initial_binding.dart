@@ -14,6 +14,7 @@ import '../../data/services/ageing_service.dart';
 import '../../data/services/product_settings_service.dart';
 import '../../data/services/payment_receipt_pdf_service.dart';
 import '../../data/services/purchase_bill_pdf_service.dart';
+import '../../data/services/expense_pdf_service.dart';
 import '../../data/services/purchase_attachment_service.dart';
 import '../../data/services/backup_service.dart';
 import '../../data/services/unit_service.dart';
@@ -25,6 +26,7 @@ import '../../data/repositories/product_repository.dart';
 import '../../data/repositories/invoice_repository.dart';
 import '../../data/repositories/credit_note_repository.dart';
 import '../../data/repositories/purchase_repository.dart';
+import '../../data/repositories/expense_repository.dart';
 import '../../modules/dashboard/controllers/dashboard_controller.dart';
 import '../../modules/invoices/controllers/invoice_list_controller.dart';
 import '../controllers/app_controller.dart';
@@ -69,6 +71,7 @@ class InitialBinding extends Bindings {
       const PurchaseBillPdfService(),
       permanent: true,
     );
+    Get.put<ExpensePdfService>(const ExpensePdfService(), permanent: true);
     Get.put<PurchaseAttachmentService>(
       const PurchaseAttachmentService(),
       permanent: true,
@@ -98,6 +101,7 @@ class InitialBinding extends Bindings {
     await Get.delete<DataExportService>(force: true);
     await Get.delete<BackupService>(force: true);
     await Get.delete<CreditNoteRepository>(force: true);
+    await Get.delete<ExpenseRepository>(force: true);
     await Get.delete<InvoiceRepository>(force: true);
     await Get.delete<PurchaseRepository>(force: true);
     await Get.delete<ProductRepository>(force: true);
@@ -152,6 +156,10 @@ class InitialBinding extends Bindings {
     );
     Get.put<PurchaseRepository>(
       PurchaseRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<ExpenseRepository>(
+      ExpenseRepository(databaseService.database),
       permanent: true,
     );
     Get.put<DataExportService>(

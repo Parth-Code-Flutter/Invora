@@ -174,6 +174,12 @@ Reference: [myBillBook purchasing/billing overview](https://mybillbook.in/)
 
 ## P0.7 Expenses
 
+Status: **Shipped this slice 2026-08-27** (simple vouchers: category, payee,
+date, amount paid with optional inclusive GST/ITC, payment method, note,
+`EXP-0001`, cancel-with-reason, PDF). Recurring drafts, billable expense →
+invoice line, receipt attachments, expense rows in the GST pack, and cash-book
+posting remain later work.
+
 Record category, payee, date, amount, GST/ITC, payment account, note,
 customer/project link and receipt attachment. Keep simple expenses separate from
 item-based purchase bills. Support billable expense → invoice line and recurring

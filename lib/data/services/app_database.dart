@@ -329,6 +329,30 @@ class PurchaseBillAttachments extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+@TableIndex(name: 'expenses_number', columns: {#expenseNumber}, unique: true)
+@TableIndex(name: 'expenses_date', columns: {#expenseDate})
+class Expenses extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get expenseNumber => text()();
+  DateTimeColumn get expenseDate => dateTime()();
+  TextColumn get category => text()();
+  TextColumn get payee => text()();
+  IntColumn get amountMinor => integer()();
+  IntColumn get taxRateBasisPoints =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get taxMinor => integer().withDefault(const Constant(0))();
+  IntColumn get taxableMinor => integer().withDefault(const Constant(0))();
+  IntColumn get grandTotalMinor => integer()();
+  BoolColumn get itcEligible => boolean().withDefault(const Constant(false))();
+  TextColumn get paymentMethod => text()();
+  TextColumn get notes => text().nullable()();
+  TextColumn get status => text().withDefault(const Constant('recorded'))();
+  TextColumn get cancellationReason => text().nullable()();
+  DateTimeColumn get cancelledAt => dateTime().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 @DriftDatabase(
   tables: [
     DatabaseMetadata,
@@ -347,6 +371,7 @@ class PurchaseBillAttachments extends Table {
     PurchaseItems,
     PurchasePayments,
     PurchaseBillAttachments,
+    Expenses,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -490,6 +515,9 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createTable(creditNotes);
         await migrator.createTable(creditNoteItems);
         await migrator.createTable(creditNoteApplications);
+      }
+      if (from < 14) {
+        await migrator.createTable(expenses);
       }
     },
   );

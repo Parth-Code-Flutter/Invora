@@ -13542,6 +13542,1027 @@ class PurchaseBillAttachmentsCompanion
   }
 }
 
+class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExpensesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _expenseNumberMeta = const VerificationMeta(
+    'expenseNumber',
+  );
+  @override
+  late final GeneratedColumn<String> expenseNumber = GeneratedColumn<String>(
+    'expense_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expenseDateMeta = const VerificationMeta(
+    'expenseDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> expenseDate = GeneratedColumn<DateTime>(
+    'expense_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payeeMeta = const VerificationMeta('payee');
+  @override
+  late final GeneratedColumn<String> payee = GeneratedColumn<String>(
+    'payee',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMinorMeta = const VerificationMeta(
+    'amountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> amountMinor = GeneratedColumn<int>(
+    'amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taxRateBasisPointsMeta =
+      const VerificationMeta('taxRateBasisPoints');
+  @override
+  late final GeneratedColumn<int> taxRateBasisPoints = GeneratedColumn<int>(
+    'tax_rate_basis_points',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _taxMinorMeta = const VerificationMeta(
+    'taxMinor',
+  );
+  @override
+  late final GeneratedColumn<int> taxMinor = GeneratedColumn<int>(
+    'tax_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _taxableMinorMeta = const VerificationMeta(
+    'taxableMinor',
+  );
+  @override
+  late final GeneratedColumn<int> taxableMinor = GeneratedColumn<int>(
+    'taxable_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _grandTotalMinorMeta = const VerificationMeta(
+    'grandTotalMinor',
+  );
+  @override
+  late final GeneratedColumn<int> grandTotalMinor = GeneratedColumn<int>(
+    'grand_total_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _itcEligibleMeta = const VerificationMeta(
+    'itcEligible',
+  );
+  @override
+  late final GeneratedColumn<bool> itcEligible = GeneratedColumn<bool>(
+    'itc_eligible',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("itc_eligible" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _paymentMethodMeta = const VerificationMeta(
+    'paymentMethod',
+  );
+  @override
+  late final GeneratedColumn<String> paymentMethod = GeneratedColumn<String>(
+    'payment_method',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('recorded'),
+  );
+  static const VerificationMeta _cancellationReasonMeta =
+      const VerificationMeta('cancellationReason');
+  @override
+  late final GeneratedColumn<String> cancellationReason =
+      GeneratedColumn<String>(
+        'cancellation_reason',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _cancelledAtMeta = const VerificationMeta(
+    'cancelledAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cancelledAt = GeneratedColumn<DateTime>(
+    'cancelled_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    expenseNumber,
+    expenseDate,
+    category,
+    payee,
+    amountMinor,
+    taxRateBasisPoints,
+    taxMinor,
+    taxableMinor,
+    grandTotalMinor,
+    itcEligible,
+    paymentMethod,
+    notes,
+    status,
+    cancellationReason,
+    cancelledAt,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'expenses';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Expense> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('expense_number')) {
+      context.handle(
+        _expenseNumberMeta,
+        expenseNumber.isAcceptableOrUnknown(
+          data['expense_number']!,
+          _expenseNumberMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_expenseNumberMeta);
+    }
+    if (data.containsKey('expense_date')) {
+      context.handle(
+        _expenseDateMeta,
+        expenseDate.isAcceptableOrUnknown(
+          data['expense_date']!,
+          _expenseDateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_expenseDateMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('payee')) {
+      context.handle(
+        _payeeMeta,
+        payee.isAcceptableOrUnknown(data['payee']!, _payeeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payeeMeta);
+    }
+    if (data.containsKey('amount_minor')) {
+      context.handle(
+        _amountMinorMeta,
+        amountMinor.isAcceptableOrUnknown(
+          data['amount_minor']!,
+          _amountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMinorMeta);
+    }
+    if (data.containsKey('tax_rate_basis_points')) {
+      context.handle(
+        _taxRateBasisPointsMeta,
+        taxRateBasisPoints.isAcceptableOrUnknown(
+          data['tax_rate_basis_points']!,
+          _taxRateBasisPointsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tax_minor')) {
+      context.handle(
+        _taxMinorMeta,
+        taxMinor.isAcceptableOrUnknown(data['tax_minor']!, _taxMinorMeta),
+      );
+    }
+    if (data.containsKey('taxable_minor')) {
+      context.handle(
+        _taxableMinorMeta,
+        taxableMinor.isAcceptableOrUnknown(
+          data['taxable_minor']!,
+          _taxableMinorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('grand_total_minor')) {
+      context.handle(
+        _grandTotalMinorMeta,
+        grandTotalMinor.isAcceptableOrUnknown(
+          data['grand_total_minor']!,
+          _grandTotalMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_grandTotalMinorMeta);
+    }
+    if (data.containsKey('itc_eligible')) {
+      context.handle(
+        _itcEligibleMeta,
+        itcEligible.isAcceptableOrUnknown(
+          data['itc_eligible']!,
+          _itcEligibleMeta,
+        ),
+      );
+    }
+    if (data.containsKey('payment_method')) {
+      context.handle(
+        _paymentMethodMeta,
+        paymentMethod.isAcceptableOrUnknown(
+          data['payment_method']!,
+          _paymentMethodMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_paymentMethodMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('cancellation_reason')) {
+      context.handle(
+        _cancellationReasonMeta,
+        cancellationReason.isAcceptableOrUnknown(
+          data['cancellation_reason']!,
+          _cancellationReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cancelled_at')) {
+      context.handle(
+        _cancelledAtMeta,
+        cancelledAt.isAcceptableOrUnknown(
+          data['cancelled_at']!,
+          _cancelledAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Expense map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Expense(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      expenseNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}expense_number'],
+      )!,
+      expenseDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}expense_date'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
+      payee: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payee'],
+      )!,
+      amountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount_minor'],
+      )!,
+      taxRateBasisPoints: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tax_rate_basis_points'],
+      )!,
+      taxMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tax_minor'],
+      )!,
+      taxableMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}taxable_minor'],
+      )!,
+      grandTotalMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}grand_total_minor'],
+      )!,
+      itcEligible: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}itc_eligible'],
+      )!,
+      paymentMethod: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payment_method'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      cancellationReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cancellation_reason'],
+      ),
+      cancelledAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cancelled_at'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ExpensesTable createAlias(String alias) {
+    return $ExpensesTable(attachedDatabase, alias);
+  }
+}
+
+class Expense extends DataClass implements Insertable<Expense> {
+  final int id;
+  final String expenseNumber;
+  final DateTime expenseDate;
+  final String category;
+  final String payee;
+  final int amountMinor;
+  final int taxRateBasisPoints;
+  final int taxMinor;
+  final int taxableMinor;
+  final int grandTotalMinor;
+  final bool itcEligible;
+  final String paymentMethod;
+  final String? notes;
+  final String status;
+  final String? cancellationReason;
+  final DateTime? cancelledAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const Expense({
+    required this.id,
+    required this.expenseNumber,
+    required this.expenseDate,
+    required this.category,
+    required this.payee,
+    required this.amountMinor,
+    required this.taxRateBasisPoints,
+    required this.taxMinor,
+    required this.taxableMinor,
+    required this.grandTotalMinor,
+    required this.itcEligible,
+    required this.paymentMethod,
+    this.notes,
+    required this.status,
+    this.cancellationReason,
+    this.cancelledAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['expense_number'] = Variable<String>(expenseNumber);
+    map['expense_date'] = Variable<DateTime>(expenseDate);
+    map['category'] = Variable<String>(category);
+    map['payee'] = Variable<String>(payee);
+    map['amount_minor'] = Variable<int>(amountMinor);
+    map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints);
+    map['tax_minor'] = Variable<int>(taxMinor);
+    map['taxable_minor'] = Variable<int>(taxableMinor);
+    map['grand_total_minor'] = Variable<int>(grandTotalMinor);
+    map['itc_eligible'] = Variable<bool>(itcEligible);
+    map['payment_method'] = Variable<String>(paymentMethod);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || cancellationReason != null) {
+      map['cancellation_reason'] = Variable<String>(cancellationReason);
+    }
+    if (!nullToAbsent || cancelledAt != null) {
+      map['cancelled_at'] = Variable<DateTime>(cancelledAt);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  ExpensesCompanion toCompanion(bool nullToAbsent) {
+    return ExpensesCompanion(
+      id: Value(id),
+      expenseNumber: Value(expenseNumber),
+      expenseDate: Value(expenseDate),
+      category: Value(category),
+      payee: Value(payee),
+      amountMinor: Value(amountMinor),
+      taxRateBasisPoints: Value(taxRateBasisPoints),
+      taxMinor: Value(taxMinor),
+      taxableMinor: Value(taxableMinor),
+      grandTotalMinor: Value(grandTotalMinor),
+      itcEligible: Value(itcEligible),
+      paymentMethod: Value(paymentMethod),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      status: Value(status),
+      cancellationReason: cancellationReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cancellationReason),
+      cancelledAt: cancelledAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cancelledAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory Expense.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Expense(
+      id: serializer.fromJson<int>(json['id']),
+      expenseNumber: serializer.fromJson<String>(json['expenseNumber']),
+      expenseDate: serializer.fromJson<DateTime>(json['expenseDate']),
+      category: serializer.fromJson<String>(json['category']),
+      payee: serializer.fromJson<String>(json['payee']),
+      amountMinor: serializer.fromJson<int>(json['amountMinor']),
+      taxRateBasisPoints: serializer.fromJson<int>(json['taxRateBasisPoints']),
+      taxMinor: serializer.fromJson<int>(json['taxMinor']),
+      taxableMinor: serializer.fromJson<int>(json['taxableMinor']),
+      grandTotalMinor: serializer.fromJson<int>(json['grandTotalMinor']),
+      itcEligible: serializer.fromJson<bool>(json['itcEligible']),
+      paymentMethod: serializer.fromJson<String>(json['paymentMethod']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      status: serializer.fromJson<String>(json['status']),
+      cancellationReason: serializer.fromJson<String?>(
+        json['cancellationReason'],
+      ),
+      cancelledAt: serializer.fromJson<DateTime?>(json['cancelledAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'expenseNumber': serializer.toJson<String>(expenseNumber),
+      'expenseDate': serializer.toJson<DateTime>(expenseDate),
+      'category': serializer.toJson<String>(category),
+      'payee': serializer.toJson<String>(payee),
+      'amountMinor': serializer.toJson<int>(amountMinor),
+      'taxRateBasisPoints': serializer.toJson<int>(taxRateBasisPoints),
+      'taxMinor': serializer.toJson<int>(taxMinor),
+      'taxableMinor': serializer.toJson<int>(taxableMinor),
+      'grandTotalMinor': serializer.toJson<int>(grandTotalMinor),
+      'itcEligible': serializer.toJson<bool>(itcEligible),
+      'paymentMethod': serializer.toJson<String>(paymentMethod),
+      'notes': serializer.toJson<String?>(notes),
+      'status': serializer.toJson<String>(status),
+      'cancellationReason': serializer.toJson<String?>(cancellationReason),
+      'cancelledAt': serializer.toJson<DateTime?>(cancelledAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  Expense copyWith({
+    int? id,
+    String? expenseNumber,
+    DateTime? expenseDate,
+    String? category,
+    String? payee,
+    int? amountMinor,
+    int? taxRateBasisPoints,
+    int? taxMinor,
+    int? taxableMinor,
+    int? grandTotalMinor,
+    bool? itcEligible,
+    String? paymentMethod,
+    Value<String?> notes = const Value.absent(),
+    String? status,
+    Value<String?> cancellationReason = const Value.absent(),
+    Value<DateTime?> cancelledAt = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => Expense(
+    id: id ?? this.id,
+    expenseNumber: expenseNumber ?? this.expenseNumber,
+    expenseDate: expenseDate ?? this.expenseDate,
+    category: category ?? this.category,
+    payee: payee ?? this.payee,
+    amountMinor: amountMinor ?? this.amountMinor,
+    taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+    taxMinor: taxMinor ?? this.taxMinor,
+    taxableMinor: taxableMinor ?? this.taxableMinor,
+    grandTotalMinor: grandTotalMinor ?? this.grandTotalMinor,
+    itcEligible: itcEligible ?? this.itcEligible,
+    paymentMethod: paymentMethod ?? this.paymentMethod,
+    notes: notes.present ? notes.value : this.notes,
+    status: status ?? this.status,
+    cancellationReason: cancellationReason.present
+        ? cancellationReason.value
+        : this.cancellationReason,
+    cancelledAt: cancelledAt.present ? cancelledAt.value : this.cancelledAt,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  Expense copyWithCompanion(ExpensesCompanion data) {
+    return Expense(
+      id: data.id.present ? data.id.value : this.id,
+      expenseNumber: data.expenseNumber.present
+          ? data.expenseNumber.value
+          : this.expenseNumber,
+      expenseDate: data.expenseDate.present
+          ? data.expenseDate.value
+          : this.expenseDate,
+      category: data.category.present ? data.category.value : this.category,
+      payee: data.payee.present ? data.payee.value : this.payee,
+      amountMinor: data.amountMinor.present
+          ? data.amountMinor.value
+          : this.amountMinor,
+      taxRateBasisPoints: data.taxRateBasisPoints.present
+          ? data.taxRateBasisPoints.value
+          : this.taxRateBasisPoints,
+      taxMinor: data.taxMinor.present ? data.taxMinor.value : this.taxMinor,
+      taxableMinor: data.taxableMinor.present
+          ? data.taxableMinor.value
+          : this.taxableMinor,
+      grandTotalMinor: data.grandTotalMinor.present
+          ? data.grandTotalMinor.value
+          : this.grandTotalMinor,
+      itcEligible: data.itcEligible.present
+          ? data.itcEligible.value
+          : this.itcEligible,
+      paymentMethod: data.paymentMethod.present
+          ? data.paymentMethod.value
+          : this.paymentMethod,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      status: data.status.present ? data.status.value : this.status,
+      cancellationReason: data.cancellationReason.present
+          ? data.cancellationReason.value
+          : this.cancellationReason,
+      cancelledAt: data.cancelledAt.present
+          ? data.cancelledAt.value
+          : this.cancelledAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Expense(')
+          ..write('id: $id, ')
+          ..write('expenseNumber: $expenseNumber, ')
+          ..write('expenseDate: $expenseDate, ')
+          ..write('category: $category, ')
+          ..write('payee: $payee, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('taxMinor: $taxMinor, ')
+          ..write('taxableMinor: $taxableMinor, ')
+          ..write('grandTotalMinor: $grandTotalMinor, ')
+          ..write('itcEligible: $itcEligible, ')
+          ..write('paymentMethod: $paymentMethod, ')
+          ..write('notes: $notes, ')
+          ..write('status: $status, ')
+          ..write('cancellationReason: $cancellationReason, ')
+          ..write('cancelledAt: $cancelledAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    expenseNumber,
+    expenseDate,
+    category,
+    payee,
+    amountMinor,
+    taxRateBasisPoints,
+    taxMinor,
+    taxableMinor,
+    grandTotalMinor,
+    itcEligible,
+    paymentMethod,
+    notes,
+    status,
+    cancellationReason,
+    cancelledAt,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Expense &&
+          other.id == this.id &&
+          other.expenseNumber == this.expenseNumber &&
+          other.expenseDate == this.expenseDate &&
+          other.category == this.category &&
+          other.payee == this.payee &&
+          other.amountMinor == this.amountMinor &&
+          other.taxRateBasisPoints == this.taxRateBasisPoints &&
+          other.taxMinor == this.taxMinor &&
+          other.taxableMinor == this.taxableMinor &&
+          other.grandTotalMinor == this.grandTotalMinor &&
+          other.itcEligible == this.itcEligible &&
+          other.paymentMethod == this.paymentMethod &&
+          other.notes == this.notes &&
+          other.status == this.status &&
+          other.cancellationReason == this.cancellationReason &&
+          other.cancelledAt == this.cancelledAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ExpensesCompanion extends UpdateCompanion<Expense> {
+  final Value<int> id;
+  final Value<String> expenseNumber;
+  final Value<DateTime> expenseDate;
+  final Value<String> category;
+  final Value<String> payee;
+  final Value<int> amountMinor;
+  final Value<int> taxRateBasisPoints;
+  final Value<int> taxMinor;
+  final Value<int> taxableMinor;
+  final Value<int> grandTotalMinor;
+  final Value<bool> itcEligible;
+  final Value<String> paymentMethod;
+  final Value<String?> notes;
+  final Value<String> status;
+  final Value<String?> cancellationReason;
+  final Value<DateTime?> cancelledAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const ExpensesCompanion({
+    this.id = const Value.absent(),
+    this.expenseNumber = const Value.absent(),
+    this.expenseDate = const Value.absent(),
+    this.category = const Value.absent(),
+    this.payee = const Value.absent(),
+    this.amountMinor = const Value.absent(),
+    this.taxRateBasisPoints = const Value.absent(),
+    this.taxMinor = const Value.absent(),
+    this.taxableMinor = const Value.absent(),
+    this.grandTotalMinor = const Value.absent(),
+    this.itcEligible = const Value.absent(),
+    this.paymentMethod = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.status = const Value.absent(),
+    this.cancellationReason = const Value.absent(),
+    this.cancelledAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  ExpensesCompanion.insert({
+    this.id = const Value.absent(),
+    required String expenseNumber,
+    required DateTime expenseDate,
+    required String category,
+    required String payee,
+    required int amountMinor,
+    this.taxRateBasisPoints = const Value.absent(),
+    this.taxMinor = const Value.absent(),
+    this.taxableMinor = const Value.absent(),
+    required int grandTotalMinor,
+    this.itcEligible = const Value.absent(),
+    required String paymentMethod,
+    this.notes = const Value.absent(),
+    this.status = const Value.absent(),
+    this.cancellationReason = const Value.absent(),
+    this.cancelledAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : expenseNumber = Value(expenseNumber),
+       expenseDate = Value(expenseDate),
+       category = Value(category),
+       payee = Value(payee),
+       amountMinor = Value(amountMinor),
+       grandTotalMinor = Value(grandTotalMinor),
+       paymentMethod = Value(paymentMethod);
+  static Insertable<Expense> custom({
+    Expression<int>? id,
+    Expression<String>? expenseNumber,
+    Expression<DateTime>? expenseDate,
+    Expression<String>? category,
+    Expression<String>? payee,
+    Expression<int>? amountMinor,
+    Expression<int>? taxRateBasisPoints,
+    Expression<int>? taxMinor,
+    Expression<int>? taxableMinor,
+    Expression<int>? grandTotalMinor,
+    Expression<bool>? itcEligible,
+    Expression<String>? paymentMethod,
+    Expression<String>? notes,
+    Expression<String>? status,
+    Expression<String>? cancellationReason,
+    Expression<DateTime>? cancelledAt,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (expenseNumber != null) 'expense_number': expenseNumber,
+      if (expenseDate != null) 'expense_date': expenseDate,
+      if (category != null) 'category': category,
+      if (payee != null) 'payee': payee,
+      if (amountMinor != null) 'amount_minor': amountMinor,
+      if (taxRateBasisPoints != null)
+        'tax_rate_basis_points': taxRateBasisPoints,
+      if (taxMinor != null) 'tax_minor': taxMinor,
+      if (taxableMinor != null) 'taxable_minor': taxableMinor,
+      if (grandTotalMinor != null) 'grand_total_minor': grandTotalMinor,
+      if (itcEligible != null) 'itc_eligible': itcEligible,
+      if (paymentMethod != null) 'payment_method': paymentMethod,
+      if (notes != null) 'notes': notes,
+      if (status != null) 'status': status,
+      if (cancellationReason != null) 'cancellation_reason': cancellationReason,
+      if (cancelledAt != null) 'cancelled_at': cancelledAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  ExpensesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? expenseNumber,
+    Value<DateTime>? expenseDate,
+    Value<String>? category,
+    Value<String>? payee,
+    Value<int>? amountMinor,
+    Value<int>? taxRateBasisPoints,
+    Value<int>? taxMinor,
+    Value<int>? taxableMinor,
+    Value<int>? grandTotalMinor,
+    Value<bool>? itcEligible,
+    Value<String>? paymentMethod,
+    Value<String?>? notes,
+    Value<String>? status,
+    Value<String?>? cancellationReason,
+    Value<DateTime?>? cancelledAt,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return ExpensesCompanion(
+      id: id ?? this.id,
+      expenseNumber: expenseNumber ?? this.expenseNumber,
+      expenseDate: expenseDate ?? this.expenseDate,
+      category: category ?? this.category,
+      payee: payee ?? this.payee,
+      amountMinor: amountMinor ?? this.amountMinor,
+      taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+      taxMinor: taxMinor ?? this.taxMinor,
+      taxableMinor: taxableMinor ?? this.taxableMinor,
+      grandTotalMinor: grandTotalMinor ?? this.grandTotalMinor,
+      itcEligible: itcEligible ?? this.itcEligible,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      notes: notes ?? this.notes,
+      status: status ?? this.status,
+      cancellationReason: cancellationReason ?? this.cancellationReason,
+      cancelledAt: cancelledAt ?? this.cancelledAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (expenseNumber.present) {
+      map['expense_number'] = Variable<String>(expenseNumber.value);
+    }
+    if (expenseDate.present) {
+      map['expense_date'] = Variable<DateTime>(expenseDate.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (payee.present) {
+      map['payee'] = Variable<String>(payee.value);
+    }
+    if (amountMinor.present) {
+      map['amount_minor'] = Variable<int>(amountMinor.value);
+    }
+    if (taxRateBasisPoints.present) {
+      map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints.value);
+    }
+    if (taxMinor.present) {
+      map['tax_minor'] = Variable<int>(taxMinor.value);
+    }
+    if (taxableMinor.present) {
+      map['taxable_minor'] = Variable<int>(taxableMinor.value);
+    }
+    if (grandTotalMinor.present) {
+      map['grand_total_minor'] = Variable<int>(grandTotalMinor.value);
+    }
+    if (itcEligible.present) {
+      map['itc_eligible'] = Variable<bool>(itcEligible.value);
+    }
+    if (paymentMethod.present) {
+      map['payment_method'] = Variable<String>(paymentMethod.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (cancellationReason.present) {
+      map['cancellation_reason'] = Variable<String>(cancellationReason.value);
+    }
+    if (cancelledAt.present) {
+      map['cancelled_at'] = Variable<DateTime>(cancelledAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExpensesCompanion(')
+          ..write('id: $id, ')
+          ..write('expenseNumber: $expenseNumber, ')
+          ..write('expenseDate: $expenseDate, ')
+          ..write('category: $category, ')
+          ..write('payee: $payee, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('taxMinor: $taxMinor, ')
+          ..write('taxableMinor: $taxableMinor, ')
+          ..write('grandTotalMinor: $grandTotalMinor, ')
+          ..write('itcEligible: $itcEligible, ')
+          ..write('paymentMethod: $paymentMethod, ')
+          ..write('notes: $notes, ')
+          ..write('status: $status, ')
+          ..write('cancellationReason: $cancellationReason, ')
+          ..write('cancelledAt: $cancelledAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -13575,6 +14596,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $PurchaseBillAttachmentsTable purchaseBillAttachments =
       $PurchaseBillAttachmentsTable(this);
+  late final $ExpensesTable expenses = $ExpensesTable(this);
   late final Index customersName = Index(
     'customers_name',
     'CREATE INDEX customers_name ON customers (name)',
@@ -13631,6 +14653,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'purchase_bills_number',
     'CREATE INDEX purchase_bills_number ON purchase_bills (bill_number)',
   );
+  late final Index expensesNumber = Index(
+    'expenses_number',
+    'CREATE UNIQUE INDEX expenses_number ON expenses (expense_number)',
+  );
+  late final Index expensesDate = Index(
+    'expenses_date',
+    'CREATE INDEX expenses_date ON expenses (expense_date)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -13652,6 +14682,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     purchaseItems,
     purchasePayments,
     purchaseBillAttachments,
+    expenses,
     customersName,
     customersMobile,
     customersGstin,
@@ -13666,6 +14697,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     creditNoteApplicationsInvoice,
     suppliersName,
     purchaseBillsNumber,
+    expensesNumber,
+    expensesDate,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -22419,6 +23452,461 @@ typedef $$PurchaseBillAttachmentsTableProcessedTableManager =
       PurchaseBillAttachment,
       PrefetchHooks Function({bool purchaseBillId})
     >;
+typedef $$ExpensesTableCreateCompanionBuilder =
+    ExpensesCompanion Function({
+      Value<int> id,
+      required String expenseNumber,
+      required DateTime expenseDate,
+      required String category,
+      required String payee,
+      required int amountMinor,
+      Value<int> taxRateBasisPoints,
+      Value<int> taxMinor,
+      Value<int> taxableMinor,
+      required int grandTotalMinor,
+      Value<bool> itcEligible,
+      required String paymentMethod,
+      Value<String?> notes,
+      Value<String> status,
+      Value<String?> cancellationReason,
+      Value<DateTime?> cancelledAt,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$ExpensesTableUpdateCompanionBuilder =
+    ExpensesCompanion Function({
+      Value<int> id,
+      Value<String> expenseNumber,
+      Value<DateTime> expenseDate,
+      Value<String> category,
+      Value<String> payee,
+      Value<int> amountMinor,
+      Value<int> taxRateBasisPoints,
+      Value<int> taxMinor,
+      Value<int> taxableMinor,
+      Value<int> grandTotalMinor,
+      Value<bool> itcEligible,
+      Value<String> paymentMethod,
+      Value<String?> notes,
+      Value<String> status,
+      Value<String?> cancellationReason,
+      Value<DateTime?> cancelledAt,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$ExpensesTableFilterComposer
+    extends Composer<_$AppDatabase, $ExpensesTable> {
+  $$ExpensesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get expenseNumber => $composableBuilder(
+    column: $table.expenseNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get expenseDate => $composableBuilder(
+    column: $table.expenseDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payee => $composableBuilder(
+    column: $table.payee,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amountMinor => $composableBuilder(
+    column: $table.amountMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxMinor => $composableBuilder(
+    column: $table.taxMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxableMinor => $composableBuilder(
+    column: $table.taxableMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get grandTotalMinor => $composableBuilder(
+    column: $table.grandTotalMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get itcEligible => $composableBuilder(
+    column: $table.itcEligible,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get paymentMethod => $composableBuilder(
+    column: $table.paymentMethod,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExpensesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ExpensesTable> {
+  $$ExpensesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get expenseNumber => $composableBuilder(
+    column: $table.expenseNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get expenseDate => $composableBuilder(
+    column: $table.expenseDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payee => $composableBuilder(
+    column: $table.payee,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amountMinor => $composableBuilder(
+    column: $table.amountMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxMinor => $composableBuilder(
+    column: $table.taxMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxableMinor => $composableBuilder(
+    column: $table.taxableMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get grandTotalMinor => $composableBuilder(
+    column: $table.grandTotalMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get itcEligible => $composableBuilder(
+    column: $table.itcEligible,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get paymentMethod => $composableBuilder(
+    column: $table.paymentMethod,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExpensesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ExpensesTable> {
+  $$ExpensesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get expenseNumber => $composableBuilder(
+    column: $table.expenseNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get expenseDate => $composableBuilder(
+    column: $table.expenseDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get payee =>
+      $composableBuilder(column: $table.payee, builder: (column) => column);
+
+  GeneratedColumn<int> get amountMinor => $composableBuilder(
+    column: $table.amountMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get taxMinor =>
+      $composableBuilder(column: $table.taxMinor, builder: (column) => column);
+
+  GeneratedColumn<int> get taxableMinor => $composableBuilder(
+    column: $table.taxableMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get grandTotalMinor => $composableBuilder(
+    column: $table.grandTotalMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get itcEligible => $composableBuilder(
+    column: $table.itcEligible,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get paymentMethod => $composableBuilder(
+    column: $table.paymentMethod,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ExpensesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ExpensesTable,
+          Expense,
+          $$ExpensesTableFilterComposer,
+          $$ExpensesTableOrderingComposer,
+          $$ExpensesTableAnnotationComposer,
+          $$ExpensesTableCreateCompanionBuilder,
+          $$ExpensesTableUpdateCompanionBuilder,
+          (Expense, BaseReferences<_$AppDatabase, $ExpensesTable, Expense>),
+          Expense,
+          PrefetchHooks Function()
+        > {
+  $$ExpensesTableTableManager(_$AppDatabase db, $ExpensesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExpensesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ExpensesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ExpensesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> expenseNumber = const Value.absent(),
+                Value<DateTime> expenseDate = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<String> payee = const Value.absent(),
+                Value<int> amountMinor = const Value.absent(),
+                Value<int> taxRateBasisPoints = const Value.absent(),
+                Value<int> taxMinor = const Value.absent(),
+                Value<int> taxableMinor = const Value.absent(),
+                Value<int> grandTotalMinor = const Value.absent(),
+                Value<bool> itcEligible = const Value.absent(),
+                Value<String> paymentMethod = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> cancellationReason = const Value.absent(),
+                Value<DateTime?> cancelledAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ExpensesCompanion(
+                id: id,
+                expenseNumber: expenseNumber,
+                expenseDate: expenseDate,
+                category: category,
+                payee: payee,
+                amountMinor: amountMinor,
+                taxRateBasisPoints: taxRateBasisPoints,
+                taxMinor: taxMinor,
+                taxableMinor: taxableMinor,
+                grandTotalMinor: grandTotalMinor,
+                itcEligible: itcEligible,
+                paymentMethod: paymentMethod,
+                notes: notes,
+                status: status,
+                cancellationReason: cancellationReason,
+                cancelledAt: cancelledAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String expenseNumber,
+                required DateTime expenseDate,
+                required String category,
+                required String payee,
+                required int amountMinor,
+                Value<int> taxRateBasisPoints = const Value.absent(),
+                Value<int> taxMinor = const Value.absent(),
+                Value<int> taxableMinor = const Value.absent(),
+                required int grandTotalMinor,
+                Value<bool> itcEligible = const Value.absent(),
+                required String paymentMethod,
+                Value<String?> notes = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> cancellationReason = const Value.absent(),
+                Value<DateTime?> cancelledAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ExpensesCompanion.insert(
+                id: id,
+                expenseNumber: expenseNumber,
+                expenseDate: expenseDate,
+                category: category,
+                payee: payee,
+                amountMinor: amountMinor,
+                taxRateBasisPoints: taxRateBasisPoints,
+                taxMinor: taxMinor,
+                taxableMinor: taxableMinor,
+                grandTotalMinor: grandTotalMinor,
+                itcEligible: itcEligible,
+                paymentMethod: paymentMethod,
+                notes: notes,
+                status: status,
+                cancellationReason: cancellationReason,
+                cancelledAt: cancelledAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExpensesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ExpensesTable,
+      Expense,
+      $$ExpensesTableFilterComposer,
+      $$ExpensesTableOrderingComposer,
+      $$ExpensesTableAnnotationComposer,
+      $$ExpensesTableCreateCompanionBuilder,
+      $$ExpensesTableUpdateCompanionBuilder,
+      (Expense, BaseReferences<_$AppDatabase, $ExpensesTable, Expense>),
+      Expense,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -22461,4 +23949,6 @@ class $AppDatabaseManager {
         _db,
         _db.purchaseBillAttachments,
       );
+  $$ExpensesTableTableManager get expenses =>
+      $$ExpensesTableTableManager(_db, _db.expenses);
 }

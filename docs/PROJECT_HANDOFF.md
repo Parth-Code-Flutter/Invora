@@ -155,8 +155,8 @@ backups.
 - More and App Settings use classic grouped settings panels: one bordered
   card per section, inset hairline dividers, compact 14px rows, plum icon
   wells, and a chevron instead of a circular arrow. More is the daily hub:
-  workspace switch, product fields, units, catalog, estimates, reports, ageing
-  and reminders, GST / CA export, and backup. App Settings is unique preferences only: business
+  workspace switch, product fields, units, catalog, estimates, expenses,
+  reports, ageing and reminders, GST / CA export, and backup. App Settings is unique preferences only: business
   profile, invoice defaults, dark mode, language, app lock, CSV export, and
   about. Product settings, units, GST / CA export, and backup are not repeated
   inside Settings. More leads with a quiet business identity card (name plus
@@ -384,6 +384,13 @@ backups.
   never Delivered. Local due-date notifications and snooze are out of this
   slice. Reminder status is stored in app preferences and included in backup.
   Entry points: More and Reports.
+- Expenses are a simple offline voucher, separate from item-based purchase
+  bills: date, category, payee, amount paid (GST treated as inclusive),
+  optional ITC flag, payment method, and note. Numbers are `EXP-0001`.
+  Recorded expenses can be edited; cancelled expenses stay on file with a
+  reason and drop out of this-month totals. Share/print/save a PDF. Recurring
+  drafts, billable-to-invoice, receipt photos, expense rows in the GST pack,
+  and cash-book posting are out of this slice. Entry points: More and Reports.
 - Dashboard totals and Reports. Monthly sales are posted invoices minus
   credit notes dated in that period; received stays actual payments;
   outstanding uses each invoice’s remaining balance after payments and applied
@@ -395,12 +402,13 @@ backups.
 - Dashboard Home is an action surface: a branded this-month snapshot with a
   collection ring, sparkline, month-over-month trend, and Invoiced / Received /
   Outstanding chips, overdue and due-this-week follow-up rows, backup when due,
-  tinted quick create actions, and either invoices that need collection or the
-  latest five. Tapping overdue/outstanding opens the invoice list on the
-  matching filter. Phone Home omits the duplicate full-width Create invoice
-  button because the center dock already creates invoices; tablets keep the
-  button because they use a navigation rail. Purchase Home uses the same
-  snapshot language for payables (amount to pay, paid ring, and Purchased /
+  a PhonePe-style jump strip on the snapshot (Products, Estimates, Expenses,
+  Reports), and either invoices that need collection or the latest five.
+  Tapping overdue/outstanding opens the invoice list on the matching filter.
+  Create stays on the center + (phone) and the sales rail FAB (tablet).
+  Invoices, Customers, and GST / CA export are not duplicated on Home.
+  The invoiced total is not repeated as a third chip. Purchase Home uses the
+  same snapshot language for payables (amount to pay, paid ring, and Purchased /
   Paid / Overdue chips).
 - Automated whole-flow QA covers the offline GST lifecycle from business,
   customer, and catalog data through invoice payments/reversal, quotation
@@ -410,7 +418,8 @@ backups.
 
 ## Persisted data notes
 
-- Database schema version 13 adds sales credit notes. Version 9 includes
+- Database schema version 14 adds expenses. Version 13 adds sales credit notes.
+  Version 9 includes
   product/invoice attribute snapshots; its version 8 migration classifies
   `invoice_payments` entries and links reversals to original payments. The v7
   migration preserves every older non-zero cumulative payment as a dated
@@ -443,6 +452,8 @@ backups.
   remaining line quantity or remaining invoice value. The original invoice is
   never rewritten.
 - Invalid invoices cannot be shared, printed, or recorded as paid.
+- Expenses require a payee, category, and amount greater than zero. Cancelled
+  expenses cannot be edited. Cancelling requires a reason.
 
 ## Setup on another computer
 
@@ -528,23 +539,27 @@ As of 2026-08-27:
 6. Physical-device QA of sales credit notes: partial return, over-return
    blocked, paid-invoice refund vs customer credit, apply leftover credit to
    another invoice, customer statement, credit-note PDF, and airplane mode.
-7. Next implementation: immutable stock ledger per
-   [OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md).
-   Do not start barcode quantity changes or POS until that ledger exists.
-8. Physical-device QA of GST / CA export: This month / This FY / custom range,
+7. Next implementation: purchase debit notes (`P0.4`) per
+   [OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md),
+   then the cash/bank book, then the immutable stock ledger. Do not start
+   barcode quantity changes or POS until that ledger exists.
+8. Physical-device QA of expenses: record rent with GST/ITC, this-month
+   total, cancel with reason (stays listed, excluded from totals), share PDF
+   in airplane mode, restore from backup.
+9. Physical-device QA of GST / CA export: This month / This FY / custom range,
    B2B vs B2C, credit notes, purchase ITC, exception list, share/save ZIP pack
    in airplane mode, and confirm no file is labelled Submitted.
-9. Physical-device QA of ageing & reminders: Not due / 1–30 / 90+ buckets for
+10. Physical-device QA of ageing & reminders: Not due / 1–30 / 90+ buckets for
    invoices and bills, share one reminder and a bucket list in airplane mode,
    confirm status is Prepared / Shared / Skipped and never Delivered, and
    restore reminder status from backup.
-10. Complete store privacy declarations and iOS privacy-manifest review.
-11. Test all PDFs with long, multi-page, and Unicode content.
-12. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
+11. Complete store privacy declarations and iOS privacy-manifest review.
+12. Test all PDFs with long, multi-page, and Unicode content.
+13. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
    Tablet presentation (rail, two-column lists, capped CTAs, onboarding) is
    implemented; remaining work is device QA, not missing layout primitives.
-13. Add CI for formatting, analysis, tests, and release validation.
-14. Licensing / monetization is design-only. When picked up, follow
+14. Add CI for formatting, analysis, tests, and release validation.
+15. Licensing / monetization is design-only. When picked up, follow
     [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md): store builds use
     RevenueCat/Play/App Store billing; direct APKs use GSTIN-bound keys;
     client demos use a dated `demo` flavor kill switch, not a first-launch
@@ -556,6 +571,52 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-27 — Home jump strip, collect-first
+
+- Home now thinks like a shop owner: money, then who to collect, then the
+  invoice list. Products / Estimates / Expenses / Reports sit as a compact
+  four-icon strip on the snapshot (PhonePe/GPay pattern), not a second card.
+  The duplicate Invoiced chip is gone; Received and Outstanding remain.
+  Center + is unchanged.
+- Important file: `dashboard_screen.dart`. No schema/storage changes.
+- Verification: Dart formatting, `flutter analyze`, dashboard overview and
+  responsive layout tests.
+
+### 2026-08-27 — Home shortcut panel
+
+- Replaced the incomplete 3+1 shortcut row with a single 2×2 card: Products,
+  Estimates, Expenses, and Reports sit in equal cells with icon wells and
+  short captions. Pattern matches billing/fintech homes (grouped launcher,
+  no leftover tile). Snapshot hero and center + are unchanged.
+- Important file: `dashboard_screen.dart`. No schema/storage changes.
+- Verification: Dart formatting, `flutter analyze`, and dashboard layout tests.
+
+### 2026-08-27 — Home shortcut grid
+
+- Sales Home keeps the this-month snapshot and the center + create button.
+  Quick actions is now a 3-column grid of list destinations that were buried
+  in More: Products, Estimates, Expenses, and Reports. Create still happens
+  from the + sheet. Invoices, Customers, and GST / CA export stay in the
+  dock or More.
+- Important file: `dashboard_screen.dart`. No schema/storage changes.
+- Verification: Dart formatting, `flutter analyze`, and dashboard responsive
+  layout tests.
+
+### 2026-08-27 — Simple expenses
+
+- Expenses are a notebook-style voucher, not a purchase bill: date, category,
+  payee, amount paid, optional inclusive GST and ITC, payment method, and
+  note. `EXP-0001` numbering. Edit while recorded; cancel with reason (never
+  silent delete). Share/print/save PDF. Recurring, billable-to-invoice,
+  attachments, GST-pack expense rows, and cash-book posting stay later.
+  Entry points: More and Reports.
+- Important files: `expense_model.dart`, `expense_repository.dart`,
+  `expense_pdf_service.dart`, expense screens/controllers, schema 14,
+  `expense_repository_test.dart`.
+- Verification: Dart formatting, `flutter analyze` on the expense paths,
+  `test/expense_repository_test.dart`, localization, and invoice repository
+  tests.
 
 ### 2026-08-27 — Reports period options and trend charts
 

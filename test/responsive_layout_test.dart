@@ -114,10 +114,10 @@ void main() {
     expect(find.text('This month'), findsOneWidget);
     expect(find.byIcon(Icons.settings_outlined), findsNothing);
     expect(Get.find<AppController>().themeMode.value, ThemeMode.dark);
-    await tester.drag(find.byType(ListView), const Offset(0, -320));
-    await tester.pumpAndSettle();
-    expect(find.text('Quick actions'), findsOneWidget);
-    expect(find.text('Estimate'), findsOneWidget);
+    expect(find.text('Products'), findsOneWidget);
+    expect(find.text('Estimates'), findsOneWidget);
+    expect(find.text('Expenses'), findsOneWidget);
+    expect(find.text('Reports'), findsOneWidget);
     expect(find.text('Create invoice'), findsNothing);
     expect(tester.takeException(), isNull);
 
@@ -215,7 +215,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Genz Clothes'), findsWidgets);
-    expect(find.text('Invoice'), findsOneWidget);
+    expect(find.text('Products'), findsOneWidget);
+    expect(find.text('Estimates'), findsOneWidget);
+    expect(find.text('Expenses'), findsOneWidget);
+    expect(find.text('Reports'), findsOneWidget);
     expect(find.text('Create invoice'), findsNothing);
     expect(find.text('Recent invoices'), findsOneWidget);
     expect(find.byType(NavigationRail), findsOneWidget);

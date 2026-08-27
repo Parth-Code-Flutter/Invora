@@ -79,6 +79,9 @@ remain intentionally out of scope until explicitly requested.
 - Required-field, mobile, email, money, quantity, tax, payment, and date rules.
 - Unsaved-change clean exit, continue editing, discard, and Save draft.
 - Onboarding tablet-landscape layout and dashboard small-phone dark-mode layout.
+- Dashboard Home: snapshot jump strip (Products, Estimates, Expenses, Reports)
+  then overdue and the follow-up list. The center + still creates. Invoices
+  and Customers stay in the dock.
 - Customer and invoice lists use animated skeleton loading and staggered row
   entry; reduced-motion accessibility bypasses list entrance animation.
 - All app-owned dialogs use the shared modern modal surface. Recheck unsaved
@@ -127,6 +130,10 @@ remain intentionally out of scope until explicitly requested.
   buckets (Not due, 1–30, 90+). Share one reminder and the visible list in
   airplane mode. Confirm status is Prepared / Shared / Skipped — never
   Delivered. Restore a backup and confirm reminder status returns.
+- Open Expenses from More and Reports. Record a rent spend with GST and ITC,
+  confirm this-month total, edit it, cancel with a reason (row stays, total
+  drops), and share the PDF in airplane mode. Restore a backup and confirm
+  the expense returns.
 - Exercise iOS swipe-back and Android system-back on every protected form.
 - Run invoice creation with keyboard open on smallest supported phones.
 - Check tablet portrait/landscape for all main lists, forms, and PDF preview.

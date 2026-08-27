@@ -121,6 +121,12 @@ class MoreScreen extends GetView<MoreController> {
                     subtitle: 'Create and manage client quotations',
                     onTap: () => Get.toNamed<void>(AppRoutes.quotations),
                   ),
+                  AppMenuTile(
+                    icon: Icons.payments_outlined,
+                    title: 'Expenses',
+                    subtitle: 'Rent, fuel, salary and other cash spends',
+                    onTap: () => Get.toNamed<void>(AppRoutes.expenses),
+                  ),
                 ],
               ),
               const SizedBox(height: 22),

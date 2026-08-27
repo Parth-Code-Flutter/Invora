@@ -139,39 +139,6 @@ class DashboardScreen extends GetView<DashboardController> {
                   },
                 ),
               ],
-              const SizedBox(height: AppSpacing.md),
-              _SectionHeader(
-                title: 'Quick actions',
-                subtitle: 'Create and manage your business',
-                actionLabel: 'Reports',
-                actionIcon: Icons.insights_rounded,
-                onAction: () => Get.toNamed<void>(AppRoutes.reports),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  _QuickAction(
-                    label: 'Estimate',
-                    icon: Icons.request_quote_outlined,
-                    tint: AppColors.primary,
-                    onTap: () => Get.toNamed<void>(AppRoutes.quotationCreate),
-                  ),
-                  const SizedBox(width: 8),
-                  _QuickAction(
-                    label: 'Customer',
-                    icon: Icons.person_add_alt_1_outlined,
-                    tint: AppColors.secondary,
-                    onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
-                  ),
-                  const SizedBox(width: 8),
-                  _QuickAction(
-                    label: 'Product',
-                    icon: Icons.add_box_outlined,
-                    tint: AppColors.accent,
-                    onTap: () => Get.toNamed<void>(AppRoutes.productAdd),
-                  ),
-                ],
-              ),
               const SizedBox(height: AppSpacing.lg),
               _SectionHeader(
                 title: showFollowUp ? 'Needs follow-up' : 'Recent invoices',
@@ -361,51 +328,6 @@ class _TabletDashboardHome extends StatelessWidget {
                   },
                 ),
               ],
-              const SizedBox(height: AppSpacing.md),
-              _SectionHeader(
-                title: 'Quick actions',
-                subtitle: 'Create and manage your business',
-                actionLabel: 'Reports',
-                actionIcon: Icons.insights_rounded,
-                onAction: () => Get.toNamed<void>(AppRoutes.reports),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  _QuickAction(
-                    label: 'Invoice',
-                    icon: Icons.add_rounded,
-                    emphasized: true,
-                    tint: AppColors.secondary,
-                    onTap: () => Get.toNamed<void>(AppRoutes.invoiceCreate),
-                  ),
-                  const SizedBox(width: 8),
-                  _QuickAction(
-                    label: 'Estimate',
-                    icon: Icons.request_quote_outlined,
-                    tint: AppColors.primary,
-                    onTap: () => Get.toNamed<void>(AppRoutes.quotationCreate),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  _QuickAction(
-                    label: 'Customer',
-                    icon: Icons.person_add_alt_1_outlined,
-                    tint: AppColors.secondary,
-                    onTap: () => Get.toNamed<void>(AppRoutes.customerAdd),
-                  ),
-                  const SizedBox(width: 8),
-                  _QuickAction(
-                    label: 'Product',
-                    icon: Icons.add_box_outlined,
-                    tint: AppColors.accent,
-                    onTap: () => Get.toNamed<void>(AppRoutes.productAdd),
-                  ),
-                ],
-              ),
             ],
           ),
         ),
@@ -555,19 +477,9 @@ class DashboardOverviewCard extends StatelessWidget {
             trendLabel: _monthOverMonthTrend(report.monthlySales),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
             child: Row(
               children: [
-                Expanded(
-                  child: AppMetricChip(
-                    label: 'Invoiced',
-                    amountMinor: report.totalSalesMinor,
-                    symbol: symbol,
-                    color: AppColors.secondary,
-                    icon: Icons.receipt_long_outlined,
-                  ),
-                ),
-                const SizedBox(width: 8),
                 Expanded(
                   child: AppMetricChip(
                     label: 'Received',
@@ -593,6 +505,7 @@ class DashboardOverviewCard extends StatelessWidget {
               ],
             ),
           ),
+          const _HomeJumpStrip(),
         ],
       ),
     );
@@ -666,16 +579,14 @@ class _SectionHeader extends StatelessWidget {
   const _SectionHeader({
     required this.title,
     required this.subtitle,
-    required this.actionLabel,
-    required this.onAction,
-    this.actionIcon,
+    this.actionLabel,
+    this.onAction,
   });
 
   final String title;
   final String subtitle;
-  final String actionLabel;
-  final VoidCallback onAction;
-  final IconData? actionIcon;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -691,82 +602,106 @@ class _SectionHeader extends StatelessWidget {
           ],
         ),
       ),
-      TextButton.icon(
-        onPressed: onAction,
-        icon: actionIcon == null
-            ? const SizedBox.shrink()
-            : Icon(actionIcon, size: 18),
-        label: Text(actionLabel),
-      ),
+      if (actionLabel != null && onAction != null)
+        TextButton(onPressed: onAction, child: Text(actionLabel!)),
     ],
   );
 }
 
-class _QuickAction extends StatelessWidget {
-  const _QuickAction({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-    this.emphasized = false,
-    this.tint,
-  });
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-  final bool emphasized;
-  final Color? tint;
+class _HomeJumpStrip extends StatelessWidget {
+  const _HomeJumpStrip();
+
   @override
   Widget build(BuildContext context) {
-    final color = tint ?? AppColors.primary;
-    return Expanded(
-      child: Material(
-        color: emphasized
-            ? AppColors.primaryLight
-            : Theme.of(context).colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(17),
-          side: BorderSide(
-            color: emphasized
-                ? AppColors.secondary.withValues(alpha: .35)
-                : AppColors.border,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF472440) : const Color(0xFFFFF6F1),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+          child: Row(
+            children: [
+              _JumpAction(
+                label: 'Products',
+                icon: Icons.inventory_2_outlined,
+                tint: AppColors.accent,
+                onTap: () => Get.toNamed<void>(AppRoutes.products),
+              ),
+              _JumpAction(
+                label: 'Estimates',
+                icon: Icons.request_quote_outlined,
+                tint: AppColors.primary,
+                onTap: () => Get.toNamed<void>(AppRoutes.quotations),
+              ),
+              _JumpAction(
+                label: 'Expenses',
+                icon: Icons.payments_outlined,
+                tint: AppColors.warning,
+                onTap: () => Get.toNamed<void>(AppRoutes.expenses),
+              ),
+              _JumpAction(
+                label: 'Reports',
+                icon: Icons.insert_chart_outlined_rounded,
+                tint: AppColors.secondary,
+                onTap: () => Get.toNamed<void>(AppRoutes.reports),
+              ),
+            ],
           ),
         ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 6,
-              vertical: emphasized ? 14 : 12,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: emphasized ? 38 : 36,
-                  height: emphasized ? 38 : 36,
-                  decoration: BoxDecoration(
-                    color: emphasized
-                        ? AppColors.secondary
-                        : color.withValues(alpha: .14),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: emphasized ? Colors.white : color,
-                    size: 18,
-                  ),
+      ),
+    );
+  }
+}
+
+class _JumpAction extends StatelessWidget {
+  const _JumpAction({
+    required this.label,
+    required this.icon,
+    required this.tint,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final Color tint;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: tint.withValues(alpha: 0.16),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption,
+                child: Icon(icon, color: tint, size: 20),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.caption.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 11,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

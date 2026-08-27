@@ -37,6 +37,9 @@ import '../../modules/reports/bindings/report_binding.dart';
 import '../../modules/reports/screens/report_screen.dart';
 import '../../modules/reports/screens/gst_export_screen.dart';
 import '../../modules/reports/screens/ageing_screen.dart';
+import '../../modules/expenses/bindings/expense_binding.dart';
+import '../../modules/expenses/screens/expense_list_screen.dart';
+import '../../modules/expenses/screens/expense_details_screen.dart';
 import '../../data/services/backup_service.dart';
 import '../../modules/backup_restore/bindings/backup_binding.dart';
 import '../../modules/backup_restore/screens/backup_screen.dart';
@@ -272,6 +275,26 @@ abstract final class AppRouter {
       name: AppRoutes.ageing,
       page: AgeingScreen.new,
       binding: AgeingBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.expenses,
+      page: ExpenseListScreen.new,
+      binding: ExpenseListBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.expenseCreate,
+      page: ExpenseFormScreen.new,
+      binding: ExpenseFormBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.expenseEdit,
+      page: ExpenseFormScreen.new,
+      binding: ExpenseFormBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.expenseDetails,
+      page: ExpenseDetailsScreen.new,
+      binding: ExpenseDetailsBinding(),
     ),
     GetPage(
       name: AppRoutes.invoicePreview,
