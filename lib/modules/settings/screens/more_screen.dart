@@ -112,7 +112,7 @@ class MoreScreen extends GetView<MoreController> {
                   AppMenuTile(
                     icon: Icons.inventory_2_outlined,
                     title: 'Products & services',
-                    subtitle: 'Saved items, pricing, tax and units',
+                    subtitle: 'Saved items, pricing and tax',
                     onTap: () => Get.toNamed<void>(AppRoutes.products),
                   ),
                   AppMenuTile(
@@ -152,9 +152,9 @@ class MoreScreen extends GetView<MoreController> {
               AppMenuGroup(
                 children: [
                   AppMenuTile(
-                    icon: Icons.tune_rounded,
+                    icon: Icons.settings_outlined,
                     title: 'App settings',
-                    subtitle: 'Appearance, language and security',
+                    subtitle: 'Invoice defaults, look, language and lock',
                     onTap: () => Get.toNamed<void>(AppRoutes.settings),
                   ),
                 ],

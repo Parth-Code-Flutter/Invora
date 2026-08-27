@@ -154,12 +154,16 @@ backups.
   barcode workflows remain separate.
 - More and App Settings use classic grouped settings panels: one bordered
   card per section, inset hairline dividers, compact 14px rows, plum icon
-  wells, and a chevron instead of a circular arrow. More leads with a quiet
-  business identity card (name plus owner/mobile/GSTIN, tap or Edit to open
-  the profile) and a Change workspace list with named Sales and Purchases
-  choices (check marks the active mode) that does not leave the screen. The privacy line is a caption, not a
-  tinted banner. Secondary tools no longer require horizontal discovery
-  scrolling.
+  wells, and a chevron instead of a circular arrow. More is the daily hub:
+  workspace switch, product fields, units, catalog, estimates, reports, GST /
+  CA export, and backup. App Settings is unique preferences only: business
+  profile, invoice defaults, dark mode, language, app lock, CSV export, and
+  about. Product settings, units, GST / CA export, and backup are not repeated
+  inside Settings. More leads with a quiet business identity card (name plus
+  owner/mobile/GSTIN, tap or Edit to open the profile) and a Change workspace
+  list with named Sales and Purchases choices (check marks the active mode)
+  that does not leave the screen. The privacy line is a caption, not a tinted
+  banner. Secondary tools no longer require horizontal discovery scrolling.
 - App Settings includes a focused Invoice Defaults workspace for immediate,
   7/15/30-day, or custom due periods; tax mode and GST rate; document notes and
   terms; and payment method. New documents/custom items/payment entries inherit
@@ -367,13 +371,12 @@ backups.
   export as CSV or a Unicode A4 PDF and are also reachable from Reports.
 - GST / CA export prepares period and financial-year sales, credit-note, and
   purchase registers plus HSN/SAC and missing-data exceptions. The workspace
-  is reachable from More, Reports, and Settings > Data. Files are always
-  labelled Prepared / Not submitted. CSV registers, a CA summary PDF, and a
-  ZIP pack can be saved or shared offline. The workspace shows the register
-  on screen (Sales / Credit notes / Purchases / HSN / Issues). Preview PDF
-  opens the CA summary the same way as a customer statement. Exception rows
-  open the source document. GSTN GSTR-1 JSON, OTP filing, IRN, and e-way
-  are out of this slice.
+  is reachable from More and Reports. Files are always labelled Prepared /
+  Not submitted. CSV registers, a CA summary PDF, and a ZIP pack can be saved
+  or shared offline. The workspace shows the register on screen (Sales /
+  Credit notes / Purchases / HSN / Issues). Preview PDF opens the CA summary
+  the same way as a customer statement. Exception rows open the source
+  document. GSTN GSTR-1 JSON, OTP filing, IRN, and e-way are out of this slice.
 - Dashboard totals and basic reports. Monthly sales are posted invoices minus
   credit notes dated in that month; received stays actual payments; outstanding
   uses each invoice’s remaining balance after payments and applied credit.
@@ -534,6 +537,17 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
 
+### 2026-08-27 — Distinct More hub and App Settings
+
+- App Settings no longer repeats Product settings, Units, GST / CA export, or
+  Backup. Those stay on More. Settings is now billing defaults (profile and
+  invoice defaults), appearance, language, app lock, CSV export, and about.
+- More uses a settings icon and a subtitle that names those unique jobs, and
+  Products & services no longer mentions units (units have their own row).
+- Important files: `more_screen.dart`, `settings_screen.dart`, localization
+  coverage maps, this handoff, and `QA_CHECKLIST.md`.
+- Verification: Dart formatting, `flutter analyze`, and localization coverage.
+
 ### 2026-08-27 — GST / CA export view and layout
 
 - GST / CA export now follows the same pattern as customer statements and
@@ -551,15 +565,15 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
   credit-note, and purchase registers, an HSN/SAC summary, and missing GSTIN /
   HSN exceptions. Files are always labelled Prepared / Not submitted. Users can
   save or share individual CSVs, a CA summary PDF, or a ZIP pack. GSTN GSTR-1
-  JSON, OTP filing, IRN, and e-way are out of this slice. Entry points: More,
-  Reports, and Settings > Data.
+  JSON, OTP filing, IRN, and e-way are out of this slice. Entry points: More
+  and Reports.
 - Indian FY presets start on 1 April. B2B is a 15-character GSTIN; anything
   else is B2C. Credit notes dated in the period are included even when the
   source invoice is outside the range. ITC is tax on ITC-eligible purchase
   bills only. Draft, cancelled, and quotation documents are excluded.
 - Important files: `gst_export_model.dart`, `gst_export_service.dart`,
   `gst_export_screen.dart`, `gst_export_controller.dart`, routes, More /
-  Reports / Settings entry points, and `gst_export_service_test.dart`.
+  Reports entry points, and `gst_export_service_test.dart`.
 - Verified with formatting, analysis, and the automated suite.
 
 ### 2026-08-27 — Credit note create polish

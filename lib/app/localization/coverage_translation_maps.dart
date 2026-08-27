@@ -7,8 +7,15 @@ const Map<String, String> appHindiCoverageTranslations = {
       'पूरे ऐप में गहरे रंग का उपयोग करें',
   'Identity, GST, bank details and branding':
       'पहचान, GST, बैंक विवरण और ब्रांडिंग',
+  'Name, GSTIN, bank and branding': 'नाम, GSTIN, बैंक और ब्रांडिंग',
   'Due date, GST, payment, notes and terms':
       'देय तिथि, GST, भुगतान, नोट्स और शर्तें',
+  'Due days, tax type, notes and terms': 'देय दिन, कर प्रकार, नोट्स और शर्तें',
+  'Invoice defaults, look, language and lock':
+      'चालान डिफ़ॉल्ट, दिखावट, भाषा और लॉक',
+  'CSV customers, items, invoices and reports':
+      'CSV ग्राहक, आइटम, चालान और रिपोर्ट',
+  'Saved items, pricing and tax': 'सहेजे आइटम, कीमत और कर',
   'Business category, product fields and PDF display':
       'व्यवसाय श्रेणी, उत्पाद फ़ील्ड और PDF प्रदर्शन',
   'Manage choices and the default item unit':
@@ -967,8 +974,16 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Use a darker appearance throughout the app': 'આખી એપમાં ઘેરો દેખાવ વાપરો',
   'Identity, GST, bank details and branding':
       'ઓળખ, GST, બેંક વિગતો અને બ્રાન્ડિંગ',
+  'Name, GSTIN, bank and branding': 'નામ, GSTIN, બેંક અને બ્રાન્ડિંગ',
   'Due date, GST, payment, notes and terms':
       'ચૂકવણી તારીખ, GST, ચુકવણી, નોંધો અને શરતો',
+  'Due days, tax type, notes and terms':
+      'ચૂકવણીના દિવસો, કર પ્રકાર, નોંધો અને શરતો',
+  'Invoice defaults, look, language and lock':
+      'ઇન્વૉઇસ ડિફૉલ્ટ, દેખાવ, ભાષા અને લૉક',
+  'CSV customers, items, invoices and reports':
+      'CSV ગ્રાહકો, આઇટમ, ઇન્વૉઇસ અને રિપોર્ટ',
+  'Saved items, pricing and tax': 'સાચવેલી આઇટમ, કિંમત અને કર',
   'Business category, product fields and PDF display':
       'વ્યવસાય શ્રેણી, ઉત્પાદન ફીલ્ડ અને PDF દેખાવ',
   'Manage choices and the default item unit':

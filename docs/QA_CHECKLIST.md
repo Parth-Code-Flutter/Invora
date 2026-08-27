@@ -114,7 +114,7 @@ remain intentionally out of scope until explicitly requested.
   Refund the remainder and confirm the statement shows both the credit note
   and the refund.
 - Share/print the credit-note PDF in airplane mode.
-- Open GST / CA export from More, Reports, and Settings. Confirm This month,
+- Open GST / CA export from More and Reports. Confirm This month,
   This FY, and a custom range. Share the ZIP pack in airplane mode and confirm
   every file says Prepared / Not submitted — never Submitted. Check B2B vs B2C,
   a credit note, a purchase ITC row, and the exception list.
