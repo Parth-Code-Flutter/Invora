@@ -4,6 +4,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/enums/invoice_status.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
@@ -147,43 +148,78 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                   const SizedBox(height: 12),
                 ],
                 SizedBox(
-                  height: 42,
-                  child: Obx(
-                    () => ListView(
-                      scrollDirection: Axis.horizontal,
-                      children:
-                          (quotation
-                                  ? const [
-                                      InvoiceListFilter.all,
-                                      InvoiceListFilter.draft,
-                                      InvoiceListFilter.sent,
-                                      InvoiceListFilter.accepted,
-                                      InvoiceListFilter.rejected,
-                                      InvoiceListFilter.expired,
-                                    ]
-                                  : const [
-                                      InvoiceListFilter.all,
-                                      InvoiceListFilter.draft,
-                                      InvoiceListFilter.unpaid,
-                                      InvoiceListFilter.paid,
-                                      InvoiceListFilter.overdue,
-                                    ])
-                              .map(
-                                (filter) => Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: AppFilterChip(
-                                    label: _filterLabel(filter),
-                                    selected:
-                                        controller.selectedFilter.value ==
-                                        filter,
-                                    onSelected: (_) =>
-                                        controller.selectFilter(filter),
-                                  ),
+                  height: 44,
+                  child: Obx(() {
+                    final filters = quotation
+                        ? const [
+                            InvoiceListFilter.all,
+                            InvoiceListFilter.draft,
+                            InvoiceListFilter.sent,
+                            InvoiceListFilter.accepted,
+                            InvoiceListFilter.rejected,
+                            InvoiceListFilter.expired,
+                          ]
+                        : const [
+                            InvoiceListFilter.all,
+                            InvoiceListFilter.overdue,
+                            InvoiceListFilter.unpaid,
+                            InvoiceListFilter.draft,
+                            InvoiceListFilter.paid,
+                          ];
+                    final summaries = controller.summaryInvoices.toList();
+                    return Stack(
+                      children: [
+                        ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.only(right: 24),
+                          itemCount: filters.length,
+                          separatorBuilder: (_, _) => const SizedBox(width: 8),
+                          itemBuilder: (context, index) {
+                            final filter = filters[index];
+                            if (quotation) {
+                              return AppFilterChip(
+                                label: _filterLabel(filter),
+                                selected:
+                                    controller.selectedFilter.value == filter,
+                                onSelected: (_) =>
+                                    controller.selectFilter(filter),
+                              );
+                            }
+                            return _InvoiceStatusFilterChip(
+                              filter: filter,
+                              count: _invoiceFilterCount(filter, summaries),
+                              selected:
+                                  controller.selectedFilter.value == filter,
+                              onSelected: () => controller.selectFilter(filter),
+                            );
+                          },
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: IgnorePointer(
+                            child: Container(
+                              width: 20,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    (Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? AppColors.darkBackground
+                                            : AppColors.background)
+                                        .withValues(alpha: 0),
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? AppColors.darkBackground
+                                        : AppColors.background,
+                                  ],
                                 ),
-                              )
-                              .toList(),
-                    ),
-                  ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
               ],
             ),
@@ -411,6 +447,93 @@ String _filterLabel(InvoiceListFilter filter) => switch (filter) {
   InvoiceListFilter.rejected => 'Rejected',
   InvoiceListFilter.expired => 'Expired',
 };
+
+int _invoiceFilterCount(
+  InvoiceListFilter filter,
+  List<InvoiceSummaryModel> invoices,
+) {
+  if (filter == InvoiceListFilter.all) return invoices.length;
+  final now = DateTime.now();
+  return invoices.where((invoice) {
+    final status = invoice.effectiveStatus(now);
+    return switch (filter) {
+      InvoiceListFilter.draft => status == InvoiceStatus.draft,
+      InvoiceListFilter.unpaid =>
+        status == InvoiceStatus.unpaid || status == InvoiceStatus.partiallyPaid,
+      InvoiceListFilter.paid => status == InvoiceStatus.paid,
+      InvoiceListFilter.overdue => status == InvoiceStatus.overdue,
+      _ => false,
+    };
+  }).length;
+}
+
+class _InvoiceStatusFilterChip extends StatelessWidget {
+  const _InvoiceStatusFilterChip({
+    required this.filter,
+    required this.count,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final InvoiceListFilter filter;
+  final int count;
+  final bool selected;
+  final VoidCallback onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tone = switch (filter) {
+      InvoiceListFilter.overdue => AppColors.error,
+      InvoiceListFilter.unpaid => AppColors.warning,
+      InvoiceListFilter.paid => AppColors.success,
+      _ => AppColors.secondary,
+    };
+    final quietTone = switch (filter) {
+      InvoiceListFilter.overdue => AppColors.errorLight,
+      InvoiceListFilter.unpaid => AppColors.warningLight,
+      InvoiceListFilter.paid => AppColors.successLight,
+      _ => AppColors.secondaryLight,
+    };
+    final label = _filterLabel(filter);
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: '$label, $count ${count == 1 ? 'invoice' : 'invoices'}',
+      child: ChoiceChip(
+        selected: selected,
+        onSelected: (_) => onSelected(),
+        showCheckmark: selected,
+        checkmarkColor: Colors.white,
+        label: Text('$label  $count'),
+        labelStyle: AppTextStyles.caption.copyWith(
+          color: selected
+              ? Colors.white
+              : count == 0
+              ? (isDark ? AppColors.darkTextSecondary : AppColors.textTertiary)
+              : Theme.of(context).colorScheme.onSurface,
+          fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+        ),
+        backgroundColor: isDark
+            ? AppColors.darkSurfaceVariant
+            : count == 0
+            ? AppColors.surfaceSoft
+            : quietTone.withValues(alpha: .55),
+        selectedColor: tone,
+        side: BorderSide(
+          color: selected
+              ? tone
+              : count == 0
+              ? (isDark ? AppColors.darkBorder : AppColors.border)
+              : tone.withValues(alpha: .25),
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      ),
+    );
+  }
+}
 
 String _sortLabel(InvoiceSort sort) => switch (sort) {
   InvoiceSort.newest => 'Newest first',
