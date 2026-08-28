@@ -17,6 +17,7 @@ import '../../data/services/product_settings_service.dart';
 import '../../data/services/payment_receipt_pdf_service.dart';
 import '../../data/services/purchase_bill_pdf_service.dart';
 import '../../data/services/expense_pdf_service.dart';
+import '../../data/services/delivery_challan_pdf_service.dart';
 import '../../data/services/purchase_attachment_service.dart';
 import '../../data/services/backup_service.dart';
 import '../../data/services/unit_service.dart';
@@ -30,9 +31,11 @@ import '../../data/repositories/credit_note_repository.dart';
 import '../../data/repositories/debit_note_repository.dart';
 import '../../data/repositories/purchase_repository.dart';
 import '../../data/repositories/expense_repository.dart';
+import '../../data/repositories/delivery_challan_repository.dart';
 import '../../data/repositories/cash_book_repository.dart';
 import '../../modules/dashboard/controllers/dashboard_controller.dart';
 import '../../modules/invoices/controllers/invoice_list_controller.dart';
+import '../../modules/delivery_challans/controllers/delivery_challan_controller.dart';
 import '../controllers/app_controller.dart';
 
 class InitialBinding extends Bindings {
@@ -77,6 +80,10 @@ class InitialBinding extends Bindings {
       permanent: true,
     );
     Get.put<ExpensePdfService>(const ExpensePdfService(), permanent: true);
+    Get.put<DeliveryChallanPdfService>(
+      const DeliveryChallanPdfService(),
+      permanent: true,
+    );
     Get.put<PurchaseAttachmentService>(
       const PurchaseAttachmentService(),
       permanent: true,
@@ -101,6 +108,7 @@ class InitialBinding extends Bindings {
     await _deleteDataController<InvoiceListController>(
       tag: InvoiceListController.quotationTag,
     );
+    await _deleteDataController<DeliveryChallanListController>();
     await Get.delete<GstExportService>(force: true);
     await Get.delete<AgeingService>(force: true);
     await Get.delete<DataImportService>(force: true);
@@ -110,6 +118,7 @@ class InitialBinding extends Bindings {
     await Get.delete<DebitNoteRepository>(force: true);
     await Get.delete<CashBookRepository>(force: true);
     await Get.delete<ExpenseRepository>(force: true);
+    await Get.delete<DeliveryChallanRepository>(force: true);
     await Get.delete<InvoiceRepository>(force: true);
     await Get.delete<PurchaseRepository>(force: true);
     await Get.delete<ProductRepository>(force: true);
@@ -175,6 +184,13 @@ class InitialBinding extends Bindings {
     );
     Get.put<ExpenseRepository>(
       ExpenseRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<DeliveryChallanRepository>(
+      DeliveryChallanRepository(
+        databaseService.database,
+        Get.find<InvoiceRepository>(),
+      ),
       permanent: true,
     );
     Get.put<CashBookRepository>(

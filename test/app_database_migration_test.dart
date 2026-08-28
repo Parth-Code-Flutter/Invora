@@ -156,6 +156,29 @@ void main() {
     );
     await database.close();
   });
+
+  test('creates delivery challan tables when upgrading from schema 17', () async {
+    final database = AppDatabase.forTesting(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw.execute('PRAGMA user_version = 17');
+        },
+      ),
+    );
+
+    final tables = await database
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE 'delivery_challan%' ORDER BY name",
+        )
+        .get();
+    expect(tables.map((row) => row.read<String>('name')), [
+      'delivery_challan_invoices',
+      'delivery_challan_items',
+      'delivery_challans',
+    ]);
+    expect(database.schemaVersion, 18);
+    await database.close();
+  });
 }
 
 void _createV5Fixture(dynamic raw) {

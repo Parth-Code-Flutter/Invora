@@ -21329,6 +21329,3553 @@ class ImportBatchErrorsCompanion extends UpdateCompanion<ImportBatchError> {
   }
 }
 
+class $DeliveryChallansTable extends DeliveryChallans
+    with TableInfo<$DeliveryChallansTable, DeliveryChallan> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DeliveryChallansTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _challanNumberMeta = const VerificationMeta(
+    'challanNumber',
+  );
+  @override
+  late final GeneratedColumn<String> challanNumber = GeneratedColumn<String>(
+    'challan_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _customerIdMeta = const VerificationMeta(
+    'customerId',
+  );
+  @override
+  late final GeneratedColumn<int> customerId = GeneratedColumn<int>(
+    'customer_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerNameMeta = const VerificationMeta(
+    'customerName',
+  );
+  @override
+  late final GeneratedColumn<String> customerName = GeneratedColumn<String>(
+    'customer_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _customerCompanyMeta = const VerificationMeta(
+    'customerCompany',
+  );
+  @override
+  late final GeneratedColumn<String> customerCompany = GeneratedColumn<String>(
+    'customer_company',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerMobileMeta = const VerificationMeta(
+    'customerMobile',
+  );
+  @override
+  late final GeneratedColumn<String> customerMobile = GeneratedColumn<String>(
+    'customer_mobile',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerEmailMeta = const VerificationMeta(
+    'customerEmail',
+  );
+  @override
+  late final GeneratedColumn<String> customerEmail = GeneratedColumn<String>(
+    'customer_email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerAddressMeta = const VerificationMeta(
+    'customerAddress',
+  );
+  @override
+  late final GeneratedColumn<String> customerAddress = GeneratedColumn<String>(
+    'customer_address',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerCityMeta = const VerificationMeta(
+    'customerCity',
+  );
+  @override
+  late final GeneratedColumn<String> customerCity = GeneratedColumn<String>(
+    'customer_city',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerStateMeta = const VerificationMeta(
+    'customerState',
+  );
+  @override
+  late final GeneratedColumn<String> customerState = GeneratedColumn<String>(
+    'customer_state',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerPinCodeMeta = const VerificationMeta(
+    'customerPinCode',
+  );
+  @override
+  late final GeneratedColumn<String> customerPinCode = GeneratedColumn<String>(
+    'customer_pin_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerGstinMeta = const VerificationMeta(
+    'customerGstin',
+  );
+  @override
+  late final GeneratedColumn<String> customerGstin = GeneratedColumn<String>(
+    'customer_gstin',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceTypeMeta = const VerificationMeta(
+    'sourceType',
+  );
+  @override
+  late final GeneratedColumn<String> sourceType = GeneratedColumn<String>(
+    'source_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('blank'),
+  );
+  static const VerificationMeta _sourceIdMeta = const VerificationMeta(
+    'sourceId',
+  );
+  @override
+  late final GeneratedColumn<int> sourceId = GeneratedColumn<int>(
+    'source_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _challanDateMeta = const VerificationMeta(
+    'challanDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> challanDate = GeneratedColumn<DateTime>(
+    'challan_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dispatchDateMeta = const VerificationMeta(
+    'dispatchDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dispatchDate = GeneratedColumn<DateTime>(
+    'dispatch_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _movementReasonMeta = const VerificationMeta(
+    'movementReason',
+  );
+  @override
+  late final GeneratedColumn<String> movementReason = GeneratedColumn<String>(
+    'movement_reason',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _movementReasonNoteMeta =
+      const VerificationMeta('movementReasonNote');
+  @override
+  late final GeneratedColumn<String> movementReasonNote =
+      GeneratedColumn<String>(
+        'movement_reason_note',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _dispatchAddressMeta = const VerificationMeta(
+    'dispatchAddress',
+  );
+  @override
+  late final GeneratedColumn<String> dispatchAddress = GeneratedColumn<String>(
+    'dispatch_address',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dispatchCityMeta = const VerificationMeta(
+    'dispatchCity',
+  );
+  @override
+  late final GeneratedColumn<String> dispatchCity = GeneratedColumn<String>(
+    'dispatch_city',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dispatchStateMeta = const VerificationMeta(
+    'dispatchState',
+  );
+  @override
+  late final GeneratedColumn<String> dispatchState = GeneratedColumn<String>(
+    'dispatch_state',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dispatchPinCodeMeta = const VerificationMeta(
+    'dispatchPinCode',
+  );
+  @override
+  late final GeneratedColumn<String> dispatchPinCode = GeneratedColumn<String>(
+    'dispatch_pin_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deliveryAddressMeta = const VerificationMeta(
+    'deliveryAddress',
+  );
+  @override
+  late final GeneratedColumn<String> deliveryAddress = GeneratedColumn<String>(
+    'delivery_address',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deliveryCityMeta = const VerificationMeta(
+    'deliveryCity',
+  );
+  @override
+  late final GeneratedColumn<String> deliveryCity = GeneratedColumn<String>(
+    'delivery_city',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deliveryStateMeta = const VerificationMeta(
+    'deliveryState',
+  );
+  @override
+  late final GeneratedColumn<String> deliveryState = GeneratedColumn<String>(
+    'delivery_state',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deliveryPinCodeMeta = const VerificationMeta(
+    'deliveryPinCode',
+  );
+  @override
+  late final GeneratedColumn<String> deliveryPinCode = GeneratedColumn<String>(
+    'delivery_pin_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _transporterNameMeta = const VerificationMeta(
+    'transporterName',
+  );
+  @override
+  late final GeneratedColumn<String> transporterName = GeneratedColumn<String>(
+    'transporter_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _transporterIdMeta = const VerificationMeta(
+    'transporterId',
+  );
+  @override
+  late final GeneratedColumn<String> transporterId = GeneratedColumn<String>(
+    'transporter_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _vehicleNumberMeta = const VerificationMeta(
+    'vehicleNumber',
+  );
+  @override
+  late final GeneratedColumn<String> vehicleNumber = GeneratedColumn<String>(
+    'vehicle_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _transportDocumentNumberMeta =
+      const VerificationMeta('transportDocumentNumber');
+  @override
+  late final GeneratedColumn<String> transportDocumentNumber =
+      GeneratedColumn<String>(
+        'transport_document_number',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _transportDocumentDateMeta =
+      const VerificationMeta('transportDocumentDate');
+  @override
+  late final GeneratedColumn<DateTime> transportDocumentDate =
+      GeneratedColumn<DateTime>(
+        'transport_document_date',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _distanceKmMeta = const VerificationMeta(
+    'distanceKm',
+  );
+  @override
+  late final GeneratedColumn<int> distanceKm = GeneratedColumn<int>(
+    'distance_km',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _ewayStatusMeta = const VerificationMeta(
+    'ewayStatus',
+  );
+  @override
+  late final GeneratedColumn<String> ewayStatus = GeneratedColumn<String>(
+    'eway_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('none'),
+  );
+  static const VerificationMeta _ewayNumberMeta = const VerificationMeta(
+    'ewayNumber',
+  );
+  @override
+  late final GeneratedColumn<String> ewayNumber = GeneratedColumn<String>(
+    'eway_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cancellationReasonMeta =
+      const VerificationMeta('cancellationReason');
+  @override
+  late final GeneratedColumn<String> cancellationReason =
+      GeneratedColumn<String>(
+        'cancellation_reason',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _cancelledAtMeta = const VerificationMeta(
+    'cancelledAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cancelledAt = GeneratedColumn<DateTime>(
+    'cancelled_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    challanNumber,
+    customerId,
+    customerName,
+    customerCompany,
+    customerMobile,
+    customerEmail,
+    customerAddress,
+    customerCity,
+    customerState,
+    customerPinCode,
+    customerGstin,
+    sourceType,
+    sourceId,
+    challanDate,
+    dispatchDate,
+    status,
+    movementReason,
+    movementReasonNote,
+    dispatchAddress,
+    dispatchCity,
+    dispatchState,
+    dispatchPinCode,
+    deliveryAddress,
+    deliveryCity,
+    deliveryState,
+    deliveryPinCode,
+    transporterName,
+    transporterId,
+    vehicleNumber,
+    transportDocumentNumber,
+    transportDocumentDate,
+    distanceKm,
+    ewayStatus,
+    ewayNumber,
+    notes,
+    cancellationReason,
+    cancelledAt,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'delivery_challans';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DeliveryChallan> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('challan_number')) {
+      context.handle(
+        _challanNumberMeta,
+        challanNumber.isAcceptableOrUnknown(
+          data['challan_number']!,
+          _challanNumberMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_challanNumberMeta);
+    }
+    if (data.containsKey('customer_id')) {
+      context.handle(
+        _customerIdMeta,
+        customerId.isAcceptableOrUnknown(data['customer_id']!, _customerIdMeta),
+      );
+    }
+    if (data.containsKey('customer_name')) {
+      context.handle(
+        _customerNameMeta,
+        customerName.isAcceptableOrUnknown(
+          data['customer_name']!,
+          _customerNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_customerNameMeta);
+    }
+    if (data.containsKey('customer_company')) {
+      context.handle(
+        _customerCompanyMeta,
+        customerCompany.isAcceptableOrUnknown(
+          data['customer_company']!,
+          _customerCompanyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_mobile')) {
+      context.handle(
+        _customerMobileMeta,
+        customerMobile.isAcceptableOrUnknown(
+          data['customer_mobile']!,
+          _customerMobileMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_email')) {
+      context.handle(
+        _customerEmailMeta,
+        customerEmail.isAcceptableOrUnknown(
+          data['customer_email']!,
+          _customerEmailMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_address')) {
+      context.handle(
+        _customerAddressMeta,
+        customerAddress.isAcceptableOrUnknown(
+          data['customer_address']!,
+          _customerAddressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_city')) {
+      context.handle(
+        _customerCityMeta,
+        customerCity.isAcceptableOrUnknown(
+          data['customer_city']!,
+          _customerCityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_state')) {
+      context.handle(
+        _customerStateMeta,
+        customerState.isAcceptableOrUnknown(
+          data['customer_state']!,
+          _customerStateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_pin_code')) {
+      context.handle(
+        _customerPinCodeMeta,
+        customerPinCode.isAcceptableOrUnknown(
+          data['customer_pin_code']!,
+          _customerPinCodeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_gstin')) {
+      context.handle(
+        _customerGstinMeta,
+        customerGstin.isAcceptableOrUnknown(
+          data['customer_gstin']!,
+          _customerGstinMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_type')) {
+      context.handle(
+        _sourceTypeMeta,
+        sourceType.isAcceptableOrUnknown(data['source_type']!, _sourceTypeMeta),
+      );
+    }
+    if (data.containsKey('source_id')) {
+      context.handle(
+        _sourceIdMeta,
+        sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta),
+      );
+    }
+    if (data.containsKey('challan_date')) {
+      context.handle(
+        _challanDateMeta,
+        challanDate.isAcceptableOrUnknown(
+          data['challan_date']!,
+          _challanDateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_challanDateMeta);
+    }
+    if (data.containsKey('dispatch_date')) {
+      context.handle(
+        _dispatchDateMeta,
+        dispatchDate.isAcceptableOrUnknown(
+          data['dispatch_date']!,
+          _dispatchDateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('movement_reason')) {
+      context.handle(
+        _movementReasonMeta,
+        movementReason.isAcceptableOrUnknown(
+          data['movement_reason']!,
+          _movementReasonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_movementReasonMeta);
+    }
+    if (data.containsKey('movement_reason_note')) {
+      context.handle(
+        _movementReasonNoteMeta,
+        movementReasonNote.isAcceptableOrUnknown(
+          data['movement_reason_note']!,
+          _movementReasonNoteMeta,
+        ),
+      );
+    }
+    if (data.containsKey('dispatch_address')) {
+      context.handle(
+        _dispatchAddressMeta,
+        dispatchAddress.isAcceptableOrUnknown(
+          data['dispatch_address']!,
+          _dispatchAddressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('dispatch_city')) {
+      context.handle(
+        _dispatchCityMeta,
+        dispatchCity.isAcceptableOrUnknown(
+          data['dispatch_city']!,
+          _dispatchCityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('dispatch_state')) {
+      context.handle(
+        _dispatchStateMeta,
+        dispatchState.isAcceptableOrUnknown(
+          data['dispatch_state']!,
+          _dispatchStateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('dispatch_pin_code')) {
+      context.handle(
+        _dispatchPinCodeMeta,
+        dispatchPinCode.isAcceptableOrUnknown(
+          data['dispatch_pin_code']!,
+          _dispatchPinCodeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('delivery_address')) {
+      context.handle(
+        _deliveryAddressMeta,
+        deliveryAddress.isAcceptableOrUnknown(
+          data['delivery_address']!,
+          _deliveryAddressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('delivery_city')) {
+      context.handle(
+        _deliveryCityMeta,
+        deliveryCity.isAcceptableOrUnknown(
+          data['delivery_city']!,
+          _deliveryCityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('delivery_state')) {
+      context.handle(
+        _deliveryStateMeta,
+        deliveryState.isAcceptableOrUnknown(
+          data['delivery_state']!,
+          _deliveryStateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('delivery_pin_code')) {
+      context.handle(
+        _deliveryPinCodeMeta,
+        deliveryPinCode.isAcceptableOrUnknown(
+          data['delivery_pin_code']!,
+          _deliveryPinCodeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('transporter_name')) {
+      context.handle(
+        _transporterNameMeta,
+        transporterName.isAcceptableOrUnknown(
+          data['transporter_name']!,
+          _transporterNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('transporter_id')) {
+      context.handle(
+        _transporterIdMeta,
+        transporterId.isAcceptableOrUnknown(
+          data['transporter_id']!,
+          _transporterIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('vehicle_number')) {
+      context.handle(
+        _vehicleNumberMeta,
+        vehicleNumber.isAcceptableOrUnknown(
+          data['vehicle_number']!,
+          _vehicleNumberMeta,
+        ),
+      );
+    }
+    if (data.containsKey('transport_document_number')) {
+      context.handle(
+        _transportDocumentNumberMeta,
+        transportDocumentNumber.isAcceptableOrUnknown(
+          data['transport_document_number']!,
+          _transportDocumentNumberMeta,
+        ),
+      );
+    }
+    if (data.containsKey('transport_document_date')) {
+      context.handle(
+        _transportDocumentDateMeta,
+        transportDocumentDate.isAcceptableOrUnknown(
+          data['transport_document_date']!,
+          _transportDocumentDateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('distance_km')) {
+      context.handle(
+        _distanceKmMeta,
+        distanceKm.isAcceptableOrUnknown(data['distance_km']!, _distanceKmMeta),
+      );
+    }
+    if (data.containsKey('eway_status')) {
+      context.handle(
+        _ewayStatusMeta,
+        ewayStatus.isAcceptableOrUnknown(data['eway_status']!, _ewayStatusMeta),
+      );
+    }
+    if (data.containsKey('eway_number')) {
+      context.handle(
+        _ewayNumberMeta,
+        ewayNumber.isAcceptableOrUnknown(data['eway_number']!, _ewayNumberMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('cancellation_reason')) {
+      context.handle(
+        _cancellationReasonMeta,
+        cancellationReason.isAcceptableOrUnknown(
+          data['cancellation_reason']!,
+          _cancellationReasonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cancelled_at')) {
+      context.handle(
+        _cancelledAtMeta,
+        cancelledAt.isAcceptableOrUnknown(
+          data['cancelled_at']!,
+          _cancelledAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DeliveryChallan map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DeliveryChallan(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      challanNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}challan_number'],
+      )!,
+      customerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}customer_id'],
+      ),
+      customerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_name'],
+      )!,
+      customerCompany: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_company'],
+      ),
+      customerMobile: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_mobile'],
+      ),
+      customerEmail: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_email'],
+      ),
+      customerAddress: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_address'],
+      ),
+      customerCity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_city'],
+      ),
+      customerState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_state'],
+      ),
+      customerPinCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_pin_code'],
+      ),
+      customerGstin: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_gstin'],
+      ),
+      sourceType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_type'],
+      )!,
+      sourceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}source_id'],
+      ),
+      challanDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}challan_date'],
+      )!,
+      dispatchDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}dispatch_date'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      movementReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}movement_reason'],
+      )!,
+      movementReasonNote: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}movement_reason_note'],
+      ),
+      dispatchAddress: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}dispatch_address'],
+      ),
+      dispatchCity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}dispatch_city'],
+      ),
+      dispatchState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}dispatch_state'],
+      ),
+      dispatchPinCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}dispatch_pin_code'],
+      ),
+      deliveryAddress: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delivery_address'],
+      ),
+      deliveryCity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delivery_city'],
+      ),
+      deliveryState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delivery_state'],
+      ),
+      deliveryPinCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delivery_pin_code'],
+      ),
+      transporterName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transporter_name'],
+      ),
+      transporterId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transporter_id'],
+      ),
+      vehicleNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vehicle_number'],
+      ),
+      transportDocumentNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transport_document_number'],
+      ),
+      transportDocumentDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}transport_document_date'],
+      ),
+      distanceKm: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}distance_km'],
+      ),
+      ewayStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}eway_status'],
+      )!,
+      ewayNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}eway_number'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      cancellationReason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cancellation_reason'],
+      ),
+      cancelledAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cancelled_at'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $DeliveryChallansTable createAlias(String alias) {
+    return $DeliveryChallansTable(attachedDatabase, alias);
+  }
+}
+
+class DeliveryChallan extends DataClass implements Insertable<DeliveryChallan> {
+  final int id;
+  final String challanNumber;
+  final int? customerId;
+  final String customerName;
+  final String? customerCompany;
+  final String? customerMobile;
+  final String? customerEmail;
+  final String? customerAddress;
+  final String? customerCity;
+  final String? customerState;
+  final String? customerPinCode;
+  final String? customerGstin;
+  final String sourceType;
+  final int? sourceId;
+  final DateTime challanDate;
+  final DateTime? dispatchDate;
+  final String status;
+  final String movementReason;
+  final String? movementReasonNote;
+  final String? dispatchAddress;
+  final String? dispatchCity;
+  final String? dispatchState;
+  final String? dispatchPinCode;
+  final String? deliveryAddress;
+  final String? deliveryCity;
+  final String? deliveryState;
+  final String? deliveryPinCode;
+  final String? transporterName;
+  final String? transporterId;
+  final String? vehicleNumber;
+  final String? transportDocumentNumber;
+  final DateTime? transportDocumentDate;
+  final int? distanceKm;
+  final String ewayStatus;
+  final String? ewayNumber;
+  final String? notes;
+  final String? cancellationReason;
+  final DateTime? cancelledAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const DeliveryChallan({
+    required this.id,
+    required this.challanNumber,
+    this.customerId,
+    required this.customerName,
+    this.customerCompany,
+    this.customerMobile,
+    this.customerEmail,
+    this.customerAddress,
+    this.customerCity,
+    this.customerState,
+    this.customerPinCode,
+    this.customerGstin,
+    required this.sourceType,
+    this.sourceId,
+    required this.challanDate,
+    this.dispatchDate,
+    required this.status,
+    required this.movementReason,
+    this.movementReasonNote,
+    this.dispatchAddress,
+    this.dispatchCity,
+    this.dispatchState,
+    this.dispatchPinCode,
+    this.deliveryAddress,
+    this.deliveryCity,
+    this.deliveryState,
+    this.deliveryPinCode,
+    this.transporterName,
+    this.transporterId,
+    this.vehicleNumber,
+    this.transportDocumentNumber,
+    this.transportDocumentDate,
+    this.distanceKm,
+    required this.ewayStatus,
+    this.ewayNumber,
+    this.notes,
+    this.cancellationReason,
+    this.cancelledAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['challan_number'] = Variable<String>(challanNumber);
+    if (!nullToAbsent || customerId != null) {
+      map['customer_id'] = Variable<int>(customerId);
+    }
+    map['customer_name'] = Variable<String>(customerName);
+    if (!nullToAbsent || customerCompany != null) {
+      map['customer_company'] = Variable<String>(customerCompany);
+    }
+    if (!nullToAbsent || customerMobile != null) {
+      map['customer_mobile'] = Variable<String>(customerMobile);
+    }
+    if (!nullToAbsent || customerEmail != null) {
+      map['customer_email'] = Variable<String>(customerEmail);
+    }
+    if (!nullToAbsent || customerAddress != null) {
+      map['customer_address'] = Variable<String>(customerAddress);
+    }
+    if (!nullToAbsent || customerCity != null) {
+      map['customer_city'] = Variable<String>(customerCity);
+    }
+    if (!nullToAbsent || customerState != null) {
+      map['customer_state'] = Variable<String>(customerState);
+    }
+    if (!nullToAbsent || customerPinCode != null) {
+      map['customer_pin_code'] = Variable<String>(customerPinCode);
+    }
+    if (!nullToAbsent || customerGstin != null) {
+      map['customer_gstin'] = Variable<String>(customerGstin);
+    }
+    map['source_type'] = Variable<String>(sourceType);
+    if (!nullToAbsent || sourceId != null) {
+      map['source_id'] = Variable<int>(sourceId);
+    }
+    map['challan_date'] = Variable<DateTime>(challanDate);
+    if (!nullToAbsent || dispatchDate != null) {
+      map['dispatch_date'] = Variable<DateTime>(dispatchDate);
+    }
+    map['status'] = Variable<String>(status);
+    map['movement_reason'] = Variable<String>(movementReason);
+    if (!nullToAbsent || movementReasonNote != null) {
+      map['movement_reason_note'] = Variable<String>(movementReasonNote);
+    }
+    if (!nullToAbsent || dispatchAddress != null) {
+      map['dispatch_address'] = Variable<String>(dispatchAddress);
+    }
+    if (!nullToAbsent || dispatchCity != null) {
+      map['dispatch_city'] = Variable<String>(dispatchCity);
+    }
+    if (!nullToAbsent || dispatchState != null) {
+      map['dispatch_state'] = Variable<String>(dispatchState);
+    }
+    if (!nullToAbsent || dispatchPinCode != null) {
+      map['dispatch_pin_code'] = Variable<String>(dispatchPinCode);
+    }
+    if (!nullToAbsent || deliveryAddress != null) {
+      map['delivery_address'] = Variable<String>(deliveryAddress);
+    }
+    if (!nullToAbsent || deliveryCity != null) {
+      map['delivery_city'] = Variable<String>(deliveryCity);
+    }
+    if (!nullToAbsent || deliveryState != null) {
+      map['delivery_state'] = Variable<String>(deliveryState);
+    }
+    if (!nullToAbsent || deliveryPinCode != null) {
+      map['delivery_pin_code'] = Variable<String>(deliveryPinCode);
+    }
+    if (!nullToAbsent || transporterName != null) {
+      map['transporter_name'] = Variable<String>(transporterName);
+    }
+    if (!nullToAbsent || transporterId != null) {
+      map['transporter_id'] = Variable<String>(transporterId);
+    }
+    if (!nullToAbsent || vehicleNumber != null) {
+      map['vehicle_number'] = Variable<String>(vehicleNumber);
+    }
+    if (!nullToAbsent || transportDocumentNumber != null) {
+      map['transport_document_number'] = Variable<String>(
+        transportDocumentNumber,
+      );
+    }
+    if (!nullToAbsent || transportDocumentDate != null) {
+      map['transport_document_date'] = Variable<DateTime>(
+        transportDocumentDate,
+      );
+    }
+    if (!nullToAbsent || distanceKm != null) {
+      map['distance_km'] = Variable<int>(distanceKm);
+    }
+    map['eway_status'] = Variable<String>(ewayStatus);
+    if (!nullToAbsent || ewayNumber != null) {
+      map['eway_number'] = Variable<String>(ewayNumber);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || cancellationReason != null) {
+      map['cancellation_reason'] = Variable<String>(cancellationReason);
+    }
+    if (!nullToAbsent || cancelledAt != null) {
+      map['cancelled_at'] = Variable<DateTime>(cancelledAt);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  DeliveryChallansCompanion toCompanion(bool nullToAbsent) {
+    return DeliveryChallansCompanion(
+      id: Value(id),
+      challanNumber: Value(challanNumber),
+      customerId: customerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerId),
+      customerName: Value(customerName),
+      customerCompany: customerCompany == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerCompany),
+      customerMobile: customerMobile == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerMobile),
+      customerEmail: customerEmail == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerEmail),
+      customerAddress: customerAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerAddress),
+      customerCity: customerCity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerCity),
+      customerState: customerState == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerState),
+      customerPinCode: customerPinCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerPinCode),
+      customerGstin: customerGstin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerGstin),
+      sourceType: Value(sourceType),
+      sourceId: sourceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceId),
+      challanDate: Value(challanDate),
+      dispatchDate: dispatchDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dispatchDate),
+      status: Value(status),
+      movementReason: Value(movementReason),
+      movementReasonNote: movementReasonNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(movementReasonNote),
+      dispatchAddress: dispatchAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dispatchAddress),
+      dispatchCity: dispatchCity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dispatchCity),
+      dispatchState: dispatchState == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dispatchState),
+      dispatchPinCode: dispatchPinCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dispatchPinCode),
+      deliveryAddress: deliveryAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deliveryAddress),
+      deliveryCity: deliveryCity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deliveryCity),
+      deliveryState: deliveryState == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deliveryState),
+      deliveryPinCode: deliveryPinCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deliveryPinCode),
+      transporterName: transporterName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transporterName),
+      transporterId: transporterId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transporterId),
+      vehicleNumber: vehicleNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vehicleNumber),
+      transportDocumentNumber: transportDocumentNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transportDocumentNumber),
+      transportDocumentDate: transportDocumentDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transportDocumentDate),
+      distanceKm: distanceKm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(distanceKm),
+      ewayStatus: Value(ewayStatus),
+      ewayNumber: ewayNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ewayNumber),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      cancellationReason: cancellationReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cancellationReason),
+      cancelledAt: cancelledAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cancelledAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory DeliveryChallan.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DeliveryChallan(
+      id: serializer.fromJson<int>(json['id']),
+      challanNumber: serializer.fromJson<String>(json['challanNumber']),
+      customerId: serializer.fromJson<int?>(json['customerId']),
+      customerName: serializer.fromJson<String>(json['customerName']),
+      customerCompany: serializer.fromJson<String?>(json['customerCompany']),
+      customerMobile: serializer.fromJson<String?>(json['customerMobile']),
+      customerEmail: serializer.fromJson<String?>(json['customerEmail']),
+      customerAddress: serializer.fromJson<String?>(json['customerAddress']),
+      customerCity: serializer.fromJson<String?>(json['customerCity']),
+      customerState: serializer.fromJson<String?>(json['customerState']),
+      customerPinCode: serializer.fromJson<String?>(json['customerPinCode']),
+      customerGstin: serializer.fromJson<String?>(json['customerGstin']),
+      sourceType: serializer.fromJson<String>(json['sourceType']),
+      sourceId: serializer.fromJson<int?>(json['sourceId']),
+      challanDate: serializer.fromJson<DateTime>(json['challanDate']),
+      dispatchDate: serializer.fromJson<DateTime?>(json['dispatchDate']),
+      status: serializer.fromJson<String>(json['status']),
+      movementReason: serializer.fromJson<String>(json['movementReason']),
+      movementReasonNote: serializer.fromJson<String?>(
+        json['movementReasonNote'],
+      ),
+      dispatchAddress: serializer.fromJson<String?>(json['dispatchAddress']),
+      dispatchCity: serializer.fromJson<String?>(json['dispatchCity']),
+      dispatchState: serializer.fromJson<String?>(json['dispatchState']),
+      dispatchPinCode: serializer.fromJson<String?>(json['dispatchPinCode']),
+      deliveryAddress: serializer.fromJson<String?>(json['deliveryAddress']),
+      deliveryCity: serializer.fromJson<String?>(json['deliveryCity']),
+      deliveryState: serializer.fromJson<String?>(json['deliveryState']),
+      deliveryPinCode: serializer.fromJson<String?>(json['deliveryPinCode']),
+      transporterName: serializer.fromJson<String?>(json['transporterName']),
+      transporterId: serializer.fromJson<String?>(json['transporterId']),
+      vehicleNumber: serializer.fromJson<String?>(json['vehicleNumber']),
+      transportDocumentNumber: serializer.fromJson<String?>(
+        json['transportDocumentNumber'],
+      ),
+      transportDocumentDate: serializer.fromJson<DateTime?>(
+        json['transportDocumentDate'],
+      ),
+      distanceKm: serializer.fromJson<int?>(json['distanceKm']),
+      ewayStatus: serializer.fromJson<String>(json['ewayStatus']),
+      ewayNumber: serializer.fromJson<String?>(json['ewayNumber']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      cancellationReason: serializer.fromJson<String?>(
+        json['cancellationReason'],
+      ),
+      cancelledAt: serializer.fromJson<DateTime?>(json['cancelledAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'challanNumber': serializer.toJson<String>(challanNumber),
+      'customerId': serializer.toJson<int?>(customerId),
+      'customerName': serializer.toJson<String>(customerName),
+      'customerCompany': serializer.toJson<String?>(customerCompany),
+      'customerMobile': serializer.toJson<String?>(customerMobile),
+      'customerEmail': serializer.toJson<String?>(customerEmail),
+      'customerAddress': serializer.toJson<String?>(customerAddress),
+      'customerCity': serializer.toJson<String?>(customerCity),
+      'customerState': serializer.toJson<String?>(customerState),
+      'customerPinCode': serializer.toJson<String?>(customerPinCode),
+      'customerGstin': serializer.toJson<String?>(customerGstin),
+      'sourceType': serializer.toJson<String>(sourceType),
+      'sourceId': serializer.toJson<int?>(sourceId),
+      'challanDate': serializer.toJson<DateTime>(challanDate),
+      'dispatchDate': serializer.toJson<DateTime?>(dispatchDate),
+      'status': serializer.toJson<String>(status),
+      'movementReason': serializer.toJson<String>(movementReason),
+      'movementReasonNote': serializer.toJson<String?>(movementReasonNote),
+      'dispatchAddress': serializer.toJson<String?>(dispatchAddress),
+      'dispatchCity': serializer.toJson<String?>(dispatchCity),
+      'dispatchState': serializer.toJson<String?>(dispatchState),
+      'dispatchPinCode': serializer.toJson<String?>(dispatchPinCode),
+      'deliveryAddress': serializer.toJson<String?>(deliveryAddress),
+      'deliveryCity': serializer.toJson<String?>(deliveryCity),
+      'deliveryState': serializer.toJson<String?>(deliveryState),
+      'deliveryPinCode': serializer.toJson<String?>(deliveryPinCode),
+      'transporterName': serializer.toJson<String?>(transporterName),
+      'transporterId': serializer.toJson<String?>(transporterId),
+      'vehicleNumber': serializer.toJson<String?>(vehicleNumber),
+      'transportDocumentNumber': serializer.toJson<String?>(
+        transportDocumentNumber,
+      ),
+      'transportDocumentDate': serializer.toJson<DateTime?>(
+        transportDocumentDate,
+      ),
+      'distanceKm': serializer.toJson<int?>(distanceKm),
+      'ewayStatus': serializer.toJson<String>(ewayStatus),
+      'ewayNumber': serializer.toJson<String?>(ewayNumber),
+      'notes': serializer.toJson<String?>(notes),
+      'cancellationReason': serializer.toJson<String?>(cancellationReason),
+      'cancelledAt': serializer.toJson<DateTime?>(cancelledAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  DeliveryChallan copyWith({
+    int? id,
+    String? challanNumber,
+    Value<int?> customerId = const Value.absent(),
+    String? customerName,
+    Value<String?> customerCompany = const Value.absent(),
+    Value<String?> customerMobile = const Value.absent(),
+    Value<String?> customerEmail = const Value.absent(),
+    Value<String?> customerAddress = const Value.absent(),
+    Value<String?> customerCity = const Value.absent(),
+    Value<String?> customerState = const Value.absent(),
+    Value<String?> customerPinCode = const Value.absent(),
+    Value<String?> customerGstin = const Value.absent(),
+    String? sourceType,
+    Value<int?> sourceId = const Value.absent(),
+    DateTime? challanDate,
+    Value<DateTime?> dispatchDate = const Value.absent(),
+    String? status,
+    String? movementReason,
+    Value<String?> movementReasonNote = const Value.absent(),
+    Value<String?> dispatchAddress = const Value.absent(),
+    Value<String?> dispatchCity = const Value.absent(),
+    Value<String?> dispatchState = const Value.absent(),
+    Value<String?> dispatchPinCode = const Value.absent(),
+    Value<String?> deliveryAddress = const Value.absent(),
+    Value<String?> deliveryCity = const Value.absent(),
+    Value<String?> deliveryState = const Value.absent(),
+    Value<String?> deliveryPinCode = const Value.absent(),
+    Value<String?> transporterName = const Value.absent(),
+    Value<String?> transporterId = const Value.absent(),
+    Value<String?> vehicleNumber = const Value.absent(),
+    Value<String?> transportDocumentNumber = const Value.absent(),
+    Value<DateTime?> transportDocumentDate = const Value.absent(),
+    Value<int?> distanceKm = const Value.absent(),
+    String? ewayStatus,
+    Value<String?> ewayNumber = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    Value<String?> cancellationReason = const Value.absent(),
+    Value<DateTime?> cancelledAt = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => DeliveryChallan(
+    id: id ?? this.id,
+    challanNumber: challanNumber ?? this.challanNumber,
+    customerId: customerId.present ? customerId.value : this.customerId,
+    customerName: customerName ?? this.customerName,
+    customerCompany: customerCompany.present
+        ? customerCompany.value
+        : this.customerCompany,
+    customerMobile: customerMobile.present
+        ? customerMobile.value
+        : this.customerMobile,
+    customerEmail: customerEmail.present
+        ? customerEmail.value
+        : this.customerEmail,
+    customerAddress: customerAddress.present
+        ? customerAddress.value
+        : this.customerAddress,
+    customerCity: customerCity.present ? customerCity.value : this.customerCity,
+    customerState: customerState.present
+        ? customerState.value
+        : this.customerState,
+    customerPinCode: customerPinCode.present
+        ? customerPinCode.value
+        : this.customerPinCode,
+    customerGstin: customerGstin.present
+        ? customerGstin.value
+        : this.customerGstin,
+    sourceType: sourceType ?? this.sourceType,
+    sourceId: sourceId.present ? sourceId.value : this.sourceId,
+    challanDate: challanDate ?? this.challanDate,
+    dispatchDate: dispatchDate.present ? dispatchDate.value : this.dispatchDate,
+    status: status ?? this.status,
+    movementReason: movementReason ?? this.movementReason,
+    movementReasonNote: movementReasonNote.present
+        ? movementReasonNote.value
+        : this.movementReasonNote,
+    dispatchAddress: dispatchAddress.present
+        ? dispatchAddress.value
+        : this.dispatchAddress,
+    dispatchCity: dispatchCity.present ? dispatchCity.value : this.dispatchCity,
+    dispatchState: dispatchState.present
+        ? dispatchState.value
+        : this.dispatchState,
+    dispatchPinCode: dispatchPinCode.present
+        ? dispatchPinCode.value
+        : this.dispatchPinCode,
+    deliveryAddress: deliveryAddress.present
+        ? deliveryAddress.value
+        : this.deliveryAddress,
+    deliveryCity: deliveryCity.present ? deliveryCity.value : this.deliveryCity,
+    deliveryState: deliveryState.present
+        ? deliveryState.value
+        : this.deliveryState,
+    deliveryPinCode: deliveryPinCode.present
+        ? deliveryPinCode.value
+        : this.deliveryPinCode,
+    transporterName: transporterName.present
+        ? transporterName.value
+        : this.transporterName,
+    transporterId: transporterId.present
+        ? transporterId.value
+        : this.transporterId,
+    vehicleNumber: vehicleNumber.present
+        ? vehicleNumber.value
+        : this.vehicleNumber,
+    transportDocumentNumber: transportDocumentNumber.present
+        ? transportDocumentNumber.value
+        : this.transportDocumentNumber,
+    transportDocumentDate: transportDocumentDate.present
+        ? transportDocumentDate.value
+        : this.transportDocumentDate,
+    distanceKm: distanceKm.present ? distanceKm.value : this.distanceKm,
+    ewayStatus: ewayStatus ?? this.ewayStatus,
+    ewayNumber: ewayNumber.present ? ewayNumber.value : this.ewayNumber,
+    notes: notes.present ? notes.value : this.notes,
+    cancellationReason: cancellationReason.present
+        ? cancellationReason.value
+        : this.cancellationReason,
+    cancelledAt: cancelledAt.present ? cancelledAt.value : this.cancelledAt,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  DeliveryChallan copyWithCompanion(DeliveryChallansCompanion data) {
+    return DeliveryChallan(
+      id: data.id.present ? data.id.value : this.id,
+      challanNumber: data.challanNumber.present
+          ? data.challanNumber.value
+          : this.challanNumber,
+      customerId: data.customerId.present
+          ? data.customerId.value
+          : this.customerId,
+      customerName: data.customerName.present
+          ? data.customerName.value
+          : this.customerName,
+      customerCompany: data.customerCompany.present
+          ? data.customerCompany.value
+          : this.customerCompany,
+      customerMobile: data.customerMobile.present
+          ? data.customerMobile.value
+          : this.customerMobile,
+      customerEmail: data.customerEmail.present
+          ? data.customerEmail.value
+          : this.customerEmail,
+      customerAddress: data.customerAddress.present
+          ? data.customerAddress.value
+          : this.customerAddress,
+      customerCity: data.customerCity.present
+          ? data.customerCity.value
+          : this.customerCity,
+      customerState: data.customerState.present
+          ? data.customerState.value
+          : this.customerState,
+      customerPinCode: data.customerPinCode.present
+          ? data.customerPinCode.value
+          : this.customerPinCode,
+      customerGstin: data.customerGstin.present
+          ? data.customerGstin.value
+          : this.customerGstin,
+      sourceType: data.sourceType.present
+          ? data.sourceType.value
+          : this.sourceType,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
+      challanDate: data.challanDate.present
+          ? data.challanDate.value
+          : this.challanDate,
+      dispatchDate: data.dispatchDate.present
+          ? data.dispatchDate.value
+          : this.dispatchDate,
+      status: data.status.present ? data.status.value : this.status,
+      movementReason: data.movementReason.present
+          ? data.movementReason.value
+          : this.movementReason,
+      movementReasonNote: data.movementReasonNote.present
+          ? data.movementReasonNote.value
+          : this.movementReasonNote,
+      dispatchAddress: data.dispatchAddress.present
+          ? data.dispatchAddress.value
+          : this.dispatchAddress,
+      dispatchCity: data.dispatchCity.present
+          ? data.dispatchCity.value
+          : this.dispatchCity,
+      dispatchState: data.dispatchState.present
+          ? data.dispatchState.value
+          : this.dispatchState,
+      dispatchPinCode: data.dispatchPinCode.present
+          ? data.dispatchPinCode.value
+          : this.dispatchPinCode,
+      deliveryAddress: data.deliveryAddress.present
+          ? data.deliveryAddress.value
+          : this.deliveryAddress,
+      deliveryCity: data.deliveryCity.present
+          ? data.deliveryCity.value
+          : this.deliveryCity,
+      deliveryState: data.deliveryState.present
+          ? data.deliveryState.value
+          : this.deliveryState,
+      deliveryPinCode: data.deliveryPinCode.present
+          ? data.deliveryPinCode.value
+          : this.deliveryPinCode,
+      transporterName: data.transporterName.present
+          ? data.transporterName.value
+          : this.transporterName,
+      transporterId: data.transporterId.present
+          ? data.transporterId.value
+          : this.transporterId,
+      vehicleNumber: data.vehicleNumber.present
+          ? data.vehicleNumber.value
+          : this.vehicleNumber,
+      transportDocumentNumber: data.transportDocumentNumber.present
+          ? data.transportDocumentNumber.value
+          : this.transportDocumentNumber,
+      transportDocumentDate: data.transportDocumentDate.present
+          ? data.transportDocumentDate.value
+          : this.transportDocumentDate,
+      distanceKm: data.distanceKm.present
+          ? data.distanceKm.value
+          : this.distanceKm,
+      ewayStatus: data.ewayStatus.present
+          ? data.ewayStatus.value
+          : this.ewayStatus,
+      ewayNumber: data.ewayNumber.present
+          ? data.ewayNumber.value
+          : this.ewayNumber,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      cancellationReason: data.cancellationReason.present
+          ? data.cancellationReason.value
+          : this.cancellationReason,
+      cancelledAt: data.cancelledAt.present
+          ? data.cancelledAt.value
+          : this.cancelledAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeliveryChallan(')
+          ..write('id: $id, ')
+          ..write('challanNumber: $challanNumber, ')
+          ..write('customerId: $customerId, ')
+          ..write('customerName: $customerName, ')
+          ..write('customerCompany: $customerCompany, ')
+          ..write('customerMobile: $customerMobile, ')
+          ..write('customerEmail: $customerEmail, ')
+          ..write('customerAddress: $customerAddress, ')
+          ..write('customerCity: $customerCity, ')
+          ..write('customerState: $customerState, ')
+          ..write('customerPinCode: $customerPinCode, ')
+          ..write('customerGstin: $customerGstin, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('challanDate: $challanDate, ')
+          ..write('dispatchDate: $dispatchDate, ')
+          ..write('status: $status, ')
+          ..write('movementReason: $movementReason, ')
+          ..write('movementReasonNote: $movementReasonNote, ')
+          ..write('dispatchAddress: $dispatchAddress, ')
+          ..write('dispatchCity: $dispatchCity, ')
+          ..write('dispatchState: $dispatchState, ')
+          ..write('dispatchPinCode: $dispatchPinCode, ')
+          ..write('deliveryAddress: $deliveryAddress, ')
+          ..write('deliveryCity: $deliveryCity, ')
+          ..write('deliveryState: $deliveryState, ')
+          ..write('deliveryPinCode: $deliveryPinCode, ')
+          ..write('transporterName: $transporterName, ')
+          ..write('transporterId: $transporterId, ')
+          ..write('vehicleNumber: $vehicleNumber, ')
+          ..write('transportDocumentNumber: $transportDocumentNumber, ')
+          ..write('transportDocumentDate: $transportDocumentDate, ')
+          ..write('distanceKm: $distanceKm, ')
+          ..write('ewayStatus: $ewayStatus, ')
+          ..write('ewayNumber: $ewayNumber, ')
+          ..write('notes: $notes, ')
+          ..write('cancellationReason: $cancellationReason, ')
+          ..write('cancelledAt: $cancelledAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    challanNumber,
+    customerId,
+    customerName,
+    customerCompany,
+    customerMobile,
+    customerEmail,
+    customerAddress,
+    customerCity,
+    customerState,
+    customerPinCode,
+    customerGstin,
+    sourceType,
+    sourceId,
+    challanDate,
+    dispatchDate,
+    status,
+    movementReason,
+    movementReasonNote,
+    dispatchAddress,
+    dispatchCity,
+    dispatchState,
+    dispatchPinCode,
+    deliveryAddress,
+    deliveryCity,
+    deliveryState,
+    deliveryPinCode,
+    transporterName,
+    transporterId,
+    vehicleNumber,
+    transportDocumentNumber,
+    transportDocumentDate,
+    distanceKm,
+    ewayStatus,
+    ewayNumber,
+    notes,
+    cancellationReason,
+    cancelledAt,
+    createdAt,
+    updatedAt,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DeliveryChallan &&
+          other.id == this.id &&
+          other.challanNumber == this.challanNumber &&
+          other.customerId == this.customerId &&
+          other.customerName == this.customerName &&
+          other.customerCompany == this.customerCompany &&
+          other.customerMobile == this.customerMobile &&
+          other.customerEmail == this.customerEmail &&
+          other.customerAddress == this.customerAddress &&
+          other.customerCity == this.customerCity &&
+          other.customerState == this.customerState &&
+          other.customerPinCode == this.customerPinCode &&
+          other.customerGstin == this.customerGstin &&
+          other.sourceType == this.sourceType &&
+          other.sourceId == this.sourceId &&
+          other.challanDate == this.challanDate &&
+          other.dispatchDate == this.dispatchDate &&
+          other.status == this.status &&
+          other.movementReason == this.movementReason &&
+          other.movementReasonNote == this.movementReasonNote &&
+          other.dispatchAddress == this.dispatchAddress &&
+          other.dispatchCity == this.dispatchCity &&
+          other.dispatchState == this.dispatchState &&
+          other.dispatchPinCode == this.dispatchPinCode &&
+          other.deliveryAddress == this.deliveryAddress &&
+          other.deliveryCity == this.deliveryCity &&
+          other.deliveryState == this.deliveryState &&
+          other.deliveryPinCode == this.deliveryPinCode &&
+          other.transporterName == this.transporterName &&
+          other.transporterId == this.transporterId &&
+          other.vehicleNumber == this.vehicleNumber &&
+          other.transportDocumentNumber == this.transportDocumentNumber &&
+          other.transportDocumentDate == this.transportDocumentDate &&
+          other.distanceKm == this.distanceKm &&
+          other.ewayStatus == this.ewayStatus &&
+          other.ewayNumber == this.ewayNumber &&
+          other.notes == this.notes &&
+          other.cancellationReason == this.cancellationReason &&
+          other.cancelledAt == this.cancelledAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class DeliveryChallansCompanion extends UpdateCompanion<DeliveryChallan> {
+  final Value<int> id;
+  final Value<String> challanNumber;
+  final Value<int?> customerId;
+  final Value<String> customerName;
+  final Value<String?> customerCompany;
+  final Value<String?> customerMobile;
+  final Value<String?> customerEmail;
+  final Value<String?> customerAddress;
+  final Value<String?> customerCity;
+  final Value<String?> customerState;
+  final Value<String?> customerPinCode;
+  final Value<String?> customerGstin;
+  final Value<String> sourceType;
+  final Value<int?> sourceId;
+  final Value<DateTime> challanDate;
+  final Value<DateTime?> dispatchDate;
+  final Value<String> status;
+  final Value<String> movementReason;
+  final Value<String?> movementReasonNote;
+  final Value<String?> dispatchAddress;
+  final Value<String?> dispatchCity;
+  final Value<String?> dispatchState;
+  final Value<String?> dispatchPinCode;
+  final Value<String?> deliveryAddress;
+  final Value<String?> deliveryCity;
+  final Value<String?> deliveryState;
+  final Value<String?> deliveryPinCode;
+  final Value<String?> transporterName;
+  final Value<String?> transporterId;
+  final Value<String?> vehicleNumber;
+  final Value<String?> transportDocumentNumber;
+  final Value<DateTime?> transportDocumentDate;
+  final Value<int?> distanceKm;
+  final Value<String> ewayStatus;
+  final Value<String?> ewayNumber;
+  final Value<String?> notes;
+  final Value<String?> cancellationReason;
+  final Value<DateTime?> cancelledAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const DeliveryChallansCompanion({
+    this.id = const Value.absent(),
+    this.challanNumber = const Value.absent(),
+    this.customerId = const Value.absent(),
+    this.customerName = const Value.absent(),
+    this.customerCompany = const Value.absent(),
+    this.customerMobile = const Value.absent(),
+    this.customerEmail = const Value.absent(),
+    this.customerAddress = const Value.absent(),
+    this.customerCity = const Value.absent(),
+    this.customerState = const Value.absent(),
+    this.customerPinCode = const Value.absent(),
+    this.customerGstin = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    this.challanDate = const Value.absent(),
+    this.dispatchDate = const Value.absent(),
+    this.status = const Value.absent(),
+    this.movementReason = const Value.absent(),
+    this.movementReasonNote = const Value.absent(),
+    this.dispatchAddress = const Value.absent(),
+    this.dispatchCity = const Value.absent(),
+    this.dispatchState = const Value.absent(),
+    this.dispatchPinCode = const Value.absent(),
+    this.deliveryAddress = const Value.absent(),
+    this.deliveryCity = const Value.absent(),
+    this.deliveryState = const Value.absent(),
+    this.deliveryPinCode = const Value.absent(),
+    this.transporterName = const Value.absent(),
+    this.transporterId = const Value.absent(),
+    this.vehicleNumber = const Value.absent(),
+    this.transportDocumentNumber = const Value.absent(),
+    this.transportDocumentDate = const Value.absent(),
+    this.distanceKm = const Value.absent(),
+    this.ewayStatus = const Value.absent(),
+    this.ewayNumber = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.cancellationReason = const Value.absent(),
+    this.cancelledAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  DeliveryChallansCompanion.insert({
+    this.id = const Value.absent(),
+    required String challanNumber,
+    this.customerId = const Value.absent(),
+    required String customerName,
+    this.customerCompany = const Value.absent(),
+    this.customerMobile = const Value.absent(),
+    this.customerEmail = const Value.absent(),
+    this.customerAddress = const Value.absent(),
+    this.customerCity = const Value.absent(),
+    this.customerState = const Value.absent(),
+    this.customerPinCode = const Value.absent(),
+    this.customerGstin = const Value.absent(),
+    this.sourceType = const Value.absent(),
+    this.sourceId = const Value.absent(),
+    required DateTime challanDate,
+    this.dispatchDate = const Value.absent(),
+    required String status,
+    required String movementReason,
+    this.movementReasonNote = const Value.absent(),
+    this.dispatchAddress = const Value.absent(),
+    this.dispatchCity = const Value.absent(),
+    this.dispatchState = const Value.absent(),
+    this.dispatchPinCode = const Value.absent(),
+    this.deliveryAddress = const Value.absent(),
+    this.deliveryCity = const Value.absent(),
+    this.deliveryState = const Value.absent(),
+    this.deliveryPinCode = const Value.absent(),
+    this.transporterName = const Value.absent(),
+    this.transporterId = const Value.absent(),
+    this.vehicleNumber = const Value.absent(),
+    this.transportDocumentNumber = const Value.absent(),
+    this.transportDocumentDate = const Value.absent(),
+    this.distanceKm = const Value.absent(),
+    this.ewayStatus = const Value.absent(),
+    this.ewayNumber = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.cancellationReason = const Value.absent(),
+    this.cancelledAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : challanNumber = Value(challanNumber),
+       customerName = Value(customerName),
+       challanDate = Value(challanDate),
+       status = Value(status),
+       movementReason = Value(movementReason);
+  static Insertable<DeliveryChallan> custom({
+    Expression<int>? id,
+    Expression<String>? challanNumber,
+    Expression<int>? customerId,
+    Expression<String>? customerName,
+    Expression<String>? customerCompany,
+    Expression<String>? customerMobile,
+    Expression<String>? customerEmail,
+    Expression<String>? customerAddress,
+    Expression<String>? customerCity,
+    Expression<String>? customerState,
+    Expression<String>? customerPinCode,
+    Expression<String>? customerGstin,
+    Expression<String>? sourceType,
+    Expression<int>? sourceId,
+    Expression<DateTime>? challanDate,
+    Expression<DateTime>? dispatchDate,
+    Expression<String>? status,
+    Expression<String>? movementReason,
+    Expression<String>? movementReasonNote,
+    Expression<String>? dispatchAddress,
+    Expression<String>? dispatchCity,
+    Expression<String>? dispatchState,
+    Expression<String>? dispatchPinCode,
+    Expression<String>? deliveryAddress,
+    Expression<String>? deliveryCity,
+    Expression<String>? deliveryState,
+    Expression<String>? deliveryPinCode,
+    Expression<String>? transporterName,
+    Expression<String>? transporterId,
+    Expression<String>? vehicleNumber,
+    Expression<String>? transportDocumentNumber,
+    Expression<DateTime>? transportDocumentDate,
+    Expression<int>? distanceKm,
+    Expression<String>? ewayStatus,
+    Expression<String>? ewayNumber,
+    Expression<String>? notes,
+    Expression<String>? cancellationReason,
+    Expression<DateTime>? cancelledAt,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (challanNumber != null) 'challan_number': challanNumber,
+      if (customerId != null) 'customer_id': customerId,
+      if (customerName != null) 'customer_name': customerName,
+      if (customerCompany != null) 'customer_company': customerCompany,
+      if (customerMobile != null) 'customer_mobile': customerMobile,
+      if (customerEmail != null) 'customer_email': customerEmail,
+      if (customerAddress != null) 'customer_address': customerAddress,
+      if (customerCity != null) 'customer_city': customerCity,
+      if (customerState != null) 'customer_state': customerState,
+      if (customerPinCode != null) 'customer_pin_code': customerPinCode,
+      if (customerGstin != null) 'customer_gstin': customerGstin,
+      if (sourceType != null) 'source_type': sourceType,
+      if (sourceId != null) 'source_id': sourceId,
+      if (challanDate != null) 'challan_date': challanDate,
+      if (dispatchDate != null) 'dispatch_date': dispatchDate,
+      if (status != null) 'status': status,
+      if (movementReason != null) 'movement_reason': movementReason,
+      if (movementReasonNote != null)
+        'movement_reason_note': movementReasonNote,
+      if (dispatchAddress != null) 'dispatch_address': dispatchAddress,
+      if (dispatchCity != null) 'dispatch_city': dispatchCity,
+      if (dispatchState != null) 'dispatch_state': dispatchState,
+      if (dispatchPinCode != null) 'dispatch_pin_code': dispatchPinCode,
+      if (deliveryAddress != null) 'delivery_address': deliveryAddress,
+      if (deliveryCity != null) 'delivery_city': deliveryCity,
+      if (deliveryState != null) 'delivery_state': deliveryState,
+      if (deliveryPinCode != null) 'delivery_pin_code': deliveryPinCode,
+      if (transporterName != null) 'transporter_name': transporterName,
+      if (transporterId != null) 'transporter_id': transporterId,
+      if (vehicleNumber != null) 'vehicle_number': vehicleNumber,
+      if (transportDocumentNumber != null)
+        'transport_document_number': transportDocumentNumber,
+      if (transportDocumentDate != null)
+        'transport_document_date': transportDocumentDate,
+      if (distanceKm != null) 'distance_km': distanceKm,
+      if (ewayStatus != null) 'eway_status': ewayStatus,
+      if (ewayNumber != null) 'eway_number': ewayNumber,
+      if (notes != null) 'notes': notes,
+      if (cancellationReason != null) 'cancellation_reason': cancellationReason,
+      if (cancelledAt != null) 'cancelled_at': cancelledAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  DeliveryChallansCompanion copyWith({
+    Value<int>? id,
+    Value<String>? challanNumber,
+    Value<int?>? customerId,
+    Value<String>? customerName,
+    Value<String?>? customerCompany,
+    Value<String?>? customerMobile,
+    Value<String?>? customerEmail,
+    Value<String?>? customerAddress,
+    Value<String?>? customerCity,
+    Value<String?>? customerState,
+    Value<String?>? customerPinCode,
+    Value<String?>? customerGstin,
+    Value<String>? sourceType,
+    Value<int?>? sourceId,
+    Value<DateTime>? challanDate,
+    Value<DateTime?>? dispatchDate,
+    Value<String>? status,
+    Value<String>? movementReason,
+    Value<String?>? movementReasonNote,
+    Value<String?>? dispatchAddress,
+    Value<String?>? dispatchCity,
+    Value<String?>? dispatchState,
+    Value<String?>? dispatchPinCode,
+    Value<String?>? deliveryAddress,
+    Value<String?>? deliveryCity,
+    Value<String?>? deliveryState,
+    Value<String?>? deliveryPinCode,
+    Value<String?>? transporterName,
+    Value<String?>? transporterId,
+    Value<String?>? vehicleNumber,
+    Value<String?>? transportDocumentNumber,
+    Value<DateTime?>? transportDocumentDate,
+    Value<int?>? distanceKm,
+    Value<String>? ewayStatus,
+    Value<String?>? ewayNumber,
+    Value<String?>? notes,
+    Value<String?>? cancellationReason,
+    Value<DateTime?>? cancelledAt,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return DeliveryChallansCompanion(
+      id: id ?? this.id,
+      challanNumber: challanNumber ?? this.challanNumber,
+      customerId: customerId ?? this.customerId,
+      customerName: customerName ?? this.customerName,
+      customerCompany: customerCompany ?? this.customerCompany,
+      customerMobile: customerMobile ?? this.customerMobile,
+      customerEmail: customerEmail ?? this.customerEmail,
+      customerAddress: customerAddress ?? this.customerAddress,
+      customerCity: customerCity ?? this.customerCity,
+      customerState: customerState ?? this.customerState,
+      customerPinCode: customerPinCode ?? this.customerPinCode,
+      customerGstin: customerGstin ?? this.customerGstin,
+      sourceType: sourceType ?? this.sourceType,
+      sourceId: sourceId ?? this.sourceId,
+      challanDate: challanDate ?? this.challanDate,
+      dispatchDate: dispatchDate ?? this.dispatchDate,
+      status: status ?? this.status,
+      movementReason: movementReason ?? this.movementReason,
+      movementReasonNote: movementReasonNote ?? this.movementReasonNote,
+      dispatchAddress: dispatchAddress ?? this.dispatchAddress,
+      dispatchCity: dispatchCity ?? this.dispatchCity,
+      dispatchState: dispatchState ?? this.dispatchState,
+      dispatchPinCode: dispatchPinCode ?? this.dispatchPinCode,
+      deliveryAddress: deliveryAddress ?? this.deliveryAddress,
+      deliveryCity: deliveryCity ?? this.deliveryCity,
+      deliveryState: deliveryState ?? this.deliveryState,
+      deliveryPinCode: deliveryPinCode ?? this.deliveryPinCode,
+      transporterName: transporterName ?? this.transporterName,
+      transporterId: transporterId ?? this.transporterId,
+      vehicleNumber: vehicleNumber ?? this.vehicleNumber,
+      transportDocumentNumber:
+          transportDocumentNumber ?? this.transportDocumentNumber,
+      transportDocumentDate:
+          transportDocumentDate ?? this.transportDocumentDate,
+      distanceKm: distanceKm ?? this.distanceKm,
+      ewayStatus: ewayStatus ?? this.ewayStatus,
+      ewayNumber: ewayNumber ?? this.ewayNumber,
+      notes: notes ?? this.notes,
+      cancellationReason: cancellationReason ?? this.cancellationReason,
+      cancelledAt: cancelledAt ?? this.cancelledAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (challanNumber.present) {
+      map['challan_number'] = Variable<String>(challanNumber.value);
+    }
+    if (customerId.present) {
+      map['customer_id'] = Variable<int>(customerId.value);
+    }
+    if (customerName.present) {
+      map['customer_name'] = Variable<String>(customerName.value);
+    }
+    if (customerCompany.present) {
+      map['customer_company'] = Variable<String>(customerCompany.value);
+    }
+    if (customerMobile.present) {
+      map['customer_mobile'] = Variable<String>(customerMobile.value);
+    }
+    if (customerEmail.present) {
+      map['customer_email'] = Variable<String>(customerEmail.value);
+    }
+    if (customerAddress.present) {
+      map['customer_address'] = Variable<String>(customerAddress.value);
+    }
+    if (customerCity.present) {
+      map['customer_city'] = Variable<String>(customerCity.value);
+    }
+    if (customerState.present) {
+      map['customer_state'] = Variable<String>(customerState.value);
+    }
+    if (customerPinCode.present) {
+      map['customer_pin_code'] = Variable<String>(customerPinCode.value);
+    }
+    if (customerGstin.present) {
+      map['customer_gstin'] = Variable<String>(customerGstin.value);
+    }
+    if (sourceType.present) {
+      map['source_type'] = Variable<String>(sourceType.value);
+    }
+    if (sourceId.present) {
+      map['source_id'] = Variable<int>(sourceId.value);
+    }
+    if (challanDate.present) {
+      map['challan_date'] = Variable<DateTime>(challanDate.value);
+    }
+    if (dispatchDate.present) {
+      map['dispatch_date'] = Variable<DateTime>(dispatchDate.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (movementReason.present) {
+      map['movement_reason'] = Variable<String>(movementReason.value);
+    }
+    if (movementReasonNote.present) {
+      map['movement_reason_note'] = Variable<String>(movementReasonNote.value);
+    }
+    if (dispatchAddress.present) {
+      map['dispatch_address'] = Variable<String>(dispatchAddress.value);
+    }
+    if (dispatchCity.present) {
+      map['dispatch_city'] = Variable<String>(dispatchCity.value);
+    }
+    if (dispatchState.present) {
+      map['dispatch_state'] = Variable<String>(dispatchState.value);
+    }
+    if (dispatchPinCode.present) {
+      map['dispatch_pin_code'] = Variable<String>(dispatchPinCode.value);
+    }
+    if (deliveryAddress.present) {
+      map['delivery_address'] = Variable<String>(deliveryAddress.value);
+    }
+    if (deliveryCity.present) {
+      map['delivery_city'] = Variable<String>(deliveryCity.value);
+    }
+    if (deliveryState.present) {
+      map['delivery_state'] = Variable<String>(deliveryState.value);
+    }
+    if (deliveryPinCode.present) {
+      map['delivery_pin_code'] = Variable<String>(deliveryPinCode.value);
+    }
+    if (transporterName.present) {
+      map['transporter_name'] = Variable<String>(transporterName.value);
+    }
+    if (transporterId.present) {
+      map['transporter_id'] = Variable<String>(transporterId.value);
+    }
+    if (vehicleNumber.present) {
+      map['vehicle_number'] = Variable<String>(vehicleNumber.value);
+    }
+    if (transportDocumentNumber.present) {
+      map['transport_document_number'] = Variable<String>(
+        transportDocumentNumber.value,
+      );
+    }
+    if (transportDocumentDate.present) {
+      map['transport_document_date'] = Variable<DateTime>(
+        transportDocumentDate.value,
+      );
+    }
+    if (distanceKm.present) {
+      map['distance_km'] = Variable<int>(distanceKm.value);
+    }
+    if (ewayStatus.present) {
+      map['eway_status'] = Variable<String>(ewayStatus.value);
+    }
+    if (ewayNumber.present) {
+      map['eway_number'] = Variable<String>(ewayNumber.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (cancellationReason.present) {
+      map['cancellation_reason'] = Variable<String>(cancellationReason.value);
+    }
+    if (cancelledAt.present) {
+      map['cancelled_at'] = Variable<DateTime>(cancelledAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeliveryChallansCompanion(')
+          ..write('id: $id, ')
+          ..write('challanNumber: $challanNumber, ')
+          ..write('customerId: $customerId, ')
+          ..write('customerName: $customerName, ')
+          ..write('customerCompany: $customerCompany, ')
+          ..write('customerMobile: $customerMobile, ')
+          ..write('customerEmail: $customerEmail, ')
+          ..write('customerAddress: $customerAddress, ')
+          ..write('customerCity: $customerCity, ')
+          ..write('customerState: $customerState, ')
+          ..write('customerPinCode: $customerPinCode, ')
+          ..write('customerGstin: $customerGstin, ')
+          ..write('sourceType: $sourceType, ')
+          ..write('sourceId: $sourceId, ')
+          ..write('challanDate: $challanDate, ')
+          ..write('dispatchDate: $dispatchDate, ')
+          ..write('status: $status, ')
+          ..write('movementReason: $movementReason, ')
+          ..write('movementReasonNote: $movementReasonNote, ')
+          ..write('dispatchAddress: $dispatchAddress, ')
+          ..write('dispatchCity: $dispatchCity, ')
+          ..write('dispatchState: $dispatchState, ')
+          ..write('dispatchPinCode: $dispatchPinCode, ')
+          ..write('deliveryAddress: $deliveryAddress, ')
+          ..write('deliveryCity: $deliveryCity, ')
+          ..write('deliveryState: $deliveryState, ')
+          ..write('deliveryPinCode: $deliveryPinCode, ')
+          ..write('transporterName: $transporterName, ')
+          ..write('transporterId: $transporterId, ')
+          ..write('vehicleNumber: $vehicleNumber, ')
+          ..write('transportDocumentNumber: $transportDocumentNumber, ')
+          ..write('transportDocumentDate: $transportDocumentDate, ')
+          ..write('distanceKm: $distanceKm, ')
+          ..write('ewayStatus: $ewayStatus, ')
+          ..write('ewayNumber: $ewayNumber, ')
+          ..write('notes: $notes, ')
+          ..write('cancellationReason: $cancellationReason, ')
+          ..write('cancelledAt: $cancelledAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DeliveryChallanItemsTable extends DeliveryChallanItems
+    with TableInfo<$DeliveryChallanItemsTable, DeliveryChallanItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DeliveryChallanItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _challanIdMeta = const VerificationMeta(
+    'challanId',
+  );
+  @override
+  late final GeneratedColumn<int> challanId = GeneratedColumn<int>(
+    'challan_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES delivery_challans (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _productIdMeta = const VerificationMeta(
+    'productId',
+  );
+  @override
+  late final GeneratedColumn<int> productId = GeneratedColumn<int>(
+    'product_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceItemIdMeta = const VerificationMeta(
+    'sourceItemId',
+  );
+  @override
+  late final GeneratedColumn<int> sourceItemId = GeneratedColumn<int>(
+    'source_item_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _orderedQuantityScaledMeta =
+      const VerificationMeta('orderedQuantityScaled');
+  @override
+  late final GeneratedColumn<int> orderedQuantityScaled = GeneratedColumn<int>(
+    'ordered_quantity_scaled',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dispatchedQuantityScaledMeta =
+      const VerificationMeta('dispatchedQuantityScaled');
+  @override
+  late final GeneratedColumn<int> dispatchedQuantityScaled =
+      GeneratedColumn<int>(
+        'dispatched_quantity_scaled',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _deliveredQuantityScaledMeta =
+      const VerificationMeta('deliveredQuantityScaled');
+  @override
+  late final GeneratedColumn<int> deliveredQuantityScaled =
+      GeneratedColumn<int>(
+        'delivered_quantity_scaled',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      );
+  static const VerificationMeta _returnedQuantityScaledMeta =
+      const VerificationMeta('returnedQuantityScaled');
+  @override
+  late final GeneratedColumn<int> returnedQuantityScaled = GeneratedColumn<int>(
+    'returned_quantity_scaled',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _invoicedQuantityScaledMeta =
+      const VerificationMeta('invoicedQuantityScaled');
+  @override
+  late final GeneratedColumn<int> invoicedQuantityScaled = GeneratedColumn<int>(
+    'invoiced_quantity_scaled',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rateMinorMeta = const VerificationMeta(
+    'rateMinor',
+  );
+  @override
+  late final GeneratedColumn<int> rateMinor = GeneratedColumn<int>(
+    'rate_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hsnSacMeta = const VerificationMeta('hsnSac');
+  @override
+  late final GeneratedColumn<String> hsnSac = GeneratedColumn<String>(
+    'hsn_sac',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _taxRateBasisPointsMeta =
+      const VerificationMeta('taxRateBasisPoints');
+  @override
+  late final GeneratedColumn<int> taxRateBasisPoints = GeneratedColumn<int>(
+    'tax_rate_basis_points',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    challanId,
+    productId,
+    sourceItemId,
+    name,
+    description,
+    orderedQuantityScaled,
+    dispatchedQuantityScaled,
+    deliveredQuantityScaled,
+    returnedQuantityScaled,
+    invoicedQuantityScaled,
+    unit,
+    rateMinor,
+    hsnSac,
+    taxRateBasisPoints,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'delivery_challan_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DeliveryChallanItem> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('challan_id')) {
+      context.handle(
+        _challanIdMeta,
+        challanId.isAcceptableOrUnknown(data['challan_id']!, _challanIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_challanIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(
+        _productIdMeta,
+        productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta),
+      );
+    }
+    if (data.containsKey('source_item_id')) {
+      context.handle(
+        _sourceItemIdMeta,
+        sourceItemId.isAcceptableOrUnknown(
+          data['source_item_id']!,
+          _sourceItemIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ordered_quantity_scaled')) {
+      context.handle(
+        _orderedQuantityScaledMeta,
+        orderedQuantityScaled.isAcceptableOrUnknown(
+          data['ordered_quantity_scaled']!,
+          _orderedQuantityScaledMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_orderedQuantityScaledMeta);
+    }
+    if (data.containsKey('dispatched_quantity_scaled')) {
+      context.handle(
+        _dispatchedQuantityScaledMeta,
+        dispatchedQuantityScaled.isAcceptableOrUnknown(
+          data['dispatched_quantity_scaled']!,
+          _dispatchedQuantityScaledMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_dispatchedQuantityScaledMeta);
+    }
+    if (data.containsKey('delivered_quantity_scaled')) {
+      context.handle(
+        _deliveredQuantityScaledMeta,
+        deliveredQuantityScaled.isAcceptableOrUnknown(
+          data['delivered_quantity_scaled']!,
+          _deliveredQuantityScaledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('returned_quantity_scaled')) {
+      context.handle(
+        _returnedQuantityScaledMeta,
+        returnedQuantityScaled.isAcceptableOrUnknown(
+          data['returned_quantity_scaled']!,
+          _returnedQuantityScaledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('invoiced_quantity_scaled')) {
+      context.handle(
+        _invoicedQuantityScaledMeta,
+        invoicedQuantityScaled.isAcceptableOrUnknown(
+          data['invoiced_quantity_scaled']!,
+          _invoicedQuantityScaledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_unitMeta);
+    }
+    if (data.containsKey('rate_minor')) {
+      context.handle(
+        _rateMinorMeta,
+        rateMinor.isAcceptableOrUnknown(data['rate_minor']!, _rateMinorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rateMinorMeta);
+    }
+    if (data.containsKey('hsn_sac')) {
+      context.handle(
+        _hsnSacMeta,
+        hsnSac.isAcceptableOrUnknown(data['hsn_sac']!, _hsnSacMeta),
+      );
+    }
+    if (data.containsKey('tax_rate_basis_points')) {
+      context.handle(
+        _taxRateBasisPointsMeta,
+        taxRateBasisPoints.isAcceptableOrUnknown(
+          data['tax_rate_basis_points']!,
+          _taxRateBasisPointsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DeliveryChallanItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DeliveryChallanItem(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      challanId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}challan_id'],
+      )!,
+      productId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}product_id'],
+      ),
+      sourceItemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}source_item_id'],
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      orderedQuantityScaled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ordered_quantity_scaled'],
+      )!,
+      dispatchedQuantityScaled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}dispatched_quantity_scaled'],
+      )!,
+      deliveredQuantityScaled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}delivered_quantity_scaled'],
+      )!,
+      returnedQuantityScaled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}returned_quantity_scaled'],
+      )!,
+      invoicedQuantityScaled: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}invoiced_quantity_scaled'],
+      )!,
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      )!,
+      rateMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rate_minor'],
+      )!,
+      hsnSac: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hsn_sac'],
+      ),
+      taxRateBasisPoints: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tax_rate_basis_points'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $DeliveryChallanItemsTable createAlias(String alias) {
+    return $DeliveryChallanItemsTable(attachedDatabase, alias);
+  }
+}
+
+class DeliveryChallanItem extends DataClass
+    implements Insertable<DeliveryChallanItem> {
+  final int id;
+  final int challanId;
+  final int? productId;
+  final int? sourceItemId;
+  final String name;
+  final String? description;
+  final int orderedQuantityScaled;
+  final int dispatchedQuantityScaled;
+  final int deliveredQuantityScaled;
+  final int returnedQuantityScaled;
+  final int invoicedQuantityScaled;
+  final String unit;
+  final int rateMinor;
+  final String? hsnSac;
+  final int taxRateBasisPoints;
+  final int sortOrder;
+  const DeliveryChallanItem({
+    required this.id,
+    required this.challanId,
+    this.productId,
+    this.sourceItemId,
+    required this.name,
+    this.description,
+    required this.orderedQuantityScaled,
+    required this.dispatchedQuantityScaled,
+    required this.deliveredQuantityScaled,
+    required this.returnedQuantityScaled,
+    required this.invoicedQuantityScaled,
+    required this.unit,
+    required this.rateMinor,
+    this.hsnSac,
+    required this.taxRateBasisPoints,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['challan_id'] = Variable<int>(challanId);
+    if (!nullToAbsent || productId != null) {
+      map['product_id'] = Variable<int>(productId);
+    }
+    if (!nullToAbsent || sourceItemId != null) {
+      map['source_item_id'] = Variable<int>(sourceItemId);
+    }
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['ordered_quantity_scaled'] = Variable<int>(orderedQuantityScaled);
+    map['dispatched_quantity_scaled'] = Variable<int>(dispatchedQuantityScaled);
+    map['delivered_quantity_scaled'] = Variable<int>(deliveredQuantityScaled);
+    map['returned_quantity_scaled'] = Variable<int>(returnedQuantityScaled);
+    map['invoiced_quantity_scaled'] = Variable<int>(invoicedQuantityScaled);
+    map['unit'] = Variable<String>(unit);
+    map['rate_minor'] = Variable<int>(rateMinor);
+    if (!nullToAbsent || hsnSac != null) {
+      map['hsn_sac'] = Variable<String>(hsnSac);
+    }
+    map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  DeliveryChallanItemsCompanion toCompanion(bool nullToAbsent) {
+    return DeliveryChallanItemsCompanion(
+      id: Value(id),
+      challanId: Value(challanId),
+      productId: productId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productId),
+      sourceItemId: sourceItemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceItemId),
+      name: Value(name),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      orderedQuantityScaled: Value(orderedQuantityScaled),
+      dispatchedQuantityScaled: Value(dispatchedQuantityScaled),
+      deliveredQuantityScaled: Value(deliveredQuantityScaled),
+      returnedQuantityScaled: Value(returnedQuantityScaled),
+      invoicedQuantityScaled: Value(invoicedQuantityScaled),
+      unit: Value(unit),
+      rateMinor: Value(rateMinor),
+      hsnSac: hsnSac == null && nullToAbsent
+          ? const Value.absent()
+          : Value(hsnSac),
+      taxRateBasisPoints: Value(taxRateBasisPoints),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory DeliveryChallanItem.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DeliveryChallanItem(
+      id: serializer.fromJson<int>(json['id']),
+      challanId: serializer.fromJson<int>(json['challanId']),
+      productId: serializer.fromJson<int?>(json['productId']),
+      sourceItemId: serializer.fromJson<int?>(json['sourceItemId']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String?>(json['description']),
+      orderedQuantityScaled: serializer.fromJson<int>(
+        json['orderedQuantityScaled'],
+      ),
+      dispatchedQuantityScaled: serializer.fromJson<int>(
+        json['dispatchedQuantityScaled'],
+      ),
+      deliveredQuantityScaled: serializer.fromJson<int>(
+        json['deliveredQuantityScaled'],
+      ),
+      returnedQuantityScaled: serializer.fromJson<int>(
+        json['returnedQuantityScaled'],
+      ),
+      invoicedQuantityScaled: serializer.fromJson<int>(
+        json['invoicedQuantityScaled'],
+      ),
+      unit: serializer.fromJson<String>(json['unit']),
+      rateMinor: serializer.fromJson<int>(json['rateMinor']),
+      hsnSac: serializer.fromJson<String?>(json['hsnSac']),
+      taxRateBasisPoints: serializer.fromJson<int>(json['taxRateBasisPoints']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'challanId': serializer.toJson<int>(challanId),
+      'productId': serializer.toJson<int?>(productId),
+      'sourceItemId': serializer.toJson<int?>(sourceItemId),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String?>(description),
+      'orderedQuantityScaled': serializer.toJson<int>(orderedQuantityScaled),
+      'dispatchedQuantityScaled': serializer.toJson<int>(
+        dispatchedQuantityScaled,
+      ),
+      'deliveredQuantityScaled': serializer.toJson<int>(
+        deliveredQuantityScaled,
+      ),
+      'returnedQuantityScaled': serializer.toJson<int>(returnedQuantityScaled),
+      'invoicedQuantityScaled': serializer.toJson<int>(invoicedQuantityScaled),
+      'unit': serializer.toJson<String>(unit),
+      'rateMinor': serializer.toJson<int>(rateMinor),
+      'hsnSac': serializer.toJson<String?>(hsnSac),
+      'taxRateBasisPoints': serializer.toJson<int>(taxRateBasisPoints),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  DeliveryChallanItem copyWith({
+    int? id,
+    int? challanId,
+    Value<int?> productId = const Value.absent(),
+    Value<int?> sourceItemId = const Value.absent(),
+    String? name,
+    Value<String?> description = const Value.absent(),
+    int? orderedQuantityScaled,
+    int? dispatchedQuantityScaled,
+    int? deliveredQuantityScaled,
+    int? returnedQuantityScaled,
+    int? invoicedQuantityScaled,
+    String? unit,
+    int? rateMinor,
+    Value<String?> hsnSac = const Value.absent(),
+    int? taxRateBasisPoints,
+    int? sortOrder,
+  }) => DeliveryChallanItem(
+    id: id ?? this.id,
+    challanId: challanId ?? this.challanId,
+    productId: productId.present ? productId.value : this.productId,
+    sourceItemId: sourceItemId.present ? sourceItemId.value : this.sourceItemId,
+    name: name ?? this.name,
+    description: description.present ? description.value : this.description,
+    orderedQuantityScaled: orderedQuantityScaled ?? this.orderedQuantityScaled,
+    dispatchedQuantityScaled:
+        dispatchedQuantityScaled ?? this.dispatchedQuantityScaled,
+    deliveredQuantityScaled:
+        deliveredQuantityScaled ?? this.deliveredQuantityScaled,
+    returnedQuantityScaled:
+        returnedQuantityScaled ?? this.returnedQuantityScaled,
+    invoicedQuantityScaled:
+        invoicedQuantityScaled ?? this.invoicedQuantityScaled,
+    unit: unit ?? this.unit,
+    rateMinor: rateMinor ?? this.rateMinor,
+    hsnSac: hsnSac.present ? hsnSac.value : this.hsnSac,
+    taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  DeliveryChallanItem copyWithCompanion(DeliveryChallanItemsCompanion data) {
+    return DeliveryChallanItem(
+      id: data.id.present ? data.id.value : this.id,
+      challanId: data.challanId.present ? data.challanId.value : this.challanId,
+      productId: data.productId.present ? data.productId.value : this.productId,
+      sourceItemId: data.sourceItemId.present
+          ? data.sourceItemId.value
+          : this.sourceItemId,
+      name: data.name.present ? data.name.value : this.name,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      orderedQuantityScaled: data.orderedQuantityScaled.present
+          ? data.orderedQuantityScaled.value
+          : this.orderedQuantityScaled,
+      dispatchedQuantityScaled: data.dispatchedQuantityScaled.present
+          ? data.dispatchedQuantityScaled.value
+          : this.dispatchedQuantityScaled,
+      deliveredQuantityScaled: data.deliveredQuantityScaled.present
+          ? data.deliveredQuantityScaled.value
+          : this.deliveredQuantityScaled,
+      returnedQuantityScaled: data.returnedQuantityScaled.present
+          ? data.returnedQuantityScaled.value
+          : this.returnedQuantityScaled,
+      invoicedQuantityScaled: data.invoicedQuantityScaled.present
+          ? data.invoicedQuantityScaled.value
+          : this.invoicedQuantityScaled,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      rateMinor: data.rateMinor.present ? data.rateMinor.value : this.rateMinor,
+      hsnSac: data.hsnSac.present ? data.hsnSac.value : this.hsnSac,
+      taxRateBasisPoints: data.taxRateBasisPoints.present
+          ? data.taxRateBasisPoints.value
+          : this.taxRateBasisPoints,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeliveryChallanItem(')
+          ..write('id: $id, ')
+          ..write('challanId: $challanId, ')
+          ..write('productId: $productId, ')
+          ..write('sourceItemId: $sourceItemId, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('orderedQuantityScaled: $orderedQuantityScaled, ')
+          ..write('dispatchedQuantityScaled: $dispatchedQuantityScaled, ')
+          ..write('deliveredQuantityScaled: $deliveredQuantityScaled, ')
+          ..write('returnedQuantityScaled: $returnedQuantityScaled, ')
+          ..write('invoicedQuantityScaled: $invoicedQuantityScaled, ')
+          ..write('unit: $unit, ')
+          ..write('rateMinor: $rateMinor, ')
+          ..write('hsnSac: $hsnSac, ')
+          ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    challanId,
+    productId,
+    sourceItemId,
+    name,
+    description,
+    orderedQuantityScaled,
+    dispatchedQuantityScaled,
+    deliveredQuantityScaled,
+    returnedQuantityScaled,
+    invoicedQuantityScaled,
+    unit,
+    rateMinor,
+    hsnSac,
+    taxRateBasisPoints,
+    sortOrder,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DeliveryChallanItem &&
+          other.id == this.id &&
+          other.challanId == this.challanId &&
+          other.productId == this.productId &&
+          other.sourceItemId == this.sourceItemId &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.orderedQuantityScaled == this.orderedQuantityScaled &&
+          other.dispatchedQuantityScaled == this.dispatchedQuantityScaled &&
+          other.deliveredQuantityScaled == this.deliveredQuantityScaled &&
+          other.returnedQuantityScaled == this.returnedQuantityScaled &&
+          other.invoicedQuantityScaled == this.invoicedQuantityScaled &&
+          other.unit == this.unit &&
+          other.rateMinor == this.rateMinor &&
+          other.hsnSac == this.hsnSac &&
+          other.taxRateBasisPoints == this.taxRateBasisPoints &&
+          other.sortOrder == this.sortOrder);
+}
+
+class DeliveryChallanItemsCompanion
+    extends UpdateCompanion<DeliveryChallanItem> {
+  final Value<int> id;
+  final Value<int> challanId;
+  final Value<int?> productId;
+  final Value<int?> sourceItemId;
+  final Value<String> name;
+  final Value<String?> description;
+  final Value<int> orderedQuantityScaled;
+  final Value<int> dispatchedQuantityScaled;
+  final Value<int> deliveredQuantityScaled;
+  final Value<int> returnedQuantityScaled;
+  final Value<int> invoicedQuantityScaled;
+  final Value<String> unit;
+  final Value<int> rateMinor;
+  final Value<String?> hsnSac;
+  final Value<int> taxRateBasisPoints;
+  final Value<int> sortOrder;
+  const DeliveryChallanItemsCompanion({
+    this.id = const Value.absent(),
+    this.challanId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.sourceItemId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.orderedQuantityScaled = const Value.absent(),
+    this.dispatchedQuantityScaled = const Value.absent(),
+    this.deliveredQuantityScaled = const Value.absent(),
+    this.returnedQuantityScaled = const Value.absent(),
+    this.invoicedQuantityScaled = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.rateMinor = const Value.absent(),
+    this.hsnSac = const Value.absent(),
+    this.taxRateBasisPoints = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+  });
+  DeliveryChallanItemsCompanion.insert({
+    this.id = const Value.absent(),
+    required int challanId,
+    this.productId = const Value.absent(),
+    this.sourceItemId = const Value.absent(),
+    required String name,
+    this.description = const Value.absent(),
+    required int orderedQuantityScaled,
+    required int dispatchedQuantityScaled,
+    this.deliveredQuantityScaled = const Value.absent(),
+    this.returnedQuantityScaled = const Value.absent(),
+    this.invoicedQuantityScaled = const Value.absent(),
+    required String unit,
+    required int rateMinor,
+    this.hsnSac = const Value.absent(),
+    this.taxRateBasisPoints = const Value.absent(),
+    required int sortOrder,
+  }) : challanId = Value(challanId),
+       name = Value(name),
+       orderedQuantityScaled = Value(orderedQuantityScaled),
+       dispatchedQuantityScaled = Value(dispatchedQuantityScaled),
+       unit = Value(unit),
+       rateMinor = Value(rateMinor),
+       sortOrder = Value(sortOrder);
+  static Insertable<DeliveryChallanItem> custom({
+    Expression<int>? id,
+    Expression<int>? challanId,
+    Expression<int>? productId,
+    Expression<int>? sourceItemId,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<int>? orderedQuantityScaled,
+    Expression<int>? dispatchedQuantityScaled,
+    Expression<int>? deliveredQuantityScaled,
+    Expression<int>? returnedQuantityScaled,
+    Expression<int>? invoicedQuantityScaled,
+    Expression<String>? unit,
+    Expression<int>? rateMinor,
+    Expression<String>? hsnSac,
+    Expression<int>? taxRateBasisPoints,
+    Expression<int>? sortOrder,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (challanId != null) 'challan_id': challanId,
+      if (productId != null) 'product_id': productId,
+      if (sourceItemId != null) 'source_item_id': sourceItemId,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (orderedQuantityScaled != null)
+        'ordered_quantity_scaled': orderedQuantityScaled,
+      if (dispatchedQuantityScaled != null)
+        'dispatched_quantity_scaled': dispatchedQuantityScaled,
+      if (deliveredQuantityScaled != null)
+        'delivered_quantity_scaled': deliveredQuantityScaled,
+      if (returnedQuantityScaled != null)
+        'returned_quantity_scaled': returnedQuantityScaled,
+      if (invoicedQuantityScaled != null)
+        'invoiced_quantity_scaled': invoicedQuantityScaled,
+      if (unit != null) 'unit': unit,
+      if (rateMinor != null) 'rate_minor': rateMinor,
+      if (hsnSac != null) 'hsn_sac': hsnSac,
+      if (taxRateBasisPoints != null)
+        'tax_rate_basis_points': taxRateBasisPoints,
+      if (sortOrder != null) 'sort_order': sortOrder,
+    });
+  }
+
+  DeliveryChallanItemsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? challanId,
+    Value<int?>? productId,
+    Value<int?>? sourceItemId,
+    Value<String>? name,
+    Value<String?>? description,
+    Value<int>? orderedQuantityScaled,
+    Value<int>? dispatchedQuantityScaled,
+    Value<int>? deliveredQuantityScaled,
+    Value<int>? returnedQuantityScaled,
+    Value<int>? invoicedQuantityScaled,
+    Value<String>? unit,
+    Value<int>? rateMinor,
+    Value<String?>? hsnSac,
+    Value<int>? taxRateBasisPoints,
+    Value<int>? sortOrder,
+  }) {
+    return DeliveryChallanItemsCompanion(
+      id: id ?? this.id,
+      challanId: challanId ?? this.challanId,
+      productId: productId ?? this.productId,
+      sourceItemId: sourceItemId ?? this.sourceItemId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      orderedQuantityScaled:
+          orderedQuantityScaled ?? this.orderedQuantityScaled,
+      dispatchedQuantityScaled:
+          dispatchedQuantityScaled ?? this.dispatchedQuantityScaled,
+      deliveredQuantityScaled:
+          deliveredQuantityScaled ?? this.deliveredQuantityScaled,
+      returnedQuantityScaled:
+          returnedQuantityScaled ?? this.returnedQuantityScaled,
+      invoicedQuantityScaled:
+          invoicedQuantityScaled ?? this.invoicedQuantityScaled,
+      unit: unit ?? this.unit,
+      rateMinor: rateMinor ?? this.rateMinor,
+      hsnSac: hsnSac ?? this.hsnSac,
+      taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
+      sortOrder: sortOrder ?? this.sortOrder,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (challanId.present) {
+      map['challan_id'] = Variable<int>(challanId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
+    if (sourceItemId.present) {
+      map['source_item_id'] = Variable<int>(sourceItemId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (orderedQuantityScaled.present) {
+      map['ordered_quantity_scaled'] = Variable<int>(
+        orderedQuantityScaled.value,
+      );
+    }
+    if (dispatchedQuantityScaled.present) {
+      map['dispatched_quantity_scaled'] = Variable<int>(
+        dispatchedQuantityScaled.value,
+      );
+    }
+    if (deliveredQuantityScaled.present) {
+      map['delivered_quantity_scaled'] = Variable<int>(
+        deliveredQuantityScaled.value,
+      );
+    }
+    if (returnedQuantityScaled.present) {
+      map['returned_quantity_scaled'] = Variable<int>(
+        returnedQuantityScaled.value,
+      );
+    }
+    if (invoicedQuantityScaled.present) {
+      map['invoiced_quantity_scaled'] = Variable<int>(
+        invoicedQuantityScaled.value,
+      );
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (rateMinor.present) {
+      map['rate_minor'] = Variable<int>(rateMinor.value);
+    }
+    if (hsnSac.present) {
+      map['hsn_sac'] = Variable<String>(hsnSac.value);
+    }
+    if (taxRateBasisPoints.present) {
+      map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeliveryChallanItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('challanId: $challanId, ')
+          ..write('productId: $productId, ')
+          ..write('sourceItemId: $sourceItemId, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('orderedQuantityScaled: $orderedQuantityScaled, ')
+          ..write('dispatchedQuantityScaled: $dispatchedQuantityScaled, ')
+          ..write('deliveredQuantityScaled: $deliveredQuantityScaled, ')
+          ..write('returnedQuantityScaled: $returnedQuantityScaled, ')
+          ..write('invoicedQuantityScaled: $invoicedQuantityScaled, ')
+          ..write('unit: $unit, ')
+          ..write('rateMinor: $rateMinor, ')
+          ..write('hsnSac: $hsnSac, ')
+          ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DeliveryChallanInvoicesTable extends DeliveryChallanInvoices
+    with TableInfo<$DeliveryChallanInvoicesTable, DeliveryChallanInvoice> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DeliveryChallanInvoicesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _challanIdMeta = const VerificationMeta(
+    'challanId',
+  );
+  @override
+  late final GeneratedColumn<int> challanId = GeneratedColumn<int>(
+    'challan_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES delivery_challans (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _invoiceIdMeta = const VerificationMeta(
+    'invoiceId',
+  );
+  @override
+  late final GeneratedColumn<int> invoiceId = GeneratedColumn<int>(
+    'invoice_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES invoices (id)',
+    ),
+  );
+  static const VerificationMeta _convertedAtMeta = const VerificationMeta(
+    'convertedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> convertedAt = GeneratedColumn<DateTime>(
+    'converted_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, challanId, invoiceId, convertedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'delivery_challan_invoices';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DeliveryChallanInvoice> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('challan_id')) {
+      context.handle(
+        _challanIdMeta,
+        challanId.isAcceptableOrUnknown(data['challan_id']!, _challanIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_challanIdMeta);
+    }
+    if (data.containsKey('invoice_id')) {
+      context.handle(
+        _invoiceIdMeta,
+        invoiceId.isAcceptableOrUnknown(data['invoice_id']!, _invoiceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_invoiceIdMeta);
+    }
+    if (data.containsKey('converted_at')) {
+      context.handle(
+        _convertedAtMeta,
+        convertedAt.isAcceptableOrUnknown(
+          data['converted_at']!,
+          _convertedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_convertedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DeliveryChallanInvoice map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DeliveryChallanInvoice(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      challanId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}challan_id'],
+      )!,
+      invoiceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}invoice_id'],
+      )!,
+      convertedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}converted_at'],
+      )!,
+    );
+  }
+
+  @override
+  $DeliveryChallanInvoicesTable createAlias(String alias) {
+    return $DeliveryChallanInvoicesTable(attachedDatabase, alias);
+  }
+}
+
+class DeliveryChallanInvoice extends DataClass
+    implements Insertable<DeliveryChallanInvoice> {
+  final int id;
+  final int challanId;
+  final int invoiceId;
+  final DateTime convertedAt;
+  const DeliveryChallanInvoice({
+    required this.id,
+    required this.challanId,
+    required this.invoiceId,
+    required this.convertedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['challan_id'] = Variable<int>(challanId);
+    map['invoice_id'] = Variable<int>(invoiceId);
+    map['converted_at'] = Variable<DateTime>(convertedAt);
+    return map;
+  }
+
+  DeliveryChallanInvoicesCompanion toCompanion(bool nullToAbsent) {
+    return DeliveryChallanInvoicesCompanion(
+      id: Value(id),
+      challanId: Value(challanId),
+      invoiceId: Value(invoiceId),
+      convertedAt: Value(convertedAt),
+    );
+  }
+
+  factory DeliveryChallanInvoice.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DeliveryChallanInvoice(
+      id: serializer.fromJson<int>(json['id']),
+      challanId: serializer.fromJson<int>(json['challanId']),
+      invoiceId: serializer.fromJson<int>(json['invoiceId']),
+      convertedAt: serializer.fromJson<DateTime>(json['convertedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'challanId': serializer.toJson<int>(challanId),
+      'invoiceId': serializer.toJson<int>(invoiceId),
+      'convertedAt': serializer.toJson<DateTime>(convertedAt),
+    };
+  }
+
+  DeliveryChallanInvoice copyWith({
+    int? id,
+    int? challanId,
+    int? invoiceId,
+    DateTime? convertedAt,
+  }) => DeliveryChallanInvoice(
+    id: id ?? this.id,
+    challanId: challanId ?? this.challanId,
+    invoiceId: invoiceId ?? this.invoiceId,
+    convertedAt: convertedAt ?? this.convertedAt,
+  );
+  DeliveryChallanInvoice copyWithCompanion(
+    DeliveryChallanInvoicesCompanion data,
+  ) {
+    return DeliveryChallanInvoice(
+      id: data.id.present ? data.id.value : this.id,
+      challanId: data.challanId.present ? data.challanId.value : this.challanId,
+      invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
+      convertedAt: data.convertedAt.present
+          ? data.convertedAt.value
+          : this.convertedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeliveryChallanInvoice(')
+          ..write('id: $id, ')
+          ..write('challanId: $challanId, ')
+          ..write('invoiceId: $invoiceId, ')
+          ..write('convertedAt: $convertedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, challanId, invoiceId, convertedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DeliveryChallanInvoice &&
+          other.id == this.id &&
+          other.challanId == this.challanId &&
+          other.invoiceId == this.invoiceId &&
+          other.convertedAt == this.convertedAt);
+}
+
+class DeliveryChallanInvoicesCompanion
+    extends UpdateCompanion<DeliveryChallanInvoice> {
+  final Value<int> id;
+  final Value<int> challanId;
+  final Value<int> invoiceId;
+  final Value<DateTime> convertedAt;
+  const DeliveryChallanInvoicesCompanion({
+    this.id = const Value.absent(),
+    this.challanId = const Value.absent(),
+    this.invoiceId = const Value.absent(),
+    this.convertedAt = const Value.absent(),
+  });
+  DeliveryChallanInvoicesCompanion.insert({
+    this.id = const Value.absent(),
+    required int challanId,
+    required int invoiceId,
+    required DateTime convertedAt,
+  }) : challanId = Value(challanId),
+       invoiceId = Value(invoiceId),
+       convertedAt = Value(convertedAt);
+  static Insertable<DeliveryChallanInvoice> custom({
+    Expression<int>? id,
+    Expression<int>? challanId,
+    Expression<int>? invoiceId,
+    Expression<DateTime>? convertedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (challanId != null) 'challan_id': challanId,
+      if (invoiceId != null) 'invoice_id': invoiceId,
+      if (convertedAt != null) 'converted_at': convertedAt,
+    });
+  }
+
+  DeliveryChallanInvoicesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? challanId,
+    Value<int>? invoiceId,
+    Value<DateTime>? convertedAt,
+  }) {
+    return DeliveryChallanInvoicesCompanion(
+      id: id ?? this.id,
+      challanId: challanId ?? this.challanId,
+      invoiceId: invoiceId ?? this.invoiceId,
+      convertedAt: convertedAt ?? this.convertedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (challanId.present) {
+      map['challan_id'] = Variable<int>(challanId.value);
+    }
+    if (invoiceId.present) {
+      map['invoice_id'] = Variable<int>(invoiceId.value);
+    }
+    if (convertedAt.present) {
+      map['converted_at'] = Variable<DateTime>(convertedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DeliveryChallanInvoicesCompanion(')
+          ..write('id: $id, ')
+          ..write('challanId: $challanId, ')
+          ..write('invoiceId: $invoiceId, ')
+          ..write('convertedAt: $convertedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -21378,6 +24925,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $ImportBatchRecordsTable(this);
   late final $ImportBatchErrorsTable importBatchErrors =
       $ImportBatchErrorsTable(this);
+  late final $DeliveryChallansTable deliveryChallans = $DeliveryChallansTable(
+    this,
+  );
+  late final $DeliveryChallanItemsTable deliveryChallanItems =
+      $DeliveryChallanItemsTable(this);
+  late final $DeliveryChallanInvoicesTable deliveryChallanInvoices =
+      $DeliveryChallanInvoicesTable(this);
   late final Index customersName = Index(
     'customers_name',
     'CREATE INDEX customers_name ON customers (name)',
@@ -21498,6 +25052,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'import_batch_errors_batch',
     'CREATE INDEX import_batch_errors_batch ON import_batch_errors (batch_id)',
   );
+  late final Index deliveryChallansNumber = Index(
+    'delivery_challans_number',
+    'CREATE UNIQUE INDEX delivery_challans_number ON delivery_challans (challan_number)',
+  );
+  late final Index deliveryChallansStatus = Index(
+    'delivery_challans_status',
+    'CREATE INDEX delivery_challans_status ON delivery_challans (status)',
+  );
+  late final Index deliveryChallanInvoicesChallan = Index(
+    'delivery_challan_invoices_challan',
+    'CREATE INDEX delivery_challan_invoices_challan ON delivery_challan_invoices (challan_id)',
+  );
+  late final Index deliveryChallanInvoicesInvoice = Index(
+    'delivery_challan_invoices_invoice',
+    'CREATE INDEX delivery_challan_invoices_invoice ON delivery_challan_invoices (invoice_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -21531,6 +25101,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     importBatches,
     importBatchRecords,
     importBatchErrors,
+    deliveryChallans,
+    deliveryChallanItems,
+    deliveryChallanInvoices,
     customersName,
     customersMobile,
     customersGstin,
@@ -21561,6 +25134,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     importBatchesCreated,
     importBatchRecordsBatch,
     importBatchErrorsBatch,
+    deliveryChallansNumber,
+    deliveryChallansStatus,
+    deliveryChallanInvoicesChallan,
+    deliveryChallanInvoicesInvoice,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -21660,6 +25237,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('import_batch_errors', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'delivery_challans',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('delivery_challan_items', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'delivery_challans',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('delivery_challan_invoices', kind: UpdateKind.delete),
+      ],
     ),
   ]);
 }
@@ -23340,6 +26933,31 @@ final class $$InvoicesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $DeliveryChallanInvoicesTable,
+    List<DeliveryChallanInvoice>
+  >
+  _deliveryChallanInvoicesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.deliveryChallanInvoices,
+        aliasName: 'invoices__id__delivery_challan_invoices__invoice_id',
+      );
+
+  $$DeliveryChallanInvoicesTableProcessedTableManager
+  get deliveryChallanInvoicesRefs {
+    final manager = $$DeliveryChallanInvoicesTableTableManager(
+      $_db,
+      $_db.deliveryChallanInvoices,
+    ).filter((f) => f.invoiceId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _deliveryChallanInvoicesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$InvoicesTableFilterComposer
@@ -23653,6 +27271,32 @@ class $$InvoicesTableFilterComposer
               }) => $$CreditNoteApplicationsTableFilterComposer(
                 $db: $db,
                 $table: $db.creditNoteApplications,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> deliveryChallanInvoicesRefs(
+    Expression<bool> Function($$DeliveryChallanInvoicesTableFilterComposer f) f,
+  ) {
+    final $$DeliveryChallanInvoicesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.deliveryChallanInvoices,
+          getReferencedColumn: (t) => t.invoiceId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$DeliveryChallanInvoicesTableFilterComposer(
+                $db: $db,
+                $table: $db.deliveryChallanInvoices,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -24153,6 +27797,33 @@ class $$InvoicesTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> deliveryChallanInvoicesRefs<T extends Object>(
+    Expression<T> Function($$DeliveryChallanInvoicesTableAnnotationComposer a)
+    f,
+  ) {
+    final $$DeliveryChallanInvoicesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.deliveryChallanInvoices,
+          getReferencedColumn: (t) => t.invoiceId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$DeliveryChallanInvoicesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.deliveryChallanInvoices,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$InvoicesTableTableManager
@@ -24174,6 +27845,7 @@ class $$InvoicesTableTableManager
             bool invoicePaymentsRefs,
             bool creditNotesRefs,
             bool creditNoteApplicationsRefs,
+            bool deliveryChallanInvoicesRefs,
           })
         > {
   $$InvoicesTableTableManager(_$AppDatabase db, $InvoicesTable table)
@@ -24358,6 +28030,7 @@ class $$InvoicesTableTableManager
                 invoicePaymentsRefs = false,
                 creditNotesRefs = false,
                 creditNoteApplicationsRefs = false,
+                deliveryChallanInvoicesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -24367,6 +28040,7 @@ class $$InvoicesTableTableManager
                     if (invoicePaymentsRefs) db.invoicePayments,
                     if (creditNotesRefs) db.creditNotes,
                     if (creditNoteApplicationsRefs) db.creditNoteApplications,
+                    if (deliveryChallanInvoicesRefs) db.deliveryChallanInvoices,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -24476,6 +28150,27 @@ class $$InvoicesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (deliveryChallanInvoicesRefs)
+                        await $_getPrefetchedData<
+                          Invoice,
+                          $InvoicesTable,
+                          DeliveryChallanInvoice
+                        >(
+                          currentTable: table,
+                          referencedTable: $$InvoicesTableReferences
+                              ._deliveryChallanInvoicesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$InvoicesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).deliveryChallanInvoicesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.invoiceId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -24502,6 +28197,7 @@ typedef $$InvoicesTableProcessedTableManager =
         bool invoicePaymentsRefs,
         bool creditNotesRefs,
         bool creditNoteApplicationsRefs,
+        bool deliveryChallanInvoicesRefs,
       })
     >;
 typedef $$InvoiceItemsTableCreateCompanionBuilder =
@@ -36344,6 +40040,2126 @@ typedef $$ImportBatchErrorsTableProcessedTableManager =
       ImportBatchError,
       PrefetchHooks Function({bool batchId})
     >;
+typedef $$DeliveryChallansTableCreateCompanionBuilder =
+    DeliveryChallansCompanion Function({
+      Value<int> id,
+      required String challanNumber,
+      Value<int?> customerId,
+      required String customerName,
+      Value<String?> customerCompany,
+      Value<String?> customerMobile,
+      Value<String?> customerEmail,
+      Value<String?> customerAddress,
+      Value<String?> customerCity,
+      Value<String?> customerState,
+      Value<String?> customerPinCode,
+      Value<String?> customerGstin,
+      Value<String> sourceType,
+      Value<int?> sourceId,
+      required DateTime challanDate,
+      Value<DateTime?> dispatchDate,
+      required String status,
+      required String movementReason,
+      Value<String?> movementReasonNote,
+      Value<String?> dispatchAddress,
+      Value<String?> dispatchCity,
+      Value<String?> dispatchState,
+      Value<String?> dispatchPinCode,
+      Value<String?> deliveryAddress,
+      Value<String?> deliveryCity,
+      Value<String?> deliveryState,
+      Value<String?> deliveryPinCode,
+      Value<String?> transporterName,
+      Value<String?> transporterId,
+      Value<String?> vehicleNumber,
+      Value<String?> transportDocumentNumber,
+      Value<DateTime?> transportDocumentDate,
+      Value<int?> distanceKm,
+      Value<String> ewayStatus,
+      Value<String?> ewayNumber,
+      Value<String?> notes,
+      Value<String?> cancellationReason,
+      Value<DateTime?> cancelledAt,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$DeliveryChallansTableUpdateCompanionBuilder =
+    DeliveryChallansCompanion Function({
+      Value<int> id,
+      Value<String> challanNumber,
+      Value<int?> customerId,
+      Value<String> customerName,
+      Value<String?> customerCompany,
+      Value<String?> customerMobile,
+      Value<String?> customerEmail,
+      Value<String?> customerAddress,
+      Value<String?> customerCity,
+      Value<String?> customerState,
+      Value<String?> customerPinCode,
+      Value<String?> customerGstin,
+      Value<String> sourceType,
+      Value<int?> sourceId,
+      Value<DateTime> challanDate,
+      Value<DateTime?> dispatchDate,
+      Value<String> status,
+      Value<String> movementReason,
+      Value<String?> movementReasonNote,
+      Value<String?> dispatchAddress,
+      Value<String?> dispatchCity,
+      Value<String?> dispatchState,
+      Value<String?> dispatchPinCode,
+      Value<String?> deliveryAddress,
+      Value<String?> deliveryCity,
+      Value<String?> deliveryState,
+      Value<String?> deliveryPinCode,
+      Value<String?> transporterName,
+      Value<String?> transporterId,
+      Value<String?> vehicleNumber,
+      Value<String?> transportDocumentNumber,
+      Value<DateTime?> transportDocumentDate,
+      Value<int?> distanceKm,
+      Value<String> ewayStatus,
+      Value<String?> ewayNumber,
+      Value<String?> notes,
+      Value<String?> cancellationReason,
+      Value<DateTime?> cancelledAt,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$DeliveryChallansTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $DeliveryChallansTable, DeliveryChallan> {
+  $$DeliveryChallansTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<
+    $DeliveryChallanItemsTable,
+    List<DeliveryChallanItem>
+  >
+  _deliveryChallanItemsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.deliveryChallanItems,
+        aliasName: 'delivery_challans__id__delivery_challan_items__challan_id',
+      );
+
+  $$DeliveryChallanItemsTableProcessedTableManager
+  get deliveryChallanItemsRefs {
+    final manager = $$DeliveryChallanItemsTableTableManager(
+      $_db,
+      $_db.deliveryChallanItems,
+    ).filter((f) => f.challanId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _deliveryChallanItemsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $DeliveryChallanInvoicesTable,
+    List<DeliveryChallanInvoice>
+  >
+  _deliveryChallanInvoicesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.deliveryChallanInvoices,
+        aliasName:
+            'delivery_challans__id__delivery_challan_invoices__challan_id',
+      );
+
+  $$DeliveryChallanInvoicesTableProcessedTableManager
+  get deliveryChallanInvoicesRefs {
+    final manager = $$DeliveryChallanInvoicesTableTableManager(
+      $_db,
+      $_db.deliveryChallanInvoices,
+    ).filter((f) => f.challanId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _deliveryChallanInvoicesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$DeliveryChallansTableFilterComposer
+    extends Composer<_$AppDatabase, $DeliveryChallansTable> {
+  $$DeliveryChallansTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get challanNumber => $composableBuilder(
+    column: $table.challanNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get customerId => $composableBuilder(
+    column: $table.customerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerName => $composableBuilder(
+    column: $table.customerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerCompany => $composableBuilder(
+    column: $table.customerCompany,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerMobile => $composableBuilder(
+    column: $table.customerMobile,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerEmail => $composableBuilder(
+    column: $table.customerEmail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerAddress => $composableBuilder(
+    column: $table.customerAddress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerCity => $composableBuilder(
+    column: $table.customerCity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerState => $composableBuilder(
+    column: $table.customerState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerPinCode => $composableBuilder(
+    column: $table.customerPinCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerGstin => $composableBuilder(
+    column: $table.customerGstin,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceType => $composableBuilder(
+    column: $table.sourceType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get challanDate => $composableBuilder(
+    column: $table.challanDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dispatchDate => $composableBuilder(
+    column: $table.dispatchDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get movementReason => $composableBuilder(
+    column: $table.movementReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get movementReasonNote => $composableBuilder(
+    column: $table.movementReasonNote,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dispatchAddress => $composableBuilder(
+    column: $table.dispatchAddress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dispatchCity => $composableBuilder(
+    column: $table.dispatchCity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dispatchState => $composableBuilder(
+    column: $table.dispatchState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dispatchPinCode => $composableBuilder(
+    column: $table.dispatchPinCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deliveryAddress => $composableBuilder(
+    column: $table.deliveryAddress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deliveryCity => $composableBuilder(
+    column: $table.deliveryCity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deliveryState => $composableBuilder(
+    column: $table.deliveryState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deliveryPinCode => $composableBuilder(
+    column: $table.deliveryPinCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get transporterName => $composableBuilder(
+    column: $table.transporterName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get transporterId => $composableBuilder(
+    column: $table.transporterId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vehicleNumber => $composableBuilder(
+    column: $table.vehicleNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get transportDocumentNumber => $composableBuilder(
+    column: $table.transportDocumentNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get transportDocumentDate => $composableBuilder(
+    column: $table.transportDocumentDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get distanceKm => $composableBuilder(
+    column: $table.distanceKm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ewayStatus => $composableBuilder(
+    column: $table.ewayStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ewayNumber => $composableBuilder(
+    column: $table.ewayNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> deliveryChallanItemsRefs(
+    Expression<bool> Function($$DeliveryChallanItemsTableFilterComposer f) f,
+  ) {
+    final $$DeliveryChallanItemsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.deliveryChallanItems,
+      getReferencedColumn: (t) => t.challanId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DeliveryChallanItemsTableFilterComposer(
+            $db: $db,
+            $table: $db.deliveryChallanItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> deliveryChallanInvoicesRefs(
+    Expression<bool> Function($$DeliveryChallanInvoicesTableFilterComposer f) f,
+  ) {
+    final $$DeliveryChallanInvoicesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.deliveryChallanInvoices,
+          getReferencedColumn: (t) => t.challanId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$DeliveryChallanInvoicesTableFilterComposer(
+                $db: $db,
+                $table: $db.deliveryChallanInvoices,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$DeliveryChallansTableOrderingComposer
+    extends Composer<_$AppDatabase, $DeliveryChallansTable> {
+  $$DeliveryChallansTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get challanNumber => $composableBuilder(
+    column: $table.challanNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get customerId => $composableBuilder(
+    column: $table.customerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerName => $composableBuilder(
+    column: $table.customerName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerCompany => $composableBuilder(
+    column: $table.customerCompany,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerMobile => $composableBuilder(
+    column: $table.customerMobile,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerEmail => $composableBuilder(
+    column: $table.customerEmail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerAddress => $composableBuilder(
+    column: $table.customerAddress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerCity => $composableBuilder(
+    column: $table.customerCity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerState => $composableBuilder(
+    column: $table.customerState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerPinCode => $composableBuilder(
+    column: $table.customerPinCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerGstin => $composableBuilder(
+    column: $table.customerGstin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceType => $composableBuilder(
+    column: $table.sourceType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sourceId => $composableBuilder(
+    column: $table.sourceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get challanDate => $composableBuilder(
+    column: $table.challanDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dispatchDate => $composableBuilder(
+    column: $table.dispatchDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get movementReason => $composableBuilder(
+    column: $table.movementReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get movementReasonNote => $composableBuilder(
+    column: $table.movementReasonNote,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dispatchAddress => $composableBuilder(
+    column: $table.dispatchAddress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dispatchCity => $composableBuilder(
+    column: $table.dispatchCity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dispatchState => $composableBuilder(
+    column: $table.dispatchState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dispatchPinCode => $composableBuilder(
+    column: $table.dispatchPinCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deliveryAddress => $composableBuilder(
+    column: $table.deliveryAddress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deliveryCity => $composableBuilder(
+    column: $table.deliveryCity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deliveryState => $composableBuilder(
+    column: $table.deliveryState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deliveryPinCode => $composableBuilder(
+    column: $table.deliveryPinCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get transporterName => $composableBuilder(
+    column: $table.transporterName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get transporterId => $composableBuilder(
+    column: $table.transporterId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vehicleNumber => $composableBuilder(
+    column: $table.vehicleNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get transportDocumentNumber => $composableBuilder(
+    column: $table.transportDocumentNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get transportDocumentDate => $composableBuilder(
+    column: $table.transportDocumentDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get distanceKm => $composableBuilder(
+    column: $table.distanceKm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ewayStatus => $composableBuilder(
+    column: $table.ewayStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ewayNumber => $composableBuilder(
+    column: $table.ewayNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DeliveryChallansTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DeliveryChallansTable> {
+  $$DeliveryChallansTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get challanNumber => $composableBuilder(
+    column: $table.challanNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get customerId => $composableBuilder(
+    column: $table.customerId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerName => $composableBuilder(
+    column: $table.customerName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerCompany => $composableBuilder(
+    column: $table.customerCompany,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerMobile => $composableBuilder(
+    column: $table.customerMobile,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerEmail => $composableBuilder(
+    column: $table.customerEmail,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerAddress => $composableBuilder(
+    column: $table.customerAddress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerCity => $composableBuilder(
+    column: $table.customerCity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerState => $composableBuilder(
+    column: $table.customerState,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerPinCode => $composableBuilder(
+    column: $table.customerPinCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerGstin => $composableBuilder(
+    column: $table.customerGstin,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceType => $composableBuilder(
+    column: $table.sourceType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get challanDate => $composableBuilder(
+    column: $table.challanDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get dispatchDate => $composableBuilder(
+    column: $table.dispatchDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get movementReason => $composableBuilder(
+    column: $table.movementReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get movementReasonNote => $composableBuilder(
+    column: $table.movementReasonNote,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dispatchAddress => $composableBuilder(
+    column: $table.dispatchAddress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dispatchCity => $composableBuilder(
+    column: $table.dispatchCity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dispatchState => $composableBuilder(
+    column: $table.dispatchState,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dispatchPinCode => $composableBuilder(
+    column: $table.dispatchPinCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get deliveryAddress => $composableBuilder(
+    column: $table.deliveryAddress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get deliveryCity => $composableBuilder(
+    column: $table.deliveryCity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get deliveryState => $composableBuilder(
+    column: $table.deliveryState,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get deliveryPinCode => $composableBuilder(
+    column: $table.deliveryPinCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get transporterName => $composableBuilder(
+    column: $table.transporterName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get transporterId => $composableBuilder(
+    column: $table.transporterId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get vehicleNumber => $composableBuilder(
+    column: $table.vehicleNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get transportDocumentNumber => $composableBuilder(
+    column: $table.transportDocumentNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get transportDocumentDate => $composableBuilder(
+    column: $table.transportDocumentDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get distanceKm => $composableBuilder(
+    column: $table.distanceKm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get ewayStatus => $composableBuilder(
+    column: $table.ewayStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get ewayNumber => $composableBuilder(
+    column: $table.ewayNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get cancellationReason => $composableBuilder(
+    column: $table.cancellationReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get cancelledAt => $composableBuilder(
+    column: $table.cancelledAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> deliveryChallanItemsRefs<T extends Object>(
+    Expression<T> Function($$DeliveryChallanItemsTableAnnotationComposer a) f,
+  ) {
+    final $$DeliveryChallanItemsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.deliveryChallanItems,
+          getReferencedColumn: (t) => t.challanId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$DeliveryChallanItemsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.deliveryChallanItems,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> deliveryChallanInvoicesRefs<T extends Object>(
+    Expression<T> Function($$DeliveryChallanInvoicesTableAnnotationComposer a)
+    f,
+  ) {
+    final $$DeliveryChallanInvoicesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.deliveryChallanInvoices,
+          getReferencedColumn: (t) => t.challanId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$DeliveryChallanInvoicesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.deliveryChallanInvoices,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$DeliveryChallansTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DeliveryChallansTable,
+          DeliveryChallan,
+          $$DeliveryChallansTableFilterComposer,
+          $$DeliveryChallansTableOrderingComposer,
+          $$DeliveryChallansTableAnnotationComposer,
+          $$DeliveryChallansTableCreateCompanionBuilder,
+          $$DeliveryChallansTableUpdateCompanionBuilder,
+          (DeliveryChallan, $$DeliveryChallansTableReferences),
+          DeliveryChallan,
+          PrefetchHooks Function({
+            bool deliveryChallanItemsRefs,
+            bool deliveryChallanInvoicesRefs,
+          })
+        > {
+  $$DeliveryChallansTableTableManager(
+    _$AppDatabase db,
+    $DeliveryChallansTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DeliveryChallansTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DeliveryChallansTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DeliveryChallansTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> challanNumber = const Value.absent(),
+                Value<int?> customerId = const Value.absent(),
+                Value<String> customerName = const Value.absent(),
+                Value<String?> customerCompany = const Value.absent(),
+                Value<String?> customerMobile = const Value.absent(),
+                Value<String?> customerEmail = const Value.absent(),
+                Value<String?> customerAddress = const Value.absent(),
+                Value<String?> customerCity = const Value.absent(),
+                Value<String?> customerState = const Value.absent(),
+                Value<String?> customerPinCode = const Value.absent(),
+                Value<String?> customerGstin = const Value.absent(),
+                Value<String> sourceType = const Value.absent(),
+                Value<int?> sourceId = const Value.absent(),
+                Value<DateTime> challanDate = const Value.absent(),
+                Value<DateTime?> dispatchDate = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> movementReason = const Value.absent(),
+                Value<String?> movementReasonNote = const Value.absent(),
+                Value<String?> dispatchAddress = const Value.absent(),
+                Value<String?> dispatchCity = const Value.absent(),
+                Value<String?> dispatchState = const Value.absent(),
+                Value<String?> dispatchPinCode = const Value.absent(),
+                Value<String?> deliveryAddress = const Value.absent(),
+                Value<String?> deliveryCity = const Value.absent(),
+                Value<String?> deliveryState = const Value.absent(),
+                Value<String?> deliveryPinCode = const Value.absent(),
+                Value<String?> transporterName = const Value.absent(),
+                Value<String?> transporterId = const Value.absent(),
+                Value<String?> vehicleNumber = const Value.absent(),
+                Value<String?> transportDocumentNumber = const Value.absent(),
+                Value<DateTime?> transportDocumentDate = const Value.absent(),
+                Value<int?> distanceKm = const Value.absent(),
+                Value<String> ewayStatus = const Value.absent(),
+                Value<String?> ewayNumber = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> cancellationReason = const Value.absent(),
+                Value<DateTime?> cancelledAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => DeliveryChallansCompanion(
+                id: id,
+                challanNumber: challanNumber,
+                customerId: customerId,
+                customerName: customerName,
+                customerCompany: customerCompany,
+                customerMobile: customerMobile,
+                customerEmail: customerEmail,
+                customerAddress: customerAddress,
+                customerCity: customerCity,
+                customerState: customerState,
+                customerPinCode: customerPinCode,
+                customerGstin: customerGstin,
+                sourceType: sourceType,
+                sourceId: sourceId,
+                challanDate: challanDate,
+                dispatchDate: dispatchDate,
+                status: status,
+                movementReason: movementReason,
+                movementReasonNote: movementReasonNote,
+                dispatchAddress: dispatchAddress,
+                dispatchCity: dispatchCity,
+                dispatchState: dispatchState,
+                dispatchPinCode: dispatchPinCode,
+                deliveryAddress: deliveryAddress,
+                deliveryCity: deliveryCity,
+                deliveryState: deliveryState,
+                deliveryPinCode: deliveryPinCode,
+                transporterName: transporterName,
+                transporterId: transporterId,
+                vehicleNumber: vehicleNumber,
+                transportDocumentNumber: transportDocumentNumber,
+                transportDocumentDate: transportDocumentDate,
+                distanceKm: distanceKm,
+                ewayStatus: ewayStatus,
+                ewayNumber: ewayNumber,
+                notes: notes,
+                cancellationReason: cancellationReason,
+                cancelledAt: cancelledAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String challanNumber,
+                Value<int?> customerId = const Value.absent(),
+                required String customerName,
+                Value<String?> customerCompany = const Value.absent(),
+                Value<String?> customerMobile = const Value.absent(),
+                Value<String?> customerEmail = const Value.absent(),
+                Value<String?> customerAddress = const Value.absent(),
+                Value<String?> customerCity = const Value.absent(),
+                Value<String?> customerState = const Value.absent(),
+                Value<String?> customerPinCode = const Value.absent(),
+                Value<String?> customerGstin = const Value.absent(),
+                Value<String> sourceType = const Value.absent(),
+                Value<int?> sourceId = const Value.absent(),
+                required DateTime challanDate,
+                Value<DateTime?> dispatchDate = const Value.absent(),
+                required String status,
+                required String movementReason,
+                Value<String?> movementReasonNote = const Value.absent(),
+                Value<String?> dispatchAddress = const Value.absent(),
+                Value<String?> dispatchCity = const Value.absent(),
+                Value<String?> dispatchState = const Value.absent(),
+                Value<String?> dispatchPinCode = const Value.absent(),
+                Value<String?> deliveryAddress = const Value.absent(),
+                Value<String?> deliveryCity = const Value.absent(),
+                Value<String?> deliveryState = const Value.absent(),
+                Value<String?> deliveryPinCode = const Value.absent(),
+                Value<String?> transporterName = const Value.absent(),
+                Value<String?> transporterId = const Value.absent(),
+                Value<String?> vehicleNumber = const Value.absent(),
+                Value<String?> transportDocumentNumber = const Value.absent(),
+                Value<DateTime?> transportDocumentDate = const Value.absent(),
+                Value<int?> distanceKm = const Value.absent(),
+                Value<String> ewayStatus = const Value.absent(),
+                Value<String?> ewayNumber = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> cancellationReason = const Value.absent(),
+                Value<DateTime?> cancelledAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => DeliveryChallansCompanion.insert(
+                id: id,
+                challanNumber: challanNumber,
+                customerId: customerId,
+                customerName: customerName,
+                customerCompany: customerCompany,
+                customerMobile: customerMobile,
+                customerEmail: customerEmail,
+                customerAddress: customerAddress,
+                customerCity: customerCity,
+                customerState: customerState,
+                customerPinCode: customerPinCode,
+                customerGstin: customerGstin,
+                sourceType: sourceType,
+                sourceId: sourceId,
+                challanDate: challanDate,
+                dispatchDate: dispatchDate,
+                status: status,
+                movementReason: movementReason,
+                movementReasonNote: movementReasonNote,
+                dispatchAddress: dispatchAddress,
+                dispatchCity: dispatchCity,
+                dispatchState: dispatchState,
+                dispatchPinCode: dispatchPinCode,
+                deliveryAddress: deliveryAddress,
+                deliveryCity: deliveryCity,
+                deliveryState: deliveryState,
+                deliveryPinCode: deliveryPinCode,
+                transporterName: transporterName,
+                transporterId: transporterId,
+                vehicleNumber: vehicleNumber,
+                transportDocumentNumber: transportDocumentNumber,
+                transportDocumentDate: transportDocumentDate,
+                distanceKm: distanceKm,
+                ewayStatus: ewayStatus,
+                ewayNumber: ewayNumber,
+                notes: notes,
+                cancellationReason: cancellationReason,
+                cancelledAt: cancelledAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$DeliveryChallansTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                deliveryChallanItemsRefs = false,
+                deliveryChallanInvoicesRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (deliveryChallanItemsRefs) db.deliveryChallanItems,
+                    if (deliveryChallanInvoicesRefs) db.deliveryChallanInvoices,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (deliveryChallanItemsRefs)
+                        await $_getPrefetchedData<
+                          DeliveryChallan,
+                          $DeliveryChallansTable,
+                          DeliveryChallanItem
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DeliveryChallansTableReferences
+                              ._deliveryChallanItemsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DeliveryChallansTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).deliveryChallanItemsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.challanId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (deliveryChallanInvoicesRefs)
+                        await $_getPrefetchedData<
+                          DeliveryChallan,
+                          $DeliveryChallansTable,
+                          DeliveryChallanInvoice
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DeliveryChallansTableReferences
+                              ._deliveryChallanInvoicesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DeliveryChallansTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).deliveryChallanInvoicesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.challanId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$DeliveryChallansTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DeliveryChallansTable,
+      DeliveryChallan,
+      $$DeliveryChallansTableFilterComposer,
+      $$DeliveryChallansTableOrderingComposer,
+      $$DeliveryChallansTableAnnotationComposer,
+      $$DeliveryChallansTableCreateCompanionBuilder,
+      $$DeliveryChallansTableUpdateCompanionBuilder,
+      (DeliveryChallan, $$DeliveryChallansTableReferences),
+      DeliveryChallan,
+      PrefetchHooks Function({
+        bool deliveryChallanItemsRefs,
+        bool deliveryChallanInvoicesRefs,
+      })
+    >;
+typedef $$DeliveryChallanItemsTableCreateCompanionBuilder =
+    DeliveryChallanItemsCompanion Function({
+      Value<int> id,
+      required int challanId,
+      Value<int?> productId,
+      Value<int?> sourceItemId,
+      required String name,
+      Value<String?> description,
+      required int orderedQuantityScaled,
+      required int dispatchedQuantityScaled,
+      Value<int> deliveredQuantityScaled,
+      Value<int> returnedQuantityScaled,
+      Value<int> invoicedQuantityScaled,
+      required String unit,
+      required int rateMinor,
+      Value<String?> hsnSac,
+      Value<int> taxRateBasisPoints,
+      required int sortOrder,
+    });
+typedef $$DeliveryChallanItemsTableUpdateCompanionBuilder =
+    DeliveryChallanItemsCompanion Function({
+      Value<int> id,
+      Value<int> challanId,
+      Value<int?> productId,
+      Value<int?> sourceItemId,
+      Value<String> name,
+      Value<String?> description,
+      Value<int> orderedQuantityScaled,
+      Value<int> dispatchedQuantityScaled,
+      Value<int> deliveredQuantityScaled,
+      Value<int> returnedQuantityScaled,
+      Value<int> invoicedQuantityScaled,
+      Value<String> unit,
+      Value<int> rateMinor,
+      Value<String?> hsnSac,
+      Value<int> taxRateBasisPoints,
+      Value<int> sortOrder,
+    });
+
+final class $$DeliveryChallanItemsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $DeliveryChallanItemsTable,
+          DeliveryChallanItem
+        > {
+  $$DeliveryChallanItemsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $DeliveryChallansTable _challanIdTable(_$AppDatabase db) => db
+      .deliveryChallans
+      .createAlias('delivery_challan_items__challan_id__delivery_challans__id');
+
+  $$DeliveryChallansTableProcessedTableManager get challanId {
+    final $_column = $_itemColumn<int>('challan_id')!;
+
+    final manager = $$DeliveryChallansTableTableManager(
+      $_db,
+      $_db.deliveryChallans,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_challanIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$DeliveryChallanItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $DeliveryChallanItemsTable> {
+  $$DeliveryChallanItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sourceItemId => $composableBuilder(
+    column: $table.sourceItemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderedQuantityScaled => $composableBuilder(
+    column: $table.orderedQuantityScaled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get dispatchedQuantityScaled => $composableBuilder(
+    column: $table.dispatchedQuantityScaled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deliveredQuantityScaled => $composableBuilder(
+    column: $table.deliveredQuantityScaled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get returnedQuantityScaled => $composableBuilder(
+    column: $table.returnedQuantityScaled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get invoicedQuantityScaled => $composableBuilder(
+    column: $table.invoicedQuantityScaled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rateMinor => $composableBuilder(
+    column: $table.rateMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get hsnSac => $composableBuilder(
+    column: $table.hsnSac,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$DeliveryChallansTableFilterComposer get challanId {
+    final $$DeliveryChallansTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.challanId,
+      referencedTable: $db.deliveryChallans,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DeliveryChallansTableFilterComposer(
+            $db: $db,
+            $table: $db.deliveryChallans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DeliveryChallanItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DeliveryChallanItemsTable> {
+  $$DeliveryChallanItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sourceItemId => $composableBuilder(
+    column: $table.sourceItemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get orderedQuantityScaled => $composableBuilder(
+    column: $table.orderedQuantityScaled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get dispatchedQuantityScaled => $composableBuilder(
+    column: $table.dispatchedQuantityScaled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deliveredQuantityScaled => $composableBuilder(
+    column: $table.deliveredQuantityScaled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get returnedQuantityScaled => $composableBuilder(
+    column: $table.returnedQuantityScaled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get invoicedQuantityScaled => $composableBuilder(
+    column: $table.invoicedQuantityScaled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rateMinor => $composableBuilder(
+    column: $table.rateMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get hsnSac => $composableBuilder(
+    column: $table.hsnSac,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$DeliveryChallansTableOrderingComposer get challanId {
+    final $$DeliveryChallansTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.challanId,
+      referencedTable: $db.deliveryChallans,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DeliveryChallansTableOrderingComposer(
+            $db: $db,
+            $table: $db.deliveryChallans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DeliveryChallanItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DeliveryChallanItemsTable> {
+  $$DeliveryChallanItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get productId =>
+      $composableBuilder(column: $table.productId, builder: (column) => column);
+
+  GeneratedColumn<int> get sourceItemId => $composableBuilder(
+    column: $table.sourceItemId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get orderedQuantityScaled => $composableBuilder(
+    column: $table.orderedQuantityScaled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get dispatchedQuantityScaled => $composableBuilder(
+    column: $table.dispatchedQuantityScaled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get deliveredQuantityScaled => $composableBuilder(
+    column: $table.deliveredQuantityScaled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get returnedQuantityScaled => $composableBuilder(
+    column: $table.returnedQuantityScaled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get invoicedQuantityScaled => $composableBuilder(
+    column: $table.invoicedQuantityScaled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<int> get rateMinor =>
+      $composableBuilder(column: $table.rateMinor, builder: (column) => column);
+
+  GeneratedColumn<String> get hsnSac =>
+      $composableBuilder(column: $table.hsnSac, builder: (column) => column);
+
+  GeneratedColumn<int> get taxRateBasisPoints => $composableBuilder(
+    column: $table.taxRateBasisPoints,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  $$DeliveryChallansTableAnnotationComposer get challanId {
+    final $$DeliveryChallansTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.challanId,
+      referencedTable: $db.deliveryChallans,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DeliveryChallansTableAnnotationComposer(
+            $db: $db,
+            $table: $db.deliveryChallans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DeliveryChallanItemsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DeliveryChallanItemsTable,
+          DeliveryChallanItem,
+          $$DeliveryChallanItemsTableFilterComposer,
+          $$DeliveryChallanItemsTableOrderingComposer,
+          $$DeliveryChallanItemsTableAnnotationComposer,
+          $$DeliveryChallanItemsTableCreateCompanionBuilder,
+          $$DeliveryChallanItemsTableUpdateCompanionBuilder,
+          (DeliveryChallanItem, $$DeliveryChallanItemsTableReferences),
+          DeliveryChallanItem,
+          PrefetchHooks Function({bool challanId})
+        > {
+  $$DeliveryChallanItemsTableTableManager(
+    _$AppDatabase db,
+    $DeliveryChallanItemsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DeliveryChallanItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DeliveryChallanItemsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$DeliveryChallanItemsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> challanId = const Value.absent(),
+                Value<int?> productId = const Value.absent(),
+                Value<int?> sourceItemId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<int> orderedQuantityScaled = const Value.absent(),
+                Value<int> dispatchedQuantityScaled = const Value.absent(),
+                Value<int> deliveredQuantityScaled = const Value.absent(),
+                Value<int> returnedQuantityScaled = const Value.absent(),
+                Value<int> invoicedQuantityScaled = const Value.absent(),
+                Value<String> unit = const Value.absent(),
+                Value<int> rateMinor = const Value.absent(),
+                Value<String?> hsnSac = const Value.absent(),
+                Value<int> taxRateBasisPoints = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+              }) => DeliveryChallanItemsCompanion(
+                id: id,
+                challanId: challanId,
+                productId: productId,
+                sourceItemId: sourceItemId,
+                name: name,
+                description: description,
+                orderedQuantityScaled: orderedQuantityScaled,
+                dispatchedQuantityScaled: dispatchedQuantityScaled,
+                deliveredQuantityScaled: deliveredQuantityScaled,
+                returnedQuantityScaled: returnedQuantityScaled,
+                invoicedQuantityScaled: invoicedQuantityScaled,
+                unit: unit,
+                rateMinor: rateMinor,
+                hsnSac: hsnSac,
+                taxRateBasisPoints: taxRateBasisPoints,
+                sortOrder: sortOrder,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int challanId,
+                Value<int?> productId = const Value.absent(),
+                Value<int?> sourceItemId = const Value.absent(),
+                required String name,
+                Value<String?> description = const Value.absent(),
+                required int orderedQuantityScaled,
+                required int dispatchedQuantityScaled,
+                Value<int> deliveredQuantityScaled = const Value.absent(),
+                Value<int> returnedQuantityScaled = const Value.absent(),
+                Value<int> invoicedQuantityScaled = const Value.absent(),
+                required String unit,
+                required int rateMinor,
+                Value<String?> hsnSac = const Value.absent(),
+                Value<int> taxRateBasisPoints = const Value.absent(),
+                required int sortOrder,
+              }) => DeliveryChallanItemsCompanion.insert(
+                id: id,
+                challanId: challanId,
+                productId: productId,
+                sourceItemId: sourceItemId,
+                name: name,
+                description: description,
+                orderedQuantityScaled: orderedQuantityScaled,
+                dispatchedQuantityScaled: dispatchedQuantityScaled,
+                deliveredQuantityScaled: deliveredQuantityScaled,
+                returnedQuantityScaled: returnedQuantityScaled,
+                invoicedQuantityScaled: invoicedQuantityScaled,
+                unit: unit,
+                rateMinor: rateMinor,
+                hsnSac: hsnSac,
+                taxRateBasisPoints: taxRateBasisPoints,
+                sortOrder: sortOrder,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$DeliveryChallanItemsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({challanId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (challanId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.challanId,
+                                referencedTable:
+                                    $$DeliveryChallanItemsTableReferences
+                                        ._challanIdTable(db),
+                                referencedColumn:
+                                    $$DeliveryChallanItemsTableReferences
+                                        ._challanIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$DeliveryChallanItemsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DeliveryChallanItemsTable,
+      DeliveryChallanItem,
+      $$DeliveryChallanItemsTableFilterComposer,
+      $$DeliveryChallanItemsTableOrderingComposer,
+      $$DeliveryChallanItemsTableAnnotationComposer,
+      $$DeliveryChallanItemsTableCreateCompanionBuilder,
+      $$DeliveryChallanItemsTableUpdateCompanionBuilder,
+      (DeliveryChallanItem, $$DeliveryChallanItemsTableReferences),
+      DeliveryChallanItem,
+      PrefetchHooks Function({bool challanId})
+    >;
+typedef $$DeliveryChallanInvoicesTableCreateCompanionBuilder =
+    DeliveryChallanInvoicesCompanion Function({
+      Value<int> id,
+      required int challanId,
+      required int invoiceId,
+      required DateTime convertedAt,
+    });
+typedef $$DeliveryChallanInvoicesTableUpdateCompanionBuilder =
+    DeliveryChallanInvoicesCompanion Function({
+      Value<int> id,
+      Value<int> challanId,
+      Value<int> invoiceId,
+      Value<DateTime> convertedAt,
+    });
+
+final class $$DeliveryChallanInvoicesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $DeliveryChallanInvoicesTable,
+          DeliveryChallanInvoice
+        > {
+  $$DeliveryChallanInvoicesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $DeliveryChallansTable _challanIdTable(_$AppDatabase db) =>
+      db.deliveryChallans.createAlias(
+        'delivery_challan_invoices__challan_id__delivery_challans__id',
+      );
+
+  $$DeliveryChallansTableProcessedTableManager get challanId {
+    final $_column = $_itemColumn<int>('challan_id')!;
+
+    final manager = $$DeliveryChallansTableTableManager(
+      $_db,
+      $_db.deliveryChallans,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_challanIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $InvoicesTable _invoiceIdTable(_$AppDatabase db) => db.invoices
+      .createAlias('delivery_challan_invoices__invoice_id__invoices__id');
+
+  $$InvoicesTableProcessedTableManager get invoiceId {
+    final $_column = $_itemColumn<int>('invoice_id')!;
+
+    final manager = $$InvoicesTableTableManager(
+      $_db,
+      $_db.invoices,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_invoiceIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$DeliveryChallanInvoicesTableFilterComposer
+    extends Composer<_$AppDatabase, $DeliveryChallanInvoicesTable> {
+  $$DeliveryChallanInvoicesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get convertedAt => $composableBuilder(
+    column: $table.convertedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$DeliveryChallansTableFilterComposer get challanId {
+    final $$DeliveryChallansTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.challanId,
+      referencedTable: $db.deliveryChallans,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DeliveryChallansTableFilterComposer(
+            $db: $db,
+            $table: $db.deliveryChallans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$InvoicesTableFilterComposer get invoiceId {
+    final $$InvoicesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.invoiceId,
+      referencedTable: $db.invoices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvoicesTableFilterComposer(
+            $db: $db,
+            $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DeliveryChallanInvoicesTableOrderingComposer
+    extends Composer<_$AppDatabase, $DeliveryChallanInvoicesTable> {
+  $$DeliveryChallanInvoicesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get convertedAt => $composableBuilder(
+    column: $table.convertedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$DeliveryChallansTableOrderingComposer get challanId {
+    final $$DeliveryChallansTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.challanId,
+      referencedTable: $db.deliveryChallans,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DeliveryChallansTableOrderingComposer(
+            $db: $db,
+            $table: $db.deliveryChallans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$InvoicesTableOrderingComposer get invoiceId {
+    final $$InvoicesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.invoiceId,
+      referencedTable: $db.invoices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvoicesTableOrderingComposer(
+            $db: $db,
+            $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DeliveryChallanInvoicesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DeliveryChallanInvoicesTable> {
+  $$DeliveryChallanInvoicesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get convertedAt => $composableBuilder(
+    column: $table.convertedAt,
+    builder: (column) => column,
+  );
+
+  $$DeliveryChallansTableAnnotationComposer get challanId {
+    final $$DeliveryChallansTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.challanId,
+      referencedTable: $db.deliveryChallans,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DeliveryChallansTableAnnotationComposer(
+            $db: $db,
+            $table: $db.deliveryChallans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$InvoicesTableAnnotationComposer get invoiceId {
+    final $$InvoicesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.invoiceId,
+      referencedTable: $db.invoices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InvoicesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$DeliveryChallanInvoicesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DeliveryChallanInvoicesTable,
+          DeliveryChallanInvoice,
+          $$DeliveryChallanInvoicesTableFilterComposer,
+          $$DeliveryChallanInvoicesTableOrderingComposer,
+          $$DeliveryChallanInvoicesTableAnnotationComposer,
+          $$DeliveryChallanInvoicesTableCreateCompanionBuilder,
+          $$DeliveryChallanInvoicesTableUpdateCompanionBuilder,
+          (DeliveryChallanInvoice, $$DeliveryChallanInvoicesTableReferences),
+          DeliveryChallanInvoice,
+          PrefetchHooks Function({bool challanId, bool invoiceId})
+        > {
+  $$DeliveryChallanInvoicesTableTableManager(
+    _$AppDatabase db,
+    $DeliveryChallanInvoicesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DeliveryChallanInvoicesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$DeliveryChallanInvoicesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$DeliveryChallanInvoicesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> challanId = const Value.absent(),
+                Value<int> invoiceId = const Value.absent(),
+                Value<DateTime> convertedAt = const Value.absent(),
+              }) => DeliveryChallanInvoicesCompanion(
+                id: id,
+                challanId: challanId,
+                invoiceId: invoiceId,
+                convertedAt: convertedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int challanId,
+                required int invoiceId,
+                required DateTime convertedAt,
+              }) => DeliveryChallanInvoicesCompanion.insert(
+                id: id,
+                challanId: challanId,
+                invoiceId: invoiceId,
+                convertedAt: convertedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$DeliveryChallanInvoicesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({challanId = false, invoiceId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (challanId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.challanId,
+                                referencedTable:
+                                    $$DeliveryChallanInvoicesTableReferences
+                                        ._challanIdTable(db),
+                                referencedColumn:
+                                    $$DeliveryChallanInvoicesTableReferences
+                                        ._challanIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (invoiceId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.invoiceId,
+                                referencedTable:
+                                    $$DeliveryChallanInvoicesTableReferences
+                                        ._invoiceIdTable(db),
+                                referencedColumn:
+                                    $$DeliveryChallanInvoicesTableReferences
+                                        ._invoiceIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$DeliveryChallanInvoicesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DeliveryChallanInvoicesTable,
+      DeliveryChallanInvoice,
+      $$DeliveryChallanInvoicesTableFilterComposer,
+      $$DeliveryChallanInvoicesTableOrderingComposer,
+      $$DeliveryChallanInvoicesTableAnnotationComposer,
+      $$DeliveryChallanInvoicesTableCreateCompanionBuilder,
+      $$DeliveryChallanInvoicesTableUpdateCompanionBuilder,
+      (DeliveryChallanInvoice, $$DeliveryChallanInvoicesTableReferences),
+      DeliveryChallanInvoice,
+      PrefetchHooks Function({bool challanId, bool invoiceId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -36413,4 +42229,13 @@ class $AppDatabaseManager {
       $$ImportBatchRecordsTableTableManager(_db, _db.importBatchRecords);
   $$ImportBatchErrorsTableTableManager get importBatchErrors =>
       $$ImportBatchErrorsTableTableManager(_db, _db.importBatchErrors);
+  $$DeliveryChallansTableTableManager get deliveryChallans =>
+      $$DeliveryChallansTableTableManager(_db, _db.deliveryChallans);
+  $$DeliveryChallanItemsTableTableManager get deliveryChallanItems =>
+      $$DeliveryChallanItemsTableTableManager(_db, _db.deliveryChallanItems);
+  $$DeliveryChallanInvoicesTableTableManager get deliveryChallanInvoices =>
+      $$DeliveryChallanInvoicesTableTableManager(
+        _db,
+        _db.deliveryChallanInvoices,
+      );
 }

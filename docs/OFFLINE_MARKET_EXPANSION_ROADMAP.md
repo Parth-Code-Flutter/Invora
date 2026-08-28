@@ -155,13 +155,25 @@ Reference: [myBillBook return/debit workflows](https://knowledge.mybillbook.in/e
 
 ## P0.5 Delivery challans and conversion
 
+Status: **Shipped this slice 2026-08-28** (create from customer, quotation,
+invoice, or blank form; remaining dispatch from source quotation/invoice;
+invoice-sourced challans cannot convert to a second invoice; dispatch/delivery
+address; movement reason; transporter/vehicle; ordered/dispatched/delivered/
+returned/invoiced qty; PDF; cancel-with-reason; convert remaining supply qty
+to one or more invoices; e-way Prepared until imported acknowledgement).
+Stock movements wait for Inventory (`P1.1`). GSTN e-way generation remains
+out of scope.
+
 ### Workflow
 
-1. Create from customer, quotation, draft invoice, or blank form.
-2. Add dispatch/delivery address, movement reason, transporter, vehicle/document,
+1. Default: create from customer + items, or from a quotation.
+2. Optional: create from an active invoice only for leftover delivery of that
+   billed sale.
+3. Add dispatch/delivery address, movement reason, transporter, vehicle/document,
    items and quantities.
-3. Print/share and record delivered/returned quantities.
-4. Convert all or remaining quantities into one or multiple invoices.
+4. Print/share and record delivered/returned quantities.
+5. Convert remaining supply quantities into one or multiple invoices — not
+   when the challan is already against an invoice.
 
 ### Requirements
 

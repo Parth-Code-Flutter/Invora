@@ -2,7 +2,9 @@ import 'package:get/get.dart';
 
 import '../../../app/enums/invoice_status.dart';
 import '../../../data/models/credit_note_model.dart';
+import '../../../data/models/delivery_challan_model.dart';
 import '../../../data/models/invoice_model.dart';
+import '../../../data/repositories/delivery_challan_repository.dart';
 import '../../../data/models/invoice_payment_model.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../../../data/repositories/business_repository.dart';
@@ -22,13 +24,15 @@ class InvoiceDetailsController extends GetxController {
     this._creditNotes,
     this._businessRepository,
     this._pdf,
-    this._storage,
-  );
+    this._storage, {
+    DeliveryChallanRepository? challans,
+  }) : _challans = challans;
   final InvoiceRepository _repository;
   final CreditNoteRepository _creditNotes;
   final BusinessRepository _businessRepository;
   final InvoicePdfService _pdf;
   final AppStorage _storage;
+  final DeliveryChallanRepository? _challans;
   static const _validator = InvoiceValidationService();
   final invoice = Rxn<InvoiceModel>();
   final currencySymbol = '₹'.obs;
@@ -299,6 +303,40 @@ class InvoiceDetailsController extends GetxController {
     );
     AppNotification.success('Invoice created', converted.invoiceNumber);
     Get.toNamed<void>(AppRoutes.invoiceDetails, arguments: converted.id);
+  }
+
+  Future<void> createDeliveryChallan() async {
+    final value = invoice.value;
+    if (value?.id == null || value!.status == InvoiceStatus.cancelled) {
+      AppNotification.warning(
+        'Cannot create challan',
+        'Delivery challans can be created from a quotation or an active invoice.',
+      );
+      return;
+    }
+    final isQuotation = value.documentType == DocumentType.quotation;
+    final challans = _challans;
+    if (challans != null) {
+      final remaining = await challans.remainingLinesFromDocument(
+        value,
+        sourceType: isQuotation
+            ? DeliveryChallanSourceType.quotation
+            : DeliveryChallanSourceType.invoice,
+      );
+      if (remaining.isEmpty) {
+        AppNotification.warning(
+          'Cannot create challan',
+          'No remaining quantity to dispatch.',
+        );
+        return;
+      }
+    }
+    await Get.toNamed<void>(
+      AppRoutes.deliveryChallanCreate,
+      arguments: isQuotation
+          ? DeliveryChallanEditorArgs(quotationId: value.id)
+          : DeliveryChallanEditorArgs(invoiceId: value.id),
+    );
   }
 
   bool get canIssueCreditNote {

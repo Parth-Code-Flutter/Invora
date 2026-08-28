@@ -43,6 +43,10 @@ import '../../modules/reports/screens/ageing_screen.dart';
 import '../../modules/expenses/bindings/expense_binding.dart';
 import '../../modules/expenses/screens/expense_list_screen.dart';
 import '../../modules/expenses/screens/expense_details_screen.dart';
+import '../../modules/delivery_challans/bindings/delivery_challan_binding.dart';
+import '../../modules/delivery_challans/screens/delivery_challan_list_screen.dart';
+import '../../modules/delivery_challans/screens/delivery_challan_form_screen.dart';
+import '../../modules/delivery_challans/screens/delivery_challan_details_screen.dart';
 import '../../modules/cash_book/bindings/cash_book_binding.dart';
 import '../../modules/cash_book/screens/cash_book_screen.dart';
 import '../../modules/cash_book/screens/account_statement_screen.dart';
@@ -318,6 +322,31 @@ abstract final class AppRouter {
       name: AppRoutes.expenseDetails,
       page: ExpenseDetailsScreen.new,
       binding: ExpenseDetailsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.deliveryChallans,
+      page: DeliveryChallanListScreen.new,
+      binding: DeliveryChallanListBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.deliveryChallanCreate,
+      page: DeliveryChallanFormScreen.new,
+      binding: DeliveryChallanFormBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.deliveryChallanEdit,
+      page: DeliveryChallanFormScreen.new,
+      binding: DeliveryChallanFormBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.deliveryChallanDetails,
+      page: DeliveryChallanDetailsScreen.new,
+      binding: DeliveryChallanDetailsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.deliveryChallanConvert,
+      page: DeliveryChallanConvertScreen.new,
+      binding: DeliveryChallanConvertBinding(),
     ),
     GetPage(
       name: AppRoutes.cashBook,

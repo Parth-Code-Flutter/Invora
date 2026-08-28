@@ -525,6 +525,95 @@ class ImportBatchErrors extends Table {
   TextColumn get message => text()();
 }
 
+@TableIndex(
+  name: 'delivery_challans_number',
+  columns: {#challanNumber},
+  unique: true,
+)
+@TableIndex(name: 'delivery_challans_status', columns: {#status})
+class DeliveryChallans extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get challanNumber => text()();
+  IntColumn get customerId => integer().nullable()();
+  TextColumn get customerName => text()();
+  TextColumn get customerCompany => text().nullable()();
+  TextColumn get customerMobile => text().nullable()();
+  TextColumn get customerEmail => text().nullable()();
+  TextColumn get customerAddress => text().nullable()();
+  TextColumn get customerCity => text().nullable()();
+  TextColumn get customerState => text().nullable()();
+  TextColumn get customerPinCode => text().nullable()();
+  TextColumn get customerGstin => text().nullable()();
+  TextColumn get sourceType => text().withDefault(const Constant('blank'))();
+  IntColumn get sourceId => integer().nullable()();
+  DateTimeColumn get challanDate => dateTime()();
+  DateTimeColumn get dispatchDate => dateTime().nullable()();
+  TextColumn get status => text()();
+  TextColumn get movementReason => text()();
+  TextColumn get movementReasonNote => text().nullable()();
+  TextColumn get dispatchAddress => text().nullable()();
+  TextColumn get dispatchCity => text().nullable()();
+  TextColumn get dispatchState => text().nullable()();
+  TextColumn get dispatchPinCode => text().nullable()();
+  TextColumn get deliveryAddress => text().nullable()();
+  TextColumn get deliveryCity => text().nullable()();
+  TextColumn get deliveryState => text().nullable()();
+  TextColumn get deliveryPinCode => text().nullable()();
+  TextColumn get transporterName => text().nullable()();
+  TextColumn get transporterId => text().nullable()();
+  TextColumn get vehicleNumber => text().nullable()();
+  TextColumn get transportDocumentNumber => text().nullable()();
+  DateTimeColumn get transportDocumentDate => dateTime().nullable()();
+  IntColumn get distanceKm => integer().nullable()();
+  TextColumn get ewayStatus => text().withDefault(const Constant('none'))();
+  TextColumn get ewayNumber => text().nullable()();
+  TextColumn get notes => text().nullable()();
+  TextColumn get cancellationReason => text().nullable()();
+  DateTimeColumn get cancelledAt => dateTime().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class DeliveryChallanItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get challanId => integer().references(
+    DeliveryChallans,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
+  IntColumn get productId => integer().nullable()();
+  IntColumn get sourceItemId => integer().nullable()();
+  TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+  IntColumn get orderedQuantityScaled => integer()();
+  IntColumn get dispatchedQuantityScaled => integer()();
+  IntColumn get deliveredQuantityScaled =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get returnedQuantityScaled =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get invoicedQuantityScaled =>
+      integer().withDefault(const Constant(0))();
+  TextColumn get unit => text()();
+  IntColumn get rateMinor => integer()();
+  TextColumn get hsnSac => text().nullable()();
+  IntColumn get taxRateBasisPoints =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get sortOrder => integer()();
+}
+
+@TableIndex(name: 'delivery_challan_invoices_challan', columns: {#challanId})
+@TableIndex(name: 'delivery_challan_invoices_invoice', columns: {#invoiceId})
+class DeliveryChallanInvoices extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get challanId => integer().references(
+    DeliveryChallans,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
+  IntColumn get invoiceId => integer().references(Invoices, #id)();
+  DateTimeColumn get convertedAt => dateTime()();
+}
+
 @DriftDatabase(
   tables: [
     DatabaseMetadata,
@@ -555,6 +644,9 @@ class ImportBatchErrors extends Table {
     ImportBatches,
     ImportBatchRecords,
     ImportBatchErrors,
+    DeliveryChallans,
+    DeliveryChallanItems,
+    DeliveryChallanInvoices,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -734,6 +826,11 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createTable(importBatches);
         await migrator.createTable(importBatchRecords);
         await migrator.createTable(importBatchErrors);
+      }
+      if (from < 18) {
+        await migrator.createTable(deliveryChallans);
+        await migrator.createTable(deliveryChallanItems);
+        await migrator.createTable(deliveryChallanInvoices);
       }
     },
   );

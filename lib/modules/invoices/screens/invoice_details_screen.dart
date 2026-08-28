@@ -232,6 +232,9 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
       case 'convert':
         await controller.convertToInvoice();
         return;
+      case 'challan':
+        await controller.createDeliveryChallan();
+        return;
       case 'delete':
         final confirmed = await showAppConfirmDialog(
           context: context,
@@ -301,6 +304,12 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
               'Convert to invoice',
               false,
             ),
+            (
+              'challan',
+              Icons.local_shipping_outlined,
+              'Create delivery challan',
+              false,
+            ),
             ('delete', Icons.delete_outline_rounded, 'Delete quotation', true),
           ]
         : const [
@@ -310,6 +319,12 @@ class InvoiceDetailsScreen extends GetView<InvoiceDetailsController> {
               'credit',
               Icons.assignment_return_outlined,
               'Credit note / Sales return',
+              false,
+            ),
+            (
+              'challan',
+              Icons.local_shipping_outlined,
+              'Create delivery for remaining quantity',
               false,
             ),
             ('payment', Icons.payments_outlined, 'Update payment', false),

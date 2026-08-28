@@ -9,6 +9,7 @@ import '../controllers/invoice_preview_controller.dart';
 import '../controllers/payment_receipt_controller.dart';
 import '../scan/product_scan_controller.dart';
 import '../../../data/models/invoice_model.dart';
+import '../../../data/repositories/delivery_challan_repository.dart';
 import '../../../data/services/invoice_defaults_service.dart';
 
 class InvoiceListBinding extends Bindings {
@@ -77,6 +78,7 @@ class InvoiceDetailsBinding extends Bindings {
         Get.find(),
         Get.find(),
         Get.find(),
+        challans: Get.find<DeliveryChallanRepository>(),
       ),
     );
   }

@@ -65,6 +65,12 @@ remain intentionally out of scope until explicitly requested.
   valid/warning/rejected rows, GSTIN/HSN/date/money parsing, duplicate
   skip/update, transactional rollback, 10,000-row customer import, and import
   batch audit tables (schema 17).
+- Delivery challans: create from customer/quotation/invoice/blank form,
+  remaining dispatch from a source quotation or invoice, over-dispatch
+  rejection, invoice-sourced convert blocked, quantity tracking, partial
+  convert to invoice from items/quotation, non-sale convert blocked,
+  cancel-with-reason, unique `DC-0001` numbering, e-way Prepared vs imported
+  acknowledgement, PDF bytes, empty-list UI, and schema 17→18 migration.
 - Invoice duplicate, cancel, and delete; duplicated documents start unpaid.
 - Quotation creation, acceptance, and conversion to invoice.
 - Historical customer/product snapshots survive catalog deletion.
@@ -152,6 +158,14 @@ remain intentionally out of scope until explicitly requested.
   buckets (Not due, 1–30, 90+). Share one reminder and the visible list in
   airplane mode. Confirm status is Prepared / Shared / Skipped — never
   Delivered. Restore a backup and confirm reminder status returns.
+- Open Delivery challans from More. Create one from items or a quotation,
+  record partial delivery, convert remaining quantity to an invoice, then
+  convert the rest into a second invoice. From an active invoice, create a
+  delivery for remaining quantity only (convert must stay hidden). Confirm a
+  second challan cannot exceed leftover source quantity, and a job-work
+  challan cannot convert. Cancel an unused challan with a reason. Prepare
+  e-way (label stays Prepared), import an acknowledgement number, share the
+  PDF in airplane mode, restore a backup, and confirm the challan returns.
 - Open Expenses from More and Reports. Record a rent spend with GST and ITC,
   confirm this-month total, edit it, cancel with a reason (row stays, total
   drops), and share the PDF in airplane mode. Restore a backup and confirm

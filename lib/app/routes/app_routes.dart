@@ -56,4 +56,9 @@ abstract final class AppRoutes {
   static const more = '/more';
   static const backup = '/backup';
   static const restoreStatus = '/backup/restore-status';
+  static const deliveryChallans = '/delivery-challans';
+  static const deliveryChallanCreate = '/delivery-challans/create';
+  static const deliveryChallanEdit = '/delivery-challans/edit';
+  static const deliveryChallanDetails = '/delivery-challans/details';
+  static const deliveryChallanConvert = '/delivery-challans/convert';
 }
