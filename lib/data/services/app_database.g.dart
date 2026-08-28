@@ -19997,6 +19997,1338 @@ class CashClosingsCompanion extends UpdateCompanion<CashClosing> {
   }
 }
 
+class $ImportBatchesTable extends ImportBatches
+    with TableInfo<$ImportBatchesTable, ImportBatche> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImportBatchesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceFileNameMeta = const VerificationMeta(
+    'sourceFileName',
+  );
+  @override
+  late final GeneratedColumn<String> sourceFileName = GeneratedColumn<String>(
+    'source_file_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _duplicatePolicyMeta = const VerificationMeta(
+    'duplicatePolicy',
+  );
+  @override
+  late final GeneratedColumn<String> duplicatePolicy = GeneratedColumn<String>(
+    'duplicate_policy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _importedCountMeta = const VerificationMeta(
+    'importedCount',
+  );
+  @override
+  late final GeneratedColumn<int> importedCount = GeneratedColumn<int>(
+    'imported_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _skippedCountMeta = const VerificationMeta(
+    'skippedCount',
+  );
+  @override
+  late final GeneratedColumn<int> skippedCount = GeneratedColumn<int>(
+    'skipped_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rejectedCountMeta = const VerificationMeta(
+    'rejectedCount',
+  );
+  @override
+  late final GeneratedColumn<int> rejectedCount = GeneratedColumn<int>(
+    'rejected_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _warningCountMeta = const VerificationMeta(
+    'warningCount',
+  );
+  @override
+  late final GeneratedColumn<int> warningCount = GeneratedColumn<int>(
+    'warning_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    kind,
+    sourceFileName,
+    duplicatePolicy,
+    importedCount,
+    skippedCount,
+    rejectedCount,
+    warningCount,
+    status,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'import_batches';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ImportBatche> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('source_file_name')) {
+      context.handle(
+        _sourceFileNameMeta,
+        sourceFileName.isAcceptableOrUnknown(
+          data['source_file_name']!,
+          _sourceFileNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceFileNameMeta);
+    }
+    if (data.containsKey('duplicate_policy')) {
+      context.handle(
+        _duplicatePolicyMeta,
+        duplicatePolicy.isAcceptableOrUnknown(
+          data['duplicate_policy']!,
+          _duplicatePolicyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_duplicatePolicyMeta);
+    }
+    if (data.containsKey('imported_count')) {
+      context.handle(
+        _importedCountMeta,
+        importedCount.isAcceptableOrUnknown(
+          data['imported_count']!,
+          _importedCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_importedCountMeta);
+    }
+    if (data.containsKey('skipped_count')) {
+      context.handle(
+        _skippedCountMeta,
+        skippedCount.isAcceptableOrUnknown(
+          data['skipped_count']!,
+          _skippedCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_skippedCountMeta);
+    }
+    if (data.containsKey('rejected_count')) {
+      context.handle(
+        _rejectedCountMeta,
+        rejectedCount.isAcceptableOrUnknown(
+          data['rejected_count']!,
+          _rejectedCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_rejectedCountMeta);
+    }
+    if (data.containsKey('warning_count')) {
+      context.handle(
+        _warningCountMeta,
+        warningCount.isAcceptableOrUnknown(
+          data['warning_count']!,
+          _warningCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ImportBatche map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImportBatche(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      sourceFileName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_file_name'],
+      )!,
+      duplicatePolicy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}duplicate_policy'],
+      )!,
+      importedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}imported_count'],
+      )!,
+      skippedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}skipped_count'],
+      )!,
+      rejectedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rejected_count'],
+      )!,
+      warningCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}warning_count'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ImportBatchesTable createAlias(String alias) {
+    return $ImportBatchesTable(attachedDatabase, alias);
+  }
+}
+
+class ImportBatche extends DataClass implements Insertable<ImportBatche> {
+  final int id;
+  final String kind;
+  final String sourceFileName;
+  final String duplicatePolicy;
+  final int importedCount;
+  final int skippedCount;
+  final int rejectedCount;
+  final int warningCount;
+  final String status;
+  final DateTime createdAt;
+  const ImportBatche({
+    required this.id,
+    required this.kind,
+    required this.sourceFileName,
+    required this.duplicatePolicy,
+    required this.importedCount,
+    required this.skippedCount,
+    required this.rejectedCount,
+    required this.warningCount,
+    required this.status,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['kind'] = Variable<String>(kind);
+    map['source_file_name'] = Variable<String>(sourceFileName);
+    map['duplicate_policy'] = Variable<String>(duplicatePolicy);
+    map['imported_count'] = Variable<int>(importedCount);
+    map['skipped_count'] = Variable<int>(skippedCount);
+    map['rejected_count'] = Variable<int>(rejectedCount);
+    map['warning_count'] = Variable<int>(warningCount);
+    map['status'] = Variable<String>(status);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  ImportBatchesCompanion toCompanion(bool nullToAbsent) {
+    return ImportBatchesCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      sourceFileName: Value(sourceFileName),
+      duplicatePolicy: Value(duplicatePolicy),
+      importedCount: Value(importedCount),
+      skippedCount: Value(skippedCount),
+      rejectedCount: Value(rejectedCount),
+      warningCount: Value(warningCount),
+      status: Value(status),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory ImportBatche.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImportBatche(
+      id: serializer.fromJson<int>(json['id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      sourceFileName: serializer.fromJson<String>(json['sourceFileName']),
+      duplicatePolicy: serializer.fromJson<String>(json['duplicatePolicy']),
+      importedCount: serializer.fromJson<int>(json['importedCount']),
+      skippedCount: serializer.fromJson<int>(json['skippedCount']),
+      rejectedCount: serializer.fromJson<int>(json['rejectedCount']),
+      warningCount: serializer.fromJson<int>(json['warningCount']),
+      status: serializer.fromJson<String>(json['status']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'kind': serializer.toJson<String>(kind),
+      'sourceFileName': serializer.toJson<String>(sourceFileName),
+      'duplicatePolicy': serializer.toJson<String>(duplicatePolicy),
+      'importedCount': serializer.toJson<int>(importedCount),
+      'skippedCount': serializer.toJson<int>(skippedCount),
+      'rejectedCount': serializer.toJson<int>(rejectedCount),
+      'warningCount': serializer.toJson<int>(warningCount),
+      'status': serializer.toJson<String>(status),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  ImportBatche copyWith({
+    int? id,
+    String? kind,
+    String? sourceFileName,
+    String? duplicatePolicy,
+    int? importedCount,
+    int? skippedCount,
+    int? rejectedCount,
+    int? warningCount,
+    String? status,
+    DateTime? createdAt,
+  }) => ImportBatche(
+    id: id ?? this.id,
+    kind: kind ?? this.kind,
+    sourceFileName: sourceFileName ?? this.sourceFileName,
+    duplicatePolicy: duplicatePolicy ?? this.duplicatePolicy,
+    importedCount: importedCount ?? this.importedCount,
+    skippedCount: skippedCount ?? this.skippedCount,
+    rejectedCount: rejectedCount ?? this.rejectedCount,
+    warningCount: warningCount ?? this.warningCount,
+    status: status ?? this.status,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  ImportBatche copyWithCompanion(ImportBatchesCompanion data) {
+    return ImportBatche(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      sourceFileName: data.sourceFileName.present
+          ? data.sourceFileName.value
+          : this.sourceFileName,
+      duplicatePolicy: data.duplicatePolicy.present
+          ? data.duplicatePolicy.value
+          : this.duplicatePolicy,
+      importedCount: data.importedCount.present
+          ? data.importedCount.value
+          : this.importedCount,
+      skippedCount: data.skippedCount.present
+          ? data.skippedCount.value
+          : this.skippedCount,
+      rejectedCount: data.rejectedCount.present
+          ? data.rejectedCount.value
+          : this.rejectedCount,
+      warningCount: data.warningCount.present
+          ? data.warningCount.value
+          : this.warningCount,
+      status: data.status.present ? data.status.value : this.status,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportBatche(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('sourceFileName: $sourceFileName, ')
+          ..write('duplicatePolicy: $duplicatePolicy, ')
+          ..write('importedCount: $importedCount, ')
+          ..write('skippedCount: $skippedCount, ')
+          ..write('rejectedCount: $rejectedCount, ')
+          ..write('warningCount: $warningCount, ')
+          ..write('status: $status, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    kind,
+    sourceFileName,
+    duplicatePolicy,
+    importedCount,
+    skippedCount,
+    rejectedCount,
+    warningCount,
+    status,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImportBatche &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.sourceFileName == this.sourceFileName &&
+          other.duplicatePolicy == this.duplicatePolicy &&
+          other.importedCount == this.importedCount &&
+          other.skippedCount == this.skippedCount &&
+          other.rejectedCount == this.rejectedCount &&
+          other.warningCount == this.warningCount &&
+          other.status == this.status &&
+          other.createdAt == this.createdAt);
+}
+
+class ImportBatchesCompanion extends UpdateCompanion<ImportBatche> {
+  final Value<int> id;
+  final Value<String> kind;
+  final Value<String> sourceFileName;
+  final Value<String> duplicatePolicy;
+  final Value<int> importedCount;
+  final Value<int> skippedCount;
+  final Value<int> rejectedCount;
+  final Value<int> warningCount;
+  final Value<String> status;
+  final Value<DateTime> createdAt;
+  const ImportBatchesCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.sourceFileName = const Value.absent(),
+    this.duplicatePolicy = const Value.absent(),
+    this.importedCount = const Value.absent(),
+    this.skippedCount = const Value.absent(),
+    this.rejectedCount = const Value.absent(),
+    this.warningCount = const Value.absent(),
+    this.status = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  ImportBatchesCompanion.insert({
+    this.id = const Value.absent(),
+    required String kind,
+    required String sourceFileName,
+    required String duplicatePolicy,
+    required int importedCount,
+    required int skippedCount,
+    required int rejectedCount,
+    this.warningCount = const Value.absent(),
+    required String status,
+    this.createdAt = const Value.absent(),
+  }) : kind = Value(kind),
+       sourceFileName = Value(sourceFileName),
+       duplicatePolicy = Value(duplicatePolicy),
+       importedCount = Value(importedCount),
+       skippedCount = Value(skippedCount),
+       rejectedCount = Value(rejectedCount),
+       status = Value(status);
+  static Insertable<ImportBatche> custom({
+    Expression<int>? id,
+    Expression<String>? kind,
+    Expression<String>? sourceFileName,
+    Expression<String>? duplicatePolicy,
+    Expression<int>? importedCount,
+    Expression<int>? skippedCount,
+    Expression<int>? rejectedCount,
+    Expression<int>? warningCount,
+    Expression<String>? status,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (sourceFileName != null) 'source_file_name': sourceFileName,
+      if (duplicatePolicy != null) 'duplicate_policy': duplicatePolicy,
+      if (importedCount != null) 'imported_count': importedCount,
+      if (skippedCount != null) 'skipped_count': skippedCount,
+      if (rejectedCount != null) 'rejected_count': rejectedCount,
+      if (warningCount != null) 'warning_count': warningCount,
+      if (status != null) 'status': status,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  ImportBatchesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? kind,
+    Value<String>? sourceFileName,
+    Value<String>? duplicatePolicy,
+    Value<int>? importedCount,
+    Value<int>? skippedCount,
+    Value<int>? rejectedCount,
+    Value<int>? warningCount,
+    Value<String>? status,
+    Value<DateTime>? createdAt,
+  }) {
+    return ImportBatchesCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      sourceFileName: sourceFileName ?? this.sourceFileName,
+      duplicatePolicy: duplicatePolicy ?? this.duplicatePolicy,
+      importedCount: importedCount ?? this.importedCount,
+      skippedCount: skippedCount ?? this.skippedCount,
+      rejectedCount: rejectedCount ?? this.rejectedCount,
+      warningCount: warningCount ?? this.warningCount,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (sourceFileName.present) {
+      map['source_file_name'] = Variable<String>(sourceFileName.value);
+    }
+    if (duplicatePolicy.present) {
+      map['duplicate_policy'] = Variable<String>(duplicatePolicy.value);
+    }
+    if (importedCount.present) {
+      map['imported_count'] = Variable<int>(importedCount.value);
+    }
+    if (skippedCount.present) {
+      map['skipped_count'] = Variable<int>(skippedCount.value);
+    }
+    if (rejectedCount.present) {
+      map['rejected_count'] = Variable<int>(rejectedCount.value);
+    }
+    if (warningCount.present) {
+      map['warning_count'] = Variable<int>(warningCount.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportBatchesCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('sourceFileName: $sourceFileName, ')
+          ..write('duplicatePolicy: $duplicatePolicy, ')
+          ..write('importedCount: $importedCount, ')
+          ..write('skippedCount: $skippedCount, ')
+          ..write('rejectedCount: $rejectedCount, ')
+          ..write('warningCount: $warningCount, ')
+          ..write('status: $status, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ImportBatchRecordsTable extends ImportBatchRecords
+    with TableInfo<$ImportBatchRecordsTable, ImportBatchRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImportBatchRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _batchIdMeta = const VerificationMeta(
+    'batchId',
+  );
+  @override
+  late final GeneratedColumn<int> batchId = GeneratedColumn<int>(
+    'batch_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES import_batches (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _recordTypeMeta = const VerificationMeta(
+    'recordType',
+  );
+  @override
+  late final GeneratedColumn<String> recordType = GeneratedColumn<String>(
+    'record_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recordIdMeta = const VerificationMeta(
+    'recordId',
+  );
+  @override
+  late final GeneratedColumn<int> recordId = GeneratedColumn<int>(
+    'record_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _actionMeta = const VerificationMeta('action');
+  @override
+  late final GeneratedColumn<String> action = GeneratedColumn<String>(
+    'action',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    batchId,
+    recordType,
+    recordId,
+    action,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'import_batch_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ImportBatchRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('batch_id')) {
+      context.handle(
+        _batchIdMeta,
+        batchId.isAcceptableOrUnknown(data['batch_id']!, _batchIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_batchIdMeta);
+    }
+    if (data.containsKey('record_type')) {
+      context.handle(
+        _recordTypeMeta,
+        recordType.isAcceptableOrUnknown(data['record_type']!, _recordTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_recordTypeMeta);
+    }
+    if (data.containsKey('record_id')) {
+      context.handle(
+        _recordIdMeta,
+        recordId.isAcceptableOrUnknown(data['record_id']!, _recordIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_recordIdMeta);
+    }
+    if (data.containsKey('action')) {
+      context.handle(
+        _actionMeta,
+        action.isAcceptableOrUnknown(data['action']!, _actionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_actionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ImportBatchRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImportBatchRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      batchId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}batch_id'],
+      )!,
+      recordType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}record_type'],
+      )!,
+      recordId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}record_id'],
+      )!,
+      action: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}action'],
+      )!,
+    );
+  }
+
+  @override
+  $ImportBatchRecordsTable createAlias(String alias) {
+    return $ImportBatchRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class ImportBatchRecord extends DataClass
+    implements Insertable<ImportBatchRecord> {
+  final int id;
+  final int batchId;
+  final String recordType;
+  final int recordId;
+  final String action;
+  const ImportBatchRecord({
+    required this.id,
+    required this.batchId,
+    required this.recordType,
+    required this.recordId,
+    required this.action,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['batch_id'] = Variable<int>(batchId);
+    map['record_type'] = Variable<String>(recordType);
+    map['record_id'] = Variable<int>(recordId);
+    map['action'] = Variable<String>(action);
+    return map;
+  }
+
+  ImportBatchRecordsCompanion toCompanion(bool nullToAbsent) {
+    return ImportBatchRecordsCompanion(
+      id: Value(id),
+      batchId: Value(batchId),
+      recordType: Value(recordType),
+      recordId: Value(recordId),
+      action: Value(action),
+    );
+  }
+
+  factory ImportBatchRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImportBatchRecord(
+      id: serializer.fromJson<int>(json['id']),
+      batchId: serializer.fromJson<int>(json['batchId']),
+      recordType: serializer.fromJson<String>(json['recordType']),
+      recordId: serializer.fromJson<int>(json['recordId']),
+      action: serializer.fromJson<String>(json['action']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'batchId': serializer.toJson<int>(batchId),
+      'recordType': serializer.toJson<String>(recordType),
+      'recordId': serializer.toJson<int>(recordId),
+      'action': serializer.toJson<String>(action),
+    };
+  }
+
+  ImportBatchRecord copyWith({
+    int? id,
+    int? batchId,
+    String? recordType,
+    int? recordId,
+    String? action,
+  }) => ImportBatchRecord(
+    id: id ?? this.id,
+    batchId: batchId ?? this.batchId,
+    recordType: recordType ?? this.recordType,
+    recordId: recordId ?? this.recordId,
+    action: action ?? this.action,
+  );
+  ImportBatchRecord copyWithCompanion(ImportBatchRecordsCompanion data) {
+    return ImportBatchRecord(
+      id: data.id.present ? data.id.value : this.id,
+      batchId: data.batchId.present ? data.batchId.value : this.batchId,
+      recordType: data.recordType.present
+          ? data.recordType.value
+          : this.recordType,
+      recordId: data.recordId.present ? data.recordId.value : this.recordId,
+      action: data.action.present ? data.action.value : this.action,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportBatchRecord(')
+          ..write('id: $id, ')
+          ..write('batchId: $batchId, ')
+          ..write('recordType: $recordType, ')
+          ..write('recordId: $recordId, ')
+          ..write('action: $action')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, batchId, recordType, recordId, action);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImportBatchRecord &&
+          other.id == this.id &&
+          other.batchId == this.batchId &&
+          other.recordType == this.recordType &&
+          other.recordId == this.recordId &&
+          other.action == this.action);
+}
+
+class ImportBatchRecordsCompanion extends UpdateCompanion<ImportBatchRecord> {
+  final Value<int> id;
+  final Value<int> batchId;
+  final Value<String> recordType;
+  final Value<int> recordId;
+  final Value<String> action;
+  const ImportBatchRecordsCompanion({
+    this.id = const Value.absent(),
+    this.batchId = const Value.absent(),
+    this.recordType = const Value.absent(),
+    this.recordId = const Value.absent(),
+    this.action = const Value.absent(),
+  });
+  ImportBatchRecordsCompanion.insert({
+    this.id = const Value.absent(),
+    required int batchId,
+    required String recordType,
+    required int recordId,
+    required String action,
+  }) : batchId = Value(batchId),
+       recordType = Value(recordType),
+       recordId = Value(recordId),
+       action = Value(action);
+  static Insertable<ImportBatchRecord> custom({
+    Expression<int>? id,
+    Expression<int>? batchId,
+    Expression<String>? recordType,
+    Expression<int>? recordId,
+    Expression<String>? action,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (batchId != null) 'batch_id': batchId,
+      if (recordType != null) 'record_type': recordType,
+      if (recordId != null) 'record_id': recordId,
+      if (action != null) 'action': action,
+    });
+  }
+
+  ImportBatchRecordsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? batchId,
+    Value<String>? recordType,
+    Value<int>? recordId,
+    Value<String>? action,
+  }) {
+    return ImportBatchRecordsCompanion(
+      id: id ?? this.id,
+      batchId: batchId ?? this.batchId,
+      recordType: recordType ?? this.recordType,
+      recordId: recordId ?? this.recordId,
+      action: action ?? this.action,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (batchId.present) {
+      map['batch_id'] = Variable<int>(batchId.value);
+    }
+    if (recordType.present) {
+      map['record_type'] = Variable<String>(recordType.value);
+    }
+    if (recordId.present) {
+      map['record_id'] = Variable<int>(recordId.value);
+    }
+    if (action.present) {
+      map['action'] = Variable<String>(action.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportBatchRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('batchId: $batchId, ')
+          ..write('recordType: $recordType, ')
+          ..write('recordId: $recordId, ')
+          ..write('action: $action')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ImportBatchErrorsTable extends ImportBatchErrors
+    with TableInfo<$ImportBatchErrorsTable, ImportBatchError> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImportBatchErrorsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _batchIdMeta = const VerificationMeta(
+    'batchId',
+  );
+  @override
+  late final GeneratedColumn<int> batchId = GeneratedColumn<int>(
+    'batch_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES import_batches (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _rowNumberMeta = const VerificationMeta(
+    'rowNumber',
+  );
+  @override
+  late final GeneratedColumn<int> rowNumber = GeneratedColumn<int>(
+    'row_number',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _severityMeta = const VerificationMeta(
+    'severity',
+  );
+  @override
+  late final GeneratedColumn<String> severity = GeneratedColumn<String>(
+    'severity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _messageMeta = const VerificationMeta(
+    'message',
+  );
+  @override
+  late final GeneratedColumn<String> message = GeneratedColumn<String>(
+    'message',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    batchId,
+    rowNumber,
+    severity,
+    message,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'import_batch_errors';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ImportBatchError> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('batch_id')) {
+      context.handle(
+        _batchIdMeta,
+        batchId.isAcceptableOrUnknown(data['batch_id']!, _batchIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_batchIdMeta);
+    }
+    if (data.containsKey('row_number')) {
+      context.handle(
+        _rowNumberMeta,
+        rowNumber.isAcceptableOrUnknown(data['row_number']!, _rowNumberMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rowNumberMeta);
+    }
+    if (data.containsKey('severity')) {
+      context.handle(
+        _severityMeta,
+        severity.isAcceptableOrUnknown(data['severity']!, _severityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_severityMeta);
+    }
+    if (data.containsKey('message')) {
+      context.handle(
+        _messageMeta,
+        message.isAcceptableOrUnknown(data['message']!, _messageMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_messageMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ImportBatchError map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImportBatchError(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      batchId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}batch_id'],
+      )!,
+      rowNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}row_number'],
+      )!,
+      severity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}severity'],
+      )!,
+      message: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}message'],
+      )!,
+    );
+  }
+
+  @override
+  $ImportBatchErrorsTable createAlias(String alias) {
+    return $ImportBatchErrorsTable(attachedDatabase, alias);
+  }
+}
+
+class ImportBatchError extends DataClass
+    implements Insertable<ImportBatchError> {
+  final int id;
+  final int batchId;
+  final int rowNumber;
+  final String severity;
+  final String message;
+  const ImportBatchError({
+    required this.id,
+    required this.batchId,
+    required this.rowNumber,
+    required this.severity,
+    required this.message,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['batch_id'] = Variable<int>(batchId);
+    map['row_number'] = Variable<int>(rowNumber);
+    map['severity'] = Variable<String>(severity);
+    map['message'] = Variable<String>(message);
+    return map;
+  }
+
+  ImportBatchErrorsCompanion toCompanion(bool nullToAbsent) {
+    return ImportBatchErrorsCompanion(
+      id: Value(id),
+      batchId: Value(batchId),
+      rowNumber: Value(rowNumber),
+      severity: Value(severity),
+      message: Value(message),
+    );
+  }
+
+  factory ImportBatchError.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImportBatchError(
+      id: serializer.fromJson<int>(json['id']),
+      batchId: serializer.fromJson<int>(json['batchId']),
+      rowNumber: serializer.fromJson<int>(json['rowNumber']),
+      severity: serializer.fromJson<String>(json['severity']),
+      message: serializer.fromJson<String>(json['message']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'batchId': serializer.toJson<int>(batchId),
+      'rowNumber': serializer.toJson<int>(rowNumber),
+      'severity': serializer.toJson<String>(severity),
+      'message': serializer.toJson<String>(message),
+    };
+  }
+
+  ImportBatchError copyWith({
+    int? id,
+    int? batchId,
+    int? rowNumber,
+    String? severity,
+    String? message,
+  }) => ImportBatchError(
+    id: id ?? this.id,
+    batchId: batchId ?? this.batchId,
+    rowNumber: rowNumber ?? this.rowNumber,
+    severity: severity ?? this.severity,
+    message: message ?? this.message,
+  );
+  ImportBatchError copyWithCompanion(ImportBatchErrorsCompanion data) {
+    return ImportBatchError(
+      id: data.id.present ? data.id.value : this.id,
+      batchId: data.batchId.present ? data.batchId.value : this.batchId,
+      rowNumber: data.rowNumber.present ? data.rowNumber.value : this.rowNumber,
+      severity: data.severity.present ? data.severity.value : this.severity,
+      message: data.message.present ? data.message.value : this.message,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportBatchError(')
+          ..write('id: $id, ')
+          ..write('batchId: $batchId, ')
+          ..write('rowNumber: $rowNumber, ')
+          ..write('severity: $severity, ')
+          ..write('message: $message')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, batchId, rowNumber, severity, message);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImportBatchError &&
+          other.id == this.id &&
+          other.batchId == this.batchId &&
+          other.rowNumber == this.rowNumber &&
+          other.severity == this.severity &&
+          other.message == this.message);
+}
+
+class ImportBatchErrorsCompanion extends UpdateCompanion<ImportBatchError> {
+  final Value<int> id;
+  final Value<int> batchId;
+  final Value<int> rowNumber;
+  final Value<String> severity;
+  final Value<String> message;
+  const ImportBatchErrorsCompanion({
+    this.id = const Value.absent(),
+    this.batchId = const Value.absent(),
+    this.rowNumber = const Value.absent(),
+    this.severity = const Value.absent(),
+    this.message = const Value.absent(),
+  });
+  ImportBatchErrorsCompanion.insert({
+    this.id = const Value.absent(),
+    required int batchId,
+    required int rowNumber,
+    required String severity,
+    required String message,
+  }) : batchId = Value(batchId),
+       rowNumber = Value(rowNumber),
+       severity = Value(severity),
+       message = Value(message);
+  static Insertable<ImportBatchError> custom({
+    Expression<int>? id,
+    Expression<int>? batchId,
+    Expression<int>? rowNumber,
+    Expression<String>? severity,
+    Expression<String>? message,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (batchId != null) 'batch_id': batchId,
+      if (rowNumber != null) 'row_number': rowNumber,
+      if (severity != null) 'severity': severity,
+      if (message != null) 'message': message,
+    });
+  }
+
+  ImportBatchErrorsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? batchId,
+    Value<int>? rowNumber,
+    Value<String>? severity,
+    Value<String>? message,
+  }) {
+    return ImportBatchErrorsCompanion(
+      id: id ?? this.id,
+      batchId: batchId ?? this.batchId,
+      rowNumber: rowNumber ?? this.rowNumber,
+      severity: severity ?? this.severity,
+      message: message ?? this.message,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (batchId.present) {
+      map['batch_id'] = Variable<int>(batchId.value);
+    }
+    if (rowNumber.present) {
+      map['row_number'] = Variable<int>(rowNumber.value);
+    }
+    if (severity.present) {
+      map['severity'] = Variable<String>(severity.value);
+    }
+    if (message.present) {
+      map['message'] = Variable<String>(message.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportBatchErrorsCompanion(')
+          ..write('id: $id, ')
+          ..write('batchId: $batchId, ')
+          ..write('rowNumber: $rowNumber, ')
+          ..write('severity: $severity, ')
+          ..write('message: $message')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -20041,6 +21373,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PartyAdvanceAllocationsTable partyAdvanceAllocations =
       $PartyAdvanceAllocationsTable(this);
   late final $CashClosingsTable cashClosings = $CashClosingsTable(this);
+  late final $ImportBatchesTable importBatches = $ImportBatchesTable(this);
+  late final $ImportBatchRecordsTable importBatchRecords =
+      $ImportBatchRecordsTable(this);
+  late final $ImportBatchErrorsTable importBatchErrors =
+      $ImportBatchErrorsTable(this);
   late final Index customersName = Index(
     'customers_name',
     'CREATE INDEX customers_name ON customers (name)',
@@ -20149,6 +21486,18 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'cash_closings_account_date',
     'CREATE UNIQUE INDEX cash_closings_account_date ON cash_closings (account_id, closing_date)',
   );
+  late final Index importBatchesCreated = Index(
+    'import_batches_created',
+    'CREATE INDEX import_batches_created ON import_batches (created_at)',
+  );
+  late final Index importBatchRecordsBatch = Index(
+    'import_batch_records_batch',
+    'CREATE INDEX import_batch_records_batch ON import_batch_records (batch_id)',
+  );
+  late final Index importBatchErrorsBatch = Index(
+    'import_batch_errors_batch',
+    'CREATE INDEX import_batch_errors_batch ON import_batch_errors (batch_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -20179,6 +21528,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     partyAdvances,
     partyAdvanceAllocations,
     cashClosings,
+    importBatches,
+    importBatchRecords,
+    importBatchErrors,
     customersName,
     customersMobile,
     customersGstin,
@@ -20206,6 +21558,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     partyAdvancesParty,
     partyAdvanceAllocationsAdvance,
     cashClosingsAccountDate,
+    importBatchesCreated,
+    importBatchRecordsBatch,
+    importBatchErrorsBatch,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -20291,6 +21646,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       result: [
         TableUpdate('party_advance_allocations', kind: UpdateKind.delete),
       ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'import_batches',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('import_batch_records', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'import_batches',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('import_batch_errors', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -33801,6 +35170,1180 @@ typedef $$CashClosingsTableProcessedTableManager =
       CashClosing,
       PrefetchHooks Function({bool accountId})
     >;
+typedef $$ImportBatchesTableCreateCompanionBuilder =
+    ImportBatchesCompanion Function({
+      Value<int> id,
+      required String kind,
+      required String sourceFileName,
+      required String duplicatePolicy,
+      required int importedCount,
+      required int skippedCount,
+      required int rejectedCount,
+      Value<int> warningCount,
+      required String status,
+      Value<DateTime> createdAt,
+    });
+typedef $$ImportBatchesTableUpdateCompanionBuilder =
+    ImportBatchesCompanion Function({
+      Value<int> id,
+      Value<String> kind,
+      Value<String> sourceFileName,
+      Value<String> duplicatePolicy,
+      Value<int> importedCount,
+      Value<int> skippedCount,
+      Value<int> rejectedCount,
+      Value<int> warningCount,
+      Value<String> status,
+      Value<DateTime> createdAt,
+    });
+
+final class $$ImportBatchesTableReferences
+    extends BaseReferences<_$AppDatabase, $ImportBatchesTable, ImportBatche> {
+  $$ImportBatchesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$ImportBatchRecordsTable, List<ImportBatchRecord>>
+  _importBatchRecordsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.importBatchRecords,
+        aliasName: 'import_batches__id__import_batch_records__batch_id',
+      );
+
+  $$ImportBatchRecordsTableProcessedTableManager get importBatchRecordsRefs {
+    final manager = $$ImportBatchRecordsTableTableManager(
+      $_db,
+      $_db.importBatchRecords,
+    ).filter((f) => f.batchId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _importBatchRecordsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ImportBatchErrorsTable, List<ImportBatchError>>
+  _importBatchErrorsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.importBatchErrors,
+        aliasName: 'import_batches__id__import_batch_errors__batch_id',
+      );
+
+  $$ImportBatchErrorsTableProcessedTableManager get importBatchErrorsRefs {
+    final manager = $$ImportBatchErrorsTableTableManager(
+      $_db,
+      $_db.importBatchErrors,
+    ).filter((f) => f.batchId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _importBatchErrorsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$ImportBatchesTableFilterComposer
+    extends Composer<_$AppDatabase, $ImportBatchesTable> {
+  $$ImportBatchesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceFileName => $composableBuilder(
+    column: $table.sourceFileName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get duplicatePolicy => $composableBuilder(
+    column: $table.duplicatePolicy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get importedCount => $composableBuilder(
+    column: $table.importedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get skippedCount => $composableBuilder(
+    column: $table.skippedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rejectedCount => $composableBuilder(
+    column: $table.rejectedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get warningCount => $composableBuilder(
+    column: $table.warningCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> importBatchRecordsRefs(
+    Expression<bool> Function($$ImportBatchRecordsTableFilterComposer f) f,
+  ) {
+    final $$ImportBatchRecordsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.importBatchRecords,
+      getReferencedColumn: (t) => t.batchId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportBatchRecordsTableFilterComposer(
+            $db: $db,
+            $table: $db.importBatchRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> importBatchErrorsRefs(
+    Expression<bool> Function($$ImportBatchErrorsTableFilterComposer f) f,
+  ) {
+    final $$ImportBatchErrorsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.importBatchErrors,
+      getReferencedColumn: (t) => t.batchId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportBatchErrorsTableFilterComposer(
+            $db: $db,
+            $table: $db.importBatchErrors,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ImportBatchesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ImportBatchesTable> {
+  $$ImportBatchesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceFileName => $composableBuilder(
+    column: $table.sourceFileName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get duplicatePolicy => $composableBuilder(
+    column: $table.duplicatePolicy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get importedCount => $composableBuilder(
+    column: $table.importedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get skippedCount => $composableBuilder(
+    column: $table.skippedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rejectedCount => $composableBuilder(
+    column: $table.rejectedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get warningCount => $composableBuilder(
+    column: $table.warningCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ImportBatchesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ImportBatchesTable> {
+  $$ImportBatchesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceFileName => $composableBuilder(
+    column: $table.sourceFileName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get duplicatePolicy => $composableBuilder(
+    column: $table.duplicatePolicy,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get importedCount => $composableBuilder(
+    column: $table.importedCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get skippedCount => $composableBuilder(
+    column: $table.skippedCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get rejectedCount => $composableBuilder(
+    column: $table.rejectedCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get warningCount => $composableBuilder(
+    column: $table.warningCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> importBatchRecordsRefs<T extends Object>(
+    Expression<T> Function($$ImportBatchRecordsTableAnnotationComposer a) f,
+  ) {
+    final $$ImportBatchRecordsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.importBatchRecords,
+          getReferencedColumn: (t) => t.batchId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ImportBatchRecordsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.importBatchRecords,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> importBatchErrorsRefs<T extends Object>(
+    Expression<T> Function($$ImportBatchErrorsTableAnnotationComposer a) f,
+  ) {
+    final $$ImportBatchErrorsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.importBatchErrors,
+          getReferencedColumn: (t) => t.batchId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ImportBatchErrorsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.importBatchErrors,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$ImportBatchesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ImportBatchesTable,
+          ImportBatche,
+          $$ImportBatchesTableFilterComposer,
+          $$ImportBatchesTableOrderingComposer,
+          $$ImportBatchesTableAnnotationComposer,
+          $$ImportBatchesTableCreateCompanionBuilder,
+          $$ImportBatchesTableUpdateCompanionBuilder,
+          (ImportBatche, $$ImportBatchesTableReferences),
+          ImportBatche,
+          PrefetchHooks Function({
+            bool importBatchRecordsRefs,
+            bool importBatchErrorsRefs,
+          })
+        > {
+  $$ImportBatchesTableTableManager(_$AppDatabase db, $ImportBatchesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ImportBatchesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImportBatchesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImportBatchesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String> sourceFileName = const Value.absent(),
+                Value<String> duplicatePolicy = const Value.absent(),
+                Value<int> importedCount = const Value.absent(),
+                Value<int> skippedCount = const Value.absent(),
+                Value<int> rejectedCount = const Value.absent(),
+                Value<int> warningCount = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => ImportBatchesCompanion(
+                id: id,
+                kind: kind,
+                sourceFileName: sourceFileName,
+                duplicatePolicy: duplicatePolicy,
+                importedCount: importedCount,
+                skippedCount: skippedCount,
+                rejectedCount: rejectedCount,
+                warningCount: warningCount,
+                status: status,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String kind,
+                required String sourceFileName,
+                required String duplicatePolicy,
+                required int importedCount,
+                required int skippedCount,
+                required int rejectedCount,
+                Value<int> warningCount = const Value.absent(),
+                required String status,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => ImportBatchesCompanion.insert(
+                id: id,
+                kind: kind,
+                sourceFileName: sourceFileName,
+                duplicatePolicy: duplicatePolicy,
+                importedCount: importedCount,
+                skippedCount: skippedCount,
+                rejectedCount: rejectedCount,
+                warningCount: warningCount,
+                status: status,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ImportBatchesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                importBatchRecordsRefs = false,
+                importBatchErrorsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (importBatchRecordsRefs) db.importBatchRecords,
+                    if (importBatchErrorsRefs) db.importBatchErrors,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (importBatchRecordsRefs)
+                        await $_getPrefetchedData<
+                          ImportBatche,
+                          $ImportBatchesTable,
+                          ImportBatchRecord
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ImportBatchesTableReferences
+                              ._importBatchRecordsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ImportBatchesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).importBatchRecordsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.batchId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (importBatchErrorsRefs)
+                        await $_getPrefetchedData<
+                          ImportBatche,
+                          $ImportBatchesTable,
+                          ImportBatchError
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ImportBatchesTableReferences
+                              ._importBatchErrorsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ImportBatchesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).importBatchErrorsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.batchId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$ImportBatchesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ImportBatchesTable,
+      ImportBatche,
+      $$ImportBatchesTableFilterComposer,
+      $$ImportBatchesTableOrderingComposer,
+      $$ImportBatchesTableAnnotationComposer,
+      $$ImportBatchesTableCreateCompanionBuilder,
+      $$ImportBatchesTableUpdateCompanionBuilder,
+      (ImportBatche, $$ImportBatchesTableReferences),
+      ImportBatche,
+      PrefetchHooks Function({
+        bool importBatchRecordsRefs,
+        bool importBatchErrorsRefs,
+      })
+    >;
+typedef $$ImportBatchRecordsTableCreateCompanionBuilder =
+    ImportBatchRecordsCompanion Function({
+      Value<int> id,
+      required int batchId,
+      required String recordType,
+      required int recordId,
+      required String action,
+    });
+typedef $$ImportBatchRecordsTableUpdateCompanionBuilder =
+    ImportBatchRecordsCompanion Function({
+      Value<int> id,
+      Value<int> batchId,
+      Value<String> recordType,
+      Value<int> recordId,
+      Value<String> action,
+    });
+
+final class $$ImportBatchRecordsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $ImportBatchRecordsTable,
+          ImportBatchRecord
+        > {
+  $$ImportBatchRecordsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ImportBatchesTable _batchIdTable(_$AppDatabase db) => db.importBatches
+      .createAlias('import_batch_records__batch_id__import_batches__id');
+
+  $$ImportBatchesTableProcessedTableManager get batchId {
+    final $_column = $_itemColumn<int>('batch_id')!;
+
+    final manager = $$ImportBatchesTableTableManager(
+      $_db,
+      $_db.importBatches,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_batchIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ImportBatchRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $ImportBatchRecordsTable> {
+  $$ImportBatchRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recordType => $composableBuilder(
+    column: $table.recordType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get recordId => $composableBuilder(
+    column: $table.recordId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get action => $composableBuilder(
+    column: $table.action,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ImportBatchesTableFilterComposer get batchId {
+    final $$ImportBatchesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.batchId,
+      referencedTable: $db.importBatches,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportBatchesTableFilterComposer(
+            $db: $db,
+            $table: $db.importBatches,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ImportBatchRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ImportBatchRecordsTable> {
+  $$ImportBatchRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recordType => $composableBuilder(
+    column: $table.recordType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get recordId => $composableBuilder(
+    column: $table.recordId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get action => $composableBuilder(
+    column: $table.action,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ImportBatchesTableOrderingComposer get batchId {
+    final $$ImportBatchesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.batchId,
+      referencedTable: $db.importBatches,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportBatchesTableOrderingComposer(
+            $db: $db,
+            $table: $db.importBatches,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ImportBatchRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ImportBatchRecordsTable> {
+  $$ImportBatchRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get recordType => $composableBuilder(
+    column: $table.recordType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get recordId =>
+      $composableBuilder(column: $table.recordId, builder: (column) => column);
+
+  GeneratedColumn<String> get action =>
+      $composableBuilder(column: $table.action, builder: (column) => column);
+
+  $$ImportBatchesTableAnnotationComposer get batchId {
+    final $$ImportBatchesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.batchId,
+      referencedTable: $db.importBatches,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportBatchesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.importBatches,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ImportBatchRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ImportBatchRecordsTable,
+          ImportBatchRecord,
+          $$ImportBatchRecordsTableFilterComposer,
+          $$ImportBatchRecordsTableOrderingComposer,
+          $$ImportBatchRecordsTableAnnotationComposer,
+          $$ImportBatchRecordsTableCreateCompanionBuilder,
+          $$ImportBatchRecordsTableUpdateCompanionBuilder,
+          (ImportBatchRecord, $$ImportBatchRecordsTableReferences),
+          ImportBatchRecord,
+          PrefetchHooks Function({bool batchId})
+        > {
+  $$ImportBatchRecordsTableTableManager(
+    _$AppDatabase db,
+    $ImportBatchRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ImportBatchRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImportBatchRecordsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImportBatchRecordsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> batchId = const Value.absent(),
+                Value<String> recordType = const Value.absent(),
+                Value<int> recordId = const Value.absent(),
+                Value<String> action = const Value.absent(),
+              }) => ImportBatchRecordsCompanion(
+                id: id,
+                batchId: batchId,
+                recordType: recordType,
+                recordId: recordId,
+                action: action,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int batchId,
+                required String recordType,
+                required int recordId,
+                required String action,
+              }) => ImportBatchRecordsCompanion.insert(
+                id: id,
+                batchId: batchId,
+                recordType: recordType,
+                recordId: recordId,
+                action: action,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ImportBatchRecordsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({batchId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (batchId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.batchId,
+                                referencedTable:
+                                    $$ImportBatchRecordsTableReferences
+                                        ._batchIdTable(db),
+                                referencedColumn:
+                                    $$ImportBatchRecordsTableReferences
+                                        ._batchIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ImportBatchRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ImportBatchRecordsTable,
+      ImportBatchRecord,
+      $$ImportBatchRecordsTableFilterComposer,
+      $$ImportBatchRecordsTableOrderingComposer,
+      $$ImportBatchRecordsTableAnnotationComposer,
+      $$ImportBatchRecordsTableCreateCompanionBuilder,
+      $$ImportBatchRecordsTableUpdateCompanionBuilder,
+      (ImportBatchRecord, $$ImportBatchRecordsTableReferences),
+      ImportBatchRecord,
+      PrefetchHooks Function({bool batchId})
+    >;
+typedef $$ImportBatchErrorsTableCreateCompanionBuilder =
+    ImportBatchErrorsCompanion Function({
+      Value<int> id,
+      required int batchId,
+      required int rowNumber,
+      required String severity,
+      required String message,
+    });
+typedef $$ImportBatchErrorsTableUpdateCompanionBuilder =
+    ImportBatchErrorsCompanion Function({
+      Value<int> id,
+      Value<int> batchId,
+      Value<int> rowNumber,
+      Value<String> severity,
+      Value<String> message,
+    });
+
+final class $$ImportBatchErrorsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $ImportBatchErrorsTable,
+          ImportBatchError
+        > {
+  $$ImportBatchErrorsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ImportBatchesTable _batchIdTable(_$AppDatabase db) => db.importBatches
+      .createAlias('import_batch_errors__batch_id__import_batches__id');
+
+  $$ImportBatchesTableProcessedTableManager get batchId {
+    final $_column = $_itemColumn<int>('batch_id')!;
+
+    final manager = $$ImportBatchesTableTableManager(
+      $_db,
+      $_db.importBatches,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_batchIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ImportBatchErrorsTableFilterComposer
+    extends Composer<_$AppDatabase, $ImportBatchErrorsTable> {
+  $$ImportBatchErrorsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rowNumber => $composableBuilder(
+    column: $table.rowNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get severity => $composableBuilder(
+    column: $table.severity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ImportBatchesTableFilterComposer get batchId {
+    final $$ImportBatchesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.batchId,
+      referencedTable: $db.importBatches,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportBatchesTableFilterComposer(
+            $db: $db,
+            $table: $db.importBatches,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ImportBatchErrorsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ImportBatchErrorsTable> {
+  $$ImportBatchErrorsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rowNumber => $composableBuilder(
+    column: $table.rowNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get severity => $composableBuilder(
+    column: $table.severity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get message => $composableBuilder(
+    column: $table.message,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ImportBatchesTableOrderingComposer get batchId {
+    final $$ImportBatchesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.batchId,
+      referencedTable: $db.importBatches,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportBatchesTableOrderingComposer(
+            $db: $db,
+            $table: $db.importBatches,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ImportBatchErrorsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ImportBatchErrorsTable> {
+  $$ImportBatchErrorsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get rowNumber =>
+      $composableBuilder(column: $table.rowNumber, builder: (column) => column);
+
+  GeneratedColumn<String> get severity =>
+      $composableBuilder(column: $table.severity, builder: (column) => column);
+
+  GeneratedColumn<String> get message =>
+      $composableBuilder(column: $table.message, builder: (column) => column);
+
+  $$ImportBatchesTableAnnotationComposer get batchId {
+    final $$ImportBatchesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.batchId,
+      referencedTable: $db.importBatches,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ImportBatchesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.importBatches,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ImportBatchErrorsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ImportBatchErrorsTable,
+          ImportBatchError,
+          $$ImportBatchErrorsTableFilterComposer,
+          $$ImportBatchErrorsTableOrderingComposer,
+          $$ImportBatchErrorsTableAnnotationComposer,
+          $$ImportBatchErrorsTableCreateCompanionBuilder,
+          $$ImportBatchErrorsTableUpdateCompanionBuilder,
+          (ImportBatchError, $$ImportBatchErrorsTableReferences),
+          ImportBatchError,
+          PrefetchHooks Function({bool batchId})
+        > {
+  $$ImportBatchErrorsTableTableManager(
+    _$AppDatabase db,
+    $ImportBatchErrorsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ImportBatchErrorsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImportBatchErrorsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImportBatchErrorsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> batchId = const Value.absent(),
+                Value<int> rowNumber = const Value.absent(),
+                Value<String> severity = const Value.absent(),
+                Value<String> message = const Value.absent(),
+              }) => ImportBatchErrorsCompanion(
+                id: id,
+                batchId: batchId,
+                rowNumber: rowNumber,
+                severity: severity,
+                message: message,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int batchId,
+                required int rowNumber,
+                required String severity,
+                required String message,
+              }) => ImportBatchErrorsCompanion.insert(
+                id: id,
+                batchId: batchId,
+                rowNumber: rowNumber,
+                severity: severity,
+                message: message,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ImportBatchErrorsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({batchId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (batchId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.batchId,
+                                referencedTable:
+                                    $$ImportBatchErrorsTableReferences
+                                        ._batchIdTable(db),
+                                referencedColumn:
+                                    $$ImportBatchErrorsTableReferences
+                                        ._batchIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ImportBatchErrorsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ImportBatchErrorsTable,
+      ImportBatchError,
+      $$ImportBatchErrorsTableFilterComposer,
+      $$ImportBatchErrorsTableOrderingComposer,
+      $$ImportBatchErrorsTableAnnotationComposer,
+      $$ImportBatchErrorsTableCreateCompanionBuilder,
+      $$ImportBatchErrorsTableUpdateCompanionBuilder,
+      (ImportBatchError, $$ImportBatchErrorsTableReferences),
+      ImportBatchError,
+      PrefetchHooks Function({bool batchId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -33864,4 +36407,10 @@ class $AppDatabaseManager {
       );
   $$CashClosingsTableTableManager get cashClosings =>
       $$CashClosingsTableTableManager(_db, _db.cashClosings);
+  $$ImportBatchesTableTableManager get importBatches =>
+      $$ImportBatchesTableTableManager(_db, _db.importBatches);
+  $$ImportBatchRecordsTableTableManager get importBatchRecords =>
+      $$ImportBatchRecordsTableTableManager(_db, _db.importBatchRecords);
+  $$ImportBatchErrorsTableTableManager get importBatchErrors =>
+      $$ImportBatchErrorsTableTableManager(_db, _db.importBatchErrors);
 }

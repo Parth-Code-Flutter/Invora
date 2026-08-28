@@ -10,6 +10,7 @@ import '../../data/services/credit_note_pdf_service.dart';
 import '../../data/services/debit_note_pdf_service.dart';
 import '../../data/services/invoice_defaults_service.dart';
 import '../../data/services/data_export_service.dart';
+import '../../data/services/data_import_service.dart';
 import '../../data/services/gst_export_service.dart';
 import '../../data/services/ageing_service.dart';
 import '../../data/services/product_settings_service.dart';
@@ -102,6 +103,7 @@ class InitialBinding extends Bindings {
     );
     await Get.delete<GstExportService>(force: true);
     await Get.delete<AgeingService>(force: true);
+    await Get.delete<DataImportService>(force: true);
     await Get.delete<DataExportService>(force: true);
     await Get.delete<BackupService>(force: true);
     await Get.delete<CreditNoteRepository>(force: true);
@@ -184,6 +186,18 @@ class InitialBinding extends Bindings {
         Get.find<CustomerRepository>(),
         Get.find<ProductRepository>(),
         Get.find<InvoiceRepository>(),
+        purchases: Get.find<PurchaseRepository>(),
+        expenses: Get.find<ExpenseRepository>(),
+      ),
+      permanent: true,
+    );
+    Get.put<DataImportService>(
+      DataImportService(
+        database: databaseService.database,
+        customers: Get.find<CustomerRepository>(),
+        products: Get.find<ProductRepository>(),
+        invoices: Get.find<InvoiceRepository>(),
+        purchases: Get.find<PurchaseRepository>(),
       ),
       permanent: true,
     );

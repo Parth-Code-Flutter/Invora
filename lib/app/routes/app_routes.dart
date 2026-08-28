@@ -46,6 +46,7 @@ abstract final class AppRoutes {
   static const settings = '/settings';
   static const invoiceDefaults = '/settings/invoice-defaults';
   static const dataExport = '/settings/data-export';
+  static const dataImport = '/settings/data-import';
   static const productSettings = '/settings/products';
   static const unitSettings = '/settings/units';
   static const appLock = '/settings/app-lock';

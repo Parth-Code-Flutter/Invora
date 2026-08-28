@@ -1,6 +1,6 @@
 # Creovo Billing — Offline Market Expansion Roadmap
 
-Last reviewed: 2026-08-27  
+Last reviewed: 2026-08-28  
 Status: Approved product direction  
 Goal: Capture a broad Indian small-business market without losing Creovo's
 fast, private, offline-first invoicing experience.
@@ -81,6 +81,15 @@ User-selected backup folder is not in this slice.
 Reference: [Vyapar backup/offline overview](https://vyapar.com/)
 
 ## P0.2 Bulk import, export, and migration from competitors
+
+Status: **Shipped this slice 2026-08-28** (CSV templates and local import for
+customers, suppliers, products, unpaid invoices, unpaid bills, and party
+opening balances; column mapping; preview; Skip / Update / Import as new;
+one-transaction commit with downloadable errors and batch undo; UTF-8 CSV
+export for those modules plus expenses and an all-CSV ZIP). Opening stock is
+ignored until Inventory (`P1.1`). Complex multi-line invoices and competitor
+XLSX column packs remain later work; simple `.xlsx` first sheets are read
+best-effort.
 
 ### Workflow
 

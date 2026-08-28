@@ -68,6 +68,32 @@ class DataExportController extends GetxController {
     }
   }
 
+  Future<void> exportAllZip({required bool share}) async {
+    if (!_validRange()) return;
+    busyExport.value = DataExportType.report;
+    try {
+      final artifact = await _service.buildAllCsvZip(
+        from: from.value,
+        to: to.value,
+      );
+      if (share) {
+        await _service.share(artifact);
+      } else {
+        final path = await _service.save(artifact);
+        if (path != null) {
+          AppNotification.success('Export saved', artifact.fileName);
+        }
+      }
+    } catch (_) {
+      AppNotification.error(
+        'Export failed',
+        'The file could not be created. Please try again.',
+      );
+    } finally {
+      busyExport.value = null;
+    }
+  }
+
   bool _validRange() {
     if (!from.value.isAfter(to.value)) return true;
     AppNotification.warning(

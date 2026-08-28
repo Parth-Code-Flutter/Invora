@@ -28,13 +28,14 @@ This is a strong client-demo baseline. The following goals close the gap between
 
 ## P0 — Complete before client acceptance
 
-Implementation status (2026-08-26): Goals 1–4 core workflows are implemented,
+Implementation status (2026-08-28): Goals 1–4 core workflows are implemented,
 including payment reversal, lifecycle controls, GST evidence, supplier GST
 registration, and portable original-bill attachments. Goal 5 supplier statement
-is implemented while CSV export and ageing remain. Goal 6 purchase-specific
-migration fixtures, scale tests, and file splitting remain the next hardening
-pass. Shared Purchase dropdowns and bottom navigation now match Sales so future
-design-system improvements can be applied consistently.
+and payable ageing are implemented; supplier/bill/payment CSV export shipped
+with bulk import (`P0.2`). Goal 6 purchase-specific migration fixtures, scale
+tests, and file splitting remain the next hardening pass. Shared Purchase
+dropdowns and bottom navigation now match Sales so future design-system
+improvements can be applied consistently.
 
 ### Goal 1 — Supplier-payment ledger integrity
 

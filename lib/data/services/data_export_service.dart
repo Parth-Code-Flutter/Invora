@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:archive/archive.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
@@ -10,15 +11,30 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../app/enums/invoice_status.dart';
 import '../../app/utils/tax_utils.dart';
+import 'csv_codec.dart';
 import '../models/customer_model.dart';
+import '../models/expense_model.dart';
 import '../models/invoice_model.dart';
 import '../models/invoice_payment_model.dart';
 import '../models/product_service_model.dart';
+import '../models/purchase_models.dart';
 import '../repositories/customer_repository.dart';
+import '../repositories/expense_repository.dart';
 import '../repositories/invoice_repository.dart';
 import '../repositories/product_repository.dart';
+import '../repositories/purchase_repository.dart';
 
-enum DataExportType { customers, products, invoices, payments, report }
+enum DataExportType {
+  customers,
+  products,
+  invoices,
+  payments,
+  report,
+  suppliers,
+  purchaseBills,
+  purchasePayments,
+  expenses,
+}
 
 class ExportArtifact {
   const ExportArtifact({
@@ -33,11 +49,20 @@ class ExportArtifact {
 }
 
 class DataExportService {
-  const DataExportService(this._customers, this._products, this._invoices);
+  const DataExportService(
+    this._customers,
+    this._products,
+    this._invoices, {
+    PurchaseRepository? purchases,
+    ExpenseRepository? expenses,
+  }) : _purchases = purchases,
+       _expenses = expenses;
 
   final CustomerRepository _customers;
   final ProductRepository _products;
   final InvoiceRepository _invoices;
+  final PurchaseRepository? _purchases;
+  final ExpenseRepository? _expenses;
 
   Future<ExportArtifact> buildCsv(
     DataExportType type, {
@@ -63,6 +88,20 @@ class DataExportService {
         from,
         to,
       ),
+      DataExportType.suppliers => supplierRows(
+        await _purchases!.watchSuppliers().first,
+      ),
+      DataExportType.purchaseBills => _purchaseBillRows(
+        await _purchases!.watchBills().first,
+        from,
+        to,
+      ),
+      DataExportType.purchasePayments => await _purchasePaymentRows(from, to),
+      DataExportType.expenses => _expenseRows(
+        await _expenses!.watchAll().first,
+        from,
+        to,
+      ),
     };
     final name = switch (type) {
       DataExportType.customers => 'creovo_customers.csv',
@@ -70,11 +109,33 @@ class DataExportService {
       DataExportType.invoices => 'creovo_invoices_$suffix.csv',
       DataExportType.payments => 'creovo_payments_$suffix.csv',
       DataExportType.report => 'creovo_report_$suffix.csv',
+      DataExportType.suppliers => 'creovo_suppliers.csv',
+      DataExportType.purchaseBills => 'creovo_purchase_bills_$suffix.csv',
+      DataExportType.purchasePayments => 'creovo_purchase_payments_$suffix.csv',
+      DataExportType.expenses => 'creovo_expenses_$suffix.csv',
     };
     return ExportArtifact(
       fileName: name,
       bytes: Uint8List.fromList(utf8.encode('\ufeff${encodeCsv(rows)}')),
       extension: 'csv',
+    );
+  }
+
+  Future<ExportArtifact> buildAllCsvZip({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final suffix = '${_isoDate(from)}_to_${_isoDate(to)}';
+    final archive = Archive();
+    for (final type in DataExportType.values) {
+      if (type == DataExportType.report) continue;
+      final csv = await buildCsv(type, from: from, to: to);
+      archive.addFile(ArchiveFile(csv.fileName, csv.bytes.length, csv.bytes));
+    }
+    return ExportArtifact(
+      fileName: 'creovo_data_$suffix.zip',
+      bytes: Uint8List.fromList(ZipEncoder().encode(archive)),
+      extension: 'zip',
     );
   }
 
@@ -240,13 +301,134 @@ class DataExportService {
     ),
   ];
 
-  static String encodeCsv(List<List<Object?>> rows) =>
-      rows.map((row) => row.map(_escape).join(',')).join('\r\n');
+  static List<List<Object?>> supplierRows(List<SupplierModel> values) => [
+    const [
+      'Name',
+      'Company',
+      'Mobile',
+      'Email',
+      'GSTIN',
+      'GST registration',
+      'Address',
+      'Created at',
+    ],
+    ...values.map(
+      (value) => [
+        value.name,
+        value.companyName,
+        value.mobile,
+        value.email,
+        value.gstin,
+        value.gstRegistrationType,
+        value.address,
+        value.createdAt.toIso8601String(),
+      ],
+    ),
+  ];
 
-  static String _escape(Object? raw) {
-    final value = raw?.toString() ?? '';
-    if (!value.contains(RegExp('[,"\\r\\n]'))) return value;
-    return '"${value.replaceAll('"', '""')}"';
+  static String encodeCsv(List<List<Object?>> rows) => CsvCodec.encode(rows);
+
+  static List<List<Object?>> _purchaseBillRows(
+    List<PurchaseBillSummary> values,
+    DateTime from,
+    DateTime to,
+  ) {
+    final end = DateTime(to.year, to.month, to.day, 23, 59, 59, 999);
+    return [
+      const [
+        'Bill number',
+        'Date',
+        'Due date',
+        'Supplier',
+        'Status',
+        'Total',
+        'Paid',
+        'Balance due',
+      ],
+      ...values
+          .where(
+            (bill) =>
+                !bill.billDate.isBefore(from) && !bill.billDate.isAfter(end),
+          )
+          .map(
+            (bill) => [
+              bill.billNumber,
+              _isoDate(bill.billDate),
+              bill.dueDate == null ? null : _isoDate(bill.dueDate!),
+              bill.supplierName,
+              bill.status,
+              _money(bill.totalMinor),
+              _money(bill.paidMinor),
+              _money(bill.balanceMinor),
+            ],
+          ),
+    ];
+  }
+
+  Future<List<List<Object?>>> _purchasePaymentRows(
+    DateTime from,
+    DateTime to,
+  ) async {
+    final end = DateTime(to.year, to.month, to.day, 23, 59, 59, 999);
+    final bills = await _purchases!.watchBills().first;
+    final rows = <List<Object?>>[
+      const [
+        'Bill number',
+        'Supplier',
+        'Paid at',
+        'Entry type',
+        'Amount',
+        'Method',
+        'Reference',
+        'Note',
+      ],
+    ];
+    for (final bill in bills) {
+      final payments = await _purchases.watchPayments(bill.id).first;
+      for (final payment in payments) {
+        if (payment.paidAt.isBefore(from) || payment.paidAt.isAfter(end)) {
+          continue;
+        }
+        rows.add([
+          bill.billNumber,
+          bill.supplierName,
+          payment.paidAt.toIso8601String(),
+          payment.entryType,
+          _money(payment.amountMinor),
+          payment.method,
+          payment.reference,
+          payment.note,
+        ]);
+      }
+    }
+    return rows;
+  }
+
+  static List<List<Object?>> _expenseRows(
+    List<ExpenseSummaryModel> values,
+    DateTime from,
+    DateTime to,
+  ) {
+    final end = DateTime(to.year, to.month, to.day, 23, 59, 59, 999);
+    return [
+      const ['Expense number', 'Date', 'Category', 'Payee', 'Amount', 'Status'],
+      ...values
+          .where(
+            (row) =>
+                !row.expenseDate.isBefore(from) &&
+                !row.expenseDate.isAfter(end),
+          )
+          .map(
+            (row) => [
+              row.expenseNumber,
+              _isoDate(row.expenseDate),
+              row.category,
+              row.payee,
+              _money(row.grandTotalMinor),
+              row.status.name,
+            ],
+          ),
+    ];
   }
 
   static List<List<Object?>> _invoiceRows(List<_ExportDocument> values) => [

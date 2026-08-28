@@ -491,6 +491,40 @@ class CashClosings extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+@TableIndex(name: 'import_batches_created', columns: {#createdAt})
+class ImportBatches extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get kind => text()();
+  TextColumn get sourceFileName => text()();
+  TextColumn get duplicatePolicy => text()();
+  IntColumn get importedCount => integer()();
+  IntColumn get skippedCount => integer()();
+  IntColumn get rejectedCount => integer()();
+  IntColumn get warningCount => integer().withDefault(const Constant(0))();
+  TextColumn get status => text()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@TableIndex(name: 'import_batch_records_batch', columns: {#batchId})
+class ImportBatchRecords extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get batchId =>
+      integer().references(ImportBatches, #id, onDelete: KeyAction.cascade)();
+  TextColumn get recordType => text()();
+  IntColumn get recordId => integer()();
+  TextColumn get action => text()();
+}
+
+@TableIndex(name: 'import_batch_errors_batch', columns: {#batchId})
+class ImportBatchErrors extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get batchId =>
+      integer().references(ImportBatches, #id, onDelete: KeyAction.cascade)();
+  IntColumn get rowNumber => integer()();
+  TextColumn get severity => text()();
+  TextColumn get message => text()();
+}
+
 @DriftDatabase(
   tables: [
     DatabaseMetadata,
@@ -518,6 +552,9 @@ class CashClosings extends Table {
     PartyAdvances,
     PartyAdvanceAllocations,
     CashClosings,
+    ImportBatches,
+    ImportBatchRecords,
+    ImportBatchErrors,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -692,6 +729,11 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createTable(cashClosings);
         await seedDefaultMoneyAccounts();
         await backfillMoneyMovements();
+      }
+      if (from < 17) {
+        await migrator.createTable(importBatches);
+        await migrator.createTable(importBatchRecords);
+        await migrator.createTable(importBatchErrors);
       }
     },
   );

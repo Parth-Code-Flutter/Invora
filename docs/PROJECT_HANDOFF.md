@@ -100,14 +100,13 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   Sales, and Purchase bottom navigation mirrors the Sales Material Symbol
   weights, selected states, raised create action, dark-mode border, and focus
   handling while retaining Purchase-specific routes.
-- Current Drift database schema is version 15. Version 11 adds the Purchase
-  audit/tax/attachment fields; version 12 non-destructively adds supplier GST
-  registration type and defaults existing suppliers to Unregistered. Version 13
-  adds `invoices.credited_amount_minor` plus `credit_notes`,
-  `credit_note_items`, and `credit_note_applications`. Version 14 adds
-  expenses. Version 15 adds `purchase_bills.debited_amount_minor` plus
-  `debit_notes`, `debit_note_items`, and `debit_note_applications`. ZIP backup
-  compatibility checks use this schema version.
+- Current Drift database schema is version 17. Version 16 adds cash-book
+  accounts and movements. Version 15 adds purchase debit notes and
+  `purchase_bills.debited_amount_minor`. Version 14 adds expenses. Version 13
+  adds sales credit notes. Version 12 non-destructively adds supplier GST
+  registration type and defaults existing suppliers to Unregistered. Version 11
+  adds the Purchase audit/tax/attachment fields. ZIP backup compatibility
+  checks use this schema version.
 - Business profile, logo, signature, payment QR, bank, and UPI information.
   Signature capture offers draw-on-pad, gallery, or camera, then stores the
   image with other business assets for invoice PDFs.
@@ -369,6 +368,11 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   under This month / Last month / August 2026. The Invoice list has a dedicated
   create `+` FAB in addition to the center dock. Amounts shrink to fit narrow
   phones and large rupee values.
+- Invoice status filters use an action-first All / Overdue / Unpaid / Draft /
+  Paid order with live counts, semantic selected colors, accessible labels,
+  and an edge fade that makes horizontal scrolling discoverable without
+  clipping the final option. Quotation filters keep their document lifecycle
+  order.
 
 ### Documents and reporting
 
@@ -383,11 +387,22 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   predictably without overlapping
 - Offline PDF preview, save, share, and print
 - A centralized Export Data workspace saves or shares Excel-friendly UTF-8 CSV
-  for active customers, products/services, invoices, and immutable payment
-  ledger entries. Financial exports use a configurable date range (invoice date
-  for invoices; paid-at date for payments) with ISO dates, decimal major-unit
-  amounts, and explicit status/tax/payment fields. Date-range sales summaries
-  export as CSV or a Unicode A4 PDF and are also reachable from Reports.
+  for customers, suppliers, products/services, invoices, sales payments,
+  purchase bills, purchase payments, and expenses. Financial exports use a
+  configurable date range (document date for invoices/bills/expenses; paid-at
+  for payments) with ISO dates and decimal major-unit amounts. Date-range sales
+  summaries export as CSV or a Unicode A4 PDF. **All CSV files** shares one ZIP
+  of those registers. Reachable from Settings and Reports.
+- Import data (`P0.2`) is a local CSV/Excel migration workspace (More and
+  Settings). Users download a template, pick a file, map columns, preview
+  valid/warning/rejected rows, then save in one database transaction.
+  Duplicate masters can Skip, Update matching, or Import as new. Match key is
+  GSTIN, then mobile, then name. Unpaid invoices/bills create one opening line
+  each; opening-balance rows create a receivable or payable document. Opening
+  stock is ignored until Inventory (`P1.1`). Import batches, created record
+  ids, and row errors live in schema 17 tables and are not a substitute for
+  backup. Undo reverses a committed batch when later payments do not block
+  delete. Nothing is uploaded.
 - GST / CA export prepares period and financial-year sales, credit-note, and
   purchase registers plus HSN/SAC and missing-data exceptions. The workspace
   is reachable from More and Reports. Files are always labelled Prepared /
@@ -456,12 +471,14 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
 
 ## Persisted data notes
 
-- Database schema version 16 adds `money_accounts`, `money_movements`,
-  `party_advances`, `party_advance_allocations`, and `cash_closings`. Existing
-  invoice payments, purchase payments, recorded expenses, and credit/debit
-  note refunds are backfilled into movements. Version 15 adds purchase debit
-  notes and `purchase_bills.debited_amount_minor`. Version 14 adds expenses.
-  Version 13 adds sales credit notes.
+- Database schema version 17 adds `import_batches`, `import_batch_records`,
+  and `import_batch_errors` for offline CSV/Excel migration audit. Version 16
+  adds `money_accounts`, `money_movements`, `party_advances`,
+  `party_advance_allocations`, and `cash_closings`. Existing invoice payments,
+  purchase payments, recorded expenses, and credit/debit note refunds are
+  backfilled into movements. Version 15 adds purchase debit notes and
+  `purchase_bills.debited_amount_minor`. Version 14 adds expenses. Version 13
+  adds sales credit notes.
   Version 9 includes
   product/invoice attribute snapshots; its version 8 migration classifies
   `invoice_payments` entries and links reversals to original payments. The v7
@@ -556,21 +573,23 @@ transfer automatically.
 
 ## Verification baseline
 
-As of 2026-08-27:
+As of 2026-08-28:
 
-- Flutter analysis: no issues
-- Automated suite: 193 tests passing, including encrypted backup create/verify/
+- Flutter analysis: no issues on import/export files (project-wide analyze
+  still required after this slice)
+- Automated suite: import tests passing, including Unicode CSV, Indian
+  dates/money/GSTIN, duplicate skip/update, GSTIN rejection, transactional
+  rollback, and 10,000 customer rows; encrypted backup create/verify/
   restore, legacy unencrypted ZIP restore, tablet shell, and first-launch
-  routing coverage
+  routing coverage remain from prior slices
 - Android debug APK builds successfully
 - Full release builds and physical-device end-to-end testing remain required
 
 ## Known issues / next work
 
-1. Add purchase CSV export after field-testing the new supplier statement,
-   reversal, cancellation, tax-evidence, and attachment workflows. Purchase
-   bills already generate, preview, share, save, and print their own PDFs.
-   Payable ageing buckets shipped 2026-08-27 with receivable ageing.
+1. Purchase CSV export shipped 2026-08-28 with bulk import (`P0.2`):
+   suppliers, purchase bills, and purchase payments from Export data, plus
+   the all-CSV ZIP. Physical-device open-in-Excel checks remain.
 2. Configure secure Android release signing; release still references debug
    signing.
 3. Verify Android AAB and iOS archive release builds.
@@ -585,11 +604,13 @@ As of 2026-08-27:
 7. Physical-device QA of purchase debit notes: partial return, over-return
    blocked, paid-bill refund vs supplier credit, apply leftover credit to
    another bill, supplier statement, debit-note PDF, and airplane mode.
-8. Next implementation: immutable stock ledger (`P1.1`). Do not start barcode
-   quantity changes or POS until that ledger exists. Physical-device QA of the
-   cash book (`P0.9`) is still open: accounts, receipt/payment posting,
-   transfer, cheque pending/cleared/bounced, daily cash closing, advances, and
-   airplane-mode restore.
+8. Next implementation: delivery challans (`P0.5`). Do not start barcode
+   quantity changes or POS until the stock ledger (`P1.1`) exists. Physical-device
+   QA of the cash book (`P0.9`) is still open: accounts, receipt/payment
+   posting, transfer, cheque pending/cleared/bounced, daily cash closing,
+   advances, and airplane-mode restore. Physical-device QA of import: template
+   download, CSV pick, duplicate Skip/Update, unpaid invoice, rejected GSTIN
+   error CSV, Undo, and airplane mode.
 9. Physical-device QA of expenses: record rent with GST/ITC, this-month
    total, cancel with reason (stays listed, excluded from totals), share PDF
    in airplane mode, restore from backup.
@@ -622,6 +643,41 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-28 — Offline bulk CSV/Excel import and module CSV export
+
+- Local import (`P0.2`) from More and Settings: download templates, pick CSV
+  or a simple Excel first sheet, map columns, preview valid/warning/rejected
+  rows, then commit in one SQLite transaction. Duplicate masters Skip, Update
+  matching, or Import as new (GSTIN → mobile → name). Unpaid invoices/bills
+  and opening-balance rows create outstanding documents. Opening stock is
+  ignored until Inventory. Error CSV is shareable. Undo reverses a committed
+  batch when deletes are still allowed. Nothing is uploaded.
+- Export data now also writes suppliers, purchase bills, purchase payments,
+  expenses, and an all-CSV ZIP. Templates and registers are UTF-8 with BOM.
+- Important files: `data_import_service.dart`, `data_import_templates.dart`,
+  `csv_codec.dart`, `data_export_service.dart`,
+  `lib/modules/settings/screens/data_import_screen.dart`,
+  `OFFLINE_MARKET_EXPANSION_ROADMAP.md`, `QA_CHECKLIST.md`, this handoff.
+- Storage: schema 17 `import_batches`, `import_batch_records`,
+  `import_batch_errors`. Included in the SQLite backup file; not copied into
+  `settings.json`.
+- Verification: `flutter test test/data_import_service_test.dart
+  test/data_export_service_test.dart test/app_database_migration_test.dart`
+  (14 passing, including 10,000-row customer import). Dart format on the
+  import/export files.
+
+### 2026-08-28 — Action-first invoice status filters
+
+- Invoice status filters now prioritize All, Overdue, Unpaid, Draft, and Paid,
+  show live result counts, and use accessible selected and status-aware states.
+  A trailing fade and safe scroll padding make additional filters discoverable
+  without clipping their labels. Quotation filters and every other invoice-list
+  widget remain unchanged.
+- Important file: `lib/modules/invoices/screens/invoice_list_screen.dart`.
+- Storage: none.
+- Verification: Dart formatting, targeted Flutter analysis, and the invoice
+  list controller/overview tests (3 passing).
 
 ### 2026-08-28 — Cash book UI matches Home
 

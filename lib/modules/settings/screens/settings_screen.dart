@@ -113,9 +113,15 @@ class SettingsScreen extends GetView<SettingsController> {
           AppMenuGroup(
             children: [
               AppMenuTile(
+                icon: Icons.file_upload_outlined,
+                title: 'Import data',
+                subtitle: 'CSV or Excel templates, preview, then save offline',
+                onTap: () => Get.toNamed<void>(AppRoutes.dataImport),
+              ),
+              AppMenuTile(
                 icon: Icons.file_download_outlined,
                 title: 'Export data',
-                subtitle: 'CSV customers, items, invoices and reports',
+                subtitle: 'CSV customers, suppliers, bills, invoices and ZIP',
                 onTap: () => Get.toNamed<void>(AppRoutes.dataExport),
               ),
             ],

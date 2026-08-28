@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-08-27
+Last updated: 2026-08-28
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -58,8 +58,13 @@ remain intentionally out of scope until explicitly requested.
   method; unsupported stored values fall back safely and preferences are part
   of backup/restore.
 - CSV export escaping covers commas, quotes, line breaks, Unicode/BOM output,
-  and header-only empty datasets; customer, catalog, invoice, payment-ledger,
-  and date-range report exports share one offline export service.
+  and header-only empty datasets; customer, supplier, catalog, invoice,
+  purchase-bill, payment-ledger, expense, and date-range report exports share
+  one offline export service, including an all-CSV ZIP.
+- Bulk import: CSV/Excel templates, column mapping, preview
+  valid/warning/rejected rows, GSTIN/HSN/date/money parsing, duplicate
+  skip/update, transactional rollback, 10,000-row customer import, and import
+  batch audit tables (schema 17).
 - Invoice duplicate, cancel, and delete; duplicated documents start unpaid.
 - Quotation creation, acceptance, and conversion to invoice.
 - Historical customer/product snapshots survive catalog deletion.
@@ -100,6 +105,11 @@ remain intentionally out of scope until explicitly requested.
 - Save, share, and print PDFs through native sheets and common printers.
 - Save/share each CSV export on Android and iOS, then open it in Excel, Numbers,
   and Google Sheets and verify Unicode text, columns, and decimal amounts.
+- Import data in airplane mode: download a customer template, fill two rows
+  (one duplicate GSTIN), pick the CSV, Skip matching, confirm one imported and
+  one skipped. Import an unpaid invoice. Share the error CSV for a bad GSTIN.
+  Undo the last batch and confirm those rows are gone. Confirm no network is
+  used.
 - Replay the receipt-roll animation and preview/save/share/print partial and
   full-payment receipts on low-end Android and iOS devices.
 - Preview/share/print multi-page statements with long customer names and large

@@ -153,6 +153,13 @@ class MoreScreen extends GetView<MoreController> {
                     onTap: () => Get.toNamed<void>(AppRoutes.ageing),
                   ),
                   AppMenuTile(
+                    icon: Icons.file_upload_outlined,
+                    title: 'Import data',
+                    subtitle:
+                        'CSV templates for parties, items and unpaid bills',
+                    onTap: () => Get.toNamed<void>(AppRoutes.dataImport),
+                  ),
+                  AppMenuTile(
                     icon: Icons.account_balance_outlined,
                     title: 'GST / CA export',
                     subtitle: 'Prepared registers for your accountant',

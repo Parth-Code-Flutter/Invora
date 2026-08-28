@@ -97,6 +97,14 @@ class DataExportScreen extends GetView<DataExportController> {
           ),
           const SizedBox(height: 10),
           _ExportTile(
+            type: DataExportType.suppliers,
+            icon: Icons.local_shipping_outlined,
+            title: 'Suppliers',
+            subtitle: 'Contact, GSTIN and registration type',
+            controller: controller,
+          ),
+          const SizedBox(height: 10),
+          _ExportTile(
             type: DataExportType.products,
             icon: Icons.inventory_2_outlined,
             title: 'Products & services',
@@ -122,7 +130,33 @@ class DataExportScreen extends GetView<DataExportController> {
             controller: controller,
           ),
           const SizedBox(height: 10),
+          _ExportTile(
+            type: DataExportType.purchaseBills,
+            icon: Icons.receipt_outlined,
+            title: 'Purchase bills',
+            subtitle: 'Supplier, totals, status and balance',
+            controller: controller,
+          ),
+          const SizedBox(height: 10),
+          _ExportTile(
+            type: DataExportType.purchasePayments,
+            icon: Icons.account_balance_wallet_outlined,
+            title: 'Purchase payments',
+            subtitle: 'Supplier bill payments and methods',
+            controller: controller,
+          ),
+          const SizedBox(height: 10),
+          _ExportTile(
+            type: DataExportType.expenses,
+            icon: Icons.payments_outlined,
+            title: 'Expenses',
+            subtitle: 'Vouchers in the selected date range',
+            controller: controller,
+          ),
+          const SizedBox(height: 10),
           _ReportTile(controller: controller),
+          const SizedBox(height: 10),
+          _ZipTile(controller: controller),
         ],
       ),
     ),
@@ -275,6 +309,66 @@ class _ReportTile extends StatelessWidget {
                   label: Text(
                     controller.isBuildingPdf.value ? 'Building…' : 'Share PDF',
                   ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  });
+}
+
+class _ZipTile extends StatelessWidget {
+  const _ZipTile({required this.controller});
+  final DataExportController controller;
+
+  @override
+  Widget build(BuildContext context) => Obx(() {
+    final disabled =
+        controller.busyExport.value != null || controller.isBuildingPdf.value;
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.folder_zip_outlined, color: AppColors.primary),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('All CSV files', style: AppTextStyles.cardTitle),
+                    Text(
+                      'One ZIP of customers, suppliers, items, invoices, bills and expenses',
+                      style: AppTextStyles.small,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: disabled
+                      ? null
+                      : () => controller.exportAllZip(share: false),
+                  icon: const Icon(Icons.download_outlined),
+                  label: const Text('Save ZIP'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: disabled
+                      ? null
+                      : () => controller.exportAllZip(share: true),
+                  icon: const Icon(Icons.ios_share_outlined),
+                  label: const Text('Share ZIP'),
                 ),
               ),
             ],

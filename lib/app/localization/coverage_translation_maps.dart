@@ -1157,6 +1157,41 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Print PDF': 'PDF प्रिंट करें',
   'Send the CA summary to a printer': 'CA सारांश प्रिंटर पर भेजें',
   'Registers': 'रजिस्टर',
+  'Import data': 'डेटा आयात करें',
+  'CSV templates for parties, items and unpaid bills':
+      'पार्टियों, आइटम और बकाया बिल के CSV टेम्पलेट',
+  'CSV or Excel templates, preview, then save offline':
+      'CSV या Excel टेम्पलेट, पूर्वावलोकन, फिर ऑफ़लाइन सहेजें',
+  'CSV customers, suppliers, bills, invoices and ZIP':
+      'ग्राहक, सप्लायर, बिल, चालान CSV और ZIP',
+  'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock waits until Inventory.':
+      'आयात इसी डिवाइस पर रहता है। टेम्पलेट डाउनलोड करें, CSV या Excel चुनें, पंक्तियाँ देखें, फिर एक चरण में सहेजें। ओपनिंग स्टॉक इन्वेंटरी तक प्रतीक्षा करता है।',
+  'WHAT TO IMPORT': 'क्या आयात करें',
+  'If a row already exists': 'अगर पंक्ति पहले से मौजूद है',
+  'Skip': 'छोड़ें',
+  'Update matching': 'मैच होने पर अपडेट',
+  'Import as new': 'नए के रूप में आयात',
+  'Template': 'टेम्पलेट',
+  'Pick file': 'फ़ाइल चुनें',
+  'Saved offline': 'ऑफ़लाइन सहेजा गया',
+  'Share error CSV': 'त्रुटि CSV साझा करें',
+  'RECENT IMPORTS': 'हाल के आयात',
+  'Undo': 'पूर्ववत',
+  'All CSV files': 'सभी CSV फ़ाइलें',
+  'One ZIP of customers, suppliers, items, invoices, bills and expenses':
+      'ग्राहक, सप्लायर, आइटम, चालान, बिल और खर्च का एक ZIP',
+  'Save ZIP': 'ZIP सहेजें',
+  'Share ZIP': 'ZIP साझा करें',
+  'Purchase payments': 'खरीद भुगतान',
+  'Unpaid sales invoices': 'बकाया बिक्री चालान',
+  'Unpaid purchase bills': 'बकाया खरीद बिल',
+  'Opening balances': 'ओपनिंग बैलेंस',
+  'Template saved': 'टेम्पलेट सहेजा गया',
+  'Cannot read file': 'फ़ाइल नहीं पढ़ी जा सकी',
+  'Import finished': 'आयात पूरा हुआ',
+  'Import failed': 'आयात विफल',
+  'Import reversed': 'आयात पूर्ववत हुआ',
+  'Could not reverse': 'पूर्ववत नहीं हो सका',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -2305,4 +2340,39 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Print PDF': 'PDF પ્રિન્ટ કરો',
   'Send the CA summary to a printer': 'CA સારાંશ પ્રિન્ટર પર મોકલો',
   'Registers': 'રજિસ્ટર',
+  'Import data': 'ડેટા આયાત કરો',
+  'CSV templates for parties, items and unpaid bills':
+      'પાર્ટી, આઇટમ અને બાકી બિલના CSV ટેમ્પલેટ',
+  'CSV or Excel templates, preview, then save offline':
+      'CSV અથવા Excel ટેમ્પલેટ, પૂર્વાવલોકન, પછી ઑફલાઇન સાચવો',
+  'CSV customers, suppliers, bills, invoices and ZIP':
+      'ગ્રાહક, સપ્લાયર, બિલ, ઇન્વૉઇસ CSV અને ZIP',
+  'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock waits until Inventory.':
+      'આયાત આ ઉપકરણ પર જ રહે છે. ટેમ્પલેટ ડાઉનલોડ કરો, CSV અથવા Excel પસંદ કરો, પંક્તિઓ જુઓ, પછી એક પગલામાં સાચવો. ઓપનિંગ સ્ટોક ઇન્વેન્ટરી સુધી રાહ જુએ છે.',
+  'WHAT TO IMPORT': 'શું આયાત કરવું',
+  'If a row already exists': 'જો પંક્તિ પહેલેથી હોય',
+  'Skip': 'છોડો',
+  'Update matching': 'મેળ ખાય તો અપડેટ',
+  'Import as new': 'નવા તરીકે આયાત',
+  'Template': 'ટેમ્પલેટ',
+  'Pick file': 'ફાઇલ પસંદ કરો',
+  'Saved offline': 'ઑફલાઇન સાચવ્યું',
+  'Share error CSV': 'ભૂલ CSV શેર કરો',
+  'RECENT IMPORTS': 'તાજેતરની આયાત',
+  'Undo': 'પૂર્વવત',
+  'All CSV files': 'બધી CSV ફાઇલો',
+  'One ZIP of customers, suppliers, items, invoices, bills and expenses':
+      'ગ્રાહક, સપ્લાયર, આઇટમ, ઇન્વૉઇસ, બિલ અને ખર્ચનું એક ZIP',
+  'Save ZIP': 'ZIP સાચવો',
+  'Share ZIP': 'ZIP શેર કરો',
+  'Purchase payments': 'ખરીદ ચુકવણી',
+  'Unpaid sales invoices': 'બાકી વેચાણ ઇન્વૉઇસ',
+  'Unpaid purchase bills': 'બાકી ખરીદ બિલ',
+  'Opening balances': 'ઓપનિંગ બેલેન્સ',
+  'Template saved': 'ટેમ્પલેટ સાચવાયું',
+  'Cannot read file': 'ફાઇલ વાંચી શકાઈ નહીં',
+  'Import finished': 'આયાત પૂરી થઈ',
+  'Import failed': 'આયાત નિષ્ફળ',
+  'Import reversed': 'આયાત પૂર્વવત થઈ',
+  'Could not reverse': 'પૂર્વવત થઈ શક્યું નહીં',
 };
