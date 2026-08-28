@@ -111,7 +111,10 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   checks use this schema version.
 - Business profile, logo, signature, payment QR, bank, and UPI information.
   Signature capture offers draw-on-pad, gallery, or camera, then stores the
-  image with other business assets for invoice PDFs.
+  image with other business assets for invoice PDFs. Editing an existing
+  profile uses a compact two-step maintenance flow: identity changes include a
+  live invoice-header preview, explicit add/replace/remove logo actions, and a
+  category impact note, while first-run onboarding keeps its guided setup UI.
 - Responsive phone/tablet layouts and dark mode. Phone screens keep the existing
   bottom dock and stacked forms. Tablets use a shared `AppShell` NavigationRail
   on Sales and Purchase root tabs. Home screens are two-pane (actions +
@@ -256,10 +259,14 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   item. Lookup is local-only against SKU/barcode attributes.
 - Catalog list rows match invoice/customer density: 14px name, 11px unit/GST
   (plus a quiet Product/Service caption only when All is selected), one
-  ellipsized attribute line, and price on the right via `AppAmountText`.
-  Search lives in the AppBar. The peach type icon and repeated Product/
-  Service pills are gone. Overflow stays as a quiet 20px menu. All /
-  Products / Services filters and the add FAB remain.
+  ellipsized attribute line, and price/unit on the right via `AppAmountText`.
+  Product/service icon wells and a slim semantic edge make type recognizable
+  without repeating a large badge. Search lives in the AppBar and matches
+  name, description, HSN/SAC, and attributes. Stable All / Products / Services
+  counts come from the complete catalog rather than the current query, and the
+  list states its A–Z order. Stream generations prevent stale search/filter
+  results from replacing the latest query; load failures preserve data and
+  expose Retry. Overflow remains a quiet menu and the add FAB remains.
 
 ### Invoices and quotations
 
@@ -331,7 +338,11 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   selection uses a dedicated full-screen workspace designed for 100+ records,
   with debounced search, Product/Service filters, persistent checkboxes,
   tri-state visible selection, editable on-invoice states, create-item access,
-  result and selection counts, and one apply-changes action
+  result and selection counts, and one apply-changes action. Existing invoice
+  items, newly selected items, and pending removals have distinct neutral,
+  add, and removal treatments; the header and sticky action state the exact
+  pending add/remove result. Load failures preserve the invoice and offer an
+  explicit retry.
 - Customer details is a compact account workspace. The customer name sits in
   the AppBar so it does not truncate in the hero. The status-aware plum hero
   shows an initial, one-line company or invoice count, and billed/paid/due
@@ -668,6 +679,48 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-28 — Business identity editor redesign
+
+- Reworked the existing-business identity step so it behaves like profile
+  maintenance instead of replaying onboarding. It now has a compact step
+  header, a live invoice-header preview, grouped business fields, clearer
+  category consequences, explicit logo add/replace/remove actions with removal
+  confirmation, and a descriptive `Next: invoice details` action.
+- First-time setup remains on the existing guided onboarding presentation and
+  all saved business/profile behavior remains unchanged.
+- Important files: `business_setup_screen.dart`,
+  `business_setup_controller.dart`, `business_setup_edit_mode_test.dart`.
+- Storage: none.
+- Verification: Dart formatting, targeted Flutter analysis, focused edit-mode
+  widget test.
+
+### 2026-08-28 — Professional products and services catalog
+
+- Redesigned the catalog list around faster item recognition: stable counted
+  filters, an explicit A–Z result header, product/service icon wells and edge
+  accents, cleaner HSN/GST/attribute context, and a right-aligned price plus
+  unit hierarchy. The AppBar title no longer competes with a changing count.
+- Added filter-aware empty states, a non-destructive load-error retry, and
+  generation guards so an older search/filter stream cannot overwrite newer
+  results.
+- Important files: `product_list_screen.dart`,
+  `product_list_controller.dart`.
+- Storage: none.
+- Verification: Dart formatting and targeted Flutter analysis.
+
+### 2026-08-28 — Reliable saved-item selection workspace
+
+- Redesigned the invoice saved-item picker so unchanged on-invoice items,
+  newly selected items, and pending removals are visually and semantically
+  distinct. Search and filters use shared controls, visible bulk selection is
+  tri-state, selection summaries and the sticky action report exact pending
+  changes, and a catalog load failure leaves the invoice untouched with Retry.
+- Important file:
+  `lib/modules/invoices/screens/invoice_item_picker_screen.dart`.
+- Storage: none. Catalog products and invoice lines are unchanged until the
+  user applies a pending selection change.
+- Verification: Dart formatting and targeted Flutter analysis.
 
 ### 2026-08-28 — Delivery challans distinguish items vs invoice
 

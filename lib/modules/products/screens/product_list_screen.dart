@@ -34,18 +34,6 @@ class ProductListScreen extends GetView<ProductListController> {
       appBar: AppSearchAppBar(
         leading: const AppBackButton(),
         title: 'Products & services',
-        titleSuffix: Obx(
-          () => Text(
-            '(${controller.items.length})',
-            style: AppTextStyles.caption.copyWith(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.textSecondary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
         hint: 'Search products or services',
         onChanged: controller.updateSearch,
         actions: [
@@ -74,6 +62,7 @@ class ProductListScreen extends GetView<ProductListController> {
                     AppFilterChip(
                       label: 'All',
                       icon: Icons.grid_view_rounded,
+                      count: controller.countFor(null),
                       selected: controller.selectedType.value == null,
                       onSelected: (_) => controller.selectType(null),
                     ),
@@ -81,6 +70,7 @@ class ProductListScreen extends GetView<ProductListController> {
                     AppFilterChip(
                       label: 'Products',
                       icon: Icons.inventory_2_outlined,
+                      count: controller.countFor(ItemType.product),
                       selected:
                           controller.selectedType.value == ItemType.product,
                       onSelected: (_) =>
@@ -90,6 +80,7 @@ class ProductListScreen extends GetView<ProductListController> {
                     AppFilterChip(
                       label: 'Services',
                       icon: Icons.design_services_outlined,
+                      count: controller.countFor(ItemType.service),
                       selected:
                           controller.selectedType.value == ItemType.service,
                       onSelected: (_) =>
@@ -105,21 +96,39 @@ class ProductListScreen extends GetView<ProductListController> {
               if (controller.isLoading.value) {
                 return const AppListSkeleton();
               }
-              if (controller.items.isEmpty) {
+              if (controller.loadError.value != null) {
                 return AppEmptyState(
-                  icon: Icons.inventory_2_outlined,
-                  title: controller.searchQuery.value.isEmpty
-                      ? 'No products or services yet'
-                      : 'No items found',
-                  message: controller.searchQuery.value.isEmpty
-                      ? 'Save frequently invoiced items for a faster workflow.'
-                      : 'Try another search or filter.',
-                  actionLabel: controller.searchQuery.value.isEmpty
-                      ? 'Add item'
-                      : null,
-                  onAction: controller.searchQuery.value.isEmpty
-                      ? () => Get.toNamed<void>(AppRoutes.productAdd)
-                      : null,
+                  icon: Icons.sync_problem_rounded,
+                  title: 'Catalog unavailable',
+                  message:
+                      'Your saved items are unchanged. Try loading them again.',
+                  actionLabel: 'Try again',
+                  onAction: controller.retry,
+                );
+              }
+              if (controller.items.isEmpty) {
+                final searching = controller.searchQuery.value.isNotEmpty;
+                final filtered = controller.selectedType.value != null;
+                return AppEmptyState(
+                  icon: filtered
+                      ? controller.selectedType.value == ItemType.product
+                            ? Icons.inventory_2_outlined
+                            : Icons.design_services_outlined
+                      : Icons.inventory_2_outlined,
+                  title: searching
+                      ? 'No matching items'
+                      : filtered
+                      ? 'No ${controller.selectedType.value!.label.toLowerCase()}s yet'
+                      : 'Your catalog is empty',
+                  message: searching
+                      ? 'Try a different name, detail, HSN/SAC, or filter.'
+                      : filtered
+                      ? 'Create your first ${controller.selectedType.value!.label.toLowerCase()} to reuse it on invoices.'
+                      : 'Save products and services once, then reuse them on every invoice.',
+                  actionLabel: searching ? null : 'Add item',
+                  onAction: searching
+                      ? null
+                      : () => Get.toNamed<void>(AppRoutes.productAdd),
                 );
               }
               final columns = ResponsiveUtils.gridColumns(context);
@@ -136,14 +145,59 @@ class ProductListScreen extends GetView<ProductListController> {
                 ),
               );
               if (columns == 1) {
-                return ListView.separated(
-                  physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
-                  ),
-                  padding: EdgeInsets.fromLTRB(horizontal, 2, horizontal, 100),
-                  itemCount: controller.items.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (_, index) => tile(index),
+                return Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        horizontal,
+                        0,
+                        horizontal,
+                        8,
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            '${controller.items.length} ${controller.items.length == 1 ? 'item' : 'items'}',
+                            style: AppTextStyles.small.copyWith(
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.textSecondary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            'Name · A–Z',
+                            style: AppTextStyles.caption.copyWith(
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.textTertiary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.separated(
+                        physics: const BouncingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics(),
+                        ),
+                        padding: EdgeInsets.fromLTRB(
+                          horizontal,
+                          0,
+                          horizontal,
+                          100,
+                        ),
+                        itemCount: controller.items.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 9),
+                        itemBuilder: (_, index) => tile(index),
+                      ),
+                    ),
+                  ],
                 );
               }
               return ListView(
@@ -221,45 +275,50 @@ class _ProductCatalogTile extends StatelessWidget {
         : AppColors.textTertiary;
     final meta = [
       if (showType) item.type.label,
-      item.unit,
+      if (item.hsnSac?.trim().isNotEmpty ?? false) 'HSN ${item.hsnSac!.trim()}',
       'GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}',
     ].join(' · ');
     final attributes = item.attributes.isEmpty
         ? null
         : item.attributes.take(3).map((value) => value.value).join(' · ');
+    final accent = item.type == ItemType.product
+        ? AppColors.primary
+        : AppColors.secondary;
 
     return AppGroupedTile(
-      padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
+      accentColor: accent,
+      padding: const EdgeInsets.fromLTRB(11, 11, 5, 11),
       onTap: () =>
           Get.toNamed<void>(AppRoutes.productDetails, arguments: item.id),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: isDark ? .16 : .1),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Icon(
+              item.type == ItemType.product
+                  ? Icons.inventory_2_outlined
+                  : Icons.design_services_outlined,
+              color: accent,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 11),
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.listName,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 108),
-                      child: AppAmountText(
-                        amountMinor: item.salePriceMinor,
-                        symbol: currencySymbol,
-                        style: AppTextStyles.listAmount,
-                      ),
-                    ),
-                  ],
+                Text(
+                  item.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.listName,
                 ),
                 const SizedBox(height: 3),
                 Text(
@@ -286,18 +345,41 @@ class _ProductCatalogTile extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
-            tooltip: l10n('Item actions'),
-            onPressed: () => _showActions(context),
-            iconSize: 20,
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-            style: IconButton.styleFrom(
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              foregroundColor: secondary,
-            ),
-            icon: const Icon(Icons.more_horiz_rounded),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 112),
+                child: AppAmountText(
+                  amountMinor: item.salePriceMinor,
+                  symbol: currencySymbol,
+                  style: AppTextStyles.listAmount,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                'per ${item.unit}',
+                style: AppTextStyles.caption.copyWith(
+                  color: tertiary,
+                  fontSize: 10,
+                ),
+              ),
+              const SizedBox(height: 2),
+              IconButton(
+                tooltip: l10n('Item actions'),
+                onPressed: () => _showActions(context),
+                iconSize: 19,
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 28),
+                style: IconButton.styleFrom(
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  foregroundColor: secondary,
+                ),
+                icon: const Icon(Icons.more_horiz_rounded),
+              ),
+            ],
           ),
         ],
       ),

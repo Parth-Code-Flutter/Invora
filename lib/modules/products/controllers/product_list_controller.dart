@@ -13,18 +13,24 @@ class ProductListController extends GetxController {
   final ProductRepository _repository;
   final BusinessRepository _businessRepository;
   final items = <ProductServiceModel>[].obs;
+  final catalogItems = <ProductServiceModel>[].obs;
   final isLoading = true.obs;
+  final loadError = RxnString();
   final searchQuery = ''.obs;
   final selectedType = Rxn<ItemType>();
   final currencySymbol = '₹'.obs;
   StreamSubscription<List<ProductServiceModel>>? _subscription;
+  StreamSubscription<List<ProductServiceModel>>? _catalogSubscription;
   Worker? _searchWorker;
   Worker? _filterWorker;
+  int _bindingGeneration = 0;
+  int _catalogGeneration = 0;
 
   @override
   void onInit() {
     super.onInit();
     _loadCurrency();
+    _bindCatalogSummary();
     _bindItems();
     _searchWorker = debounce<String>(
       searchQuery,
@@ -36,6 +42,10 @@ class ProductListController extends GetxController {
 
   void updateSearch(String value) => searchQuery.value = value;
   void selectType(ItemType? type) => selectedType.value = type;
+  void retry() {
+    _bindCatalogSummary();
+    _bindItems();
+  }
 
   Future<void> deleteItem(ProductServiceModel item) async {
     if (item.id != null) await _repository.softDelete(item.id!);
@@ -47,21 +57,53 @@ class ProductListController extends GetxController {
   }
 
   void _bindItems() {
+    final generation = ++_bindingGeneration;
     isLoading.value = true;
+    loadError.value = null;
     _subscription?.cancel();
     _subscription = _repository
         .watchItems(query: searchQuery.value, type: selectedType.value)
-        .listen((results) {
-          items.assignAll(results);
-          isLoading.value = false;
-        });
+        .listen(
+          (results) {
+            if (generation != _bindingGeneration || isClosed) return;
+            items.assignAll(results);
+            isLoading.value = false;
+          },
+          onError: (_) {
+            if (generation != _bindingGeneration || isClosed) return;
+            loadError.value = 'Could not load your catalog';
+            isLoading.value = false;
+          },
+        );
   }
+
+  void _bindCatalogSummary() {
+    final generation = ++_catalogGeneration;
+    _catalogSubscription?.cancel();
+    _catalogSubscription = _repository.watchItems().listen(
+      (results) {
+        if (generation != _catalogGeneration || isClosed) return;
+        catalogItems.assignAll(results);
+      },
+      onError: (_) {
+        if (generation != _catalogGeneration || isClosed) return;
+        loadError.value = 'Could not load your catalog';
+      },
+    );
+  }
+
+  int countFor(ItemType? type) => type == null
+      ? catalogItems.length
+      : catalogItems.where((item) => item.type == type).length;
 
   @override
   void onClose() {
+    _bindingGeneration++;
+    _catalogGeneration++;
     _searchWorker?.dispose();
     _filterWorker?.dispose();
     _subscription?.cancel();
+    _catalogSubscription?.cancel();
     super.onClose();
   }
 }

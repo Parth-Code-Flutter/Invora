@@ -50,10 +50,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Edit business identity'), findsOneWidget);
+    expect(find.text('Business profile'), findsOneWidget);
+    expect(find.text('Business identity'), findsOneWidget);
     expect(find.text('Let’s make it yours'), findsNothing);
     expect(find.byType(AppBackButton), findsOneWidget);
-    expect(find.text('Used across your invoices.'), findsOneWidget);
+    expect(
+      find.text('Preview the header customers will see on invoices.'),
+      findsOneWidget,
+    );
+    expect(find.text('Creovo MDF'), findsNWidgets(2));
+    expect(find.text('Next: invoice details'), findsOneWidget);
     expect(controller.validateEmail(''), isNull);
     expect(controller.validateEmail('invalid-email'), isNotNull);
   });

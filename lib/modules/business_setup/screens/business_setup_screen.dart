@@ -29,7 +29,11 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
       hasChanges: () => controller.hasUnsavedChanges,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(''),
+          title: Obx(
+            () => controller.isLoading.value || !controller.isEditing
+                ? const Text('')
+                : const Text('Business profile'),
+          ),
           leading: Obx(() {
             // isEditing depends on the asynchronously loaded profile. Reading
             // isLoading keeps this header reactive when that profile arrives.
@@ -48,7 +52,12 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 20),
-              child: Obx(() => _StepBadge(step: controller.setupStep.value)),
+              child: Obx(
+                () => _StepBadge(
+                  step: controller.setupStep.value,
+                  isEditing: controller.isEditing,
+                ),
+              ),
             ),
           ],
         ),
@@ -66,128 +75,134 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                         ResponsiveUtils.height(context, 32),
                       ),
                       children: [
-                        _SetupHeader(
-                          step: controller.setupStep.value,
-                          isEditing: controller.isEditing,
-                        ),
+                        if (controller.isEditing)
+                          _EditStepHeader(step: controller.setupStep.value)
+                        else
+                          _SetupHeader(
+                            step: controller.setupStep.value,
+                            isEditing: false,
+                          ),
                         const SizedBox(height: 26),
                         if (controller.setupStep.value == 0) ...[
-                          _SectionLabel(
-                            title: 'Your identity',
-                            caption: controller.isEditing
-                                ? 'Used across your invoices.'
-                                : 'Required to create your first invoice.',
-                          ),
-                          const SizedBox(height: 12),
-                          if (ResponsiveUtils.isTablet(context))
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: 168,
-                                  child: Obx(
-                                    () => _LogoPicker(
-                                      path: controller.logoPath.value,
-                                      onTap: controller.pickLogo,
+                          if (controller.isEditing) ...[
+                            _BusinessIdentityEditor(controller: controller),
+                          ] else ...[
+                            _SectionLabel(
+                              title: 'Your identity',
+                              caption: 'Required to create your first invoice.',
+                            ),
+                            const SizedBox(height: 12),
+                            if (ResponsiveUtils.isTablet(context))
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: 168,
+                                    child: Obx(
+                                      () => _LogoPicker(
+                                        path: controller.logoPath.value,
+                                        onTap: controller.pickLogo,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 24),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      AppTextField(
-                                        controller: controller.businessName,
-                                        label: 'Business name *',
-                                        hint: 'e.g. Creovo Studio',
-                                        prefixIcon: Icons.storefront_outlined,
-                                        validator:
-                                            controller.requiredBusinessName,
-                                        textCapitalization:
-                                            TextCapitalization.words,
-                                      ),
-                                      const SizedBox(height: 14),
-                                      Obx(
-                                        () => AppDropdownField<BusinessCategory>(
-                                          label: 'Business category',
-                                          value:
-                                              controller.businessCategory.value,
-                                          sheetTitle:
-                                              'Choose your business category',
-                                          searchable: true,
-                                          sheetHeightFactor: .75,
-                                          prefixIcon: Icons.category_outlined,
-                                          options: BusinessCategory.values
-                                              .map(
-                                                (value) => AppDropdownOption(
-                                                  value: value,
-                                                  label: value.label,
-                                                ),
-                                              )
-                                              .toList(growable: false),
-                                          onChanged: (value) =>
-                                              controller
-                                                      .businessCategory
-                                                      .value =
-                                                  value,
+                                  const SizedBox(width: 24),
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        AppTextField(
+                                          controller: controller.businessName,
+                                          label: 'Business name *',
+                                          hint: 'e.g. Creovo Studio',
+                                          prefixIcon: Icons.storefront_outlined,
+                                          validator:
+                                              controller.requiredBusinessName,
+                                          textCapitalization:
+                                              TextCapitalization.words,
                                         ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        'This only recommends useful product fields and units. You can change it later.',
-                                        style: AppTextStyles.small.copyWith(
-                                          color: AppColors.textSecondary,
+                                        const SizedBox(height: 14),
+                                        Obx(
+                                          () => AppDropdownField<BusinessCategory>(
+                                            label: 'Business category',
+                                            value: controller
+                                                .businessCategory
+                                                .value,
+                                            sheetTitle:
+                                                'Choose your business category',
+                                            searchable: true,
+                                            sheetHeightFactor: .75,
+                                            prefixIcon: Icons.category_outlined,
+                                            options: BusinessCategory.values
+                                                .map(
+                                                  (value) => AppDropdownOption(
+                                                    value: value,
+                                                    label: value.label,
+                                                  ),
+                                                )
+                                                .toList(growable: false),
+                                            onChanged: (value) =>
+                                                controller
+                                                        .businessCategory
+                                                        .value =
+                                                    value,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          'This only recommends useful product fields and units. You can change it later.',
+                                          style: AppTextStyles.small.copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
+                                ],
+                              )
+                            else ...[
+                              Obx(
+                                () => _LogoPicker(
+                                  path: controller.logoPath.value,
+                                  onTap: controller.pickLogo,
                                 ),
-                              ],
-                            )
-                          else ...[
-                            Obx(
-                              () => _LogoPicker(
-                                path: controller.logoPath.value,
-                                onTap: controller.pickLogo,
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            AppTextField(
-                              controller: controller.businessName,
-                              label: 'Business name *',
-                              hint: 'e.g. Creovo Studio',
-                              prefixIcon: Icons.storefront_outlined,
-                              validator: controller.requiredBusinessName,
-                              textCapitalization: TextCapitalization.words,
-                            ),
-                            const SizedBox(height: 14),
-                            Obx(
-                              () => AppDropdownField<BusinessCategory>(
-                                label: 'Business category',
-                                value: controller.businessCategory.value,
-                                sheetTitle: 'Choose your business category',
-                                searchable: true,
-                                sheetHeightFactor: .75,
-                                prefixIcon: Icons.category_outlined,
-                                options: BusinessCategory.values
-                                    .map(
-                                      (value) => AppDropdownOption(
-                                        value: value,
-                                        label: value.label,
-                                      ),
-                                    )
-                                    .toList(growable: false),
-                                onChanged: (value) =>
-                                    controller.businessCategory.value = value,
+                              const SizedBox(height: 16),
+                              AppTextField(
+                                controller: controller.businessName,
+                                label: 'Business name *',
+                                hint: 'e.g. Creovo Studio',
+                                prefixIcon: Icons.storefront_outlined,
+                                validator: controller.requiredBusinessName,
+                                textCapitalization: TextCapitalization.words,
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'This only recommends useful product fields and units. You can change it later.',
-                              style: AppTextStyles.small.copyWith(
-                                color: AppColors.textSecondary,
+                              const SizedBox(height: 14),
+                              Obx(
+                                () => AppDropdownField<BusinessCategory>(
+                                  label: 'Business category',
+                                  value: controller.businessCategory.value,
+                                  sheetTitle: 'Choose your business category',
+                                  searchable: true,
+                                  sheetHeightFactor: .75,
+                                  prefixIcon: Icons.category_outlined,
+                                  options: BusinessCategory.values
+                                      .map(
+                                        (value) => AppDropdownOption(
+                                          value: value,
+                                          label: value.label,
+                                        ),
+                                      )
+                                      .toList(growable: false),
+                                  onChanged: (value) =>
+                                      controller.businessCategory.value = value,
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'This only recommends useful product fields and units. You can change it later.',
+                                style: AppTextStyles.small.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
                           ],
                         ] else ...[
                           const _SectionLabel(
@@ -543,7 +558,9 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
               () => AppConstrainedAction(
                 child: AppButton(
                   label: controller.setupStep.value == 0
-                      ? 'Continue'
+                      ? controller.isEditing
+                            ? 'Next: invoice details'
+                            : 'Continue'
                       : controller.isEditing
                       ? 'Save changes'
                       : 'Save & start invoicing',
@@ -571,8 +588,9 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
 }
 
 class _StepBadge extends StatelessWidget {
-  const _StepBadge({required this.step});
+  const _StepBadge({required this.step, required this.isEditing});
   final int step;
+  final bool isEditing;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -582,7 +600,9 @@ class _StepBadge extends StatelessWidget {
       borderRadius: BorderRadius.circular(30),
     ),
     child: Text(
-      '${step + 1} OF 2',
+      isEditing
+          ? '${step == 0 ? 'Identity' : 'Details'}  ${step + 1}/2'
+          : '${step + 1} OF 2',
       style: AppTextStyles.small.copyWith(
         color: AppColors.primary,
         fontWeight: FontWeight.w800,
@@ -590,6 +610,360 @@ class _StepBadge extends StatelessWidget {
       ),
     ),
   );
+}
+
+class _EditStepHeader extends StatelessWidget {
+  const _EditStepHeader({required this.step});
+
+  final int step;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: AppColors.surfaceSoft,
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: AppColors.border),
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: AppColors.primaryLight,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(
+            step == 0 ? Icons.storefront_rounded : Icons.receipt_long_rounded,
+            color: AppColors.primary,
+            size: 22,
+          ),
+        ),
+        const SizedBox(width: 13),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                step == 0 ? 'Business identity' : 'Invoice details',
+                style: AppTextStyles.cardTitle,
+              ),
+              const SizedBox(height: 3),
+              Text(
+                step == 0
+                    ? 'How your business appears on every invoice'
+                    : 'Contact, tax, payment and numbering settings',
+                style: AppTextStyles.small.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _BusinessIdentityEditor extends StatelessWidget {
+  const _BusinessIdentityEditor({required this.controller});
+
+  final BusinessSetupController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Invoice identity', style: AppTextStyles.cardTitle),
+        const SizedBox(height: 4),
+        Text(
+          'Preview the header customers will see on invoices.',
+          style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 12),
+        Obx(() {
+          final category = controller.businessCategory.value.label;
+          final logoPath = controller.logoPath.value;
+          return ValueListenableBuilder<TextEditingValue>(
+            valueListenable: controller.businessName,
+            builder: (context, name, _) => _IdentityPreviewCard(
+              name: name.text.trim(),
+              category: category,
+              logoPath: logoPath,
+            ),
+          );
+        }),
+        const SizedBox(height: 12),
+        Obx(
+          () => _LogoActionCard(
+            path: controller.logoPath.value,
+            onReplace: controller.pickLogo,
+            onRemove: controller.logoPath.value == null
+                ? null
+                : () => _confirmLogoRemoval(context),
+          ),
+        ),
+        const SizedBox(height: 22),
+        Text('Business information', style: AppTextStyles.cardTitle),
+        const SizedBox(height: 12),
+        AppTextField(
+          controller: controller.businessName,
+          label: 'Business name *',
+          hint: 'e.g. Creovo Studio',
+          prefixIcon: Icons.storefront_outlined,
+          validator: controller.requiredBusinessName,
+          textCapitalization: TextCapitalization.words,
+        ),
+        const SizedBox(height: 14),
+        Obx(
+          () => AppDropdownField<BusinessCategory>(
+            label: 'Business category',
+            value: controller.businessCategory.value,
+            sheetTitle: 'Choose your business category',
+            searchable: true,
+            sheetHeightFactor: .75,
+            prefixIcon: Icons.category_outlined,
+            options: BusinessCategory.values
+                .map(
+                  (value) =>
+                      AppDropdownOption(value: value, label: value.label),
+                )
+                .toList(growable: false),
+            onChanged: (value) => controller.businessCategory.value = value,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.primaryLight.withValues(alpha: .55),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.tune_rounded,
+                size: 19,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Text(
+                  'Category personalizes suggested fields and units. Existing products and invoices stay unchanged.',
+                  style: AppTextStyles.small.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _confirmLogoRemoval(BuildContext context) async {
+    final remove = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove business logo?'),
+        content: const Text(
+          'Future invoices will use your business initials instead.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Keep logo'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    if (remove == true) controller.removeLogo();
+  }
+}
+
+class _IdentityPreviewCard extends StatelessWidget {
+  const _IdentityPreviewCard({
+    required this.name,
+    required this.category,
+    required this.logoPath,
+  });
+
+  final String name;
+  final String category;
+  final String? logoPath;
+
+  @override
+  Widget build(BuildContext context) {
+    final validLogo = logoPath != null && File(logoPath!).existsSync();
+    final displayName = name.isEmpty ? 'Your business' : name;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.primary, AppColors.secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1F763160),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 58,
+            height: 58,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(17),
+            ),
+            child: validLogo
+                ? Image.file(File(logoPath!), fit: BoxFit.cover)
+                : Center(
+                    child: Text(
+                      displayName.characters.first.toUpperCase(),
+                      style: AppTextStyles.cardTitle.copyWith(
+                        color: AppColors.primary,
+                        fontSize: 22,
+                      ),
+                    ),
+                  ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.cardTitle.copyWith(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  category,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.small.copyWith(
+                    color: Colors.white.withValues(alpha: .78),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: .16),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              'INVOICE',
+              style: AppTextStyles.small.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 10,
+                letterSpacing: .7,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LogoActionCard extends StatelessWidget {
+  const _LogoActionCard({
+    required this.path,
+    required this.onReplace,
+    required this.onRemove,
+  });
+
+  final String? path;
+  final VoidCallback onReplace;
+  final VoidCallback? onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasLogo = path != null && File(path!).existsSync();
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight,
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: const Icon(
+              Icons.image_outlined,
+              color: AppColors.primary,
+              size: 21,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  hasLogo ? 'Business logo' : 'Add a business logo',
+                  style: AppTextStyles.cardTitle.copyWith(fontSize: 14),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  hasLogo
+                      ? 'PNG or JPG · shown on invoices'
+                      : 'Optional · PNG or JPG',
+                  style: AppTextStyles.small.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (onRemove != null)
+            IconButton(
+              tooltip: 'Remove logo',
+              onPressed: onRemove,
+              icon: const Icon(Icons.delete_outline_rounded),
+              color: AppColors.error,
+            ),
+          TextButton(
+            onPressed: onReplace,
+            child: Text(hasLogo ? 'Replace' : 'Add'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _SetupHeader extends StatelessWidget {

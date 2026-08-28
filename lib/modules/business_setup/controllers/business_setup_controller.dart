@@ -88,6 +88,7 @@ class BusinessSetupController extends GetxController {
   }
 
   Future<void> pickLogo() => _pickImage('logo', logoPath);
+  void removeLogo() => logoPath.value = null;
   Future<void> pickPaymentQr() => _pickImage('payment_qr', paymentQrPath);
 
   Future<void> pickSignature(BuildContext context) async {

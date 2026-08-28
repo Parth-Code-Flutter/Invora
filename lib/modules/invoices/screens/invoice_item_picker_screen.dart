@@ -14,6 +14,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_constrained_action.dart';
+import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_form_grid.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/models/scanned_invoice_line.dart';
@@ -123,14 +124,10 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
           ),
           child: AppConstrainedAction(
             child: AppButton(
-              label: !_hasChanges
-                  ? (_alreadyAdded.isEmpty
-                        ? 'Select items to add'
-                        : 'No item changes')
-                  : _alreadyAdded.isEmpty
-                  ? 'Add ${_addedIds.length} ${_addedIds.length == 1 ? 'item' : 'items'}'
-                  : 'Apply item changes',
-              icon: Icons.add_shopping_cart_rounded,
+              label: _actionLabel,
+              icon: _hasChanges
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.playlist_add_check_rounded,
               onPressed: !_hasChanges
                   ? null
                   : () => Get.back<InvoiceItemPickerResult>(
@@ -174,7 +171,7 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                       },
                       textInputAction: TextInputAction.search,
                       decoration: InputDecoration(
-                        hintText: l10n('Search name, description or HSN/SAC'),
+                        hintText: l10n('Search saved items'),
                         prefixIcon: const Icon(Icons.search_rounded),
                         suffixIcon: _search.text.isEmpty
                             ? null
@@ -190,37 +187,31 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                _FilterChip(
-                                  label: 'All',
-                                  selected: _filter == null,
-                                  onTap: () => _setFilter(null),
-                                ),
-                                const SizedBox(width: 8),
-                                _FilterChip(
-                                  label: 'Products',
-                                  icon: Icons.inventory_2_outlined,
-                                  selected: _filter == ItemType.product,
-                                  onTap: () => _setFilter(ItemType.product),
-                                ),
-                                const SizedBox(width: 8),
-                                _FilterChip(
-                                  label: 'Services',
-                                  icon: Icons.design_services_outlined,
-                                  selected: _filter == ItemType.service,
-                                  onTap: () => _setFilter(ItemType.service),
-                                ),
-                              ],
-                            ),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          AppFilterChip(
+                            label: 'All',
+                            selected: _filter == null,
+                            onSelected: (_) => _setFilter(null),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          AppFilterChip(
+                            label: 'Products',
+                            icon: Icons.inventory_2_outlined,
+                            selected: _filter == ItemType.product,
+                            onSelected: (_) => _setFilter(ItemType.product),
+                          ),
+                          const SizedBox(width: 8),
+                          AppFilterChip(
+                            label: 'Services',
+                            icon: Icons.design_services_outlined,
+                            selected: _filter == ItemType.service,
+                            onSelected: (_) => _setFilter(ItemType.service),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -230,6 +221,9 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                 child: StreamBuilder<List<ProductServiceModel>>(
                   stream: _itemsStream,
                   builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return _loadErrorState();
+                    }
                     if (!snapshot.hasData) {
                       return const Center(child: CircularProgressIndicator());
                     }
@@ -252,47 +246,84 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                     return Column(
                       children: [
                         Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: ResponsiveUtils.horizontalPadding(
-                              context,
-                            ),
-                            vertical: 5,
+                          padding: EdgeInsets.fromLTRB(
+                            ResponsiveUtils.horizontalPadding(context),
+                            4,
+                            ResponsiveUtils.horizontalPadding(context),
+                            8,
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Expanded(
-                                child: Text(
-                                  '${items.length} ${items.length == 1 ? 'result' : 'results'}${_selectedIds.isEmpty ? '' : ' · ${_selectedIds.length} selected'}',
-                                  style: AppTextStyles.small.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${items.length} ${items.length == 1 ? 'saved item' : 'saved items'}',
+                                      style: AppTextStyles.small.copyWith(
+                                        color: AppColors.textSecondary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _selectionSummary,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyles.caption.copyWith(
+                                        color: AppColors.textTertiary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              if (selectable.isNotEmpty)
-                                Tooltip(
-                                  message: allVisibleSelected
-                                      ? 'Deselect visible items'
-                                      : 'Select visible items',
-                                  child: Checkbox(
-                                    tristate: true,
-                                    value: allVisibleSelected
-                                        ? true
-                                        : selectedVisibleCount > 0
-                                        ? null
-                                        : false,
-                                    onChanged: (_) => setState(() {
-                                      if (allVisibleSelected) {
-                                        for (final item in selectable) {
-                                          _selectedIds.remove(item.id);
-                                        }
-                                      } else {
-                                        for (final item in selectable) {
-                                          _selectedIds.add(item.id!);
-                                        }
-                                      }
-                                    }),
+                              if (selectable.isNotEmpty) ...[
+                                const SizedBox(width: 12),
+                                Semantics(
+                                  button: true,
+                                  checked: allVisibleSelected,
+                                  label: allVisibleSelected
+                                      ? 'Deselect all visible items'
+                                      : 'Select all visible items',
+                                  child: Tooltip(
+                                    message: allVisibleSelected
+                                        ? 'Deselect visible items'
+                                        : 'Select visible items',
+                                    child: Container(
+                                      width: 42,
+                                      height: 42,
+                                      decoration: BoxDecoration(
+                                        color: allVisibleSelected
+                                            ? AppColors.primaryLight
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.surface,
+                                        borderRadius: BorderRadius.circular(13),
+                                        border: Border.all(
+                                          color: allVisibleSelected
+                                              ? AppColors.primary
+                                              : AppColors.border,
+                                        ),
+                                      ),
+                                      child: Checkbox(
+                                        tristate: true,
+                                        value: allVisibleSelected
+                                            ? true
+                                            : selectedVisibleCount > 0
+                                            ? null
+                                            : false,
+                                        onChanged: (_) =>
+                                            _toggleVisibleSelection(
+                                              selectable,
+                                              allVisibleSelected:
+                                                  allVisibleSelected,
+                                            ),
+                                      ),
+                                    ),
                                   ),
                                 ),
+                              ],
                             ],
                           ),
                         ),
@@ -343,39 +374,54 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
     final id = item.id;
     final alreadyAdded = id != null && _alreadyAdded.contains(id);
     final selected = id != null && _selectedIds.contains(id);
+    final newlyAdded = selected && !alreadyAdded;
+    final markedForRemoval = alreadyAdded && !selected;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final stateTone = markedForRemoval
+        ? AppColors.error
+        : newlyAdded
+        ? AppColors.primary
+        : alreadyAdded
+        ? AppColors.success
+        : AppColors.border;
+    final stateSurface = markedForRemoval
+        ? AppColors.errorLight
+        : newlyAdded
+        ? AppColors.primaryLight
+        : alreadyAdded
+        ? AppColors.successLight.withValues(alpha: .42)
+        : isDark
+        ? AppColors.darkSurface
+        : AppColors.surface;
     return Semantics(
       button: id != null,
       selected: selected,
+      label:
+          '${item.name}, ${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: _currency)} per ${item.unit}, ${_itemStateLabel(alreadyAdded: alreadyAdded, selected: selected)}',
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 160),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primaryLight : null,
-          borderRadius: BorderRadius.circular(18),
+          color: stateSurface,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: selected ? AppColors.primary : AppColors.border,
-            width: selected ? 1.5 : 1,
+            color: stateTone,
+            width: newlyAdded || markedForRemoval ? 1.5 : 1,
           ),
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(16),
             onTap: id == null
                 ? null
-                : () => setState(() {
-                    if (selected) {
-                      _selectedIds.remove(id);
-                    } else {
-                      _selectedIds.add(id);
-                    }
-                  }),
+                : () => _toggleItem(id, selected: selected),
             child: Padding(
-              padding: const EdgeInsets.all(13),
+              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
               child: Row(
                 children: [
                   Container(
-                    width: 42,
-                    height: 42,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: item.type == ItemType.product
                           ? AppColors.primaryLight
@@ -392,7 +438,7 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                       size: 20,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 11),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -403,30 +449,40 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.cardTitle,
                         ),
-                        const SizedBox(height: 3),
-                        Text(
-                          '${item.type.label} · ${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: _currency)} / ${item.unit}${item.taxRateBasisPoints > 0 ? ' · GST ${item.taxRateBasisPoints / 100}%' : ''}${alreadyAdded ? (selected ? ' · $_alreadyAddedLabel' : ' · Will remove') : ''}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.small.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              '${CurrencyUtils.formatMinor(item.salePriceMinor, symbol: _currency)} / ${item.unit}${item.taxRateBasisPoints > 0 ? ' · GST ${item.taxRateBasisPoints / 100}%' : ''}',
+                              style: AppTextStyles.small.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            if (alreadyAdded || newlyAdded || markedForRemoval)
+                              _ItemStateBadge(
+                                label: _itemStateLabel(
+                                  alreadyAdded: alreadyAdded,
+                                  selected: selected,
+                                ),
+                                color: stateTone,
+                              ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                   Checkbox(
                     value: selected,
+                    activeColor: alreadyAdded && selected
+                        ? AppColors.success
+                        : AppColors.primary,
                     onChanged: id == null
                         ? null
-                        : (_) => setState(() {
-                            if (selected) {
-                              _selectedIds.remove(id);
-                            } else {
-                              _selectedIds.add(id);
-                            }
-                          }),
+                        : (_) => _toggleItem(id, selected: selected),
                   ),
                 ],
               ),
@@ -436,6 +492,70 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
       ),
     );
   }
+
+  String _itemStateLabel({required bool alreadyAdded, required bool selected}) {
+    if (alreadyAdded && selected) return _alreadyAddedLabel;
+    if (alreadyAdded) return 'Will remove';
+    if (selected) return 'Will add';
+    return 'Not selected';
+  }
+
+  void _toggleItem(int id, {required bool selected}) {
+    setState(() {
+      if (selected) {
+        _selectedIds.remove(id);
+      } else {
+        _selectedIds.add(id);
+      }
+    });
+  }
+
+  void _toggleVisibleSelection(
+    List<ProductServiceModel> selectable, {
+    required bool allVisibleSelected,
+  }) {
+    setState(() {
+      for (final item in selectable) {
+        final id = item.id;
+        if (id == null) continue;
+        if (allVisibleSelected) {
+          _selectedIds.remove(id);
+        } else {
+          _selectedIds.add(id);
+        }
+      }
+    });
+  }
+
+  Widget _loadErrorState() => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.sync_problem_rounded,
+            size: 44,
+            color: AppColors.error,
+          ),
+          const SizedBox(height: 12),
+          Text('Could not load saved items', style: AppTextStyles.sectionTitle),
+          const SizedBox(height: 6),
+          Text(
+            'Your invoice is unchanged. Try loading the catalog again.',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: _refreshItems,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Try again'),
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget _emptyState() => Center(
     child: Padding(
@@ -498,8 +618,30 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
 
   Set<int> get _addedIds => _selectedIds.difference(_alreadyAdded);
 
-  bool get _hasChanges =>
-      _addedIds.isNotEmpty || _alreadyAdded.difference(_selectedIds).isNotEmpty;
+  Set<int> get _removedIds => _alreadyAdded.difference(_selectedIds);
+
+  String get _selectionSummary {
+    if (!_hasChanges) {
+      return _selectedIds.isEmpty
+          ? 'Tap an item to add it'
+          : '${_selectedIds.length} on this invoice · no pending changes';
+    }
+    final changes = <String>[];
+    if (_addedIds.isNotEmpty) changes.add('${_addedIds.length} to add');
+    if (_removedIds.isNotEmpty) changes.add('${_removedIds.length} to remove');
+    return changes.join(' · ');
+  }
+
+  String get _actionLabel {
+    if (!_hasChanges) return 'No changes to apply';
+    final changeCount = _addedIds.length + _removedIds.length;
+    if (_alreadyAdded.isEmpty && _removedIds.isEmpty) {
+      return 'Add ${_addedIds.length} ${_addedIds.length == 1 ? 'item' : 'items'}';
+    }
+    return 'Apply $changeCount ${changeCount == 1 ? 'change' : 'changes'}';
+  }
+
+  bool get _hasChanges => _addedIds.isNotEmpty || _removedIds.isNotEmpty;
 
   void _setFilter(ItemType? value) {
     _filter = value;
@@ -513,24 +655,26 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
   }
 }
 
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.icon,
-  });
+class _ItemStateBadge extends StatelessWidget {
+  const _ItemStateBadge({required this.label, required this.color});
 
   final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final IconData? icon;
+  final Color color;
 
   @override
-  Widget build(BuildContext context) => ChoiceChip(
-    selected: selected,
-    onSelected: (_) => onTap(),
-    avatar: icon == null ? null : Icon(icon, size: 17),
-    label: Text(label),
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: .1),
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Text(
+      label,
+      style: AppTextStyles.caption.copyWith(
+        color: color,
+        fontSize: 10,
+        fontWeight: FontWeight.w800,
+      ),
+    ),
   );
 }
