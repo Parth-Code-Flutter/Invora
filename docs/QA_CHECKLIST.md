@@ -72,9 +72,13 @@ remain intentionally out of scope until explicitly requested.
   leftover kept as customer credit or refunded, apply leftover to another
   invoice of the same customer, statement credit-note/refund rows, credit-note
   PDF bytes, and invoice lock after a credit note.
-- GST / CA export: B2B vs B2C, credit notes in period, missing HSN exception,
-  ITC from eligible purchases, FY helper, CSV headers on empty ranges,
-  Prepared never Submitted, and a non-empty ZIP pack.
+- Purchase debit notes: partial line return, over-return rejection, paid-bill
+  leftover kept as supplier credit or recorded as refund received, apply leftover
+  to another bill of the same supplier, statement debit-note/refund rows,
+  debit-note PDF bytes, and bill lock after a debit note.
+- GST / CA export: B2B vs B2C, credit notes and debit notes in period, missing
+  HSN exception, ITC from eligible purchases net of debit notes, FY helper, CSV
+  headers on empty ranges, Prepared never Submitted, and a non-empty ZIP pack.
 - Database V5/V6/V7 upgrades through V9 and failed-migration data preservation.
 - Required-field, mobile, email, money, quantity, tax, payment, and date rules.
 - Unsaved-change clean exit, continue editing, discard, and Save draft.
@@ -117,6 +121,14 @@ remain intentionally out of scope until explicitly requested.
   Refund the remainder and confirm the statement shows both the credit note
   and the refund.
 - Share/print the credit-note PDF in airplane mode.
+- From a posted purchase bill, issue a partial debit note / purchase return.
+  Confirm the original bill total is unchanged and payable dropped. Try an
+  over-return and confirm it is blocked.
+- On a fully paid purchase bill, issue a full return: keep leftover as supplier
+  credit, then apply it to another bill of the same supplier. Repeat with
+  Record refund received and confirm the supplier statement shows both the
+  debit note and the refund.
+- Share/print the debit-note PDF in airplane mode.
 - Open Reports. Switch This month / Last month / This FY. Confirm twelve
   months on the chart with a y-axis (empty months are a faint baseline, not a
   filled bar), Line and Bars, collection progress, KPI tiles, and the
@@ -125,7 +137,7 @@ remain intentionally out of scope until explicitly requested.
 - Open GST / CA export from More and Reports. Confirm This month,
   This FY, and a custom range. Share the ZIP pack in airplane mode and confirm
   every file says Prepared / Not submitted — never Submitted. Check B2B vs B2C,
-  a credit note, a purchase ITC row, and the exception list.
+  a credit note, a purchase ITC row, a debit note, and the exception list.
 - Open Ageing & reminders from More and Reports. Confirm To collect and To pay
   buckets (Not due, 1–30, 90+). Share one reminder and the visible list in
   airplane mode. Confirm status is Prepared / Shared / Skipped — never
@@ -134,6 +146,14 @@ remain intentionally out of scope until explicitly requested.
   confirm this-month total, edit it, cancel with a reason (row stays, total
   drops), and share the PDF in airplane mode. Restore a backup and confirm
   the expense returns.
+- Open Cash book from More and Reports. Confirm Cash/Bank/UPI/Card/Other
+  balances. Record an invoice receipt and a supplier payment and check the
+  matching account. Transfer cash to bank. Record a cheque, confirm it is
+  pending (available excludes it), then Clear. Bounce a cheque and confirm the
+  invoice/bill payment reverses. Close cash with a counted difference. Record
+  a customer advance, apply it to an invoice (cash must not move again), and
+  confirm the customer statement. Restore a backup and confirm the book
+  returns.
 - Exercise iOS swipe-back and Android system-back on every protected form.
 - Run invoice creation with keyboard open on smallest supported phones.
 - Check tablet portrait/landscape for all main lists, forms, and PDF preview.

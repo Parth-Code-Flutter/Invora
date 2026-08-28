@@ -8,12 +8,14 @@ import 'package:creovo_invoice/app/enums/invoice_status.dart';
 import 'package:creovo_invoice/app/enums/tax_type.dart';
 import 'package:creovo_invoice/data/models/business_profile_model.dart';
 import 'package:creovo_invoice/data/models/credit_note_model.dart';
+import 'package:creovo_invoice/data/models/debit_note_model.dart';
 import 'package:creovo_invoice/data/models/gst_export_model.dart';
 import 'package:creovo_invoice/data/models/invoice_calculation_models.dart';
 import 'package:creovo_invoice/data/models/invoice_model.dart';
 import 'package:creovo_invoice/data/models/purchase_models.dart';
 import 'package:creovo_invoice/data/repositories/business_repository.dart';
 import 'package:creovo_invoice/data/repositories/credit_note_repository.dart';
+import 'package:creovo_invoice/data/repositories/debit_note_repository.dart';
 import 'package:creovo_invoice/data/repositories/invoice_repository.dart';
 import 'package:creovo_invoice/data/repositories/purchase_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
@@ -45,6 +47,7 @@ void main() {
       invoices,
       creditNotes,
       purchases,
+      DebitNoteRepository(database, purchases),
     );
     await BusinessRepository(database).saveProfile(
       BusinessProfileModel(
@@ -252,6 +255,62 @@ void main() {
       pack.exceptions.any((item) => item.documentNumber == 'PB-CANCEL'),
       isFalse,
     );
+  });
+
+  test('includes purchase debit notes and nets eligible ITC', () async {
+    final supplier = await purchases.saveSupplier(
+      SupplierModel(
+        name: 'Return Vendor',
+        gstin: '24BBBBB0000B1Z5',
+        gstRegistrationType: 'regular',
+        createdAt: DateTime(2026, 8, 1),
+        updatedAt: DateTime(2026, 8, 1),
+      ),
+    );
+    final billId = await purchases.saveBill(
+      PurchaseBillModel(
+        billNumber: 'PB-DN-GST',
+        supplierId: supplier.id,
+        supplierName: supplier.name,
+        billDate: DateTime(2026, 8, 10),
+        items: const [
+          PurchaseItemModel(
+            name: 'Boards',
+            quantity: 1,
+            unit: 'pcs',
+            hsnSac: '4410',
+            rateMinor: 10000,
+            taxRate: 18,
+          ),
+        ],
+        itcEligible: true,
+        createdAt: DateTime(2026, 8, 10),
+        updatedAt: DateTime(2026, 8, 10),
+      ),
+    );
+    final bill = await purchases.getBill(billId);
+    await DebitNoteRepository(database, purchases).issue(
+      bill: bill!,
+      debitNoteDate: DateTime(2026, 8, 20),
+      reason: 'Damaged goods',
+      returnedItems: [
+        DebitNoteItemDraft(
+          purchaseItem: bill.items.single,
+          originalQuantityScaled: 1000,
+          returnedQuantityScaled: 1000,
+          alreadyReturnedScaled: 0,
+        ),
+      ],
+      remainder: DebitNoteRemainderAction.applyThenKeep,
+    );
+
+    final pack = await service.build(period);
+    expect(pack.summary.debitNoteCount, 1);
+    expect(pack.debitNotes.single.debitNoteNumber, 'DN-0001');
+    expect(pack.summary.itcMinor, 0);
+    final csv = await service.buildCsv(GstExportKind.debitNotes, pack);
+    expect(utf8.decode(csv.bytes), contains('DN-0001'));
+    expect(utf8.decode(csv.bytes), contains('PB-DN-GST'));
   });
 
   test('empty range still has CSV headers and a non-empty ZIP', () async {

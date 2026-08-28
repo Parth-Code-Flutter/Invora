@@ -88,6 +88,7 @@ class PurchaseBillModel {
     this.dueDate,
     required this.items,
     this.paidMinor = 0,
+    this.debitedAmountMinor = 0,
     this.notes,
     this.status = 'unpaid',
     this.cancellationReason,
@@ -107,6 +108,7 @@ class PurchaseBillModel {
   final DateTime? dueDate;
   final List<PurchaseItemModel> items;
   final int paidMinor;
+  final int debitedAmountMinor;
   final String? notes;
   final String status;
   final String? cancellationReason, placeOfSupply;
@@ -122,7 +124,8 @@ class PurchaseBillModel {
         0,
         1 << 62,
       );
-  int get balanceMinor => (totalMinor - paidMinor).clamp(0, totalMinor);
+  int get balanceMinor =>
+      (totalMinor - paidMinor - debitedAmountMinor).clamp(0, totalMinor);
 }
 
 class PurchaseBillSummary {

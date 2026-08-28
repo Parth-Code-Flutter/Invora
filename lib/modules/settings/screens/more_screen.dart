@@ -127,6 +127,12 @@ class MoreScreen extends GetView<MoreController> {
                     subtitle: 'Rent, fuel, salary and other cash spends',
                     onTap: () => Get.toNamed<void>(AppRoutes.expenses),
                   ),
+                  AppMenuTile(
+                    icon: Icons.account_balance_wallet_outlined,
+                    title: 'Cash book',
+                    subtitle: 'Cash, bank, UPI, transfers and daily closing',
+                    onTap: () => Get.toNamed<void>(AppRoutes.cashBook),
+                  ),
                 ],
               ),
               const SizedBox(height: 22),

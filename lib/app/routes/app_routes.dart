@@ -12,6 +12,8 @@ abstract final class AppRoutes {
   static const suppliers = '/purchases/suppliers';
   static const supplierAdd = '/purchases/suppliers/add';
   static const supplierStatement = '/purchases/suppliers/statement';
+  static const debitNoteCreate = '/purchases/debit-note/create';
+  static const debitNoteDetails = '/purchases/debit-note/details';
   static const customers = '/customers';
   static const customerAdd = '/customer/add';
   static const customerEdit = '/customer/edit';
@@ -47,6 +49,9 @@ abstract final class AppRoutes {
   static const productSettings = '/settings/products';
   static const unitSettings = '/settings/units';
   static const appLock = '/settings/app-lock';
+  static const cashBook = '/cash-book';
+  static const cashBookStatement = '/cash-book/statement';
+  static const cashBookAdvance = '/cash-book/advance';
   static const more = '/more';
   static const backup = '/backup';
   static const restoreStatus = '/backup/restore-status';

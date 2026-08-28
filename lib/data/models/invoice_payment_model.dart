@@ -1,4 +1,4 @@
-enum InvoicePaymentEntryType { payment, opening, imported, reversal }
+enum InvoicePaymentEntryType { payment, opening, imported, reversal, advance }
 
 class InvoicePaymentModel {
   const InvoicePaymentModel({
@@ -26,5 +26,9 @@ class InvoicePaymentModel {
   final bool isReversed;
 
   bool get isReversal => entryType == InvoicePaymentEntryType.reversal;
-  bool get canReverse => amountMinor > 0 && !isReversed;
+  bool get canReverse =>
+      amountMinor > 0 &&
+      !isReversed &&
+      entryType != InvoicePaymentEntryType.advance &&
+      entryType != InvoicePaymentEntryType.reversal;
 }

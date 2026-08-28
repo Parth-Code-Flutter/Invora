@@ -14,11 +14,13 @@ import 'package:share_plus/share_plus.dart';
 import '../../app/enums/invoice_status.dart';
 import '../../app/enums/tax_type.dart';
 import '../models/credit_note_model.dart';
+import '../models/debit_note_model.dart';
 import '../models/gst_export_model.dart';
 import '../models/invoice_model.dart';
 import '../models/purchase_models.dart';
 import '../repositories/business_repository.dart';
 import '../repositories/credit_note_repository.dart';
+import '../repositories/debit_note_repository.dart';
 import '../repositories/invoice_repository.dart';
 import '../repositories/purchase_repository.dart';
 import 'data_export_service.dart';
@@ -29,17 +31,20 @@ class GstExportService {
     this._invoices,
     this._creditNotes,
     this._purchases,
+    this._debitNotes,
   );
 
   final BusinessRepository _business;
   final InvoiceRepository _invoices;
   final CreditNoteRepository _creditNotes;
   final PurchaseRepository _purchases;
+  final DebitNoteRepository _debitNotes;
 
   Future<GstExportPack> build(GstExportPeriod period) async {
     final profile = await _business.getProfile();
     final invoices = await _postedInvoices(period);
     final notes = await _creditNotes.listInRange(period.from, period.to);
+    final debitNotes = await _debitNotes.listInRange(period.from, period.to);
     final purchaseExports = await _postedPurchases(period);
     final invoiceById = <int, InvoiceModel>{
       for (final invoice in invoices)
@@ -59,7 +64,28 @@ class GstExportService {
         ),
     ];
     final purchaseRows = [for (final entry in purchaseExports) entry.row];
-    final exceptions = _exceptions(invoices, notes, purchaseExports);
+    final gstinByBillId = <int, String?>{
+      for (final entry in purchaseExports)
+        if (entry.bill.id != null) entry.bill.id!: entry.row.gstin,
+    };
+    for (final note in debitNotes) {
+      if (gstinByBillId.containsKey(note.purchaseBillId)) continue;
+      final source = await _purchases.getBill(note.purchaseBillId);
+      final supplierId = source?.supplierId ?? note.supplierId;
+      gstinByBillId[note.purchaseBillId] = supplierId == null
+          ? null
+          : _normalizedGstin((await _purchases.getSupplier(supplierId))?.gstin);
+    }
+    final debitRows = [
+      for (final note in debitNotes)
+        _debitRow(note, gstin: gstinByBillId[note.purchaseBillId]),
+    ];
+    final exceptions = _exceptions(
+      invoices,
+      notes,
+      purchaseExports,
+      debitNotes,
+    );
     return GstExportPack(
       period: period,
       businessName: profile?.businessName.trim().isNotEmpty == true
@@ -71,6 +97,7 @@ class GstExportService {
         invoiceCount: sales.length,
         creditNoteCount: creditRows.length,
         purchaseCount: purchaseRows.length,
+        debitNoteCount: debitRows.length,
         exceptionCount: exceptions.length,
         b2bCount: sales
             .where((row) => row.supplyType == GstSupplyType.b2b)
@@ -88,14 +115,23 @@ class GstExportService {
           0,
           (sum, row) => sum + row.totalMinor,
         ),
-        itcMinor: purchaseRows
-            .where((row) => row.itcEligible)
-            .fold(0, (sum, row) => sum + row.taxMinor),
+        debitNoteTotalMinor: debitRows.fold(
+          0,
+          (sum, row) => sum + row.grandTotalMinor,
+        ),
+        itcMinor:
+            purchaseRows
+                .where((row) => row.itcEligible)
+                .fold(0, (sum, row) => sum + row.taxMinor) -
+            debitRows
+                .where((row) => row.itcEligible)
+                .fold(0, (sum, row) => sum + row.taxMinor),
       ),
       sales: sales,
       creditNotes: creditRows,
       purchases: purchaseRows,
-      hsn: _hsnRows(invoices, notes, purchaseExports),
+      debitNotes: debitRows,
+      hsn: _hsnRows(invoices, notes, purchaseExports, debitNotes),
       exceptions: exceptions,
     );
   }
@@ -114,6 +150,10 @@ class GstExportService {
       GstExportKind.purchases => (
         'creovo_gst_purchases_$suffix.csv',
         _purchaseCsv(pack),
+      ),
+      GstExportKind.debitNotes => (
+        'creovo_gst_debit_notes_$suffix.csv',
+        _debitCsv(pack),
       ),
       GstExportKind.hsn => ('creovo_gst_hsn_$suffix.csv', _hsnCsv(pack)),
       GstExportKind.exceptions => (
@@ -179,7 +219,7 @@ class GstExportService {
           ),
           pw.SizedBox(height: 10),
           pw.Text(
-            'Invoices ${pack.summary.invoiceCount}  ·  B2B ${pack.summary.b2bCount}  ·  B2C ${pack.summary.b2cCount}  ·  Credit notes ${pack.summary.creditNoteCount}  ·  Purchases ${pack.summary.purchaseCount}  ·  Exceptions ${pack.summary.exceptionCount}',
+            'Invoices ${pack.summary.invoiceCount}  ·  B2B ${pack.summary.b2bCount}  ·  B2C ${pack.summary.b2cCount}  ·  Credit notes ${pack.summary.creditNoteCount}  ·  Purchases ${pack.summary.purchaseCount}  ·  Debit notes ${pack.summary.debitNoteCount}  ·  Exceptions ${pack.summary.exceptionCount}',
           ),
           pw.SizedBox(height: 18),
           pw.Text(
@@ -382,10 +422,27 @@ class GstExportService {
         reason: note.reason,
       );
 
+  GstDebitNoteRegisterRow _debitRow(DebitNoteModel note, {String? gstin}) =>
+      GstDebitNoteRegisterRow(
+        debitNoteId: note.id,
+        debitNoteDate: note.debitNoteDate,
+        debitNoteNumber: note.debitNoteNumber,
+        billNumber: note.billNumber,
+        supplierName: note.supplierName,
+        gstin: gstin,
+        taxMode: note.taxMode,
+        itcEligible: note.itcEligible,
+        taxableMinor: note.subtotalMinor,
+        taxMinor: note.taxMinor,
+        grandTotalMinor: note.grandTotalMinor,
+        reason: note.reason,
+      );
+
   List<GstHsnSummaryRow> _hsnRows(
     List<InvoiceModel> invoices,
     List<CreditNoteModel> notes,
     List<_PurchaseExport> purchases,
+    List<DebitNoteModel> debitNotes,
   ) {
     final buckets = <String, _HsnBucket>{};
     _HsnBucket bucket(String? hsn) {
@@ -424,6 +481,15 @@ class GstExportService {
         current.total += item.totalMinor;
       }
     }
+    for (final note in debitNotes) {
+      for (final item in note.items) {
+        final current = bucket(item.hsnSac);
+        current.documents.add(note.debitNoteNumber);
+        current.taxable -= item.baseAmountMinor;
+        current.tax -= item.taxAmountMinor;
+        current.total -= item.totalMinor;
+      }
+    }
     final rows = buckets.entries
         .map(
           (entry) => GstHsnSummaryRow(
@@ -443,6 +509,7 @@ class GstExportService {
     List<InvoiceModel> invoices,
     List<CreditNoteModel> notes,
     List<_PurchaseExport> purchases,
+    List<DebitNoteModel> debitNotes,
   ) {
     final items = <GstExportException>[];
     for (final invoice in invoices) {
@@ -507,6 +574,26 @@ class GstExportService {
             kind: 'HSN/SAC',
             message: 'GST credit note has a line without HSN/SAC.',
             source: GstExportSource.creditNote,
+            documentId: note.id,
+          ),
+        );
+      }
+    }
+    for (final note in debitNotes) {
+      if (note.taxMode == 'exempt') continue;
+      final missingHsn = note.items.any(
+        (item) =>
+            !item.isValueAdjustment &&
+            (item.hsnSac == null || item.hsnSac!.trim().isEmpty),
+      );
+      if (missingHsn) {
+        items.add(
+          GstExportException(
+            documentNumber: note.debitNoteNumber,
+            documentDate: note.debitNoteDate,
+            kind: 'HSN/SAC',
+            message: 'GST debit note has a line without HSN/SAC.',
+            source: GstExportSource.debitNote,
             documentId: note.id,
           ),
         );
@@ -605,6 +692,40 @@ class GstExportService {
         row.customerName,
         row.gstin,
         row.taxMode,
+        _money(row.taxableMinor),
+        _money(row.taxMinor),
+        _money(row.grandTotalMinor),
+        row.reason,
+        GstExportPack.filingStatus,
+      ],
+    ),
+  ];
+
+  List<List<Object?>> _debitCsv(GstExportPack pack) => [
+    _statusHeader(pack),
+    const [
+      'Date',
+      'Debit note number',
+      'Against bill',
+      'Supplier',
+      'GSTIN',
+      'Tax mode',
+      'ITC eligible',
+      'Taxable value',
+      'Tax',
+      'Total',
+      'Reason',
+      'Filing status',
+    ],
+    ...pack.debitNotes.map(
+      (row) => [
+        _iso(row.debitNoteDate),
+        row.debitNoteNumber,
+        row.billNumber,
+        row.supplierName,
+        row.gstin,
+        row.taxMode,
+        row.itcEligible ? 'Yes' : 'No',
         _money(row.taxableMinor),
         _money(row.taxMinor),
         _money(row.grandTotalMinor),

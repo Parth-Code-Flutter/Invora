@@ -1,7 +1,9 @@
 import 'package:drift/drift.dart';
 
+import '../models/cash_book_models.dart';
 import '../models/expense_model.dart';
 import '../services/app_database.dart';
+import '../services/money_ledger.dart';
 import 'base_repository.dart';
 
 class ExpenseRepository extends BaseRepository {
@@ -95,11 +97,31 @@ class ExpenseRepository extends BaseRepository {
     );
     if (model.id == null) {
       final id = await database.into(database.expenses).insert(companion);
+      await MoneyLedger(database).postLinked(
+        sourceType: MoneySourceType.expense,
+        sourceId: id,
+        amountMinor: split.grandTotalMinor,
+        occurredAt: companion.expenseDate.value,
+        direction: MoneyDirection.outbound,
+        entryType: MoneyEntryType.expense,
+        method: companion.paymentMethod.value,
+        note: '$category · $payee',
+      );
       return (await getById(id))!;
     }
     await (database.update(
       database.expenses,
     )..where((table) => table.id.equals(model.id!))).write(companion);
+    await MoneyLedger(database).replaceLinked(
+      sourceType: MoneySourceType.expense,
+      sourceId: model.id!,
+      amountMinor: split.grandTotalMinor,
+      occurredAt: companion.expenseDate.value,
+      direction: MoneyDirection.outbound,
+      entryType: MoneyEntryType.expense,
+      method: companion.paymentMethod.value,
+      note: '$category · $payee',
+    );
     return (await getById(model.id!))!;
   }
 
@@ -125,6 +147,12 @@ class ExpenseRepository extends BaseRepository {
         cancelledAt: Value(now),
         updatedAt: Value(now),
       ),
+    );
+    await MoneyLedger(database).reverseActive(
+      sourceType: MoneySourceType.expense,
+      sourceId: id,
+      occurredAt: now,
+      note: trimmed,
     );
     return (await getById(id))!;
   }

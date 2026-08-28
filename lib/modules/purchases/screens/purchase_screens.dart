@@ -34,9 +34,13 @@ import '../../../app/widgets/app_workspace_switch.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/models/purchase_models.dart';
+import '../../../data/models/debit_note_model.dart';
 import '../../../data/models/scanned_invoice_line.dart';
+import '../../../data/models/cash_book_models.dart';
 import '../../../data/repositories/business_repository.dart';
+import '../../../data/repositories/debit_note_repository.dart';
 import '../../../data/repositories/purchase_repository.dart';
+import '../../../data/repositories/cash_book_repository.dart';
 import '../../../data/services/purchase_attachment_service.dart';
 import '../../../data/services/unit_service.dart';
 import '../../invoices/screens/invoice_item_picker_screen.dart';
@@ -2097,6 +2101,8 @@ class PurchaseBillDetailsScreen extends StatefulWidget {
 class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
   late final int id = Get.arguments as int;
   PurchaseBillModel? bill;
+  List<DebitNoteSummaryModel> debitNotes = const [];
+  List<DebitNoteSummaryModel> unappliedCredit = const [];
   bool loading = true;
 
   @override
@@ -2107,9 +2113,19 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
 
   Future<void> _load() async {
     final value = await Get.find<PurchaseRepository>().getBill(id);
+    final notes = value == null
+        ? const <DebitNoteSummaryModel>[]
+        : await Get.find<DebitNoteRepository>().listForBill(id);
+    final unapplied = value?.supplierId == null
+        ? const <DebitNoteSummaryModel>[]
+        : await Get.find<DebitNoteRepository>().unappliedForSupplier(
+            value!.supplierId!,
+          );
     if (!mounted) return;
     setState(() {
       bill = value;
+      debitNotes = notes;
+      unappliedCredit = unapplied;
       loading = false;
     });
   }
@@ -2170,6 +2186,24 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
               child: ListView(
                 children: [
                   _PurchaseBillHero(bill: current),
+                  if (debitNotes.isNotEmpty || unappliedCredit.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _PurchaseDebitNotesCard(
+                      notes: debitNotes,
+                      unapplied: unappliedCredit,
+                      canApply:
+                          current.balanceMinor > 0 &&
+                          current.status != 'cancelled',
+                      onOpen: (note) async {
+                        await Get.toNamed<void>(
+                          AppRoutes.debitNoteDetails,
+                          arguments: note.id,
+                        );
+                        if (mounted) await _load();
+                      },
+                      onApply: _applySupplierCredit,
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   _PurchasePaymentCard(
                     bill: current,
@@ -2443,19 +2477,20 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
             _openPdf();
           },
         ),
-        _ActionTile(
-          icon: Icons.edit_note_rounded,
-          title: 'Edit bill',
-          subtitle: 'Update supplier, items, dates or notes.',
-          onTap: () async {
-            Navigator.pop(context);
-            await Get.toNamed<void>(
-              AppRoutes.purchaseBillCreate,
-              arguments: id,
-            );
-            if (mounted) await _load();
-          },
-        ),
+        if (debitNotes.isEmpty)
+          _ActionTile(
+            icon: Icons.edit_note_rounded,
+            title: 'Edit bill',
+            subtitle: 'Update supplier, items, dates or notes.',
+            onTap: () async {
+              Navigator.pop(context);
+              await Get.toNamed<void>(
+                AppRoutes.purchaseBillCreate,
+                arguments: id,
+              );
+              if (mounted) await _load();
+            },
+          ),
         _ActionTile(
           icon: Icons.copy_all_outlined,
           title: 'Duplicate bill',
@@ -2476,6 +2511,17 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
           },
         ),
         if (bill?.status != 'cancelled')
+          _ActionTile(
+            icon: Icons.assignment_return_outlined,
+            title: 'Debit note / Purchase return',
+            subtitle: 'Return items or value without rewriting this bill.',
+            onTap: () async {
+              Navigator.pop(context);
+              await Get.toNamed<void>(AppRoutes.debitNoteCreate, arguments: id);
+              if (mounted) await _load();
+            },
+          ),
+        if (bill?.status != 'cancelled' && debitNotes.isEmpty)
           _ActionTile(
             icon: Icons.block_outlined,
             title: 'Cancel bill',
@@ -2501,40 +2547,71 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
               }
             },
           ),
-        _ActionTile(
-          icon: Icons.delete_outline_rounded,
-          title: 'Delete bill',
-          subtitle: 'Permanently remove this bill and its payments.',
-          destructive: true,
-          onTap: () async {
-            Navigator.pop(context);
-            final confirmed = await showAppConfirmDialog(
-              context: context,
-              title: 'Delete purchase bill?',
-              message:
-                  'This permanently removes the bill, its items and payment history.',
-              confirmLabel: 'Delete bill',
-              destructive: true,
-            );
-            if (!confirmed) return;
-            try {
-              final repository = Get.find<PurchaseRepository>();
-              final files = await repository.watchAttachments(id).first;
-              await repository.deleteBill(id);
-              for (final file in files) {
-                await Get.find<PurchaseAttachmentService>().delete(
-                  file.localPath,
-                );
+        if (debitNotes.isEmpty)
+          _ActionTile(
+            icon: Icons.delete_outline_rounded,
+            title: 'Delete bill',
+            subtitle: 'Permanently remove this bill and its payments.',
+            destructive: true,
+            onTap: () async {
+              Navigator.pop(context);
+              final confirmed = await showAppConfirmDialog(
+                context: context,
+                title: 'Delete purchase bill?',
+                message:
+                    'This permanently removes the bill, its items and payment history.',
+                confirmLabel: 'Delete bill',
+                destructive: true,
+              );
+              if (!confirmed) return;
+              try {
+                final repository = Get.find<PurchaseRepository>();
+                final files = await repository.watchAttachments(id).first;
+                await repository.deleteBill(id);
+                for (final file in files) {
+                  await Get.find<PurchaseAttachmentService>().delete(
+                    file.localPath,
+                  );
+                }
+                Get.offAllNamed<void>(AppRoutes.purchaseBills);
+              } catch (e) {
+                _message(e.toString());
               }
-              Get.offAllNamed<void>(AppRoutes.purchaseBills);
-            } catch (e) {
-              _message(e.toString());
-            }
-          },
-        ),
+            },
+          ),
       ],
     ),
   );
+
+  Future<void> _applySupplierCredit(DebitNoteSummaryModel note) async {
+    final current = bill;
+    if (current == null || current.balanceMinor <= 0) return;
+    final amount = note.unappliedMinor < current.balanceMinor
+        ? note.unappliedMinor
+        : current.balanceMinor;
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      title: 'Apply supplier credit?',
+      message:
+          'Apply ${CurrencyUtils.formatMinor(amount, symbol: '₹')} from ${note.debitNoteNumber} to this bill.',
+      confirmLabel: 'Apply credit',
+    );
+    if (!confirmed) return;
+    try {
+      await Get.find<DebitNoteRepository>().applyUnapplied(
+        debitNoteId: note.id,
+        billId: id,
+        amountMinor: amount,
+      );
+      AppNotification.success(
+        'Credit applied',
+        '${note.debitNoteNumber} was applied.',
+      );
+      await _load();
+    } catch (e) {
+      _message(e.toString());
+    }
+  }
 
   Future<void> _payment(PurchaseBillModel current) async {
     final result = await showAppBottomSheet<_PaymentResult>(
@@ -2551,6 +2628,7 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
         reference: result.reference,
         note: result.note,
         paidAt: result.date,
+        accountId: result.accountId,
       );
       await _load();
     } catch (e) {
@@ -4098,11 +4176,13 @@ class _PaymentResult {
     required this.date,
     this.reference,
     this.note,
+    this.accountId,
   });
   final int amountMinor;
   final String method;
   final DateTime date;
   final String? reference, note;
+  final int? accountId;
 }
 
 class _PaymentSheet extends StatefulWidget {
@@ -4119,11 +4199,31 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   final note = TextEditingController();
   String method = 'Bank transfer';
   DateTime date = DateTime.now();
+  int? accountId;
+  List<MoneyAccountModel> accounts = const [];
 
   @override
   void initState() {
     super.initState();
     amount = TextEditingController();
+    _loadAccounts();
+  }
+
+  Future<void> _loadAccounts() async {
+    if (!Get.isRegistered<CashBookRepository>()) return;
+    final rows = await Get.find<CashBookRepository>().activeAccounts();
+    if (!mounted) return;
+    setState(() {
+      accounts = rows;
+      accountId = rows
+          .where(
+            (account) =>
+                account.accountType == MoneyAccountTypeX.fromMethod(method),
+          )
+          .firstOrNull
+          ?.id;
+      accountId ??= rows.firstOrNull?.id;
+    });
   }
 
   @override
@@ -4195,8 +4295,36 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               icon: Icons.more_horiz_rounded,
             ),
           ],
-          onChanged: (value) => setState(() => method = value),
+          onChanged: (value) => setState(() {
+            method = value;
+            accountId = accounts
+                .where(
+                  (account) =>
+                      account.accountType ==
+                      MoneyAccountTypeX.fromMethod(value),
+                )
+                .firstOrNull
+                ?.id;
+            accountId ??= accounts.firstOrNull?.id;
+          }),
         ),
+        if (accounts.length > 1) ...[
+          const SizedBox(height: 10),
+          AppDropdownField<int>(
+            label: 'Account',
+            sheetTitle: 'Cash-book account',
+            value: accountId ?? accounts.first.id!,
+            options: [
+              for (final account in accounts)
+                AppDropdownOption(
+                  value: account.id!,
+                  label: account.name,
+                  icon: account.accountType.icon,
+                ),
+            ],
+            onChanged: (value) => setState(() => accountId = value),
+          ),
+        ],
         const SizedBox(height: 10),
         TextField(
           controller: reference,
@@ -4249,6 +4377,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 date: date,
                 reference: _null(reference.text),
                 note: _null(note.text),
+                accountId: accountId,
               ),
             );
           },
@@ -4256,6 +4385,62 @@ class _PaymentSheetState extends State<_PaymentSheet> {
       ],
     ),
   );
+}
+
+class _PurchaseDebitNotesCard extends StatelessWidget {
+  const _PurchaseDebitNotesCard({
+    required this.notes,
+    required this.unapplied,
+    required this.canApply,
+    required this.onOpen,
+    required this.onApply,
+  });
+
+  final List<DebitNoteSummaryModel> notes;
+  final List<DebitNoteSummaryModel> unapplied;
+  final bool canApply;
+  final ValueChanged<DebitNoteSummaryModel> onOpen;
+  final ValueChanged<DebitNoteSummaryModel> onApply;
+
+  @override
+  Widget build(BuildContext context) {
+    if (notes.isEmpty && unapplied.isEmpty) return const SizedBox.shrink();
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Debit notes', style: AppTextStyles.sectionTitle),
+          const SizedBox(height: 8),
+          for (final note in notes)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(note.debitNoteNumber),
+              subtitle: Text(note.reason),
+              trailing: Text(
+                CurrencyUtils.formatMinor(note.grandTotalMinor, symbol: '₹'),
+              ),
+              onTap: () => onOpen(note),
+            ),
+          if (canApply && unapplied.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text('Supplier credit', style: AppTextStyles.cardTitle),
+            for (final note in unapplied)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(note.debitNoteNumber),
+                subtitle: Text(
+                  'Available ${CurrencyUtils.formatMinor(note.unappliedMinor, symbol: '₹')}',
+                ),
+                trailing: TextButton(
+                  onPressed: () => onApply(note),
+                  child: const Text('Apply'),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class _ActionTile extends StatelessWidget {
@@ -4720,6 +4905,12 @@ class SupplierSummaryCard extends StatelessWidget {
                 onTap: () => Navigator.pop(context, 'statement'),
               ),
               ListTile(
+                leading: const Icon(Icons.savings_outlined),
+                title: const Text('Record supplier advance'),
+                subtitle: const Text('Pay now and apply to bills later'),
+                onTap: () => Navigator.pop(context, 'advance'),
+              ),
+              ListTile(
                 leading: const Icon(Icons.edit_rounded),
                 title: const Text('Edit supplier'),
                 subtitle: const Text('Update contact and GST details'),
@@ -4742,6 +4933,15 @@ class SupplierSummaryCard extends StatelessWidget {
       onNewBill();
     } else if (action == 'statement') {
       onStatement();
+    } else if (action == 'advance') {
+      Get.toNamed<void>(
+        AppRoutes.cashBookAdvance,
+        arguments: CashBookAdvanceArgs(
+          partyType: PartyKind.supplier,
+          partyId: supplier.id,
+          partyName: supplier.name,
+        ),
+      );
     } else if (action == 'edit') {
       onEdit();
     } else if (action == 'delete' && await onConfirmDelete()) {

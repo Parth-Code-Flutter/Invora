@@ -209,6 +209,7 @@ class InvoiceDetailsController extends GetxController {
     String? method,
     String? reference,
     String? note,
+    int? accountId,
   }) async {
     final value = invoice.value;
     if (value?.id == null) return 'Invoice not found.';
@@ -228,6 +229,7 @@ class InvoiceDetailsController extends GetxController {
       method: method,
       reference: reference,
       note: note,
+      accountId: accountId,
     );
     await reload();
     lastRecordedPayment.value = payments.firstWhereOrNull(

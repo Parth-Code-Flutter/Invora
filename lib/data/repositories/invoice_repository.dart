@@ -9,8 +9,10 @@ import '../models/invoice_model.dart';
 import '../models/invoice_payment_model.dart';
 import '../models/product_attribute_model.dart';
 import '../models/report_summary_model.dart';
+import '../models/cash_book_models.dart';
 import '../services/app_database.dart';
 import '../services/invoice_validation_service.dart';
+import '../services/money_ledger.dart';
 import 'base_repository.dart';
 
 class InvoiceRepository extends BaseRepository {
@@ -380,6 +382,9 @@ class InvoiceRepository extends BaseRepository {
     String? method,
     String? reference,
     String? note,
+    String entryType = 'payment',
+    int? accountId,
+    bool postToCashBook = true,
   }) async {
     if (amountMinor <= 0) {
       throw ArgumentError('Payment amount must be greater than zero.');
@@ -399,7 +404,7 @@ class InvoiceRepository extends BaseRepository {
       if (amountMinor > invoice.calculation.balanceDueMinor) {
         throw ArgumentError('Payment cannot exceed the remaining balance.');
       }
-      await database
+      final paymentId = await database
           .into(database.invoicePayments)
           .insert(
             InvoicePaymentsCompanion.insert(
@@ -409,13 +414,27 @@ class InvoiceRepository extends BaseRepository {
               method: Value(_optional(method)),
               reference: Value(_optional(reference)),
               note: Value(_optional(note)),
-              entryType: const Value('payment'),
+              entryType: Value(entryType),
             ),
           );
       await _writeSettledTotals(
         invoice,
         paidAmountMinor: invoice.calculation.paidAmountMinor + amountMinor,
       );
+      if (postToCashBook && entryType == 'payment') {
+        await MoneyLedger(database).postLinked(
+          sourceType: MoneySourceType.invoicePayment,
+          sourceId: paymentId,
+          amountMinor: amountMinor,
+          occurredAt: paidAt,
+          direction: MoneyDirection.inbound,
+          entryType: MoneyEntryType.receipt,
+          method: method,
+          accountId: accountId,
+          reference: reference,
+          note: note,
+        );
+      }
     });
   }
 
@@ -466,10 +485,23 @@ class InvoiceRepository extends BaseRepository {
               reversesPaymentId: Value(paymentId),
             ),
           );
+      final reversalId =
+          (await (database.select(database.invoicePayments)..where(
+                    (table) => table.reversesPaymentId.equals(paymentId),
+                  ))
+                  .getSingle())
+              .id;
       await _writeSettledTotals(
         invoice,
         paidAmountMinor:
             invoice.calculation.paidAmountMinor - original.amountMinor,
+      );
+      await MoneyLedger(database).reverseLinked(
+        sourceType: MoneySourceType.invoicePayment,
+        originalSourceId: paymentId,
+        reversalSourceId: reversalId,
+        occurredAt: reversedAt,
+        note: normalizedReason,
       );
     });
   }
@@ -772,7 +804,7 @@ class InvoiceRepository extends BaseRepository {
       // Only a brand-new invoice may establish an opening payment. Existing
       // invoices are reconciled exclusively through immutable ledger actions.
       if (model.id == null && model.calculation.paidAmountMinor > 0) {
-        await database
+        final openingId = await database
             .into(database.invoicePayments)
             .insert(
               InvoicePaymentsCompanion.insert(
@@ -784,6 +816,16 @@ class InvoiceRepository extends BaseRepository {
                 entryType: const Value('opening'),
               ),
             );
+        await MoneyLedger(database).postLinked(
+          sourceType: MoneySourceType.invoicePayment,
+          sourceId: openingId,
+          amountMinor: model.calculation.paidAmountMinor,
+          occurredAt: model.updatedAt,
+          direction: MoneyDirection.inbound,
+          entryType: MoneyEntryType.receipt,
+          method: 'Opening payment',
+          note: 'Recorded when the invoice was created',
+        );
       }
 
       await (database.delete(

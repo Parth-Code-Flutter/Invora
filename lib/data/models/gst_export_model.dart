@@ -1,12 +1,26 @@
-enum GstExportKind { sales, creditNotes, purchases, hsn, exceptions }
+enum GstExportKind {
+  sales,
+  creditNotes,
+  purchases,
+  debitNotes,
+  hsn,
+  exceptions,
+}
 
 enum GstExportPeriodPreset { thisMonth, lastMonth, thisFy, lastFy, custom }
 
 enum GstSupplyType { b2b, b2c }
 
-enum GstExportSource { invoice, creditNote, purchase }
+enum GstExportSource { invoice, creditNote, purchase, debitNote }
 
-enum GstExportPreviewTab { sales, creditNotes, purchases, hsn, exceptions }
+enum GstExportPreviewTab {
+  sales,
+  creditNotes,
+  purchases,
+  debitNotes,
+  hsn,
+  exceptions,
+}
 
 class GstExportPeriod {
   const GstExportPeriod({
@@ -86,6 +100,7 @@ class GstExportSummary {
     required this.invoiceCount,
     required this.creditNoteCount,
     required this.purchaseCount,
+    required this.debitNoteCount,
     required this.exceptionCount,
     required this.b2bCount,
     required this.b2cCount,
@@ -93,12 +108,14 @@ class GstExportSummary {
     required this.outputTaxMinor,
     required this.creditNoteTotalMinor,
     required this.purchaseTotalMinor,
+    required this.debitNoteTotalMinor,
     required this.itcMinor,
   });
 
   final int invoiceCount;
   final int creditNoteCount;
   final int purchaseCount;
+  final int debitNoteCount;
   final int exceptionCount;
   final int b2bCount;
   final int b2cCount;
@@ -106,6 +123,7 @@ class GstExportSummary {
   final int outputTaxMinor;
   final int creditNoteTotalMinor;
   final int purchaseTotalMinor;
+  final int debitNoteTotalMinor;
   final int itcMinor;
 }
 
@@ -163,6 +181,36 @@ class GstCreditNoteRegisterRow {
   final String customerName;
   final String? gstin;
   final String taxMode;
+  final int taxableMinor;
+  final int taxMinor;
+  final int grandTotalMinor;
+  final String reason;
+}
+
+class GstDebitNoteRegisterRow {
+  const GstDebitNoteRegisterRow({
+    this.debitNoteId,
+    required this.debitNoteDate,
+    required this.debitNoteNumber,
+    required this.billNumber,
+    required this.supplierName,
+    this.gstin,
+    required this.taxMode,
+    required this.itcEligible,
+    required this.taxableMinor,
+    required this.taxMinor,
+    required this.grandTotalMinor,
+    required this.reason,
+  });
+
+  final int? debitNoteId;
+  final DateTime debitNoteDate;
+  final String debitNoteNumber;
+  final String billNumber;
+  final String supplierName;
+  final String? gstin;
+  final String taxMode;
+  final bool itcEligible;
   final int taxableMinor;
   final int taxMinor;
   final int grandTotalMinor;
@@ -241,6 +289,7 @@ class GstExportPack {
     required this.sales,
     required this.creditNotes,
     required this.purchases,
+    required this.debitNotes,
     required this.hsn,
     required this.exceptions,
   });
@@ -256,6 +305,7 @@ class GstExportPack {
   final List<GstSalesRegisterRow> sales;
   final List<GstCreditNoteRegisterRow> creditNotes;
   final List<GstPurchaseRegisterRow> purchases;
+  final List<GstDebitNoteRegisterRow> debitNotes;
   final List<GstHsnSummaryRow> hsn;
   final List<GstExportException> exceptions;
 }

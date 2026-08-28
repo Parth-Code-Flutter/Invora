@@ -809,6 +809,7 @@ Color _entryColor(CustomerStatementEntryType type) => switch (type) {
   CustomerStatementEntryType.reversal => AppColors.error,
   CustomerStatementEntryType.creditNote => AppColors.success,
   CustomerStatementEntryType.refund => AppColors.error,
+  CustomerStatementEntryType.advance => AppColors.success,
 };
 
 Color _entryFill(CustomerStatementEntryType type) => switch (type) {
@@ -817,6 +818,7 @@ Color _entryFill(CustomerStatementEntryType type) => switch (type) {
   CustomerStatementEntryType.reversal => AppColors.errorLight,
   CustomerStatementEntryType.creditNote => AppColors.successLight,
   CustomerStatementEntryType.refund => AppColors.errorLight,
+  CustomerStatementEntryType.advance => AppColors.successLight,
 };
 
 IconData _entryIcon(CustomerStatementEntryType type) => switch (type) {
@@ -825,6 +827,7 @@ IconData _entryIcon(CustomerStatementEntryType type) => switch (type) {
   CustomerStatementEntryType.reversal => Icons.undo_rounded,
   CustomerStatementEntryType.creditNote => Icons.assignment_return_outlined,
   CustomerStatementEntryType.refund => Icons.payments_outlined,
+  CustomerStatementEntryType.advance => Icons.savings_outlined,
 };
 
 String _initials(String value) {

@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-08-27
+Last updated: 2026-08-28
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -87,18 +87,27 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   eligibility, reverse charge, bill discount, other charges, and item HSN/SAC;
   those values appear in bill details and generated purchase PDFs. Supplier
   cards open a date-filtered running statement of bills, payments, reversals,
-  and payable balance. Saved bill details accept original PDF/image attachments,
+  and payable balance. Posted purchase bills can issue a debit note / purchase
+  return (`DN-0001`) for returned quantities or a value adjustment. Original
+  bill totals stay; payable falls by `debited_amount_minor`. Leftover after
+  applying to the source bill can be kept as supplier credit or recorded as
+  refund received, and leftover credit can be applied to another bill of the
+  same supplier. Debit notes appear on the supplier statement and in the GST
+  pack. Edit/cancel/delete are locked after a debit note. Stock-out is not
+  included. Saved bill details accept original PDF/image attachments,
   and portable attachment files are included in local backup/restore archives.
   Purchase GST/payment selectors use the same shared bottom-sheet dropdown as
   Sales, and Purchase bottom navigation mirrors the Sales Material Symbol
   weights, selected states, raised create action, dark-mode border, and focus
   handling while retaining Purchase-specific routes.
-- Current Drift database schema is version 13. Version 11 adds the Purchase
+- Current Drift database schema is version 15. Version 11 adds the Purchase
   audit/tax/attachment fields; version 12 non-destructively adds supplier GST
   registration type and defaults existing suppliers to Unregistered. Version 13
   adds `invoices.credited_amount_minor` plus `credit_notes`,
-  `credit_note_items`, and `credit_note_applications`. ZIP backup compatibility
-  checks use this schema version.
+  `credit_note_items`, and `credit_note_applications`. Version 14 adds
+  expenses. Version 15 adds `purchase_bills.debited_amount_minor` plus
+  `debit_notes`, `debit_note_items`, and `debit_note_applications`. ZIP backup
+  compatibility checks use this schema version.
 - Business profile, logo, signature, payment QR, bank, and UPI information.
   Signature capture offers draw-on-pad, gallery, or camera, then stores the
   image with other business assets for invoice PDFs.
@@ -399,8 +408,26 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   optional ITC flag, payment method, and note. Numbers are `EXP-0001`.
   Recorded expenses can be edited; cancelled expenses stay on file with a
   reason and drop out of this-month totals. Share/print/save a PDF. Recurring
-  drafts, billable-to-invoice, receipt photos, expense rows in the GST pack,
-  and cash-book posting are out of this slice. Entry points: More and Reports.
+  drafts, billable-to-invoice, receipt photos, and expense rows in the GST pack
+  remain later work. Recorded and cancelled expenses now post to the cash book.
+  Entry points: More and Reports.
+- Cash book (`P0.9`) is an offline money sub-ledger, not live bank sync. Five
+  system accounts seed on first open: Cash, Bank, UPI, Card, Other. Users can
+  add extra accounts of those types, rename them, and hide extras. Every
+  invoice receipt, supplier payment, expense, credit-note refund, and
+  debit-note refund posts an immutable movement. Cheques stay pending until
+  Clear (counts as available) or Bounce (reverses the source payment). Transfer
+  moves money between accounts. Daily cash closing compares counted cash to the
+  book and posts a difference if needed. Customer and supplier advances land in
+  an account immediately, then allocate to invoices/bills without moving cash
+  again. Split payments are sequential receipts or payments on the same
+  document, each with its own method/account. Entry points: More, Reports,
+  customer/supplier advance actions, and the Account picker on payment sheets
+  when more than one account exists. The cash-book screens follow the Home
+  snapshot language: a branded on-hand hero, Book / Pending / Advances chips,
+  a mix bar, a jump strip for Transfer / Close cash / Advances, and grouped
+  account and statement rows. Backup is the SQLite file, so schema 16
+  restores with the book.
 - Dashboard totals and Reports. Monthly sales are posted invoices minus
   credit notes dated in that period; received stays actual payments;
   outstanding uses each invoice’s remaining balance after payments and applied
@@ -429,7 +456,12 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
 
 ## Persisted data notes
 
-- Database schema version 14 adds expenses. Version 13 adds sales credit notes.
+- Database schema version 16 adds `money_accounts`, `money_movements`,
+  `party_advances`, `party_advance_allocations`, and `cash_closings`. Existing
+  invoice payments, purchase payments, recorded expenses, and credit/debit
+  note refunds are backfilled into movements. Version 15 adds purchase debit
+  notes and `purchase_bills.debited_amount_minor`. Version 14 adds expenses.
+  Version 13 adds sales credit notes.
   Version 9 includes
   product/invoice attribute snapshots; its version 8 migration classifies
   `invoice_payments` entries and links reversals to original payments. The v7
@@ -527,7 +559,7 @@ transfer automatically.
 As of 2026-08-27:
 
 - Flutter analysis: no issues
-- Automated suite: 161 tests passing, including encrypted backup create/verify/
+- Automated suite: 193 tests passing, including encrypted backup create/verify/
   restore, legacy unencrypted ZIP restore, tablet shell, and first-launch
   routing coverage
 - Android debug APK builds successfully
@@ -550,32 +582,37 @@ As of 2026-08-27:
 6. Physical-device QA of sales credit notes: partial return, over-return
    blocked, paid-invoice refund vs customer credit, apply leftover credit to
    another invoice, customer statement, credit-note PDF, and airplane mode.
-7. Next implementation: purchase debit notes (`P0.4`) per
-   [OFFLINE_MARKET_EXPANSION_ROADMAP.md](OFFLINE_MARKET_EXPANSION_ROADMAP.md),
-   then the cash/bank book, then the immutable stock ledger. Do not start
-   barcode quantity changes or POS until that ledger exists.
-8. Physical-device QA of expenses: record rent with GST/ITC, this-month
+7. Physical-device QA of purchase debit notes: partial return, over-return
+   blocked, paid-bill refund vs supplier credit, apply leftover credit to
+   another bill, supplier statement, debit-note PDF, and airplane mode.
+8. Next implementation: immutable stock ledger (`P1.1`). Do not start barcode
+   quantity changes or POS until that ledger exists. Physical-device QA of the
+   cash book (`P0.9`) is still open: accounts, receipt/payment posting,
+   transfer, cheque pending/cleared/bounced, daily cash closing, advances, and
+   airplane-mode restore.
+9. Physical-device QA of expenses: record rent with GST/ITC, this-month
    total, cancel with reason (stays listed, excluded from totals), share PDF
    in airplane mode, restore from backup.
-9. Physical-device QA of GST / CA export: This month / This FY / custom range,
-   B2B vs B2C, credit notes, purchase ITC, exception list, share/save ZIP pack
-   in airplane mode, and confirm no file is labelled Submitted.
-10. Physical-device QA of ageing & reminders: Not due / 1–30 / 90+ buckets for
+10. Physical-device QA of GST / CA export: This month / This FY / custom range,
+   B2B vs B2C, credit notes, debit notes, purchase ITC, exception list,
+   share/save ZIP pack in airplane mode, and confirm no file is labelled
+   Submitted.
+11. Physical-device QA of ageing & reminders: Not due / 1–30 / 90+ buckets for
    invoices and bills, share one reminder and a bucket list in airplane mode,
    confirm status is Prepared / Shared / Skipped and never Delivered, and
    restore reminder status from backup.
-11. Complete store privacy declarations and iOS privacy-manifest review.
-12. Test all PDFs with long, multi-page, and Unicode content.
-13. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
+12. Complete store privacy declarations and iOS privacy-manifest review.
+13. Test all PDFs with long, multi-page, and Unicode content.
+14. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
    Tablet presentation (rail, two-column lists, capped CTAs, onboarding) is
    implemented; remaining work is device QA, not missing layout primitives.
-14. Add CI for formatting, analysis, tests, and release validation.
-15. Licensing / monetization is design-only. When picked up, follow
+15. Add CI for formatting, analysis, tests, and release validation.
+16. Licensing / monetization is design-only. When picked up, follow
     [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md): store builds use
     RevenueCat/Play/App Store billing; direct APKs use GSTIN-bound keys;
     client demos use a dated `demo` flavor kill switch, not a first-launch
     timer in local storage. Do not put Pro or demo expiry in the backup ZIP.
-16. Play / App Store submission is not started. When features and release
+17. Play / App Store submission is not started. When features and release
     signing are ready, follow [STORE_DEPLOYMENT.md](STORE_DEPLOYMENT.md). Do
     not change `com.creovo.billing` or reopen the brand name.
 
@@ -585,6 +622,48 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-28 — Cash book UI matches Home
+
+- Cash book, account statement, and advances now use the same snapshot card,
+  metric chips, jump strip, and grouped rows as Home instead of outlined
+  buttons and separate white cards.
+- Important files: `lib/modules/cash_book/screens/`,
+  `lib/modules/cash_book/widgets/cash_book_visuals.dart`.
+- Storage: none. Ledger behaviour is unchanged.
+- Verification: analyzer on the cash-book module; existing cash-book
+  repository tests still pass.
+
+### 2026-08-28 — Cash / bank / UPI book
+
+- Local money accounts (Cash, Bank, UPI, Card, Other) now hold an immutable
+  sub-ledger. Invoice receipts, supplier payments, expenses, and credit/debit
+  note refunds post movements. Users can transfer, clear or bounce cheques,
+  close cash for the day, and record customer/supplier advances then apply
+  them to documents without a second cash posting.
+- Important files: `lib/data/services/money_ledger.dart`,
+  `lib/data/repositories/cash_book_repository.dart`,
+  `lib/modules/cash_book/`, schema v16 tables in `app_database.dart`.
+- Storage: schema version 16. Backup remains the SQLite file, so the book
+  restores with the rest of the records.
+- Verification: repository tests for seeding, receipts/reversals, cheques,
+  expenses, transfers, advances without double-posting, cash closing, and
+  purchase payments.
+
+### 2026-08-27 — Purchase debit notes / purchase returns
+
+- Posted purchase bills can issue a debit note (`DN-0001`) for returned
+  quantities or a value adjustment. Original bill totals stay; payable is
+  reduced through `debited_amount_minor`. Leftover can be kept as supplier
+  credit or recorded as refund received, then applied to another bill of the
+  same supplier. PDF, supplier statement, and GST pack include debit notes.
+  Edit/cancel/delete lock after a debit note. No stock-out.
+- Schema v15: `debit_notes`, `debit_note_items`, `debit_note_applications`,
+  and `purchase_bills.debited_amount_minor`.
+- Important files: debit-note model/repository/PDF, purchase repository and
+  bill details, GST export, localization maps, and this handoff.
+- Verification: formatting, static analysis, debit-note repository tests, GST
+  export coverage, and the full automated suite (193 tests).
 
 ### 2026-08-27 — Play / App Store deployment guide
 

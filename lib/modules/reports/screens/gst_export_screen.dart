@@ -169,6 +169,23 @@ class GstExportScreen extends GetView<GstExportController> {
             ),
           );
         }
+      case GstExportPreviewTab.debitNotes:
+        for (final row in pack.debitNotes) {
+          rows.add(
+            _RowData(
+              title: row.debitNoteNumber,
+              subtitle: '${row.supplierName}  ·  ${row.billNumber}',
+              caption: _date(row.debitNoteDate),
+              amountMinor: row.grandTotalMinor,
+              onTap: row.debitNoteId == null
+                  ? null
+                  : () => controller.openSource(
+                      GstExportSource.debitNote,
+                      row.debitNoteId,
+                    ),
+            ),
+          );
+        }
       case GstExportPreviewTab.hsn:
         for (final row in pack.hsn) {
           rows.add(
@@ -292,6 +309,7 @@ class GstExportScreen extends GetView<GstExportController> {
     GstExportPreviewTab.sales => 'No invoices in this period',
     GstExportPreviewTab.creditNotes => 'No credit notes in this period',
     GstExportPreviewTab.purchases => 'No purchases in this period',
+    GstExportPreviewTab.debitNotes => 'No debit notes in this period',
     GstExportPreviewTab.hsn => 'No HSN/SAC lines in this period',
     GstExportPreviewTab.exceptions => 'No exceptions in this period',
   };
@@ -636,6 +654,7 @@ class _RegisterHeaderDelegate extends SliverPersistentHeaderDelegate {
     GstExportPreviewTab.sales => 'Sales',
     GstExportPreviewTab.creditNotes => 'Credit notes',
     GstExportPreviewTab.purchases => 'Purchases',
+    GstExportPreviewTab.debitNotes => 'Debit notes',
     GstExportPreviewTab.hsn => 'HSN/SAC',
     GstExportPreviewTab.exceptions => 'Issues',
   };
@@ -645,6 +664,7 @@ class _RegisterHeaderDelegate extends SliverPersistentHeaderDelegate {
         GstExportPreviewTab.sales => pack.summary.invoiceCount,
         GstExportPreviewTab.creditNotes => pack.summary.creditNoteCount,
         GstExportPreviewTab.purchases => pack.summary.purchaseCount,
+        GstExportPreviewTab.debitNotes => pack.summary.debitNoteCount,
         GstExportPreviewTab.hsn => pack.hsn.length,
         GstExportPreviewTab.exceptions => pack.summary.exceptionCount,
       };

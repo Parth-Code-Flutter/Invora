@@ -26,6 +26,8 @@ import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/credit_note_model.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/invoice_payment_model.dart';
+import '../../../data/models/cash_book_models.dart';
+import '../../../data/repositories/cash_book_repository.dart';
 import '../../../data/services/invoice_defaults_service.dart';
 import '../../../data/services/product_settings_service.dart';
 import '../controllers/invoice_details_controller.dart';
@@ -1304,6 +1306,8 @@ class _PaymentHistoryRow extends StatelessWidget {
                       ? 'Opening payment'
                       : payment.entryType == InvoicePaymentEntryType.imported
                       ? 'Previous payment'
+                      : payment.entryType == InvoicePaymentEntryType.advance
+                      ? 'Applied from advance'
                       : payment.method ?? 'Payment',
                   style: AppTextStyles.cardTitle.copyWith(fontSize: 14),
                 ),
@@ -1453,6 +1457,8 @@ class _PaymentSheetState extends State<_PaymentSheet> {
   late final TextEditingController reference;
   late final TextEditingController note;
   String method = 'UPI';
+  int? accountId;
+  List<MoneyAccountModel> accounts = const [];
   String? error;
   bool isSaving = false;
 
@@ -1465,6 +1471,24 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     input = TextEditingController();
     reference = TextEditingController();
     note = TextEditingController();
+    _loadAccounts();
+  }
+
+  Future<void> _loadAccounts() async {
+    if (!Get.isRegistered<CashBookRepository>()) return;
+    final rows = await Get.find<CashBookRepository>().activeAccounts();
+    if (!mounted) return;
+    setState(() {
+      accounts = rows;
+      accountId = rows
+          .where(
+            (account) =>
+                account.accountType == MoneyAccountTypeX.fromMethod(method),
+          )
+          .firstOrNull
+          ?.id;
+      accountId ??= rows.firstOrNull?.id;
+    });
   }
 
   @override
@@ -1577,8 +1601,36 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                   icon: Icons.more_horiz_rounded,
                 ),
               ],
-              onChanged: (value) => setState(() => method = value),
+              onChanged: (value) => setState(() {
+                method = value;
+                accountId = accounts
+                    .where(
+                      (account) =>
+                          account.accountType ==
+                          MoneyAccountTypeX.fromMethod(value),
+                    )
+                    .firstOrNull
+                    ?.id;
+                accountId ??= accounts.firstOrNull?.id;
+              }),
             ),
+            if (accounts.length > 1) ...[
+              const SizedBox(height: 12),
+              AppDropdownField<int>(
+                label: l10n('Account'),
+                sheetTitle: 'Cash-book account',
+                value: accountId ?? accounts.first.id!,
+                options: [
+                  for (final account in accounts)
+                    AppDropdownOption(
+                      value: account.id!,
+                      label: account.name,
+                      icon: account.accountType.icon,
+                    ),
+                ],
+                onChanged: (value) => setState(() => accountId = value),
+              ),
+            ],
             const SizedBox(height: 12),
             TextField(
               controller: reference,
@@ -1655,6 +1707,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     final validation = await widget.controller.recordPayment(
       input.text,
       method: method,
+      accountId: accountId,
       reference: reference.text,
       note: note.text,
     );

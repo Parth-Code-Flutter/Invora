@@ -2,14 +2,22 @@ import '../../app/enums/invoice_status.dart';
 import '../models/business_profile_model.dart';
 import '../models/customer_model.dart';
 import '../models/customer_statement_model.dart';
+import '../models/cash_book_models.dart';
+import '../models/invoice_payment_model.dart';
 import '../repositories/credit_note_repository.dart';
 import '../repositories/invoice_repository.dart';
+import '../repositories/cash_book_repository.dart';
 
 class CustomerStatementService {
-  const CustomerStatementService(this._invoices, this._creditNotes);
+  const CustomerStatementService(
+    this._invoices,
+    this._creditNotes, [
+    this._cashBook,
+  ]);
 
   final InvoiceRepository _invoices;
   final CreditNoteRepository _creditNotes;
+  final CashBookRepository? _cashBook;
 
   Future<CustomerStatementModel> build({
     required CustomerModel customer,
@@ -37,6 +45,7 @@ class CustomerStatementService {
         ),
       );
       for (final payment in await _invoices.getPayments(summary.id)) {
+        if (payment.entryType == InvoicePaymentEntryType.advance) continue;
         events.add(
           _RawStatementEvent(
             date: payment.paidAt,
@@ -81,6 +90,46 @@ class CustomerStatementService {
         );
       }
     }
+    final cashBook = _cashBook;
+    if (cashBook != null && customer.id != null) {
+      final allAdvances = await cashBook.listAdvancesForParty(
+        partyType: PartyKind.customer,
+        partyId: customer.id!,
+      );
+      for (final advance in allAdvances) {
+        events.add(
+          _RawStatementEvent(
+            date: advance.occurredAt,
+            type: CustomerStatementEntryType.advance,
+            reference: 'ADV-${advance.id}',
+            description: 'Advance received',
+            debitMinor: 0,
+            creditMinor: advance.amountMinor,
+            order: 5,
+          ),
+        );
+        if (advance.status == AdvanceStatus.refunded) {
+          final allocated = advance.allocations.fold<int>(
+            0,
+            (sum, item) => sum + item.amountMinor,
+          );
+          final leftover = advance.amountMinor - allocated;
+          if (leftover > 0) {
+            events.add(
+              _RawStatementEvent(
+                date: advance.occurredAt,
+                type: CustomerStatementEntryType.refund,
+                reference: 'ADV-${advance.id}',
+                description: 'Advance refunded',
+                debitMinor: leftover,
+                creditMinor: 0,
+                order: 6,
+              ),
+            );
+          }
+        }
+      }
+    }
     events.sort((a, b) {
       final date = a.date.compareTo(b.date);
       return date == 0 ? a.order.compareTo(b.order) : date;
@@ -98,7 +147,8 @@ class CustomerStatementService {
     )) {
       balance += event.debitMinor - event.creditMinor;
       invoiced += event.debitMinor;
-      if (event.type == CustomerStatementEntryType.payment) {
+      if (event.type == CustomerStatementEntryType.payment ||
+          event.type == CustomerStatementEntryType.advance) {
         received += event.creditMinor;
       }
       entries.add(

@@ -6,8 +6,10 @@ import '../../app/enums/tax_type.dart';
 import '../models/credit_note_model.dart';
 import '../models/invoice_calculation_models.dart';
 import '../models/invoice_model.dart';
+import '../models/cash_book_models.dart';
 import '../services/app_database.dart';
 import '../services/invoice_calculation_service.dart';
+import '../services/money_ledger.dart';
 import 'base_repository.dart';
 import 'invoice_repository.dart';
 
@@ -318,6 +320,16 @@ class CreditNoteRepository extends BaseRepository {
             refundedAt: Value(now),
             updatedAt: Value(now),
           ),
+        );
+        await MoneyLedger(database).postLinked(
+          sourceType: MoneySourceType.creditNote,
+          sourceId: creditNoteId,
+          amountMinor: leftover,
+          occurredAt: now,
+          direction: MoneyDirection.outbound,
+          entryType: MoneyEntryType.refund,
+          method: refundMethod,
+          note: 'Credit note refund',
         );
       }
 

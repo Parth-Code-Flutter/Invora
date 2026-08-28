@@ -8,6 +8,9 @@ import '../../modules/onboarding/screens/workspace_setup_screen.dart';
 import '../../modules/purchases/screens/purchase_workspace_screen.dart';
 import '../../modules/purchases/screens/purchase_screens.dart';
 import '../../modules/purchases/screens/purchase_bill_pdf_screen.dart';
+import '../../modules/purchases/screens/debit_note_create_screen.dart';
+import '../../modules/purchases/screens/debit_note_details_screen.dart';
+import '../../modules/purchases/bindings/purchase_binding.dart';
 import '../../modules/business_setup/bindings/business_setup_binding.dart';
 import '../../modules/business_setup/screens/business_setup_screen.dart';
 import '../../modules/dashboard/bindings/dashboard_binding.dart';
@@ -40,6 +43,10 @@ import '../../modules/reports/screens/ageing_screen.dart';
 import '../../modules/expenses/bindings/expense_binding.dart';
 import '../../modules/expenses/screens/expense_list_screen.dart';
 import '../../modules/expenses/screens/expense_details_screen.dart';
+import '../../modules/cash_book/bindings/cash_book_binding.dart';
+import '../../modules/cash_book/screens/cash_book_screen.dart';
+import '../../modules/cash_book/screens/account_statement_screen.dart';
+import '../../modules/cash_book/screens/advance_form_screen.dart';
 import '../../data/services/backup_service.dart';
 import '../../modules/backup_restore/bindings/backup_binding.dart';
 import '../../modules/backup_restore/screens/backup_screen.dart';
@@ -100,6 +107,16 @@ abstract final class AppRouter {
       page: PurchaseBillDetailsScreen.new,
     ),
     GetPage(name: AppRoutes.purchaseBillPdf, page: PurchaseBillPdfScreen.new),
+    GetPage(
+      name: AppRoutes.debitNoteCreate,
+      page: DebitNoteCreateScreen.new,
+      binding: DebitNoteCreateBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.debitNoteDetails,
+      page: DebitNoteDetailsScreen.new,
+      binding: DebitNoteDetailsBinding(),
+    ),
     GetPage(
       name: AppRoutes.suppliers,
       page: SupplierListScreen.new,
@@ -295,6 +312,21 @@ abstract final class AppRouter {
       name: AppRoutes.expenseDetails,
       page: ExpenseDetailsScreen.new,
       binding: ExpenseDetailsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.cashBook,
+      page: CashBookScreen.new,
+      binding: CashBookBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.cashBookStatement,
+      page: AccountStatementScreen.new,
+      binding: AccountStatementBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.cashBookAdvance,
+      page: AdvanceFormScreen.new,
+      binding: AdvanceFormBinding(),
     ),
     GetPage(
       name: AppRoutes.invoicePreview,

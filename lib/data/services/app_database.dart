@@ -272,6 +272,8 @@ class PurchaseBills extends Table {
   IntColumn get taxMinor => integer().withDefault(const Constant(0))();
   IntColumn get totalMinor => integer()();
   IntColumn get paidMinor => integer().withDefault(const Constant(0))();
+  IntColumn get debitedAmountMinor =>
+      integer().withDefault(const Constant(0))();
   IntColumn get balanceMinor => integer()();
   TextColumn get status => text().withDefault(const Constant('unpaid'))();
   TextColumn get cancellationReason => text().nullable()();
@@ -329,6 +331,65 @@ class PurchaseBillAttachments extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+@TableIndex(
+  name: 'debit_notes_number',
+  columns: {#debitNoteNumber},
+  unique: true,
+)
+@TableIndex(name: 'debit_notes_bill', columns: {#purchaseBillId})
+class DebitNotes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get debitNoteNumber => text()();
+  IntColumn get purchaseBillId => integer().references(PurchaseBills, #id)();
+  IntColumn get supplierId => integer().nullable()();
+  TextColumn get supplierName => text()();
+  DateTimeColumn get debitNoteDate => dateTime()();
+  TextColumn get reason => text()();
+  TextColumn get taxMode => text().withDefault(const Constant('cgst_sgst'))();
+  BoolColumn get itcEligible => boolean().withDefault(const Constant(true))();
+  IntColumn get subtotalMinor => integer()();
+  IntColumn get taxMinor => integer()();
+  IntColumn get cgstMinor => integer().withDefault(const Constant(0))();
+  IntColumn get sgstMinor => integer().withDefault(const Constant(0))();
+  IntColumn get igstMinor => integer().withDefault(const Constant(0))();
+  IntColumn get grandTotalMinor => integer()();
+  IntColumn get refundedMinor => integer().withDefault(const Constant(0))();
+  TextColumn get refundMethod => text().nullable()();
+  DateTimeColumn get refundedAt => dateTime().nullable()();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class DebitNoteItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get debitNoteId =>
+      integer().references(DebitNotes, #id, onDelete: KeyAction.cascade)();
+  IntColumn get purchaseItemId => integer().nullable()();
+  TextColumn get name => text()();
+  IntColumn get quantityScaled => integer()();
+  TextColumn get unit => text()();
+  IntColumn get rateMinor => integer()();
+  TextColumn get hsnSac => text().nullable()();
+  IntColumn get taxRateBasisPoints =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get baseAmountMinor => integer()();
+  IntColumn get taxAmountMinor => integer()();
+  IntColumn get totalMinor => integer()();
+  IntColumn get sortOrder => integer()();
+}
+
+@TableIndex(name: 'debit_note_applications_note', columns: {#debitNoteId})
+@TableIndex(name: 'debit_note_applications_bill', columns: {#purchaseBillId})
+class DebitNoteApplications extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get debitNoteId =>
+      integer().references(DebitNotes, #id, onDelete: KeyAction.cascade)();
+  IntColumn get purchaseBillId => integer().references(PurchaseBills, #id)();
+  IntColumn get amountMinor => integer()();
+  DateTimeColumn get appliedAt => dateTime()();
+}
+
 @TableIndex(name: 'expenses_number', columns: {#expenseNumber}, unique: true)
 @TableIndex(name: 'expenses_date', columns: {#expenseDate})
 class Expenses extends Table {
@@ -353,6 +414,83 @@ class Expenses extends Table {
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+@TableIndex(name: 'money_accounts_type', columns: {#accountType})
+class MoneyAccounts extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get accountType => text()();
+  BoolColumn get isSystem => boolean().withDefault(const Constant(false))();
+  BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@TableIndex(name: 'money_movements_account', columns: {#accountId})
+@TableIndex(name: 'money_movements_occurred', columns: {#occurredAt})
+@TableIndex(name: 'money_movements_source', columns: {#sourceType, #sourceId})
+class MoneyMovements extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get accountId => integer().references(MoneyAccounts, #id)();
+  TextColumn get direction => text()();
+  IntColumn get amountMinor => integer()();
+  DateTimeColumn get occurredAt => dateTime()();
+  TextColumn get entryType => text()();
+  TextColumn get sourceType => text()();
+  IntColumn get sourceId => integer().nullable()();
+  IntColumn get pairedMovementId => integer().nullable()();
+  IntColumn get reversesMovementId => integer().nullable()();
+  TextColumn get chequeStatus => text().nullable()();
+  TextColumn get reference => text().nullable()();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@TableIndex(name: 'party_advances_party', columns: {#partyType, #partyId})
+class PartyAdvances extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get partyType => text()();
+  IntColumn get partyId => integer()();
+  TextColumn get partyName => text()();
+  IntColumn get accountId => integer().references(MoneyAccounts, #id)();
+  IntColumn get amountMinor => integer()();
+  IntColumn get remainingMinor => integer()();
+  TextColumn get direction => text()();
+  DateTimeColumn get occurredAt => dateTime()();
+  TextColumn get note => text().nullable()();
+  TextColumn get status => text().withDefault(const Constant('open'))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@TableIndex(name: 'party_advance_allocations_advance', columns: {#advanceId})
+class PartyAdvanceAllocations extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get advanceId =>
+      integer().references(PartyAdvances, #id, onDelete: KeyAction.cascade)();
+  TextColumn get documentType => text()();
+  IntColumn get documentId => integer()();
+  TextColumn get documentNumber => text()();
+  IntColumn get amountMinor => integer()();
+  DateTimeColumn get appliedAt => dateTime()();
+}
+
+@TableIndex(
+  name: 'cash_closings_account_date',
+  columns: {#accountId, #closingDate},
+  unique: true,
+)
+class CashClosings extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get accountId => integer().references(MoneyAccounts, #id)();
+  DateTimeColumn get closingDate => dateTime()();
+  IntColumn get countedMinor => integer()();
+  IntColumn get bookMinor => integer()();
+  IntColumn get differenceMinor => integer()();
+  IntColumn get movementId => integer().nullable()();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 @DriftDatabase(
   tables: [
     DatabaseMetadata,
@@ -371,7 +509,15 @@ class Expenses extends Table {
     PurchaseItems,
     PurchasePayments,
     PurchaseBillAttachments,
+    DebitNotes,
+    DebitNoteItems,
+    DebitNoteApplications,
     Expenses,
+    MoneyAccounts,
+    MoneyMovements,
+    PartyAdvances,
+    PartyAdvanceAllocations,
+    CashClosings,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -384,7 +530,10 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (migrator) => migrator.createAll(),
+    onCreate: (migrator) async {
+      await migrator.createAll();
+      await seedDefaultMoneyAccounts();
+    },
     onUpgrade: (migrator, from, to) async {
       if (from < 2) {
         await migrator.createTable(businessProfiles);
@@ -519,8 +668,192 @@ class AppDatabase extends _$AppDatabase {
       if (from < 14) {
         await migrator.createTable(expenses);
       }
+      if (from >= 10 && from < 15) {
+        final tables = (await customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table'",
+        ).get()).map((row) => row.read<String>('name')).toSet();
+        if (tables.contains('purchase_bills')) {
+          await migrator.addColumn(
+            purchaseBills,
+            purchaseBills.debitedAmountMinor,
+          );
+        }
+      }
+      if (from < 15) {
+        await migrator.createTable(debitNotes);
+        await migrator.createTable(debitNoteItems);
+        await migrator.createTable(debitNoteApplications);
+      }
+      if (from < 16) {
+        await migrator.createTable(moneyAccounts);
+        await migrator.createTable(moneyMovements);
+        await migrator.createTable(partyAdvances);
+        await migrator.createTable(partyAdvanceAllocations);
+        await migrator.createTable(cashClosings);
+        await seedDefaultMoneyAccounts();
+        await backfillMoneyMovements();
+      }
     },
   );
+
+  Future<void> seedDefaultMoneyAccounts() async {
+    final existing = await select(moneyAccounts).get();
+    if (existing.isNotEmpty) return;
+    const defaults = <(String, String, int)>[
+      ('Cash', 'cash', 0),
+      ('Bank', 'bank', 1),
+      ('UPI', 'upi', 2),
+      ('Card', 'card', 3),
+      ('Other', 'other', 4),
+    ];
+    for (final row in defaults) {
+      await into(moneyAccounts).insert(
+        MoneyAccountsCompanion.insert(
+          name: row.$1,
+          accountType: row.$2,
+          isSystem: const Value(true),
+          sortOrder: Value(row.$3),
+        ),
+      );
+    }
+  }
+
+  Future<void> backfillMoneyMovements() async {
+    final existing = await select(moneyMovements).get();
+    if (existing.isNotEmpty) return;
+    final accounts = await select(moneyAccounts).get();
+    if (accounts.isEmpty) return;
+    int accountIdFor(String? method) {
+      final type = _accountTypeForMethod(method);
+      return accounts
+          .firstWhere(
+            (account) => account.accountType == type,
+            orElse: () => accounts.last,
+          )
+          .id;
+    }
+
+    Future<void> insertMovement({
+      required int accountId,
+      required String direction,
+      required int amountMinor,
+      required DateTime occurredAt,
+      required String entryType,
+      required String sourceType,
+      required int sourceId,
+      String? chequeStatus,
+      String? reference,
+      String? note,
+      DateTime? createdAt,
+    }) async {
+      if (amountMinor <= 0) return;
+      await into(moneyMovements).insert(
+        MoneyMovementsCompanion.insert(
+          accountId: accountId,
+          direction: direction,
+          amountMinor: amountMinor,
+          occurredAt: occurredAt,
+          entryType: entryType,
+          sourceType: sourceType,
+          sourceId: Value(sourceId),
+          chequeStatus: Value(chequeStatus),
+          reference: Value(reference),
+          note: Value(note),
+          createdAt: Value(createdAt ?? occurredAt),
+        ),
+      );
+    }
+
+    for (final row in await select(invoicePayments).get()) {
+      await insertMovement(
+        accountId: accountIdFor(row.method),
+        direction: row.amountMinor >= 0 ? 'in' : 'out',
+        amountMinor: row.amountMinor.abs(),
+        occurredAt: row.paidAt,
+        entryType: row.entryType == 'reversal' ? 'reversal' : 'receipt',
+        sourceType: 'invoice_payment',
+        sourceId: row.id,
+        chequeStatus: _historicalChequeStatus(row.method, row.entryType),
+        reference: row.reference,
+        note: row.note,
+        createdAt: row.createdAt,
+      );
+    }
+    for (final row in await select(purchasePayments).get()) {
+      await insertMovement(
+        accountId: accountIdFor(row.method),
+        direction: row.amountMinor >= 0 ? 'out' : 'in',
+        amountMinor: row.amountMinor.abs(),
+        occurredAt: row.paidAt,
+        entryType: row.entryType == 'reversal' ? 'reversal' : 'payment',
+        sourceType: 'purchase_payment',
+        sourceId: row.id,
+        chequeStatus: _historicalChequeStatus(row.method, row.entryType),
+        reference: row.reference,
+        note: row.note,
+        createdAt: row.createdAt,
+      );
+    }
+    for (final row in await select(expenses).get()) {
+      if (row.status == 'cancelled') continue;
+      await insertMovement(
+        accountId: accountIdFor(row.paymentMethod),
+        direction: 'out',
+        amountMinor: row.grandTotalMinor,
+        occurredAt: row.expenseDate,
+        entryType: 'expense',
+        sourceType: 'expense',
+        sourceId: row.id,
+        note: '${row.category} · ${row.payee}',
+        createdAt: row.createdAt,
+      );
+    }
+    for (final row in await select(creditNotes).get()) {
+      if (row.refundedMinor <= 0) continue;
+      await insertMovement(
+        accountId: accountIdFor(row.refundMethod),
+        direction: 'out',
+        amountMinor: row.refundedMinor,
+        occurredAt: row.refundedAt ?? row.creditNoteDate,
+        entryType: 'refund',
+        sourceType: 'credit_note',
+        sourceId: row.id,
+        note: row.refundMethod,
+        createdAt: row.createdAt,
+      );
+    }
+    for (final row in await select(debitNotes).get()) {
+      if (row.refundedMinor <= 0) continue;
+      await insertMovement(
+        accountId: accountIdFor(row.refundMethod),
+        direction: 'in',
+        amountMinor: row.refundedMinor,
+        occurredAt: row.refundedAt ?? row.debitNoteDate,
+        entryType: 'refund',
+        sourceType: 'debit_note',
+        sourceId: row.id,
+        note: row.refundMethod,
+        createdAt: row.createdAt,
+      );
+    }
+  }
+}
+
+String _accountTypeForMethod(String? method) {
+  final value = (method ?? '').trim().toLowerCase();
+  if (value.contains('upi')) return 'upi';
+  if (value.contains('cash')) return 'cash';
+  if (value.contains('card')) return 'card';
+  if (value.contains('cheque') || value.contains('check')) return 'bank';
+  if (value.contains('bank')) return 'bank';
+  return 'other';
+}
+
+String? _historicalChequeStatus(String? method, String entryType) {
+  if (entryType == 'reversal') return null;
+  final value = (method ?? '').toLowerCase();
+  if (value.contains('cheque') || value.contains('check')) return 'cleared';
+  return null;
 }
 
 LazyDatabase _openConnection() {

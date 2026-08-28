@@ -128,6 +128,7 @@ class GstExportController extends GetxController {
       GstExportSource.invoice => AppRoutes.invoiceDetails,
       GstExportSource.creditNote => AppRoutes.creditNoteDetails,
       GstExportSource.purchase => AppRoutes.purchaseBillDetails,
+      GstExportSource.debitNote => AppRoutes.debitNoteDetails,
     };
     await Get.toNamed<void>(route, arguments: id);
     await reload();
@@ -165,6 +166,7 @@ class GstExportController extends GetxController {
     GstExportPreviewTab.sales => GstExportKind.sales,
     GstExportPreviewTab.creditNotes => GstExportKind.creditNotes,
     GstExportPreviewTab.purchases => GstExportKind.purchases,
+    GstExportPreviewTab.debitNotes => GstExportKind.debitNotes,
     GstExportPreviewTab.hsn => GstExportKind.hsn,
     GstExportPreviewTab.exceptions => GstExportKind.exceptions,
   };

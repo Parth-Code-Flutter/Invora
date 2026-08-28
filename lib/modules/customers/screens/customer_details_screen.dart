@@ -15,6 +15,7 @@ import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../data/models/customer_model.dart';
 import '../../../data/models/invoice_model.dart';
+import '../../../data/models/cash_book_models.dart';
 import '../controllers/customer_details_controller.dart';
 
 class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
@@ -114,6 +115,21 @@ class CustomerDetailsScreen extends GetView<CustomerDetailsController> {
                         arguments: customer.id,
                       );
                     },
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () => Get.toNamed<void>(
+                      AppRoutes.cashBookAdvance,
+                      arguments: CashBookAdvanceArgs(
+                        partyType: PartyKind.customer,
+                        partyId: customer.id,
+                        partyName: customer.name,
+                      ),
+                    ),
+                    icon: const Icon(Icons.savings_outlined, size: 18),
+                    label: const Text('Record customer advance'),
                   ),
                 ),
                 if (infoRows.isNotEmpty) ...[

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../data/repositories/customer_repository.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
+import '../../../data/repositories/cash_book_repository.dart';
 import '../controllers/customer_details_controller.dart';
 import '../controllers/customer_form_controller.dart';
 import '../controllers/customer_list_controller.dart';
@@ -52,7 +53,11 @@ class CustomerStatementBinding extends Bindings {
       () => CustomerStatementController(
         Get.find(),
         Get.find(),
-        CustomerStatementService(Get.find(), Get.find()),
+        CustomerStatementService(
+          Get.find(),
+          Get.find(),
+          Get.find<CashBookRepository>(),
+        ),
         const CustomerStatementPdfService(),
       ),
     );

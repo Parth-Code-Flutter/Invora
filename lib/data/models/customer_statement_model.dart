@@ -7,6 +7,7 @@ enum CustomerStatementEntryType {
   reversal,
   creditNote,
   refund,
+  advance,
 }
 
 class CustomerStatementEntry {

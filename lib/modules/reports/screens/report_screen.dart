@@ -181,6 +181,13 @@ class ReportScreen extends GetView<ReportController> {
             ),
             const SizedBox(height: 14),
             _DestinationCard(
+              icon: Icons.account_balance_wallet_outlined,
+              title: 'Cash book',
+              subtitle: 'Cash, bank, UPI, transfers and daily closing',
+              onTap: controller.openCashBook,
+            ),
+            const SizedBox(height: 14),
+            _DestinationCard(
               icon: Icons.hourglass_bottom_rounded,
               title: 'Ageing & reminders',
               subtitle:

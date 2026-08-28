@@ -129,6 +129,11 @@ References: [Zoho credit notes/refunds](https://www.zoho.com/in/invoice/features
 
 ## P0.4 Purchase returns and debit notes
 
+Status: **Shipped this slice 2026-08-27** (purchase debit notes from posted
+bills, separately numbered `DN-0001`, original bill totals unchanged, leftover
+kept as supplier credit or recorded as refund received). Stock-out remains out
+of scope until Inventory exists.
+
 From a purchase bill, select returned items/quantities, reason/date/tax, then
 record supplier credit, refund received, or unadjusted amount. Issue a linked
 debit-note/purchase-return PDF and include it in the supplier statement.
@@ -176,9 +181,9 @@ Reference: [myBillBook purchasing/billing overview](https://mybillbook.in/)
 
 Status: **Shipped this slice 2026-08-27** (simple vouchers: category, payee,
 date, amount paid with optional inclusive GST/ITC, payment method, note,
-`EXP-0001`, cancel-with-reason, PDF). Recurring drafts, billable expense →
-invoice line, receipt attachments, expense rows in the GST pack, and cash-book
-posting remain later work.
+`EXP-0001`, cancel-with-reason, PDF). Cash-book posting shipped with `P0.9`
+on 2026-08-28. Recurring drafts, billable expense → invoice line, receipt
+attachments, and expense rows in the GST pack remain later work.
 
 Record category, payee, date, amount, GST/ITC, payment account, note,
 customer/project link and receipt attachment. Keep simple expenses separate from
@@ -208,6 +213,14 @@ References: [Zoho reminders/statements](https://www.zoho.com/in/invoice/features
 [Vyapar reminders](https://vyapar.com/)
 
 ## P0.9 Cash, bank, UPI, advances, and settlement book
+
+Status: **Shipped this slice 2026-08-28** (Cash/Bank/UPI/Card/Other accounts,
+immutable movements from receipts/payments/expenses/refunds, transfers,
+cheque pending/cleared/bounced, daily cash closing, customer/supplier
+advances with allocation, account statements). Live bank sync, full
+accounting, and multi-account split on a single save remain later work.
+Sequential payments with different methods already split a document across
+accounts.
 
 - Configure Cash, Bank, UPI, Card and Other local accounts.
 - Every receipt/payment produces an immutable account movement.

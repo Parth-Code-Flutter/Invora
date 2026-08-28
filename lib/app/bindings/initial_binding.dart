@@ -7,6 +7,7 @@ import '../../data/services/local_database_service.dart';
 import '../../data/services/invoice_calculation_service.dart';
 import '../../data/services/invoice_pdf_service.dart';
 import '../../data/services/credit_note_pdf_service.dart';
+import '../../data/services/debit_note_pdf_service.dart';
 import '../../data/services/invoice_defaults_service.dart';
 import '../../data/services/data_export_service.dart';
 import '../../data/services/gst_export_service.dart';
@@ -25,8 +26,10 @@ import '../../data/repositories/customer_repository.dart';
 import '../../data/repositories/product_repository.dart';
 import '../../data/repositories/invoice_repository.dart';
 import '../../data/repositories/credit_note_repository.dart';
+import '../../data/repositories/debit_note_repository.dart';
 import '../../data/repositories/purchase_repository.dart';
 import '../../data/repositories/expense_repository.dart';
+import '../../data/repositories/cash_book_repository.dart';
 import '../../modules/dashboard/controllers/dashboard_controller.dart';
 import '../../modules/invoices/controllers/invoice_list_controller.dart';
 import '../controllers/app_controller.dart';
@@ -63,6 +66,7 @@ class InitialBinding extends Bindings {
       const CreditNotePdfService(),
       permanent: true,
     );
+    Get.put<DebitNotePdfService>(const DebitNotePdfService(), permanent: true);
     Get.put<PaymentReceiptPdfService>(
       const PaymentReceiptPdfService(),
       permanent: true,
@@ -101,6 +105,8 @@ class InitialBinding extends Bindings {
     await Get.delete<DataExportService>(force: true);
     await Get.delete<BackupService>(force: true);
     await Get.delete<CreditNoteRepository>(force: true);
+    await Get.delete<DebitNoteRepository>(force: true);
+    await Get.delete<CashBookRepository>(force: true);
     await Get.delete<ExpenseRepository>(force: true);
     await Get.delete<InvoiceRepository>(force: true);
     await Get.delete<PurchaseRepository>(force: true);
@@ -158,8 +164,19 @@ class InitialBinding extends Bindings {
       PurchaseRepository(databaseService.database),
       permanent: true,
     );
+    Get.put<DebitNoteRepository>(
+      DebitNoteRepository(
+        databaseService.database,
+        Get.find<PurchaseRepository>(),
+      ),
+      permanent: true,
+    );
     Get.put<ExpenseRepository>(
       ExpenseRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<CashBookRepository>(
+      CashBookRepository(databaseService.database),
       permanent: true,
     );
     Get.put<DataExportService>(
@@ -176,6 +193,7 @@ class InitialBinding extends Bindings {
         Get.find<InvoiceRepository>(),
         Get.find<CreditNoteRepository>(),
         Get.find<PurchaseRepository>(),
+        Get.find<DebitNoteRepository>(),
       ),
       permanent: true,
     );

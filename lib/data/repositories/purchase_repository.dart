@@ -1,7 +1,9 @@
 import 'package:drift/drift.dart';
 
+import '../models/cash_book_models.dart';
 import '../models/purchase_models.dart';
 import '../services/app_database.dart';
+import '../services/money_ledger.dart';
 import 'base_repository.dart';
 
 class PurchaseRepository extends BaseRepository {
@@ -116,7 +118,10 @@ class PurchaseRepository extends BaseRepository {
                 .getSingle();
         final now = DateTime.now();
         return PurchaseDashboardSummary(
-          totalSpendMinor: activeBills.fold(0, (s, b) => s + b.totalMinor),
+          totalSpendMinor: activeBills.fold(
+            0,
+            (s, b) => s + b.totalMinor - b.debitedAmountMinor,
+          ),
           paidMinor: activeBills.fold(0, (s, b) => s + b.paidMinor),
           payableMinor: activeBills.fold(0, (s, b) => s + b.balanceMinor),
           overdueMinor: activeBills
@@ -163,6 +168,7 @@ class PurchaseRepository extends BaseRepository {
           )
           .toList(),
       paidMinor: bill.paidMinor,
+      debitedAmountMinor: bill.debitedAmountMinor,
       notes: bill.notes,
       status: bill.status,
       cancellationReason: bill.cancellationReason,
@@ -238,76 +244,94 @@ class PurchaseRepository extends BaseRepository {
     database.purchaseBillAttachments,
   )..where((t) => t.id.equals(id))).go();
 
-  Future<int> saveBill(PurchaseBillModel model) =>
-      database.transaction(() async {
-        final existingPaid = model.id == null
-            ? 0
-            : await _ledgerPaidMinor(model.id!);
-        if (existingPaid > model.totalMinor) {
-          throw StateError(
-            'Bill total cannot be lower than the recorded supplier payments.',
-          );
-        }
-        final balance = model.totalMinor - existingPaid;
-        final status = model.status == 'cancelled'
-            ? 'cancelled'
-            : _status(balance, model.dueDate);
-        final companion = PurchaseBillsCompanion(
-          id: model.id == null ? const Value.absent() : Value(model.id!),
-          billNumber: Value(model.billNumber.trim()),
-          supplierId: Value(model.supplierId!),
-          supplierName: Value(model.supplierName),
-          billDate: Value(model.billDate),
-          dueDate: Value(model.dueDate),
-          subtotalMinor: Value(model.subtotalMinor),
-          taxMinor: Value(model.taxMinor),
-          totalMinor: Value(model.totalMinor),
-          paidMinor: Value(existingPaid),
-          balanceMinor: Value(balance),
-          status: Value(status),
-          notes: Value(model.notes),
-          cancellationReason: Value(model.cancellationReason),
-          cancelledAt: Value(model.cancelledAt),
-          placeOfSupply: Value(model.placeOfSupply),
-          taxMode: Value(model.taxMode),
-          reverseCharge: Value(model.reverseCharge),
-          itcEligible: Value(model.itcEligible),
-          discountMinor: Value(model.discountMinor),
-          additionalChargesMinor: Value(model.additionalChargesMinor),
-          createdAt: Value(model.createdAt),
-          updatedAt: Value(DateTime.now()),
+  Future<int> saveBill(PurchaseBillModel model) => database.transaction(
+    () async {
+      if (model.id != null) {
+        await _assertNoDebitNotes(
+          model.id!,
+          'This purchase bill has a debit note and can no longer be edited.',
         );
-        final billId = model.id == null
-            ? await database.into(database.purchaseBills).insert(companion)
-            : model.id!;
-        if (model.id != null) {
-          await (database.update(
-            database.purchaseBills,
-          )..where((table) => table.id.equals(model.id!))).write(companion);
-        }
-        await (database.delete(
-          database.purchaseItems,
-        )..where((t) => t.purchaseBillId.equals(billId))).go();
-        for (var index = 0; index < model.items.length; index++) {
-          final item = model.items[index];
-          await database
-              .into(database.purchaseItems)
-              .insert(
-                PurchaseItemsCompanion.insert(
-                  purchaseBillId: billId,
-                  name: item.name,
-                  quantityScaled: (item.quantity * 1000).round(),
-                  unit: item.unit,
-                  hsnSac: Value(item.hsnSac),
-                  rateMinor: item.rateMinor,
-                  taxRateBasisPoints: Value((item.taxRate * 100).round()),
-                  totalMinor: item.totalMinor,
-                  sortOrder: index,
-                ),
-              );
-        }
-        return billId;
-      });
+      }
+      final existingPaid = model.id == null
+          ? 0
+          : await _ledgerPaidMinor(model.id!);
+      final existingDebited = model.id == null
+          ? 0
+          : (await (database.select(
+                  database.purchaseBills,
+                )..where((t) => t.id.equals(model.id!))).getSingle())
+                .debitedAmountMinor;
+      if (existingPaid + existingDebited > model.totalMinor) {
+        throw StateError(
+          'Bill total cannot be lower than recorded payments and debit notes.',
+        );
+      }
+      final balance = model.totalMinor - existingPaid - existingDebited;
+      final status = model.status == 'cancelled'
+          ? 'cancelled'
+          : _status(
+              balance,
+              model.dueDate,
+              settled: existingPaid + existingDebited,
+            );
+      final companion = PurchaseBillsCompanion(
+        id: model.id == null ? const Value.absent() : Value(model.id!),
+        billNumber: Value(model.billNumber.trim()),
+        supplierId: Value(model.supplierId!),
+        supplierName: Value(model.supplierName),
+        billDate: Value(model.billDate),
+        dueDate: Value(model.dueDate),
+        subtotalMinor: Value(model.subtotalMinor),
+        taxMinor: Value(model.taxMinor),
+        totalMinor: Value(model.totalMinor),
+        paidMinor: Value(existingPaid),
+        debitedAmountMinor: Value(existingDebited),
+        balanceMinor: Value(balance),
+        status: Value(status),
+        notes: Value(model.notes),
+        cancellationReason: Value(model.cancellationReason),
+        cancelledAt: Value(model.cancelledAt),
+        placeOfSupply: Value(model.placeOfSupply),
+        taxMode: Value(model.taxMode),
+        reverseCharge: Value(model.reverseCharge),
+        itcEligible: Value(model.itcEligible),
+        discountMinor: Value(model.discountMinor),
+        additionalChargesMinor: Value(model.additionalChargesMinor),
+        createdAt: Value(model.createdAt),
+        updatedAt: Value(DateTime.now()),
+      );
+      final billId = model.id == null
+          ? await database.into(database.purchaseBills).insert(companion)
+          : model.id!;
+      if (model.id != null) {
+        await (database.update(
+          database.purchaseBills,
+        )..where((table) => table.id.equals(model.id!))).write(companion);
+      }
+      await (database.delete(
+        database.purchaseItems,
+      )..where((t) => t.purchaseBillId.equals(billId))).go();
+      for (var index = 0; index < model.items.length; index++) {
+        final item = model.items[index];
+        await database
+            .into(database.purchaseItems)
+            .insert(
+              PurchaseItemsCompanion.insert(
+                purchaseBillId: billId,
+                name: item.name,
+                quantityScaled: (item.quantity * 1000).round(),
+                unit: item.unit,
+                hsnSac: Value(item.hsnSac),
+                rateMinor: item.rateMinor,
+                taxRateBasisPoints: Value((item.taxRate * 100).round()),
+                totalMinor: item.totalMinor,
+                sortOrder: index,
+              ),
+            );
+      }
+      return billId;
+    },
+  );
 
   Future<void> recordPayment(
     int billId,
@@ -316,6 +340,9 @@ class PurchaseRepository extends BaseRepository {
     String? reference,
     String? note,
     DateTime? paidAt,
+    String entryType = 'payment',
+    int? accountId,
+    bool postToCashBook = true,
   }) => database.transaction(() async {
     final bill = await (database.select(
       database.purchaseBills,
@@ -324,11 +351,12 @@ class PurchaseRepository extends BaseRepository {
       throw StateError('Cancelled purchase bills cannot receive payments.');
     }
     final ledgerPaid = await _ledgerPaidMinor(billId);
-    final balanceBefore = bill.totalMinor - ledgerPaid;
-    if (amountMinor <= 0 || amountMinor > balanceBefore) {
+    final outstanding = bill.totalMinor - ledgerPaid - bill.debitedAmountMinor;
+    if (amountMinor <= 0 || amountMinor > outstanding) {
       throw ArgumentError('Payment must be within the outstanding balance.');
     }
-    await database
+    final paidAtValue = paidAt ?? DateTime.now();
+    final paymentId = await database
         .into(database.purchasePayments)
         .insert(
           PurchasePaymentsCompanion.insert(
@@ -337,21 +365,42 @@ class PurchaseRepository extends BaseRepository {
             method: Value(method),
             reference: Value(reference),
             note: Value(note),
-            paidAt: paidAt ?? DateTime.now(),
+            entryType: Value(entryType),
+            paidAt: paidAtValue,
           ),
         );
     final paid = ledgerPaid + amountMinor;
-    final balance = bill.totalMinor - paid;
+    final balance = bill.totalMinor - paid - bill.debitedAmountMinor;
     await (database.update(
       database.purchaseBills,
     )..where((t) => t.id.equals(billId))).write(
       PurchaseBillsCompanion(
         paidMinor: Value(paid),
         balanceMinor: Value(balance),
-        status: Value(_status(balance, bill.dueDate, paid: paid)),
+        status: Value(
+          _status(
+            balance,
+            bill.dueDate,
+            settled: paid + bill.debitedAmountMinor,
+          ),
+        ),
         updatedAt: Value(DateTime.now()),
       ),
     );
+    if (postToCashBook && entryType == 'payment') {
+      await MoneyLedger(database).postLinked(
+        sourceType: MoneySourceType.purchasePayment,
+        sourceId: paymentId,
+        amountMinor: amountMinor,
+        occurredAt: paidAtValue,
+        direction: MoneyDirection.outbound,
+        entryType: MoneyEntryType.payment,
+        method: method,
+        accountId: accountId,
+        reference: reference,
+        note: note,
+      );
+    }
   });
 
   Future<void> reversePayment(
@@ -365,7 +414,9 @@ class PurchaseRepository extends BaseRepository {
     final payment = await (database.select(
       database.purchasePayments,
     )..where((t) => t.id.equals(paymentId))).getSingleOrNull();
-    if (payment == null || payment.entryType == 'reversal') {
+    if (payment == null ||
+        payment.entryType == 'reversal' ||
+        payment.entryType == 'advance') {
       throw StateError('This supplier payment cannot be reversed.');
     }
     final existingReversal = await (database.select(
@@ -388,13 +439,60 @@ class PurchaseRepository extends BaseRepository {
             paidAt: reversedAt ?? DateTime.now(),
           ),
         );
+    final reversalId =
+        (await (database.select(database.purchasePayments)
+                  ..where((table) => table.reversesPaymentId.equals(paymentId)))
+                .getSingle())
+            .id;
     await _reconcileBill(payment.purchaseBillId);
+    await MoneyLedger(database).reverseLinked(
+      sourceType: MoneySourceType.purchasePayment,
+      originalSourceId: paymentId,
+      reversalSourceId: reversalId,
+      occurredAt: reversedAt ?? DateTime.now(),
+      note: reason.trim(),
+    );
   });
+
+  Future<void> applyDebit({
+    required int billId,
+    required int amountMinor,
+  }) async {
+    if (amountMinor <= 0) {
+      throw ArgumentError('Debit amount must be greater than zero.');
+    }
+    final bill = await (database.select(
+      database.purchaseBills,
+    )..where((t) => t.id.equals(billId))).getSingle();
+    if (bill.status == 'cancelled') {
+      throw StateError(
+        'A cancelled purchase bill cannot receive a debit note.',
+      );
+    }
+    final paid = await _ledgerPaidMinor(billId);
+    final outstanding = bill.totalMinor - paid - bill.debitedAmountMinor;
+    if (amountMinor > outstanding) {
+      throw ArgumentError('Debit cannot exceed the remaining payable.');
+    }
+    await (database.update(
+      database.purchaseBills,
+    )..where((t) => t.id.equals(billId))).write(
+      PurchaseBillsCompanion(
+        debitedAmountMinor: Value(bill.debitedAmountMinor + amountMinor),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+    await _reconcileBill(billId);
+  }
 
   Future<void> cancelBill(int id, {required String reason}) async {
     if (reason.trim().isEmpty) {
       throw ArgumentError('A cancellation reason is required.');
     }
+    await _assertNoDebitNotes(
+      id,
+      'This purchase bill has a debit note and cannot be cancelled.',
+    );
     final paid = await _ledgerPaidMinor(id);
     if (paid != 0) {
       throw StateError(
@@ -483,6 +581,7 @@ class PurchaseRepository extends BaseRepository {
         database.purchasePayments,
       )..where((t) => t.purchaseBillId.equals(bill.id))).get();
       for (final payment in payments) {
+        if (payment.entryType == 'advance') continue;
         entries.add((
           date: payment.paidAt,
           title: payment.entryType == 'reversal'
@@ -494,6 +593,46 @@ class PurchaseRepository extends BaseRepository {
           type: payment.entryType,
         ));
       }
+    }
+    final notes = await (database.select(
+      database.debitNotes,
+    )..where((t) => t.supplierId.equals(supplierId))).get();
+    for (final note in notes) {
+      entries.add((
+        date: note.debitNoteDate,
+        title: 'Debit note',
+        reference: note.debitNoteNumber,
+        debit: 0,
+        credit: note.grandTotalMinor,
+        type: 'debit_note',
+      ));
+      if (note.refundedMinor > 0) {
+        entries.add((
+          date: note.refundedAt ?? note.debitNoteDate,
+          title: 'Refund received',
+          reference: note.debitNoteNumber,
+          debit: note.refundedMinor,
+          credit: 0,
+          type: 'refund',
+        ));
+      }
+    }
+    final advances =
+        await (database.select(database.partyAdvances)..where(
+              (table) =>
+                  table.partyType.equals('supplier') &
+                  table.partyId.equals(supplierId),
+            ))
+            .get();
+    for (final advance in advances) {
+      entries.add((
+        date: advance.occurredAt,
+        title: 'Supplier advance',
+        reference: 'ADV-${advance.id}',
+        debit: 0,
+        credit: advance.amountMinor,
+        type: 'advance',
+      ));
     }
     entries.sort((a, b) => a.date.compareTo(b.date));
     var balance = 0;
@@ -529,14 +668,25 @@ class PurchaseRepository extends BaseRepository {
       database.purchaseBills,
     )..where((t) => t.id.equals(billId))).getSingle();
     final paid = await _ledgerPaidMinor(billId);
-    final balance = (bill.totalMinor - paid).clamp(0, bill.totalMinor);
+    final balance = (bill.totalMinor - paid - bill.debitedAmountMinor).clamp(
+      0,
+      bill.totalMinor,
+    );
     await (database.update(
       database.purchaseBills,
     )..where((t) => t.id.equals(billId))).write(
       PurchaseBillsCompanion(
         paidMinor: Value(paid),
         balanceMinor: Value(balance),
-        status: Value(_status(balance, bill.dueDate, paid: paid)),
+        status: Value(
+          bill.status == 'cancelled'
+              ? 'cancelled'
+              : _status(
+                  balance,
+                  bill.dueDate,
+                  settled: paid + bill.debitedAmountMinor,
+                ),
+        ),
         updatedAt: Value(DateTime.now()),
       ),
     );
@@ -547,6 +697,10 @@ class PurchaseRepository extends BaseRepository {
       database.purchaseBills,
     )..where((t) => t.id.equals(id))).getSingleOrNull();
     if (bill == null) return;
+    await _assertNoDebitNotes(
+      id,
+      'Bills with debit notes must be kept for audit, not deleted.',
+    );
     final paymentEntries = await (database.select(
       database.purchasePayments,
     )..where((t) => t.purchaseBillId.equals(id))).get();
@@ -570,14 +724,21 @@ class PurchaseRepository extends BaseRepository {
         ),
       );
 
-  String _status(int balance, DateTime? dueDate, {int paid = 0}) {
+  String _status(int balance, DateTime? dueDate, {int settled = 0}) {
     if (balance <= 0) return 'paid';
     final today = DateTime.now();
     if (dueDate != null &&
         dueDate.isBefore(DateTime(today.year, today.month, today.day))) {
       return 'overdue';
     }
-    return paid > 0 ? 'partially_paid' : 'unpaid';
+    return settled > 0 ? 'partially_paid' : 'unpaid';
+  }
+
+  Future<void> _assertNoDebitNotes(int billId, String message) async {
+    final notes = await (database.select(
+      database.debitNotes,
+    )..where((table) => table.purchaseBillId.equals(billId))).get();
+    if (notes.isNotEmpty) throw StateError(message);
   }
 
   int _financialYear(DateTime date) =>
