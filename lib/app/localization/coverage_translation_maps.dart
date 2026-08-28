@@ -1312,6 +1312,60 @@ const Map<String, String> appHindiCoverageTranslations = {
       'आइटम या अनुमान से शुरू करें, फिर शेष मात्रा बाद में चालान में बदलें। इनवॉइस तभी इस्तेमाल करें जब बिक्री बिल हो चुकी हो और बाकी माल भेजना हो।',
   'Already billed on this invoice. Remaining is for delivery, not another invoice.':
       'यह इनवॉइस पर पहले बिल हो चुका है। शेष मात्रा डिलीवरी के लिए है, दूसरे चालान के लिए नहीं।',
+  'Purchase orders': 'खरीद ऑर्डर',
+  'Purchase order': 'खरीद ऑर्डर',
+  'Create purchase order': 'खरीद ऑर्डर बनाएँ',
+  'Edit purchase order': 'खरीद ऑर्डर संपादित करें',
+  'Add purchase order': 'खरीद ऑर्डर जोड़ें',
+  'No purchase orders yet': 'अभी कोई खरीद ऑर्डर नहीं',
+  'No purchase orders found': 'कोई खरीद ऑर्डर नहीं मिला',
+  'Search number or supplier': 'नंबर या सप्लायर खोजें',
+  'Try a different number or supplier name.':
+      'कोई और नंबर या सप्लायर नाम आज़माएँ।',
+  'Order from a supplier, receive goods, then bill remaining quantity':
+      'सप्लायर से ऑर्डर करें, माल प्राप्त करें, फिर बाकी मात्रा बिल करें',
+  'Order from a supplier, receive goods in one or more deliveries, then convert remaining received quantity into purchase bills. The PO does not change stock or payable.':
+      'सप्लायर से ऑर्डर करें, एक या अधिक डिलीवरी में माल प्राप्त करें, फिर बाकी प्राप्त मात्रा को खरीद बिल में बदलें। खरीद ऑर्डर स्टॉक या देय नहीं बदलता।',
+  'Issue purchase order': 'खरीद ऑर्डर जारी करें',
+  'Update purchase order': 'खरीद ऑर्डर अपडेट करें',
+  'Who is this purchase order for?': 'यह खरीद ऑर्डर किसके लिए है?',
+  'Choose the supplier you are ordering from.':
+      'जिस सप्लायर से ऑर्डर कर रहे हैं उसे चुनें।',
+  'Create your first supplier to start this purchase order.':
+      'यह खरीद ऑर्डर शुरू करने के लिए पहला सप्लायर बनाएँ।',
+  'Required to create this purchase order': 'यह खरीद ऑर्डर बनाने के लिए ज़रूरी',
+  'Add goods to order': 'ऑर्डर के लिए माल जोड़ें',
+  'Expected date': 'अपेक्षित तिथि',
+  'Optional payment or delivery terms': 'वैकल्पिक भुगतान या डिलीवरी शर्तें',
+  'On purchase order': 'खरीद ऑर्डर पर',
+  'Convert to purchase bill': 'खरीद बिल में बदलें',
+  'Record received quantities': 'प्राप्त मात्रा दर्ज करें',
+  'Cancel purchase order': 'खरीद ऑर्डर रद्द करें',
+  'Cancel purchase order?': 'खरीद ऑर्डर रद्द करें?',
+  'Cancel order': 'ऑर्डर रद्द करें',
+  'Converted bills': 'बनाए गए बिल',
+  'Remaining received quantity to bill': 'बिल के लिए शेष प्राप्त मात्रा',
+  'Quantity to bill': 'बिल की मात्रा',
+  'Supplier bill number': 'सप्लायर बिल नंबर',
+  'No remaining quantity to bill.': 'बिल के लिए कोई शेष मात्रा नहीं।',
+  'Purchase order saved': 'खरीद ऑर्डर सहेजा गया',
+  'Purchase order issued': 'खरीद ऑर्डर जारी हुआ',
+  'Purchase order updated': 'खरीद ऑर्डर अपडेट हुआ',
+  'Purchase order cancelled': 'खरीद ऑर्डर रद्द हुआ',
+  'Purchase bill created': 'खरीद बिल बना',
+  'Cannot save purchase order': 'खरीद ऑर्डर सहेजा नहीं जा सकता',
+  'Cannot cancel purchase order': 'खरीद ऑर्डर रद्द नहीं हो सकता',
+  'Received and returned quantities were saved offline.':
+      'प्राप्त और वापस मात्रा ऑफ़लाइन सहेजी गई।',
+  'Order, receive, then convert remaining quantity to bills':
+      'ऑर्डर करें, प्राप्त करें, फिर बाकी मात्रा बिल में बदलें',
+  'Order goods, then receive and bill later':
+      'माल ऑर्डर करें, फिर बाद में प्राप्त करें और बिल करें',
+  'This purchase order does not change stock or payable. Receiving tracks goods; converting creates the supplier bill.':
+      'यह खरीद ऑर्डर स्टॉक या देय नहीं बदलता। प्राप्ति माल ट्रैक करती है; बदलने से सप्लायर बिल बनता है।',
+  'Save purchase order': 'खरीद ऑर्डर सहेजें',
+  'Part received': 'आंशिक प्राप्ति',
+  'Part billed': 'आंशिक बिल',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -2616,4 +2670,58 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'આઇટમ અથવા અંદાજથી શરૂ કરો, પછી બાકી જથ્થો પછીથી ઇન્વૉઇસમાં બદલો. ઇન્વૉઇસ ત્યારે જ વાપરો જ્યારે વેચાણ પહેલેથી બિલ થયું હોય અને બાકી માલ મોકલવાનો હોય.',
   'Already billed on this invoice. Remaining is for delivery, not another invoice.':
       'આ ઇન્વૉઇસ પર પહેલેથી બિલ થયું છે. બાકી જથ્થો ડિલિવરી માટે છે, બીજા ઇન્વૉઇસ માટે નહીં.',
+  'Purchase orders': 'ખરીદ ઓર્ડર',
+  'Purchase order': 'ખરીદ ઓર્ડર',
+  'Create purchase order': 'ખરીદ ઓર્ડર બનાવો',
+  'Edit purchase order': 'ખરીદ ઓર્ડર સંપાદિત કરો',
+  'Add purchase order': 'ખરીદ ઓર્ડર ઉમેરો',
+  'No purchase orders yet': 'હજુ કોઈ ખરીદ ઓર્ડર નથી',
+  'No purchase orders found': 'કોઈ ખરીદ ઓર્ડર મળ્યું નહીં',
+  'Search number or supplier': 'નંબર અથવા સપ્લાયર શોધો',
+  'Try a different number or supplier name.':
+      'બીજો નંબર અથવા સપ્લાયર નામ અજમાવો.',
+  'Order from a supplier, receive goods, then bill remaining quantity':
+      'સપ્લાયર પાસેથી ઓર્ડર કરો, માલ મેળવો, પછી બાકી જથ્થો બિલ કરો',
+  'Order from a supplier, receive goods in one or more deliveries, then convert remaining received quantity into purchase bills. The PO does not change stock or payable.':
+      'સપ્લાયર પાસેથી ઓર્ડર કરો, એક અથવા વધુ ડિલિવરીમાં માલ મેળવો, પછી બાકી મળેલ જથ્થાને ખરીદ બિલમાં બદલો. ખરીદ ઓર્ડર સ્ટોક અથવા ચુકવવાપાત્ર રકમ બદલતું નથી.',
+  'Issue purchase order': 'ખરીદ ઓર્ડર જારી કરો',
+  'Update purchase order': 'ખરીદ ઓર્ડર અપડેટ કરો',
+  'Who is this purchase order for?': 'આ ખરીદ ઓર્ડર કોના માટે છે?',
+  'Choose the supplier you are ordering from.':
+      'જે સપ્લાયર પાસેથી ઓર્ડર કરો છો તે પસંદ કરો.',
+  'Create your first supplier to start this purchase order.':
+      'આ ખરીદ ઓર્ડર શરૂ કરવા પહેલો સપ્લાયર બનાવો.',
+  'Required to create this purchase order': 'આ ખરીદ ઓર્ડર બનાવવા માટે જરૂરી',
+  'Add goods to order': 'ઓર્ડર માટે માલ ઉમેરો',
+  'Expected date': 'અપેક્ષિત તારીખ',
+  'Optional payment or delivery terms': 'વૈકલ્પિક ચુકવણી અથવા ડિલિવરી શરતો',
+  'On purchase order': 'ખરીદ ઓર્ડર પર',
+  'Convert to purchase bill': 'ખરીદ બિલમાં બદલો',
+  'Record received quantities': 'મળેલ જથ્થો નોંધો',
+  'Cancel purchase order': 'ખરીદ ઓર્ડર રદ કરો',
+  'Cancel purchase order?': 'ખરીદ ઓર્ડર રદ કરો?',
+  'Cancel order': 'ઓર્ડર રદ કરો',
+  'Converted bills': 'બનાવેલ બિલ',
+  'Remaining received quantity to bill': 'બિલ માટે બાકી મળેલ જથ્થો',
+  'Quantity to bill': 'બિલનો જથ્થો',
+  'Supplier bill number': 'સપ્લાયર બિલ નંબર',
+  'No remaining quantity to bill.': 'બિલ માટે કોઈ બાકી જથ્થો નથી.',
+  'Purchase order saved': 'ખરીદ ઓર્ડર સાચવાયું',
+  'Purchase order issued': 'ખરીદ ઓર્ડર જારી થયું',
+  'Purchase order updated': 'ખરીદ ઓર્ડર અપડેટ થયું',
+  'Purchase order cancelled': 'ખરીદ ઓર્ડર રદ થયું',
+  'Purchase bill created': 'ખરીદ બિલ બન્યું',
+  'Cannot save purchase order': 'ખરીદ ઓર્ડર સાચવી શકાતું નથી',
+  'Cannot cancel purchase order': 'ખરીદ ઓર્ડર રદ કરી શકાતું નથી',
+  'Received and returned quantities were saved offline.':
+      'મળેલ અને પરત જથ્થો ઑફલાઇન સાચવાયો.',
+  'Order, receive, then convert remaining quantity to bills':
+      'ઓર્ડર કરો, મેળવો, પછી બાકી જથ્થો બિલમાં બદલો',
+  'Order goods, then receive and bill later':
+      'માલ ઓર્ડર કરો, પછી પછીથી મેળવો અને બિલ કરો',
+  'This purchase order does not change stock or payable. Receiving tracks goods; converting creates the supplier bill.':
+      'આ ખરીદ ઓર્ડર સ્ટોક અથવા ચુકવવાપાત્ર રકમ બદલતું નથી. પ્રાપ્તિ માલ ટ્રૅક કરે છે; બદલવાથી સપ્લાયર બિલ બને છે.',
+  'Save purchase order': 'ખરીદ ઓર્ડર સાચવો',
+  'Part received': 'આંશિક પ્રાપ્તિ',
+  'Part billed': 'આંશિક બિલ',
 };

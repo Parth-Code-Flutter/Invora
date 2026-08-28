@@ -47,6 +47,10 @@ import '../../modules/delivery_challans/bindings/delivery_challan_binding.dart';
 import '../../modules/delivery_challans/screens/delivery_challan_list_screen.dart';
 import '../../modules/delivery_challans/screens/delivery_challan_form_screen.dart';
 import '../../modules/delivery_challans/screens/delivery_challan_details_screen.dart';
+import '../../modules/purchase_orders/bindings/purchase_order_binding.dart';
+import '../../modules/purchase_orders/screens/purchase_order_list_screen.dart';
+import '../../modules/purchase_orders/screens/purchase_order_form_screen.dart';
+import '../../modules/purchase_orders/screens/purchase_order_details_screen.dart';
 import '../../modules/cash_book/bindings/cash_book_binding.dart';
 import '../../modules/cash_book/screens/cash_book_screen.dart';
 import '../../modules/cash_book/screens/account_statement_screen.dart';
@@ -347,6 +351,31 @@ abstract final class AppRouter {
       name: AppRoutes.deliveryChallanConvert,
       page: DeliveryChallanConvertScreen.new,
       binding: DeliveryChallanConvertBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.purchaseOrders,
+      page: PurchaseOrderListScreen.new,
+      binding: PurchaseOrderListBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.purchaseOrderCreate,
+      page: PurchaseOrderFormScreen.new,
+      binding: PurchaseOrderFormBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.purchaseOrderEdit,
+      page: PurchaseOrderFormScreen.new,
+      binding: PurchaseOrderFormBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.purchaseOrderDetails,
+      page: PurchaseOrderDetailsScreen.new,
+      binding: PurchaseOrderDetailsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.purchaseOrderConvert,
+      page: PurchaseOrderConvertScreen.new,
+      binding: PurchaseOrderConvertBinding(),
     ),
     GetPage(
       name: AppRoutes.cashBook,

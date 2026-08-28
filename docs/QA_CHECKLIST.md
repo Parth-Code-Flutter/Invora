@@ -71,6 +71,11 @@ remain intentionally out of scope until explicitly requested.
   convert to invoice from items/quotation, non-sale convert blocked,
   cancel-with-reason, unique `DC-0001` numbering, e-way Prepared vs imported
   acknowledgement, PDF bytes, empty-list UI, and schema 17→18 migration.
+- Purchase orders: create from a supplier, unique `PO-0001` numbering, ordered /
+  received / returned / billed quantity tracking, over-receipt and over-billing
+  blocked, partial receive then convert remaining received qty to purchase
+  bills, cancel-with-reason until billed, PDF bytes, empty-list UI, and schema
+  18→19 migration.
 - Invoice duplicate, cancel, and delete; duplicated documents start unpaid.
 - Quotation creation, acceptance, and conversion to invoice.
 - Historical customer/product snapshots survive catalog deletion.
@@ -166,6 +171,12 @@ remain intentionally out of scope until explicitly requested.
   challan cannot convert. Cancel an unused challan with a reason. Prepare
   e-way (label stays Prepared), import an acknowledgement number, share the
   PDF in airplane mode, restore a backup, and confirm the challan returns.
+- Open Purchase orders from More, Reports, or the purchase + sheet. Create a
+  supplier PO, record a partial receipt (over-receipt blocked), convert remaining
+  received quantity to a purchase bill using the supplier's bill number, then
+  convert the rest into a second bill. Confirm the PO does not change stock or
+  payable until billed. Cancel an unused PO with a reason. Share the PDF in
+  airplane mode, restore a backup, and confirm the order returns.
 - Open Expenses from More and Reports. Record a rent spend with GST and ITC,
   confirm this-month total, edit it, cancel with a reason (row stays, total
   drops), and share the PDF in airplane mode. Restore a backup and confirm

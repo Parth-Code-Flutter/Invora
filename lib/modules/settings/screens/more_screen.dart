@@ -129,6 +129,13 @@ class MoreScreen extends GetView<MoreController> {
                     onTap: () => Get.toNamed<void>(AppRoutes.deliveryChallans),
                   ),
                   AppMenuTile(
+                    icon: Icons.assignment_outlined,
+                    title: 'Purchase orders',
+                    subtitle:
+                        'Order from a supplier, receive goods, then bill remaining quantity',
+                    onTap: () => Get.toNamed<void>(AppRoutes.purchaseOrders),
+                  ),
+                  AppMenuTile(
                     icon: Icons.payments_outlined,
                     title: 'Expenses',
                     subtitle: 'Rent, fuel, salary and other cash spends',

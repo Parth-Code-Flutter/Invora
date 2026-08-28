@@ -181,6 +181,14 @@ class ReportScreen extends GetView<ReportController> {
             ),
             const SizedBox(height: 14),
             _DestinationCard(
+              icon: Icons.assignment_outlined,
+              title: 'Purchase orders',
+              subtitle:
+                  'Order, receive, then convert remaining quantity to bills',
+              onTap: controller.openPurchaseOrders,
+            ),
+            const SizedBox(height: 14),
+            _DestinationCard(
               icon: Icons.account_balance_wallet_outlined,
               title: 'Cash book',
               subtitle: 'Cash, bank, UPI, transfers and daily closing',

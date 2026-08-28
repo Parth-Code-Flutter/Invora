@@ -187,6 +187,14 @@ References: [Zoho delivery challans](https://www.zoho.com/in/invoice/),
 
 ## P0.6 Purchase orders and receiving
 
+Status: **Shipped this slice 2026-08-28** (create supplier PO with expected
+date, terms, tax and items; `PO-0001`; receive in one or more deliveries;
+convert remaining received quantity into one or more purchase bills using the
+supplier's bill number; states Open / Part received / Received / Part billed /
+Billed / Cancelled; over-receipt and over-billing blocked; cancel until billed).
+The PO does not change stock or payable. Stock posting preference (receipt vs
+bill) waits for Inventory (`P1.1`).
+
 Create a supplier PO, expected date, terms, tax and items; receive quantities in
 one or more deliveries; convert received/all quantities into purchase bills.
 States: Open, Part received, Received, Part billed, Billed, Cancelled.

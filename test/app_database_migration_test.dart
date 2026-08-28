@@ -176,7 +176,30 @@ void main() {
       'delivery_challan_items',
       'delivery_challans',
     ]);
-    expect(database.schemaVersion, 18);
+    expect(database.schemaVersion, 19);
+    await database.close();
+  });
+
+  test('creates purchase order tables when upgrading from schema 18', () async {
+    final database = AppDatabase.forTesting(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw.execute('PRAGMA user_version = 18');
+        },
+      ),
+    );
+
+    final tables = await database
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE 'purchase_order%' ORDER BY name",
+        )
+        .get();
+    expect(tables.map((row) => row.read<String>('name')), [
+      'purchase_order_bills',
+      'purchase_order_items',
+      'purchase_orders',
+    ]);
+    expect(database.schemaVersion, 19);
     await database.close();
   });
 }

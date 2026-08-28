@@ -207,6 +207,15 @@ Future<void> showPurchaseCreateSheet(BuildContext context) async {
           },
         ),
         ListTile(
+          leading: const Icon(Symbols.assignment_rounded),
+          title: const Text('Purchase order'),
+          subtitle: const Text('Order goods, then receive and bill later'),
+          onTap: () {
+            Navigator.pop(context);
+            Get.toNamed<void>(AppRoutes.purchaseOrderCreate);
+          },
+        ),
+        ListTile(
           leading: const Icon(Symbols.person_add_rounded),
           title: const Text('Supplier'),
           subtitle: const Text('Add a supplier'),

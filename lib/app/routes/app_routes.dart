@@ -61,4 +61,9 @@ abstract final class AppRoutes {
   static const deliveryChallanEdit = '/delivery-challans/edit';
   static const deliveryChallanDetails = '/delivery-challans/details';
   static const deliveryChallanConvert = '/delivery-challans/convert';
+  static const purchaseOrders = '/purchases/orders';
+  static const purchaseOrderCreate = '/purchases/orders/create';
+  static const purchaseOrderEdit = '/purchases/orders/edit';
+  static const purchaseOrderDetails = '/purchases/orders/details';
+  static const purchaseOrderConvert = '/purchases/orders/convert';
 }

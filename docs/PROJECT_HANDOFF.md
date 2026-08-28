@@ -451,6 +451,20 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   `delivery_challans`, `delivery_challan_items`, and
   `delivery_challan_invoices` are in the SQLite backup file. Entry points:
   More and Reports.
+- Purchase orders (`P0.6`) live under More → Purchase orders, Reports, and the
+  purchase create sheet. Numbering is `PO-0001`. Create from a supplier with
+  items, optional expected date, terms, and notes. The composer matches
+  invoices: supplier card and number/date first, items next, collapsed terms
+  and notes. Draft sits in the AppBar; the footer is Issue / Add-first-item.
+  Record received/returned quantities in one or more deliveries. Convert
+  remaining received quantity into one or more purchase bills using the
+  supplier's own bill number. Notes on the bill read `From purchase order
+  PO-0001`. Over-receipt and over-billing are blocked. Cancel with a reason
+  until any quantity is billed. States: Draft, Open, Part received, Received,
+  Part billed, Billed, Cancelled. The PO does not change stock or payable —
+  payable starts when the bill is created. Print/share/save PDF. Schema 19
+  tables `purchase_orders`, `purchase_order_items`, and `purchase_order_bills`
+  are in the SQLite backup file.
 - Expenses are a simple offline voucher, separate from item-based purchase
   bills: date, category, payee, amount paid (GST treated as inclusive),
   optional ITC flag, payment method, and note. Numbers are `EXP-0001`.
@@ -637,9 +651,13 @@ As of 2026-08-28:
 7. Physical-device QA of purchase debit notes: partial return, over-return
    blocked, paid-bill refund vs supplier credit, apply leftover credit to
    another bill, supplier statement, debit-note PDF, and airplane mode.
-8. Next implementation: purchase orders (`P0.6`). Do not start barcode
-   quantity changes or POS until the stock ledger (`P1.1`) exists. Physical-device
-   QA of delivery challans (`P0.5`) is still open: create from quotation,
+8. Next implementation after purchase orders (`P0.6`) is not inventory, POS, or
+   barcode quantity changes until the stock ledger (`P1.1`) exists.
+   Physical-device QA of purchase orders is still open: create from a supplier,
+   partial receive, over-receipt blocked, convert remaining received qty to a
+   bill (supplier bill number required), second bill for leftover qty, cancel
+   with reason until billed, PDF share in airplane mode, and restore from
+   backup. Physical-device QA of delivery challans (`P0.5`) is still open: create from quotation,
    partial convert, non-sale blocked, cancel with reason, e-way Prepared vs
    imported acknowledgement, PDF share in airplane mode, and restore from
    backup. Physical-device QA of the cash book (`P0.9`) is still open: accounts,
@@ -679,6 +697,24 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-28 — Purchase orders and receiving
+
+- Added offline purchase orders (`P0.6`): supplier + items, `PO-0001`, optional
+  expected date/terms/notes, receive in one or more deliveries, convert remaining
+  received quantity into purchase bills using the supplier's bill number. The
+  PO does not change stock or payable. Over-receipt and over-billing are
+  blocked. Cancel with a reason until billed.
+- Create composer matches invoices. Entry points: More, Reports, and the
+  purchase + sheet.
+- Important files: `purchase_order_model.dart`,
+  `purchase_order_repository.dart`, `purchase_order_pdf_service.dart`,
+  `lib/modules/purchase_orders/`, schema 19 tables in `app_database.dart`.
+- Storage: schema 19 `purchase_orders`, `purchase_order_items`,
+  `purchase_order_bills` (in the SQLite backup file).
+- Verification: Dart formatting, `flutter analyze`, repository tests (numbering,
+  over-receipt/over-bill, partial receive/convert, cancel lock), list/form
+  widget tests, migration 18→19.
 
 ### 2026-08-28 — Business identity editor redesign
 

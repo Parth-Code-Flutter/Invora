@@ -77,6 +77,8 @@ class ReportController extends GetxController {
 
   void openExpenses() => Get.toNamed<void>(AppRoutes.expenses);
 
+  void openPurchaseOrders() => Get.toNamed<void>(AppRoutes.purchaseOrders);
+
   void openCashBook() => Get.toNamed<void>(AppRoutes.cashBook);
 
   void openExport() => Get.toNamed<void>(AppRoutes.dataExport);

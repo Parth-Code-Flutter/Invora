@@ -614,6 +614,66 @@ class DeliveryChallanInvoices extends Table {
   DateTimeColumn get convertedAt => dateTime()();
 }
 
+@TableIndex(
+  name: 'purchase_orders_number',
+  columns: {#orderNumber},
+  unique: true,
+)
+@TableIndex(name: 'purchase_orders_status', columns: {#status})
+class PurchaseOrders extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get orderNumber => text()();
+  IntColumn get supplierId => integer()();
+  TextColumn get supplierName => text()();
+  TextColumn get supplierCompany => text().nullable()();
+  TextColumn get supplierMobile => text().nullable()();
+  TextColumn get supplierEmail => text().nullable()();
+  TextColumn get supplierGstin => text().nullable()();
+  TextColumn get supplierAddress => text().nullable()();
+  DateTimeColumn get orderDate => dateTime()();
+  DateTimeColumn get expectedDate => dateTime().nullable()();
+  TextColumn get status => text()();
+  TextColumn get taxMode => text().withDefault(const Constant('cgst_sgst'))();
+  TextColumn get terms => text().nullable()();
+  TextColumn get notes => text().nullable()();
+  TextColumn get cancellationReason => text().nullable()();
+  DateTimeColumn get cancelledAt => dateTime().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class PurchaseOrderItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get orderId =>
+      integer().references(PurchaseOrders, #id, onDelete: KeyAction.cascade)();
+  IntColumn get productId => integer().nullable()();
+  TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
+  IntColumn get orderedQuantityScaled => integer()();
+  IntColumn get receivedQuantityScaled =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get returnedQuantityScaled =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get billedQuantityScaled =>
+      integer().withDefault(const Constant(0))();
+  TextColumn get unit => text()();
+  IntColumn get rateMinor => integer()();
+  TextColumn get hsnSac => text().nullable()();
+  IntColumn get taxRateBasisPoints =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get sortOrder => integer()();
+}
+
+@TableIndex(name: 'purchase_order_bills_order', columns: {#orderId})
+@TableIndex(name: 'purchase_order_bills_bill', columns: {#purchaseBillId})
+class PurchaseOrderBills extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get orderId =>
+      integer().references(PurchaseOrders, #id, onDelete: KeyAction.cascade)();
+  IntColumn get purchaseBillId => integer().references(PurchaseBills, #id)();
+  DateTimeColumn get convertedAt => dateTime()();
+}
+
 @DriftDatabase(
   tables: [
     DatabaseMetadata,
@@ -647,6 +707,9 @@ class DeliveryChallanInvoices extends Table {
     DeliveryChallans,
     DeliveryChallanItems,
     DeliveryChallanInvoices,
+    PurchaseOrders,
+    PurchaseOrderItems,
+    PurchaseOrderBills,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -831,6 +894,11 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createTable(deliveryChallans);
         await migrator.createTable(deliveryChallanItems);
         await migrator.createTable(deliveryChallanInvoices);
+      }
+      if (from < 19) {
+        await migrator.createTable(purchaseOrders);
+        await migrator.createTable(purchaseOrderItems);
+        await migrator.createTable(purchaseOrderBills);
       }
     },
   );
