@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -281,6 +282,44 @@ void main() {
       ledger.adjust(productId: product.id!, quantityScaled: 1000, reason: '  '),
       throwsArgumentError,
     );
+  });
+
+  test('as-of on-hand and range reports ignore later postings', () async {
+    final product = await _product(products);
+    await database
+        .into(database.stockMovements)
+        .insert(
+          StockMovementsCompanion.insert(
+            productId: product.id!,
+            quantityScaled: 5000,
+            type: StockMovementType.opening.storage,
+            sourceType: StockSourceType.opening.storage,
+            sourceId: Value(product.id),
+            createdAt: Value(DateTime(2026, 8, 1, 9)),
+          ),
+        );
+    await database
+        .into(database.stockMovements)
+        .insert(
+          StockMovementsCompanion.insert(
+            productId: product.id!,
+            quantityScaled: -2000,
+            type: StockMovementType.sale.storage,
+            sourceType: StockSourceType.invoice.storage,
+            sourceId: const Value(1),
+            createdAt: Value(DateTime(2026, 8, 20, 10)),
+          ),
+        );
+
+    expect(await ledger.onHandAsOf(DateTime(2026, 8, 10)), {product.id!: 5000});
+    expect(await ledger.onHandAsOf(DateTime(2026, 8, 20)), {product.id!: 3000});
+
+    final inRange = await ledger.movementsInRange(
+      from: DateTime(2026, 8, 15),
+      to: DateTime(2026, 8, 31),
+    );
+    expect(inRange, hasLength(1));
+    expect(inRange.single.quantityScaled, -2000);
   });
 }
 

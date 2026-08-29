@@ -162,42 +162,53 @@ class MoreScreen extends GetView<MoreController> {
               }),
               const SizedBox(height: 22),
               const _SectionLabel('Insights & data'),
-              AppMenuGroup(
-                children: [
-                  AppMenuTile(
-                    icon: Icons.insert_chart_outlined_rounded,
-                    title: 'Reports',
-                    subtitle: 'Review sales, receipts and outstanding totals',
-                    onTap: () => Get.toNamed<void>(AppRoutes.reports),
-                  ),
-                  AppMenuTile(
-                    icon: Icons.hourglass_bottom_rounded,
-                    title: 'Ageing & reminders',
-                    subtitle:
-                        'Buckets to collect or pay, then share a reminder',
-                    onTap: () => Get.toNamed<void>(AppRoutes.ageing),
-                  ),
-                  AppMenuTile(
-                    icon: Icons.file_upload_outlined,
-                    title: 'Import data',
-                    subtitle:
-                        'CSV templates for parties, items and unpaid bills',
-                    onTap: () => Get.toNamed<void>(AppRoutes.dataImport),
-                  ),
-                  AppMenuTile(
-                    icon: Icons.account_balance_outlined,
-                    title: 'GST / CA export',
-                    subtitle: 'Prepared registers for your accountant',
-                    onTap: () => Get.toNamed<void>(AppRoutes.gstExport),
-                  ),
-                  AppMenuTile(
-                    icon: Icons.settings_backup_restore_rounded,
-                    title: 'Backup & restore',
-                    subtitle: 'Export or restore your offline records',
-                    onTap: () => Get.toNamed<void>(AppRoutes.backup),
-                  ),
-                ],
-              ),
+              Obx(() {
+                final stockOn = controller.stockEnabled.value;
+                return AppMenuGroup(
+                  children: [
+                    AppMenuTile(
+                      icon: Icons.insert_chart_outlined_rounded,
+                      title: 'Reports',
+                      subtitle: 'Review sales, receipts and outstanding totals',
+                      onTap: () => Get.toNamed<void>(AppRoutes.reports),
+                    ),
+                    if (stockOn)
+                      AppMenuTile(
+                        icon: Icons.inventory_2_outlined,
+                        title: 'Stock reports',
+                        subtitle:
+                            'On-hand as of a date, and every posted movement',
+                        onTap: () => Get.toNamed<void>(AppRoutes.stockReports),
+                      ),
+                    AppMenuTile(
+                      icon: Icons.hourglass_bottom_rounded,
+                      title: 'Ageing & reminders',
+                      subtitle:
+                          'Buckets to collect or pay, then share a reminder',
+                      onTap: () => Get.toNamed<void>(AppRoutes.ageing),
+                    ),
+                    AppMenuTile(
+                      icon: Icons.file_upload_outlined,
+                      title: 'Import data',
+                      subtitle:
+                          'CSV templates for parties, items and unpaid bills',
+                      onTap: () => Get.toNamed<void>(AppRoutes.dataImport),
+                    ),
+                    AppMenuTile(
+                      icon: Icons.account_balance_outlined,
+                      title: 'GST / CA export',
+                      subtitle: 'Prepared registers for your accountant',
+                      onTap: () => Get.toNamed<void>(AppRoutes.gstExport),
+                    ),
+                    AppMenuTile(
+                      icon: Icons.settings_backup_restore_rounded,
+                      title: 'Backup & restore',
+                      subtitle: 'Export or restore your offline records',
+                      onTap: () => Get.toNamed<void>(AppRoutes.backup),
+                    ),
+                  ],
+                );
+              }),
               const SizedBox(height: 22),
               const _SectionLabel('Preferences'),
               AppMenuGroup(

@@ -72,6 +72,40 @@ enum StockSourceType {
     StockSourceType.opening => 'opening',
     StockSourceType.adjustment => 'adjustment',
   };
+
+  String get label => switch (this) {
+    StockSourceType.invoice => 'Invoice',
+    StockSourceType.purchaseBill => 'Purchase bill',
+    StockSourceType.creditNote => 'Credit note',
+    StockSourceType.debitNote => 'Debit note',
+    StockSourceType.opening => 'Opening',
+    StockSourceType.adjustment => 'Adjustment',
+  };
+
+  static StockSourceType fromStorage(String value) {
+    return StockSourceType.values.firstWhere(
+      (type) => type.storage == value,
+      orElse: () => StockSourceType.adjustment,
+    );
+  }
+}
+
+/// Calendar-day bounds for stock as-of and movement-range reports.
+abstract final class StockDay {
+  static DateTime start(DateTime value) =>
+      DateTime(value.year, value.month, value.day);
+
+  static DateTime end(DateTime value) =>
+      DateTime(value.year, value.month, value.day, 23, 59, 59, 999);
+
+  static String iso(DateTime value) =>
+      '${value.year.toString().padLeft(4, '0')}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}';
+
+  static String display(DateTime value) =>
+      '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}';
+
+  static String displayDateTime(DateTime value) =>
+      '${display(value)} ${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
 }
 
 class StockLine {

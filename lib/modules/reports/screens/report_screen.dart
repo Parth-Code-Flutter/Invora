@@ -195,6 +195,14 @@ class ReportScreen extends GetView<ReportController> {
               onTap: controller.openCashBook,
             ),
             const SizedBox(height: 14),
+            if (controller.stockEnabled.value)
+              _DestinationCard(
+                icon: Icons.inventory_2_outlined,
+                title: 'Stock reports',
+                subtitle: 'On-hand as of a date, and every posted movement',
+                onTap: controller.openStockReports,
+              ),
+            if (controller.stockEnabled.value) const SizedBox(height: 14),
             _DestinationCard(
               icon: Icons.hourglass_bottom_rounded,
               title: 'Ageing & reminders',

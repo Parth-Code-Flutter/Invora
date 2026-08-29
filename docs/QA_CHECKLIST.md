@@ -79,6 +79,8 @@ remain intentionally out of scope until explicitly requested.
 - Optional stock ledger (`P1.1` core): default Off with no movements; opening
   quantities; invoice sale + cancel reverse-not-edit; purchase bill + debit-note
   stock-out; credit-note restock; custom-line and service skip; schema 19→20.
+- Stock reports: on-hand as of a date excludes later movements; movement range
+  CSV/PDF; Off hides report destinations.
 - About and diagnostics: Settings → About shows version and schema, offline
   help, and a counts-only diagnostics text file (share/save). GitHub CI runs
   format, analyze, and tests.
@@ -189,7 +191,10 @@ remain intentionally out of scope until explicitly requested.
   movement rows are reversed, not edited), bill in / debit-note out, credit-note
   restock, custom line and service skip, More → Stock adjust with a required
   reason, import Opening stock while On, then check on-hand in airplane mode.
-  Turn Off and confirm stock UI hides while movements remain after restore.
+  Open Stock reports (Reports, More, or Stock). Confirm On hand as of a date
+  before a sale still shows the earlier qty; Movements lists the sale after
+  that date; share CSV and preview PDF in airplane mode. Turn Off and confirm
+  Stock reports hide while movements remain after restore.
 - Open Settings → About. Confirm version and schema, then Share diagnostics in
   airplane mode. Open the file and confirm it has counts/versions only — no
   customer names, GSTIN, or amounts.

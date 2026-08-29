@@ -4,6 +4,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/quantity_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
@@ -27,6 +28,11 @@ class StockListScreen extends GetView<StockController> {
         leading: const AppBackButton(),
         title: const AppBarTitle('Stock'),
         actions: [
+          AppBarIconButton(
+            tooltip: l10n('Stock reports'),
+            onPressed: () => Get.toNamed<void>(AppRoutes.stockReports),
+            icon: Icons.assessment_outlined,
+          ),
           AppBarIconButton(
             tooltip: l10n('Adjust stock'),
             onPressed: () => _adjust(context),

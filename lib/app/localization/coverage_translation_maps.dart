@@ -1460,6 +1460,35 @@ const Map<String, String> appHindiCoverageTranslations = {
       'ओपनिंग स्टॉक तभी लागू होता है जब उत्पाद स्टॉक ट्रैक चालू हो।',
   'Opening stock must be a number with up to three decimals.':
       'ओपनिंग स्टॉक तीन दशमलव तक की संख्या होनी चाहिए।',
+  'Stock reports': 'स्टॉक रिपोर्ट',
+  'On-hand as of a date, and every posted movement':
+      'एक तिथि तक मौजूद स्टॉक, और हर दर्ज मूवमेंट',
+  'On hand as of': 'इस तिथि का मौजूद स्टॉक',
+  'Movements': 'मूवमेंट',
+  'Turn on Track product stock in Product settings to use these reports.':
+      'इन रिपोर्ट के लिए उत्पाद सेटिंग में उत्पाद स्टॉक ट्रैक चालू करें।',
+  'Open Product settings': 'उत्पाद सेटिंग खोलें',
+  'No movements in this period': 'इस अवधि में कोई मूवमेंट नहीं',
+  'No products to show': 'दिखाने के लिए कोई उत्पाद नहीं',
+  'Quantities use when stock was posted, not the invoice date.':
+      'मात्रा उस समय की है जब स्टॉक दर्ज हुआ, चालान की तारीख की नहीं।',
+  'Stock report failed': 'स्टॉक रिपोर्ट विफल',
+  'The stock report could not be prepared. Please try again.':
+      'स्टॉक रिपोर्ट तैयार नहीं हो सकी। कृपया फिर कोशिश करें।',
+  'Stock report is unavailable.': 'स्टॉक रिपोर्ट उपलब्ध नहीं है।',
+  'As of': 'तिथि तक',
+  'No negative on-hand': 'कोई ऋणात्मक स्टॉक नहीं',
+  'Spreadsheet of the list on this screen': 'इस स्क्रीन की सूची की स्प्रेडशीट',
+  'Printable copy of this report': 'इस रिपोर्ट की प्रिंट प्रति',
+  'Send this report to a printer': 'इस रिपोर्ट को प्रिंटर पर भेजें',
+  'Sale reversed': 'बिक्री उलटी',
+  'Purchase reversed': 'खरीद उलटी',
+  'Reversal': 'उलटाव',
+  'Purchase bill': 'खरीद बिल',
+  'Sale': 'बिक्री',
+  'Adjustment': 'समायोजन',
+  'When posted': 'दर्ज समय',
+  'Save stock report': 'स्टॉक रिपोर्ट सहेजें',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -2912,4 +2941,33 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'ઓપનિંગ સ્ટોક ત્યારે જ લાગુ પડે જ્યારે ઉત્પાદ સ્ટોક ટ્રૅક ચાલુ હોય.',
   'Opening stock must be a number with up to three decimals.':
       'ઓપનિંગ સ્ટોક ત્રણ દશાંશ સુધીની સંખ્યા હોવી જોઈએ.',
+  'Stock reports': 'સ્ટોક રિપોર્ટ',
+  'On-hand as of a date, and every posted movement':
+      'એક તારીખ સુધીનો હાથ પરનો સ્ટોક, અને દરેક નોંધાયેલું મૂવમેન્ટ',
+  'On hand as of': 'આ તારીખનો હાથ પરનો સ્ટોક',
+  'Movements': 'મૂવમેન્ટ',
+  'Turn on Track product stock in Product settings to use these reports.':
+      'આ રિપોર્ટ માટે ઉત્પાદ સેટિંગમાં ઉત્પાદ સ્ટોક ટ્રૅક ચાલુ કરો.',
+  'Open Product settings': 'ઉત્પાદ સેટિંગ ખોલો',
+  'No movements in this period': 'આ સમયગાળામાં કોઈ મૂવમેન્ટ નથી',
+  'No products to show': 'બતાવવા માટે કોઈ ઉત્પાદ નથી',
+  'Quantities use when stock was posted, not the invoice date.':
+      'માત્રા ત્યારની છે જ્યારે સ્ટોક નોંધાયો, ઇન્વૉઇસની તારીખની નહીં.',
+  'Stock report failed': 'સ્ટોક રિપોર્ટ નિષ્ફળ',
+  'The stock report could not be prepared. Please try again.':
+      'સ્ટોક રિપોર્ટ તૈયાર થઈ શક્યો નહીં. કૃપા કરીને ફરી પ્રયાસ કરો.',
+  'Stock report is unavailable.': 'સ્ટોક રિપોર્ટ ઉપલબ્ધ નથી.',
+  'As of': 'તારીખ સુધી',
+  'No negative on-hand': 'કોઈ નકારાત્મક સ્ટોક નથી',
+  'Spreadsheet of the list on this screen': 'આ સ્ક્રીનની યાદીની સ્પ્રેડશીટ',
+  'Printable copy of this report': 'આ રિપોર્ટની પ્રિન્ટ નકલ',
+  'Send this report to a printer': 'આ રિપોર્ટ પ્રિન્ટર પર મોકલો',
+  'Sale reversed': 'વેચાણ ઉલટું',
+  'Purchase reversed': 'ખરીદી ઉલટી',
+  'Reversal': 'ઉલટાવ',
+  'Purchase bill': 'ખરીદ બિલ',
+  'Sale': 'વેચાણ',
+  'Adjustment': 'ગોઠવણ',
+  'When posted': 'નોંધાયેલો સમય',
+  'Save stock report': 'સ્ટોક રિપોર્ટ સાચવો',
 };

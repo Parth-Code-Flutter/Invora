@@ -38,6 +38,17 @@ class ProductRepository extends BaseRepository {
     });
   }
 
+  Future<List<ProductServiceModel>> listItems({ItemType? type}) async {
+    final statement = database.select(database.productServices)
+      ..where((table) => table.isDeleted.equals(false))
+      ..orderBy([(table) => OrderingTerm.asc(table.name)]);
+    if (type != null) {
+      statement.where((table) => table.type.equals(type.name));
+    }
+    final rows = await statement.get();
+    return rows.map(_toModel).toList(growable: false);
+  }
+
   Future<ProductServiceModel?> getById(int id) async {
     final row = await (database.select(
       database.productServices,

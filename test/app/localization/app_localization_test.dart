@@ -22,6 +22,7 @@ void main() {
         'Product settings',
         'Payment receipt',
         'Reports',
+        'Stock reports',
         'Backup & restore',
         'Choose language',
       ];

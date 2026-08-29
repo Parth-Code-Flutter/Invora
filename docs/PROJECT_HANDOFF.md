@@ -143,6 +143,9 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   allowed. Catalog list/details and More → Stock show only while tracking is
   on; disabling hides UI and stops posting but keeps SQLite/backup rows.
   Opening stock on product and opening-balance import posts only while On.
+  When On, Reports, More, and Stock open **Stock reports**: on-hand as of a
+  chosen date, movements in a period, and share/save CSV or PDF. Quantities
+  follow when the movement was posted, not the invoice date.
 - GitHub Actions CI on `parth-dev` and `main` runs `dart format` (lib/test),
   `flutter analyze --no-fatal-infos`, and `flutter test` with Flutter 3.44.4.
   Signing, store privacy URLs, and device-farm checks are not in CI.
@@ -685,7 +688,11 @@ As of 2026-08-28:
    sale + cancel reverse (row count grows, old rows unchanged), purchase bill
    in / debit-note out, credit-note restock, custom/service skip, More → Stock
    adjust with reason, import opening while On, and airplane-mode on-hand.
-   Remaining inventory work is reports, reorder/low-stock, negative-stock
+   Open Stock reports from Reports, More, or Stock: On hand as of a past date
+   (later sales must not change that snapshot), Movements for This month /
+   custom range, share CSV and preview PDF in airplane mode. Turn Off and
+   confirm stock UI and reports hide while movements remain after restore.
+   Remaining inventory work is reorder/low-stock, negative-stock
    policy, unit conversion, committed/incoming, and challan/PO-receive posting.
    Remaining `P0.11` work is release signing, store privacy URLs, high-volume
    benchmarks, and accessibility polish. GitHub CI runs format, analyze, and
@@ -735,6 +742,19 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-29 — Stock reports (P1.1)
+
+- Added on-hand-as-of and movement-range reports while Track product stock is
+  On. Entry points: Reports, More, and More → Stock. Share/save CSV, preview
+  and print PDF. As-of and period filters use when the movement was posted,
+  not the invoice date. Off hides the destinations and shows a settings prompt.
+- Important files: `stock_ledger.dart` (`onHandAsOf`, `movementsInRange`),
+  `stock_report_service.dart`, `stock_report_screen.dart`, report/More/Stock
+  routes.
+- Storage: none; reads schema 20 `stock_movements`.
+- Verification: Dart formatting, targeted Flutter analysis, stock ledger as-of
+  tests, stock report CSV/PDF tests, stock report screen widget tests.
 
 ### 2026-08-29 — Adjust-stock keyboard overflow
 

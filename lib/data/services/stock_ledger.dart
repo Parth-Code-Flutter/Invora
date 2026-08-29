@@ -38,6 +38,51 @@ class StockLedger {
     return totals;
   }
 
+  /// On-hand at the end of [asOf]'s calendar day, using movement `createdAt`.
+  Future<Map<int, int>> onHandAsOf(
+    DateTime asOf, {
+    Iterable<int>? productIds,
+  }) async {
+    final ids = productIds?.toSet();
+    if (ids != null && ids.isEmpty) return const {};
+    final end = StockDay.end(asOf);
+    final statement = database.select(database.stockMovements)
+      ..where((table) => table.createdAt.isSmallerOrEqualValue(end));
+    if (ids != null) {
+      statement.where((table) => table.productId.isIn(ids));
+    }
+    final rows = await statement.get();
+    final totals = <int, int>{
+      if (ids != null)
+        for (final id in ids) id: 0,
+    };
+    for (final row in rows) {
+      totals[row.productId] = (totals[row.productId] ?? 0) + row.quantityScaled;
+    }
+    return totals;
+  }
+
+  Future<List<StockMovementModel>> movementsInRange({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final start = StockDay.start(from);
+    final end = StockDay.end(to);
+    final rows =
+        await (database.select(database.stockMovements)
+              ..where(
+                (table) =>
+                    table.createdAt.isBiggerOrEqualValue(start) &
+                    table.createdAt.isSmallerOrEqualValue(end),
+              )
+              ..orderBy([
+                (table) => OrderingTerm.asc(table.createdAt),
+                (table) => OrderingTerm.asc(table.id),
+              ]))
+            .get();
+    return rows.map(StockMovementModel.fromRow).toList(growable: false);
+  }
+
   Stream<bool> watchEnabled() {
     return (database.select(database.stockSettings)
           ..where((table) => table.id.equals(1)))

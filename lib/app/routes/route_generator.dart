@@ -40,6 +40,7 @@ import '../../modules/reports/bindings/report_binding.dart';
 import '../../modules/reports/screens/report_screen.dart';
 import '../../modules/reports/screens/gst_export_screen.dart';
 import '../../modules/reports/screens/ageing_screen.dart';
+import '../../modules/reports/screens/stock_report_screen.dart';
 import '../../modules/expenses/bindings/expense_binding.dart';
 import '../../modules/expenses/screens/expense_list_screen.dart';
 import '../../modules/expenses/screens/expense_details_screen.dart';
@@ -324,6 +325,11 @@ abstract final class AppRouter {
       name: AppRoutes.ageing,
       page: AgeingScreen.new,
       binding: AgeingBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.stockReports,
+      page: StockReportScreen.new,
+      binding: StockReportBinding(),
     ),
     GetPage(
       name: AppRoutes.expenses,

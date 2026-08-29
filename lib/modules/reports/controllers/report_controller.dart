@@ -8,12 +8,16 @@ import '../../../data/models/invoice_model.dart';
 import '../../../data/models/report_summary_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
+import '../../../data/services/stock_ledger.dart';
 import '../widgets/report_charts.dart';
 
 class ReportController extends GetxController {
-  ReportController(this._invoices, this._business);
+  ReportController(this._invoices, this._business, [this._ledger]);
   final InvoiceRepository _invoices;
   final BusinessRepository _business;
+  final StockLedger? _ledger;
+  final stockEnabled = false.obs;
+  StreamSubscription<bool>? _stockSubscription;
   final report = const ReportSummaryModel().obs;
   final currencySymbol = '₹'.obs;
   final preset = GstExportPeriodPreset.thisMonth.obs;
@@ -30,6 +34,12 @@ class ReportController extends GetxController {
     _business.getProfile().then(
       (profile) => currencySymbol.value = profile?.currencySymbol ?? '₹',
     );
+    final ledger = _ledger;
+    if (ledger != null) {
+      _stockSubscription = ledger.watchEnabled().listen(
+        (enabled) => stockEnabled.value = enabled,
+      );
+    }
     applyPreset(GstExportPeriodPreset.thisMonth);
   }
 
@@ -83,6 +93,8 @@ class ReportController extends GetxController {
 
   void openExport() => Get.toNamed<void>(AppRoutes.dataExport);
 
+  void openStockReports() => Get.toNamed<void>(AppRoutes.stockReports);
+
   DateTime _shift(DateTime value, {required int years, required int months}) {
     final target = DateTime(value.year + years, value.month + months, 1);
     final last = DateTime(target.year, target.month + 1, 0).day;
@@ -129,6 +141,7 @@ class ReportController extends GetxController {
   @override
   void onClose() {
     _subscription?.cancel();
+    _stockSubscription?.cancel();
     super.onClose();
   }
 }

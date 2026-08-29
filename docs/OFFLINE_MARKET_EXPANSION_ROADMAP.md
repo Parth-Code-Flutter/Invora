@@ -310,8 +310,9 @@ accessibility pass, and signed release artifacts remain.
 Status: **Partial 2026-08-29** (optional Track product stock, default Off;
 immutable movements; derived on-hand; posting from invoices, purchase bills,
 credit notes, debit notes, and manual adjustments; opening capture; catalog
-on-hand and More → Stock). Reports, reorder/low-stock, negative-stock policy,
-unit conversion, committed/incoming, and challan/PO-receive posting remain.
+on-hand and More → Stock; on-hand-as-of and movement reports with CSV/PDF).
+Reorder/low-stock, negative-stock policy, unit conversion, committed/incoming,
+and challan/PO-receive posting remain.
 
 Settings asks **Track product stock?** Existing businesses default Off.
 Enabling captures opening date/quantities. Disabling hides UI but preserves data.
