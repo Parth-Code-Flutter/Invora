@@ -126,13 +126,18 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
   activity). Onboarding is a centred visual plus copy/CTA cluster. Forms stay
   on a readable canvas instead of stretching edge-to-edge. Lists use 2/3-column
   cards; sheets open as centred dialogs.
-- Optional four-digit app lock under Settings > Security. PIN setup requires
-  confirmation; changing or disabling requires the current PIN. Enabled locks
-  cover cold launch and foreground return, while the stored credential is a
-  salted, iterated SHA-256 hash rather than plain PIN text. This is an access
+- Optional four-digit app lock under Settings > Security, with PIN and
+  fingerprint as unlock options. PIN setup requires confirmation and remains
+  the backup (needed to disable the lock, and when fingerprint is unavailable
+  or declined). Fingerprint uses the device biometric prompt after a successful
+  check; Face ID / Touch ID on iOS still appear as the Fingerprint option.
+  Changing or disabling requires the current PIN. Enabled locks cover cold
+  launch and foreground return, while the stored credential is a salted,
+  iterated SHA-256 hash rather than plain PIN text. The fingerprint flag is
+  device-local SharedPreferences and is not part of backup. This is an access
   guard for the local app and does not encrypt SQLite data or CSV exports.
   Backup files use a separate password.
-- Settings → About is a real screen: app version and build, schema 21, short
+- Settings → About is a real screen: app version and build, schema 22, short
   offline / GST Prepared / local-backup help, and Share/Save diagnostics. The
   diagnostics file is versions plus record counts only — not names, GSTIN,
   amounts, invoices, passwords, or a backup. Counts include stock movements
@@ -146,8 +151,12 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
   on-hand, and Stock reports show when **at least one** live product keeps
   stock; they hide when none do. Turning Keep stock off on one item hides that
   item's on-hand and stops new posting; movement rows stay (reverse-not-delete).
-  Schema 21 adds `product_services.track_stock` (default false). Upgrade from
-  schema 20 copies the old global `stock_settings.enabled` flag onto live
+  Schema 21 added `product_services.track_stock`. Schema 22 adds optional
+  catalog photos (`image_paths_json`, up to 3 relative files in
+  `product_images/`). Add item is a classic catalog card: cover photos,
+  Product/Service, identity, inventory, then invoice details. Photos are
+  optional and appear as the cover on the catalog list and item details.
+  Upgrade from schema 20 copies the old global `stock_settings.enabled` flag onto live
   products when it was On; Off leaves existing products untracked. New form
   products default Keep stock On; repository/model default remains false so
   unspecified saves do not start posting. Opening stock on product import
@@ -208,8 +217,10 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
   card per section, inset hairline dividers, compact 14px rows, plum icon
   wells, and a chevron instead of a circular arrow. More is the daily hub:
   workspace switch, product fields, units, catalog, estimates, expenses,
-  reports, ageing and reminders, GST / CA export, and backup. App Settings is
-  unique preferences only: business profile, invoice defaults, dark mode,
+  reports, ageing and reminders, GST / CA export, and backup. A Search
+  features field filters those destinations by name, subtitle, section, and
+  common aliases (GST, quotation, PIN). Empty results can be cleared. App
+  Settings is unique preferences only: business profile, invoice defaults, dark mode,
   language, app lock, CSV export, and About (version, schema, offline help,
   and a counts-only diagnostics file). Product settings, units, GST / CA
   export, and backup are not repeated
@@ -265,13 +276,16 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
 - Price, description, HSN/SAC, GST rate, type, and unit support
 - Shared saved-unit picker plus a central manager for add, rename, delete, and
   app-wide default selection; new items prefill the selected default
-- Catalog add/edit is a compact catalog form: equal-width Product/Service
-  segmented control, a compact purpose guide, card-contained section headings,
-  required name and price, visible unit/HSN/GST when those fields are enabled,
-  optional product fields with Manage, and a sticky save. The form uses the
-  shared app typography scale and responsive padding on Android and iOS.
+- Catalog add/edit is a classic catalog card: optional photos first (cover plus
+  two extras, up to 3), Product/Service as two kind tiles, then grouped
+  sections for the item, inventory, invoice codes, and extra details. Name and
+  price stay required; unit/HSN/GST appear when those fields are enabled;
+  optional product fields keep Manage; save stays sticky. Photos are optional
+  and never printed on invoice PDFs. The form uses the shared app typography
+  scale and responsive padding on Android and iOS.
 - Product/service forms keep a live invoice-line preview for name, price, and
-  unit. AppBar barcode scan still prefills name, price, tax, and SKU.
+  unit, with the cover thumb when a photo exists. AppBar barcode scan still
+  prefills name, price, tax, and SKU.
 - Optional business-category presets recommend useful product fields and units
   for 15 business types without locking the catalog to a template. Category
   can be selected during business setup or changed under Product Settings.
@@ -742,6 +756,15 @@ As of 2026-08-28:
 17. Play / App Store submission is not started. When features and release
     signing are ready, follow [STORE_DEPLOYMENT.md](STORE_DEPLOYMENT.md). Do
     not change `com.creovo.billing` or reopen the brand name.
+18. Physical-device QA of app lock fingerprint: Settings → App lock shows PIN
+    and Fingerprint; Fingerprint still creates a backup PIN; unlock with
+    fingerprint on Android and Face ID / Touch ID on iOS; declined fingerprint
+    still accepts PIN; background return re-locks without immediately
+    re-locking after a successful fingerprint prompt.
+19. Physical-device QA of catalog photos: Add item cover plus two extras
+    (camera and gallery), skip photos and still save, edit/remove before save,
+    cover thumb on catalog list and item details, restore of `product_images/`
+    from backup, and confirm invoice PDFs stay text-only.
 
 Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
@@ -749,6 +772,54 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-29 — Classic Add item form and optional product photos
+
+- Add/Edit item is no longer a flat stack of identical fields. The catalog
+  form now opens with an optional photo studio (cover plus two extra slots,
+  up to 3), a Product/Service choice, then grouped cards for the item,
+  inventory, invoice codes, and extra details.
+- Photos are optional. Files live in `product_images/` (relative names in
+  `product_services.image_paths_json`). Backup/restore copies that folder.
+  CSV import does not carry photos; an update keeps existing ones. Invoice
+  PDFs are unchanged.
+- Important files: product form/list/details, `product_image_service.dart`,
+  product repository, schema 22, backup, localization, and this handoff.
+- Storage: schema 22 `product_services.image_paths_json`.
+- Verification: Dart formatting, Flutter analysis, schema 21→22 migration,
+  product image round-trip, and Add item widget tests.
+
+### 2026-08-29 — More tab feature search
+
+- More now has a Search features field under the business card. It filters
+  grouped destinations by title, subtitle, section, and aliases such as GST,
+  quotation, or PIN, including Hindi/Gujarati labels. Stock and Stock reports
+  still appear only when a product keeps stock. No matches shows an empty
+  state with Clear search.
+- Important files: `more_destinations.dart`, `more_controller.dart`,
+  `more_screen.dart`, `app_search_field.dart`, localization maps, and this
+  handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, More destination filter
+  tests, and More screen search widget tests.
+
+### 2026-08-29 — App lock PIN and fingerprint
+
+- Settings → App lock now offers two unlock options: PIN and Fingerprint.
+  Fingerprint still requires a four-digit PIN as backup. The unlock screen
+  prompts biometrics when that option is on and keeps the PIN keypad, with a
+  fingerprint control beside 0.
+- Fingerprint uses `local_auth` through an injectable `BiometricUnlock` so
+  tests never open the system prompt. Android uses `FlutterFragmentActivity`
+  and `USE_BIOMETRIC`; iOS declares Face ID usage. The preference is a
+  SharedPreferences flag (`app_lock_biometric_enabled`), not a schema change,
+  and is omitted from backup like the PIN hash.
+- Important files: `app_lock_service.dart`, `biometric_unlock.dart`,
+  `app_lock_screen.dart`, Settings tile copy, Android/iOS platform files,
+  localization maps, and this handoff.
+- Verification: Dart formatting, Flutter analysis, focused app-lock tests
+  including PIN-only, fingerprint enable/unlock, unavailable hardware, and
+  background-lock suppression after a biometric prompt.
 
 ### 2026-08-29 — Catalog quantity field and tighter item form
 

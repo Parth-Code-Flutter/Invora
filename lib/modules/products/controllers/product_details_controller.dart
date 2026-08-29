@@ -4,6 +4,7 @@ import '../../../app/enums/item_type.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
+import '../../../data/services/product_image_service.dart';
 import '../../../data/services/stock_ledger.dart';
 
 class ProductDetailsController extends GetxController {
@@ -34,6 +35,9 @@ class ProductDetailsController extends GetxController {
 
   Future<void> refreshItem() async {
     isLoading.value = true;
+    if (Get.isRegistered<ProductImageService>()) {
+      await Get.find<ProductImageService>().ensureReady();
+    }
     item.value = await _repository.getById(itemId);
     currencySymbol.value =
         (await _businessRepository.getProfile())?.currencySymbol ?? '₹';

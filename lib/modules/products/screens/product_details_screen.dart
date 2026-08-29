@@ -18,6 +18,7 @@ import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../data/models/invoice_model.dart';
 import '../controllers/product_details_controller.dart';
+import '../widgets/product_cover_thumb.dart';
 
 class ProductDetailsScreen extends GetView<ProductDetailsController> {
   const ProductDetailsScreen({super.key});
@@ -93,6 +94,7 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
                     ),
                     gst: TaxUtils.formatBasisPoints(item.taxRateBasisPoints),
                     onHandScaled: controller.onHandScaled.value,
+                    imagePaths: item.imagePaths,
                   ),
                   if (hasInformation) ...[
                     const SizedBox(height: 14),
@@ -160,6 +162,7 @@ class _ItemOverviewCard extends StatelessWidget {
     required this.price,
     required this.gst,
     this.onHandScaled,
+    this.imagePaths = const [],
   });
 
   final String name;
@@ -168,13 +171,11 @@ class _ItemOverviewCard extends StatelessWidget {
   final String price;
   final String gst;
   final int? onHandScaled;
+  final List<String> imagePaths;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accent = type == ItemType.product
-        ? AppColors.primary
-        : AppColors.secondary;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -188,20 +189,11 @@ class _ItemOverviewCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: .12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  type == ItemType.product
-                      ? Icons.inventory_2_outlined
-                      : Icons.design_services_outlined,
-                  color: accent,
-                  size: 23,
-                ),
+              ProductCoverThumb(
+                imagePaths: imagePaths,
+                type: type,
+                size: 72,
+                radius: 18,
               ),
               const SizedBox(width: 13),
               Expanded(

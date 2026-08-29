@@ -76,13 +76,16 @@ class SettingsScreen extends GetView<SettingsController> {
           AppMenuGroup(
             children: [
               Obx(() {
-                final enabled = Get.find<AppLockService>().isEnabled;
+                final lock = Get.find<AppLockService>();
+                final enabled = lock.isEnabled;
                 return AppMenuTile(
                   icon: enabled ? Icons.lock_rounded : Icons.lock_open_rounded,
                   title: 'App lock',
-                  subtitle: enabled
-                      ? 'Four-digit PIN required'
-                      : 'Protect the app with a four-digit PIN',
+                  subtitle: !enabled
+                      ? 'Protect the app with a PIN or fingerprint'
+                      : lock.isBiometricEnabled
+                      ? 'PIN and fingerprint'
+                      : 'Four-digit PIN required',
                   onTap: () => Get.toNamed<void>(AppRoutes.appLock),
                   trailing: Container(
                     padding: const EdgeInsets.symmetric(

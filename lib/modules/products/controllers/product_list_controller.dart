@@ -6,6 +6,7 @@ import '../../../app/enums/item_type.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
+import '../../../data/services/product_image_service.dart';
 import '../../../data/services/stock_ledger.dart';
 
 class ProductListController extends GetxController {
@@ -39,6 +40,9 @@ class ProductListController extends GetxController {
   void onInit() {
     super.onInit();
     _loadCurrency();
+    if (Get.isRegistered<ProductImageService>()) {
+      unawaited(Get.find<ProductImageService>().ensureReady());
+    }
     _bindCatalogSummary();
     _bindItems();
     _stockSubscription = _ledger.watchEnabled().listen((enabled) {

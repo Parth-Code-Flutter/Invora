@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
 import '../../../data/services/stock_ledger.dart';
+import '../../../data/services/product_image_service.dart';
 import '../controllers/product_details_controller.dart';
 import '../controllers/product_form_controller.dart';
 import '../controllers/product_list_controller.dart';
@@ -29,6 +30,9 @@ class ProductFormBinding extends Bindings {
         Get.find(),
         Get.find(),
         Get.isRegistered<StockLedger>() ? Get.find<StockLedger>() : null,
+        Get.isRegistered<ProductImageService>()
+            ? Get.find<ProductImageService>()
+            : null,
       ),
     );
   }

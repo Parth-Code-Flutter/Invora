@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart' hide Text;
-
-import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
@@ -13,6 +14,7 @@ import '../../../app/utils/app_focus.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_bottom_sheet.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_card.dart';
@@ -22,7 +24,9 @@ import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/app_unit_field.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
 import '../../../data/models/barcode_capture_result.dart';
+import '../../../data/services/product_image_service.dart';
 import '../controllers/product_form_controller.dart';
+import '../widgets/product_cover_thumb.dart';
 
 String? _attributeHint(String key) => switch (key) {
   'size' => 'e.g. XL, 10 inch or 2 × 4 ft',
@@ -79,17 +83,23 @@ class ProductFormScreen extends GetView<ProductFormController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _TypeSelector(
+                              _PhotoStudio(
+                                controller: controller,
+                                onAdd: () => _addPhoto(context, controller),
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              _KindPicker(
                                 value: controller.type.value,
                                 onChanged: controller.selectType,
                               ),
-                              const SizedBox(height: AppSpacing.sm),
+                              const SizedBox(height: AppSpacing.md),
+                              const _CatalogLabel('The item'),
                               AppCard(
                                 padding: const EdgeInsets.fromLTRB(
-                                  14,
-                                  12,
-                                  14,
-                                  12,
+                                  16,
+                                  16,
+                                  16,
+                                  16,
                                 ),
                                 child: Column(
                                   children: [
@@ -105,7 +115,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                       textCapitalization:
                                           TextCapitalization.words,
                                     ),
-                                    const SizedBox(height: AppSpacing.sm),
+                                    const SizedBox(height: AppSpacing.md),
                                     _ResponsiveFields(
                                       children: [
                                         AppTextField(
@@ -141,7 +151,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                     if (controller.fieldEnabled(
                                       'description',
                                     )) ...[
-                                      const SizedBox(height: AppSpacing.sm),
+                                      const SizedBox(height: AppSpacing.md),
                                       AppTextField(
                                         controller: controller.description,
                                         label: 'Invoice description',
@@ -151,31 +161,40 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                             TextCapitalization.sentences,
                                       ),
                                     ],
-                                    if (controller.showStockCard) ...[
-                                      const SizedBox(height: AppSpacing.sm),
-                                      _KeepStockRow(
-                                        trackStock: controller.trackStock.value,
-                                        showQty: controller.showQtyField,
-                                        quantity: controller.openingQty,
-                                        unit: controller.selectedUnit.value,
-                                        validateQty:
-                                            controller.validateOpeningQty,
-                                        onChanged: controller.setTrackStock,
-                                      ),
-                                    ],
                                   ],
                                 ),
                               ),
+                              if (controller.showStockCard) ...[
+                                const SizedBox(height: AppSpacing.md),
+                                const _CatalogLabel('Inventory'),
+                                AppCard(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    14,
+                                    16,
+                                    14,
+                                  ),
+                                  child: _InventoryPanel(
+                                    trackStock: controller.trackStock.value,
+                                    showQty: controller.showQtyField,
+                                    quantity: controller.openingQty,
+                                    unit: controller.selectedUnit.value,
+                                    validateQty: controller.validateOpeningQty,
+                                    onChanged: controller.setTrackStock,
+                                  ),
+                                ),
+                              ],
                               if (controller.fieldEnabled('hsnSac') ||
                                   (controller.fieldEnabled('tax') &&
                                       controller.gstEnabled.value)) ...[
-                                const SizedBox(height: AppSpacing.sm),
+                                const SizedBox(height: AppSpacing.md),
+                                const _CatalogLabel('For invoices'),
                                 AppCard(
                                   padding: const EdgeInsets.fromLTRB(
-                                    14,
-                                    12,
-                                    14,
-                                    12,
+                                    16,
+                                    16,
+                                    16,
+                                    16,
                                   ),
                                   child: Column(
                                     crossAxisAlignment:
@@ -189,7 +208,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                       if (controller.fieldEnabled('tax') &&
                                           controller.gstEnabled.value) ...[
                                         if (controller.fieldEnabled('hsnSac'))
-                                          const SizedBox(height: AppSpacing.sm),
+                                          const SizedBox(height: AppSpacing.md),
                                         Text(
                                           'GST rate',
                                           style: AppTextStyles.listName,
@@ -249,12 +268,13 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                 ),
                               ],
                               const SizedBox(height: AppSpacing.md),
+                              const _CatalogLabel('Details'),
                               AppCard(
                                 padding: const EdgeInsets.fromLTRB(
+                                  16,
                                   14,
-                                  12,
-                                  14,
-                                  12,
+                                  16,
+                                  16,
                                 ),
                                 child: Builder(
                                   builder: (context) {
@@ -309,14 +329,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                           i < fields.length;
                                           i++
                                         ) ...[
-                                          if (i == 0)
-                                            const SizedBox(
-                                              height: AppSpacing.sm,
-                                            )
-                                          else
-                                            const SizedBox(
-                                              height: AppSpacing.sm,
-                                            ),
+                                          const SizedBox(height: AppSpacing.sm),
                                           AppTextField(
                                             controller:
                                                 controller
@@ -338,18 +351,23 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                   },
                                 ),
                               ),
-                              const SizedBox(height: AppSpacing.sm),
+                              const SizedBox(height: AppSpacing.md),
                               ListenableBuilder(
                                 listenable: Listenable.merge([
                                   controller.name,
                                   controller.salePrice,
                                 ]),
-                                builder: (context, _) => _InvoiceLinePreview(
-                                  name: controller.name.text.trim(),
-                                  price: controller.salePrice.text.trim(),
-                                  currency: controller.currencySymbol.value,
-                                  unit: controller.selectedUnit.value,
-                                  type: controller.type.value,
+                                builder: (context, _) => Obx(
+                                  () => _InvoiceLinePreview(
+                                    name: controller.name.text.trim(),
+                                    price: controller.salePrice.text.trim(),
+                                    currency: controller.currencySymbol.value,
+                                    unit: controller.selectedUnit.value,
+                                    type: controller.type.value,
+                                    imagePaths: controller.imagePaths.toList(
+                                      growable: false,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
@@ -426,6 +444,40 @@ class ProductFormScreen extends GetView<ProductFormController> {
     await Get.toNamed<void>(AppRoutes.productSettings);
     controller.refreshFieldSettings();
   }
+
+  Future<void> _addPhoto(
+    BuildContext context,
+    ProductFormController controller,
+  ) async {
+    if (!controller.canAddImage) return;
+    await AppFocus.dismissKeyboard();
+    if (!context.mounted) return;
+    final source = await showAppBottomSheet<ImageSource>(
+      context: context,
+      title: 'Add photo',
+      child: Builder(
+        builder: (sheetContext) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Take a photo'),
+              subtitle: const Text('Use the camera'),
+              onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Choose from gallery'),
+              subtitle: const Text('Pick a saved picture'),
+              onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !context.mounted) return;
+    await controller.addImageFromSource(source);
+  }
 }
 
 class _FormSectionHeading extends StatelessWidget {
@@ -480,8 +532,374 @@ class _FormSectionHeading extends StatelessWidget {
   }
 }
 
-class _KeepStockRow extends StatelessWidget {
-  const _KeepStockRow({
+class _CatalogLabel extends StatelessWidget {
+  const _CatalogLabel(this.value);
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        value,
+        style: AppTextStyles.small.copyWith(
+          color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.7,
+        ),
+      ),
+    );
+  }
+}
+
+class _PhotoStudio extends StatelessWidget {
+  const _PhotoStudio({required this.controller, required this.onAdd});
+
+  final ProductFormController controller;
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final paths = controller.imagePaths.toList(growable: false);
+      final canAdd = controller.canAddImage;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _CatalogLabel('Photos'),
+          SizedBox(
+            height: 156,
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: _PhotoSlot(
+                    path: paths.isEmpty ? null : paths[0],
+                    label: 'Cover',
+                    hint: 'Add photo',
+                    images: controller.images,
+                    enabled: paths.isEmpty && canAdd,
+                    onAdd: onAdd,
+                    onRemove: paths.isEmpty
+                        ? null
+                        : () => controller.removeImageAt(0),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: _PhotoSlot(
+                          path: paths.length > 1 ? paths[1] : null,
+                          images: controller.images,
+                          enabled: paths.length == 1 && canAdd,
+                          onAdd: onAdd,
+                          onRemove: paths.length > 1
+                              ? () => controller.removeImageAt(1)
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: _PhotoSlot(
+                          path: paths.length > 2 ? paths[2] : null,
+                          images: controller.images,
+                          enabled: paths.length == 2 && canAdd,
+                          onAdd: onAdd,
+                          onRemove: paths.length > 2
+                              ? () => controller.removeImageAt(2)
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Optional. Up to 3 photos. The first one is the cover.',
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.35,
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
+
+class _PhotoSlot extends StatelessWidget {
+  const _PhotoSlot({
+    required this.images,
+    required this.onAdd,
+    required this.enabled,
+    this.path,
+    this.label,
+    this.hint,
+    this.onRemove,
+  });
+
+  final ProductImageService? images;
+  final VoidCallback onAdd;
+  final bool enabled;
+  final String? path;
+  final String? label;
+  final String? hint;
+  final VoidCallback? onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final file = path != null && images != null && images!.existsSync(path!)
+        ? images!.resolve(path!)
+        : null;
+    final emptyFill = isDark ? AppColors.darkSurface : Colors.white;
+    final dashColor = enabled
+        ? AppColors.secondary.withValues(alpha: isDark ? .55 : .4)
+        : (isDark ? AppColors.darkBorder : AppColors.border);
+    return Material(
+      color: file != null ? Colors.transparent : emptyFill,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: file == null && enabled ? onAdd : null,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (file != null)
+              Image.file(file, fit: BoxFit.cover)
+            else ...[
+              CustomPaint(
+                painter: _DashedRRectPainter(color: dashColor, radius: 16),
+                child: const SizedBox.expand(),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.add_a_photo_outlined,
+                    color: enabled
+                        ? AppColors.secondary
+                        : AppColors.textTertiary,
+                    size: label == null ? 18 : 26,
+                  ),
+                  if (label != null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      label!,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (hint != null && enabled)
+                      Text(
+                        hint!,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textTertiary,
+                          fontSize: 11,
+                        ),
+                      ),
+                  ],
+                ],
+              ),
+            ],
+            if (file != null && onRemove != null)
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Material(
+                  color: Colors.black54,
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: onRemove,
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            if (file != null && label != null)
+              Positioned(
+                left: 8,
+                bottom: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    label!,
+                    style: AppTextStyles.caption.copyWith(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DashedRRectPainter extends CustomPainter {
+  const _DashedRRectPainter({required this.color, required this.radius});
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(1, 1, size.width - 2, size.height - 2),
+      Radius.circular(radius),
+    );
+    final path = Path()..addRRect(rrect);
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.25
+      ..strokeCap = StrokeCap.round;
+    const dash = 5.0;
+    const gap = 3.5;
+    for (final metric in path.computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final next = (distance + dash).clamp(0, metric.length).toDouble();
+        canvas.drawPath(metric.extractPath(distance, next), paint);
+        distance += dash + gap;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.radius != radius;
+}
+
+class _KindPicker extends StatelessWidget {
+  const _KindPicker({required this.value, required this.onChanged});
+
+  final ItemType value;
+  final ValueChanged<ItemType> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _KindOption(
+            type: ItemType.product,
+            selected: value == ItemType.product,
+            icon: Icons.inventory_2_outlined,
+            label: 'Product',
+            onTap: () => onChanged(ItemType.product),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _KindOption(
+            type: ItemType.service,
+            selected: value == ItemType.service,
+            icon: Icons.design_services_outlined,
+            label: 'Service',
+            onTap: () => onChanged(ItemType.service),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _KindOption extends StatelessWidget {
+  const _KindOption({
+    required this.type,
+    required this.selected,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final ItemType type;
+  final bool selected;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = type == ItemType.product
+        ? AppColors.primary
+        : AppColors.secondary;
+    return Material(
+      color: selected
+          ? accent.withValues(alpha: isDark ? .22 : .12)
+          : (isDark ? AppColors.darkSurface : Colors.white),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: selected
+              ? accent
+              : (isDark ? AppColors.darkBorder : AppColors.border),
+          width: selected ? 1.4 : 1,
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: selected ? accent : AppColors.textSecondary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTextStyles.listName.copyWith(
+                    color: selected
+                        ? (isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.textPrimary)
+                        : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+              if (selected)
+                Icon(Icons.check_circle_rounded, size: 18, color: accent),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InventoryPanel extends StatelessWidget {
+  const _InventoryPanel({
     required this.trackStock,
     required this.showQty,
     required this.quantity,
@@ -504,17 +922,44 @@ class _KeepStockRow extends StatelessWidget {
       children: [
         Row(
           children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.warehouse_outlined,
+                color: AppColors.primary,
+                size: 19,
+              ),
+            ),
+            const SizedBox(width: 12),
             const Expanded(
-              child: Text(
-                'Keep stock for this item',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Keep stock for this item',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Count this item in Stock',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
             ),
             Switch.adaptive(value: trackStock, onChanged: onChanged),
           ],
         ),
         if (showQty) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
           AppTextField(
             controller: quantity,
             label: 'Quantity',
@@ -531,42 +976,6 @@ class _KeepStockRow extends StatelessWidget {
   }
 }
 
-class _TypeSelector extends StatelessWidget {
-  const _TypeSelector({required this.value, required this.onChanged});
-
-  final ItemType value;
-  final ValueChanged<ItemType> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: SegmentedButton<ItemType>(
-        showSelectedIcon: false,
-        expandedInsets: EdgeInsets.zero,
-        style: ButtonStyle(
-          visualDensity: VisualDensity.compact,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        segments: const [
-          ButtonSegment(
-            value: ItemType.product,
-            label: Text('Product'),
-            icon: Icon(Icons.inventory_2_outlined, size: 18),
-          ),
-          ButtonSegment(
-            value: ItemType.service,
-            label: Text('Service'),
-            icon: Icon(Icons.design_services_outlined, size: 18),
-          ),
-        ],
-        selected: {value},
-        onSelectionChanged: (selected) => onChanged(selected.first),
-      ),
-    );
-  }
-}
-
 class _InvoiceLinePreview extends StatelessWidget {
   const _InvoiceLinePreview({
     required this.name,
@@ -574,6 +983,7 @@ class _InvoiceLinePreview extends StatelessWidget {
     required this.currency,
     required this.unit,
     required this.type,
+    this.imagePaths = const [],
   });
 
   final String name;
@@ -581,6 +991,7 @@ class _InvoiceLinePreview extends StatelessWidget {
   final String currency;
   final String unit;
   final ItemType type;
+  final List<String> imagePaths;
 
   @override
   Widget build(BuildContext context) {
@@ -597,12 +1008,11 @@ class _InvoiceLinePreview extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            type == ItemType.product
-                ? Icons.inventory_2_outlined
-                : Icons.design_services_outlined,
-            color: AppColors.primary,
-            size: 18,
+          ProductCoverThumb(
+            imagePaths: imagePaths,
+            type: type,
+            size: 36,
+            radius: 10,
           ),
           const SizedBox(width: 10),
           Expanded(

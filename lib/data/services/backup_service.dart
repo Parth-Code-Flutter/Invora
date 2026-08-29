@@ -15,6 +15,7 @@ import '../repositories/business_repository.dart';
 import 'app_database.dart';
 import 'app_storage.dart';
 import 'backup_crypto.dart';
+import 'product_image_service.dart';
 
 class BackupService {
   BackupService(
@@ -109,6 +110,23 @@ class BackupService {
         archive.addFile(
           ArchiveFile(
             'purchase_attachments/${p.basename(entity.path)}',
+            bytes.length,
+            bytes,
+          ),
+        );
+      }
+    }
+    final productImages = Directory(
+      p.join(support.path, ProductImageService.folderName),
+    );
+    if (await productImages.exists()) {
+      await for (final entity in productImages.list()) {
+        if (entity is! File) continue;
+        final bytes = await entity.readAsBytes();
+        attachmentCount++;
+        archive.addFile(
+          ArchiveFile(
+            '${ProductImageService.folderName}/${p.basename(entity.path)}',
             bytes.length,
             bytes,
           ),
@@ -407,6 +425,7 @@ class BackupService {
       );
       final mediaPaths = await _restoreMedia(archive, target.parent);
       await _restorePurchaseAttachments(archive, target.parent);
+      await _restoreProductImages(archive, target.parent);
       await _restoreSettings(archive);
       await _storage.setBool(AppStorageKeyConst.restoreCompleted, true);
       return BackupRestoreResult(mediaPaths);
@@ -475,6 +494,23 @@ class BackupService {
     await folder.create(recursive: true);
     for (final file in archive.files.where(
       (entry) => entry.isFile && entry.name.startsWith('purchase_attachments/'),
+    )) {
+      final name = p.basename(file.name);
+      if (name.isEmpty) continue;
+      await File(
+        p.join(folder.path, name),
+      ).writeAsBytes(file.content as List<int>, flush: true);
+    }
+  }
+
+  Future<void> _restoreProductImages(Archive archive, Directory support) async {
+    final folder = Directory(
+      p.join(support.path, ProductImageService.folderName),
+    );
+    await folder.create(recursive: true);
+    final prefix = '${ProductImageService.folderName}/';
+    for (final file in archive.files.where(
+      (entry) => entry.isFile && entry.name.startsWith(prefix),
     )) {
       final name = p.basename(file.name);
       if (name.isEmpty) continue;

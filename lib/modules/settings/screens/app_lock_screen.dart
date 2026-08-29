@@ -7,6 +7,7 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_menu_group.dart';
 import '../../../data/services/app_lock_service.dart';
 
 class AppLockGate extends StatefulWidget {
@@ -41,7 +42,7 @@ class _AppLockGateState extends State<AppLockGate> with WidgetsBindingObserver {
       _leftForeground = true;
     } else if (state == AppLifecycleState.resumed && _leftForeground) {
       _leftForeground = false;
-      widget.service.lock();
+      widget.service.lockFromBackground();
     }
   }
 
@@ -71,8 +72,23 @@ class AppLockSettingsScreen extends StatefulWidget {
 class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
   final service = Get.find<AppLockService>();
   var _mode = _LockSettingsMode.overview;
+  var _fingerprintAvailable = false;
+  var _enableBiometricAfterPin = false;
+  var _busy = false;
   String? _firstPin;
   String? _error;
+  String? _message;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAvailability();
+  }
+
+  Future<void> _loadAvailability() async {
+    final available = await service.isBiometricAvailable();
+    if (mounted) setState(() => _fingerprintAvailable = available);
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -130,7 +146,7 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
                 ),
                 const SizedBox(height: 7),
                 Text(
-                  'Require a four-digit PIN when Creovo Billing opens or returns from the background.',
+                  'Require a PIN when Creovo Billing opens or returns from the background. You can also unlock with fingerprint.',
                   style: AppTextStyles.body.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -139,36 +155,83 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
               ],
             ),
           ),
+          if (_message != null) ...[
+            const SizedBox(height: 14),
+            Text(
+              _message!,
+              style: AppTextStyles.caption.copyWith(color: AppColors.error),
+              textAlign: TextAlign.center,
+            ),
+          ],
           const SizedBox(height: 18),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
+            child: Text('Unlock with', style: AppTextStyles.small),
+          ),
+          Obx(() {
+            final enabled = service.isEnabled;
+            final fingerprintOn = service.isBiometricEnabled;
+            return AppMenuGroup(
+              children: [
+                AppMenuTile(
+                  icon: Icons.password_rounded,
+                  title: 'PIN',
+                  subtitle: enabled ? 'Required as backup' : 'Four-digit code',
+                  selected: enabled ? true : null,
+                  onTap: enabled
+                      ? null
+                      : () => _start(_LockSettingsMode.create),
+                ),
+                AppMenuTile(
+                  icon: Icons.fingerprint_rounded,
+                  title: 'Fingerprint',
+                  subtitle: !_fingerprintAvailable
+                      ? 'Not available on this device'
+                      : fingerprintOn
+                      ? 'Unlock with fingerprint'
+                      : 'Use fingerprint after PIN',
+                  selected: enabled && _fingerprintAvailable
+                      ? fingerprintOn
+                      : null,
+                  onTap: _busy ? null : _onFingerprintTap,
+                  trailing: enabled && _fingerprintAvailable
+                      ? Switch.adaptive(
+                          value: fingerprintOn,
+                          onChanged: _busy ? null : _setFingerprint,
+                        )
+                      : null,
+                ),
+              ],
+            );
+          }),
           Obx(
             () => service.isEnabled
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      AppButton(
-                        label: 'Change PIN',
-                        icon: Icons.password_rounded,
-                        onPressed: () =>
-                            _start(_LockSettingsMode.verifyForChange),
-                      ),
-                      const SizedBox(height: 12),
-                      OutlinedButton.icon(
-                        onPressed: () =>
-                            _start(_LockSettingsMode.verifyForDisable),
-                        icon: const Icon(Icons.lock_open_rounded),
-                        label: const Text('Disable app lock'),
-                      ),
-                    ],
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AppButton(
+                          label: 'Change PIN',
+                          icon: Icons.password_rounded,
+                          onPressed: () =>
+                              _start(_LockSettingsMode.verifyForChange),
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: () =>
+                              _start(_LockSettingsMode.verifyForDisable),
+                          icon: const Icon(Icons.lock_open_rounded),
+                          label: const Text('Disable app lock'),
+                        ),
+                      ],
+                    ),
                   )
-                : AppButton(
-                    label: 'Set up PIN',
-                    icon: Icons.lock_rounded,
-                    onPressed: () => _start(_LockSettingsMode.create),
-                  ),
+                : const SizedBox.shrink(),
           ),
           const SizedBox(height: 16),
           Text(
-            'Your PIN protects access to this app on this device. Backups use a separate password. CSV exports remain unencrypted.',
+            'Your PIN and fingerprint protect access to this app on this device. Backups use a separate password. CSV exports remain unencrypted.',
             style: AppTextStyles.caption.copyWith(
               color: AppColors.textTertiary,
             ),
@@ -194,23 +257,70 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
   };
 
   String get _entrySubtitle => switch (_mode) {
-    _LockSettingsMode.create => 'Use a PIN you can remember.',
+    _LockSettingsMode.create =>
+      _enableBiometricAfterPin
+          ? 'Use a PIN you can remember. Fingerprint will be set up next.'
+          : 'Use a PIN you can remember.',
     _LockSettingsMode.confirm => 'This makes sure you entered it correctly.',
     _LockSettingsMode.verifyForDisable => 'Verify before turning off app lock.',
     _ => 'Verify before choosing a new PIN.',
   };
 
-  void _start(_LockSettingsMode mode) => setState(() {
-    _mode = mode;
-    _firstPin = null;
-    _error = null;
-  });
+  void _start(_LockSettingsMode mode, {bool enableBiometricAfterPin = false}) =>
+      setState(() {
+        _mode = mode;
+        _firstPin = null;
+        _error = null;
+        _message = null;
+        _enableBiometricAfterPin = enableBiometricAfterPin;
+      });
 
-  void _reset() => setState(() {
+  void _reset({String? message}) => setState(() {
     _mode = _LockSettingsMode.overview;
     _firstPin = null;
     _error = null;
+    _enableBiometricAfterPin = false;
+    _message = message;
   });
+
+  Future<void> _onFingerprintTap() async {
+    if (_busy) return;
+    if (!_fingerprintAvailable) {
+      setState(() => _message = 'Fingerprint is not available on this device.');
+      return;
+    }
+    if (!service.isEnabled) {
+      _start(_LockSettingsMode.create, enableBiometricAfterPin: true);
+      return;
+    }
+    if (!service.isBiometricEnabled) await _setFingerprint(true);
+  }
+
+  Future<void> _setFingerprint(bool enabled) async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _message = null;
+    });
+    try {
+      if (enabled) {
+        final ok = await service.enableBiometric(
+          reason: l10n('Confirm fingerprint to unlock Creovo Billing.'),
+        );
+        if (!ok && mounted) {
+          setState(
+            () => _message = _fingerprintAvailable
+                ? 'Fingerprint could not be enabled. Try again.'
+                : 'Fingerprint is not available on this device.',
+          );
+        }
+      } else {
+        await service.disableBiometric();
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   Future<void> _handlePin(String pin) async {
     if (_mode == _LockSettingsMode.create) {
@@ -226,7 +336,18 @@ class _AppLockSettingsScreenState extends State<AppLockSettingsScreen> {
         setState(() => _error = 'PINs do not match. Try again.');
         return;
       }
+      final setupFingerprint = _enableBiometricAfterPin;
       await service.setPin(pin);
+      if (setupFingerprint) {
+        final ok = await service.enableBiometric(
+          reason: l10n('Confirm fingerprint to unlock Creovo Billing.'),
+        );
+        if (!mounted) return;
+        _reset(
+          message: ok ? null : 'PIN is on. Fingerprint could not be enabled.',
+        );
+        return;
+      }
       if (mounted) _reset();
       return;
     }
@@ -256,22 +377,45 @@ class _UnlockView extends StatefulWidget {
 
 class _UnlockViewState extends State<_UnlockView> {
   String? _error;
+  var _autoPrompted = false;
+
+  AppLockService get _service => Get.find<AppLockService>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _autoPrompted) return;
+      _autoPrompted = true;
+      if (_service.isBiometricEnabled) _tryFingerprint();
+    });
+  }
+
+  Future<void> _tryFingerprint() async {
+    await _service.unlockWithBiometrics(reason: l10n('Unlock Creovo Billing'));
+  }
 
   @override
   Widget build(BuildContext context) => PopScope(
     canPop: false,
     child: SafeArea(
-      child: _PinEntryView(
-        title: 'Welcome back',
-        subtitle: 'Enter your PIN to unlock Creovo Billing.',
-        error: _error,
-        icon: Icons.lock_rounded,
-        onCompleted: (pin) {
-          if (!Get.find<AppLockService>().unlock(pin)) {
-            setState(() => _error = 'Incorrect PIN. Try again.');
-          }
-        },
-      ),
+      child: Obx(() {
+        final fingerprint = _service.isBiometricEnabled;
+        return _PinEntryView(
+          title: 'Welcome back',
+          subtitle: fingerprint
+              ? 'Enter your PIN or use fingerprint to unlock Creovo Billing.'
+              : 'Enter your PIN to unlock Creovo Billing.',
+          error: _error,
+          icon: Icons.lock_rounded,
+          onFingerprint: fingerprint ? _tryFingerprint : null,
+          onCompleted: (pin) {
+            if (!_service.unlock(pin)) {
+              setState(() => _error = 'Incorrect PIN. Try again.');
+            }
+          },
+        );
+      }),
     ),
   );
 }
@@ -283,6 +427,7 @@ class _PinEntryView extends StatefulWidget {
     required this.onCompleted,
     this.error,
     this.icon = Icons.password_rounded,
+    this.onFingerprint,
     super.key,
   });
 
@@ -291,6 +436,7 @@ class _PinEntryView extends StatefulWidget {
   final String? error;
   final IconData icon;
   final ValueChanged<String> onCompleted;
+  final VoidCallback? onFingerprint;
 
   @override
   State<_PinEntryView> createState() => _PinEntryViewState();
@@ -308,71 +454,83 @@ class _PinEntryViewState extends State<_PinEntryView> {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.fromLTRB(28, 26, 28, 24),
-    child: Column(
-      children: [
-        const Spacer(),
-        Container(
-          width: 70,
-          height: 70,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [AppColors.primary, AppColors.secondary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(widget.icon, color: Colors.white, size: 31),
-        ),
-        const SizedBox(height: 20),
-        Text(widget.title, style: AppTextStyles.pageTitle),
-        const SizedBox(height: 7),
-        Text(
-          widget.subtitle,
-          style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 25),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            4,
-            (index) => AnimatedContainer(
-              duration: const Duration(milliseconds: 140),
-              width: 16,
-              height: 16,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                color: index < _pin.length
-                    ? AppColors.primary
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: widget.error == null
-                      ? AppColors.primary
-                      : AppColors.error,
-                  width: 1.5,
+    child: LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 70,
+                height: 70,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.secondary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
                 ),
+                child: Icon(widget.icon, color: Colors.white, size: 31),
               ),
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 42,
-          child: widget.error == null
-              ? null
-              : Center(
-                  child: Text(
-                    widget.error!,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.error,
+              const SizedBox(height: 20),
+              Text(widget.title, style: AppTextStyles.pageTitle),
+              const SizedBox(height: 7),
+              Text(
+                widget.subtitle,
+                style: AppTextStyles.body.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 25),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  4,
+                  (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 140),
+                    width: 16,
+                    height: 16,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: index < _pin.length
+                          ? AppColors.primary
+                          : Colors.transparent,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: widget.error == null
+                            ? AppColors.primary
+                            : AppColors.error,
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),
+              ),
+              SizedBox(
+                height: 42,
+                child: widget.error == null
+                    ? null
+                    : Center(
+                        child: Text(
+                          widget.error!,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.error,
+                          ),
+                        ),
+                      ),
+              ),
+              _PinKeypad(
+                onDigit: _addDigit,
+                onDelete: _deleteDigit,
+                onFingerprint: widget.onFingerprint,
+              ),
+            ],
+          ),
         ),
-        _PinKeypad(onDigit: _addDigit, onDelete: _deleteDigit),
-        const Spacer(),
-      ],
+      ),
     ),
   );
 
@@ -396,10 +554,15 @@ class _PinEntryViewState extends State<_PinEntryView> {
 }
 
 class _PinKeypad extends StatelessWidget {
-  const _PinKeypad({required this.onDigit, required this.onDelete});
+  const _PinKeypad({
+    required this.onDigit,
+    required this.onDelete,
+    this.onFingerprint,
+  });
 
   final ValueChanged<String> onDigit;
   final VoidCallback onDelete;
+  final VoidCallback? onFingerprint;
 
   @override
   Widget build(BuildContext context) => ConstrainedBox(
@@ -418,7 +581,20 @@ class _PinKeypad extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(width: 70, height: 62),
+            SizedBox(
+              width: 70,
+              height: 62,
+              child: onFingerprint == null
+                  ? null
+                  : Semantics(
+                      button: true,
+                      label: l10n('Use fingerprint'),
+                      child: IconButton(
+                        onPressed: onFingerprint,
+                        icon: const Icon(Icons.fingerprint_rounded, size: 30),
+                      ),
+                    ),
+            ),
             _key(context, '0'),
             SizedBox(
               width: 70,

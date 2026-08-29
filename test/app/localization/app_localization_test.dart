@@ -25,6 +25,15 @@ void main() {
         'Stock reports',
         'Backup & restore',
         'Choose language',
+        'Fingerprint',
+        'Search features',
+        'Photos',
+        'Cover',
+        'Add photo',
+        'The item',
+        'Inventory',
+        'Count this item in Stock',
+        'For invoices',
       ];
       for (final language in [AppLanguage.hindi, AppLanguage.gujarati]) {
         for (final phrase in phrases) {

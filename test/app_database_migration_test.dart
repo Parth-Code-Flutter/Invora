@@ -176,7 +176,7 @@ void main() {
       'delivery_challan_items',
       'delivery_challans',
     ]);
-    expect(database.schemaVersion, 21);
+    expect(database.schemaVersion, 22);
     await database.close();
   });
 
@@ -199,7 +199,7 @@ void main() {
       'purchase_order_items',
       'purchase_orders',
     ]);
-    expect(database.schemaVersion, 21);
+    expect(database.schemaVersion, 22);
     await database.close();
   });
 
@@ -221,7 +221,7 @@ void main() {
       'stock_movements',
       'stock_settings',
     ]);
-    expect(database.schemaVersion, 21);
+    expect(database.schemaVersion, 22);
     final settings = await (database.select(
       database.stockSettings,
     )..where((table) => table.id.equals(1))).getSingle();
@@ -242,7 +242,7 @@ void main() {
       columns.any((row) => row.read<String>('name') == 'track_stock'),
       isTrue,
     );
-    expect(database.schemaVersion, 21);
+    expect(database.schemaVersion, 22);
     final product = await (database.select(
       database.productServices,
     )..where((table) => table.name.equals('Sheet'))).getSingle();
@@ -269,6 +269,52 @@ void main() {
       await database.close();
     },
   );
+
+  test('schema 21 products gain empty image paths on upgrade', () async {
+    final database = AppDatabase.forTesting(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw.execute('''
+            CREATE TABLE product_services (
+              id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+              name TEXT NOT NULL,
+              type TEXT NOT NULL,
+              description TEXT NULL,
+              unit TEXT NOT NULL,
+              sale_price_minor INTEGER NOT NULL,
+              hsn_sac TEXT NULL,
+              tax_rate_basis_points INTEGER NOT NULL DEFAULT 0,
+              attributes_json TEXT NOT NULL DEFAULT '[]',
+              is_deleted INTEGER NOT NULL DEFAULT 0 CHECK (is_deleted IN (0, 1)),
+              track_stock INTEGER NOT NULL DEFAULT 0 CHECK (track_stock IN (0, 1)),
+              created_at INTEGER NOT NULL,
+              updated_at INTEGER NOT NULL
+            )
+          ''');
+          raw.execute('''
+            INSERT INTO product_services
+              (name, type, unit, sale_price_minor, tax_rate_basis_points,
+               is_deleted, track_stock, created_at, updated_at)
+            VALUES ('Sheet', 'product', 'pcs', 10000, 0, 0, 1, 0, 0)
+          ''');
+          raw.execute('PRAGMA user_version = 21');
+        },
+      ),
+    );
+    final columns = await database
+        .customSelect('PRAGMA table_info(product_services)')
+        .get();
+    expect(
+      columns.any((row) => row.read<String>('name') == 'image_paths_json'),
+      isTrue,
+    );
+    final product = await (database.select(
+      database.productServices,
+    )..where((table) => table.name.equals('Sheet'))).getSingle();
+    expect(product.imagePathsJson, '[]');
+    expect(database.schemaVersion, 22);
+    await database.close();
+  });
 }
 
 void _createV5Fixture(dynamic raw) {

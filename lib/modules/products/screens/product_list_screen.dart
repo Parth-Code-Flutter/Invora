@@ -19,6 +19,7 @@ import '../../../app/widgets/app_list_motion.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../data/models/product_service_model.dart';
 import '../controllers/product_list_controller.dart';
+import '../widgets/product_cover_thumb.dart';
 
 class ProductListScreen extends GetView<ProductListController> {
   const ProductListScreen({super.key});
@@ -272,20 +273,9 @@ class _ProductCatalogTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: isDark ? .16 : .1),
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: Icon(
-                item.type == ItemType.product
-                    ? Icons.inventory_2_outlined
-                    : Icons.design_services_outlined,
-                color: accent,
-                size: 20,
-              ),
+            ProductCoverThumb(
+              imagePaths: item.imagePaths,
+              type: item.type,
             ),
             const SizedBox(width: 11),
             Expanded(

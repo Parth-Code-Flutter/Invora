@@ -140,4 +140,37 @@ void main() {
     );
     expect(await repository.findByBarcode('000000'), isNull);
   });
+
+  test('round-trips up to three catalog image names', () async {
+    final now = DateTime(2026, 8, 29);
+    final saved = await repository.save(
+      ProductServiceModel(
+        name: 'Teak door',
+        type: ItemType.product,
+        unit: 'pcs',
+        salePriceMinor: 450000,
+        imagePaths: const ['cover.jpg', 'side.png', 'detail.webp'],
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+    expect(saved.imagePaths, ['cover.jpg', 'side.png', 'detail.webp']);
+    final loaded = await repository.getById(saved.id!);
+    expect(loaded?.imagePaths, ['cover.jpg', 'side.png', 'detail.webp']);
+
+    final capped = await repository.save(
+      ProductServiceModel(
+        id: saved.id,
+        name: 'Teak door',
+        type: ItemType.product,
+        unit: 'pcs',
+        salePriceMinor: 450000,
+        imagePaths: const ['a.jpg', 'b.jpg', 'c.jpg', 'd.jpg'],
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+    expect(capped.id, saved.id);
+    expect(capped.imagePaths, ['a.jpg', 'b.jpg', 'c.jpg']);
+  });
 }

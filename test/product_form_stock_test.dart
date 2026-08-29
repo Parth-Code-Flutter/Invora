@@ -61,7 +61,7 @@ void main() {
   testWidgets(
     'Add item shows Keep stock for products and hides it for services',
     (tester) async {
-      tester.view.physicalSize = const Size(400, 1400);
+      tester.view.physicalSize = const Size(400, 1800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -72,6 +72,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      expect(find.text('Photos'), findsOneWidget);
+      expect(find.text('Cover'), findsOneWidget);
       expect(find.text('Keep stock for this item'), findsOneWidget);
       expect(find.text('Quantity'), findsOneWidget);
 
@@ -86,7 +88,7 @@ void main() {
   testWidgets('edit keeps the quantity field when Keep stock is on', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(400, 1400);
+    tester.view.physicalSize = const Size(400, 1800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);

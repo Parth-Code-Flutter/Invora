@@ -7,17 +7,19 @@ import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
-import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_purchase_navigation.dart';
 import '../../../app/widgets/app_shell.dart';
+import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_menu_group.dart';
+import '../../../app/widgets/app_search_field.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../../../data/services/business_workspace_service.dart';
 import '../controllers/more_controller.dart';
+import '../more_destinations.dart';
 
 class MoreScreen extends GetView<MoreController> {
   const MoreScreen({super.key});
@@ -42,192 +44,112 @@ class MoreScreen extends GetView<MoreController> {
                 ),
               ),
               const SizedBox(height: 14),
-              const _SectionLabel('Change workspace'),
               Obx(() {
-                final workspace = Get.find<BusinessWorkspaceService>();
-                final isDark = Theme.of(context).brightness == Brightness.dark;
+                final searching = controller.isSearching;
+                final groups = controller.visibleGroups;
                 return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    AppMenuGroup(
-                      children: [
-                        AppMenuTile(
-                          icon: Icons.trending_up_rounded,
-                          title: 'Sales',
-                          subtitle: 'Invoices, customers and money to receive',
-                          selected: workspace.isSales,
-                          onTap: () =>
-                              workspace.select(BusinessWorkspace.sales),
-                        ),
-                        AppMenuTile(
-                          icon: Icons.shopping_bag_outlined,
-                          title: 'Purchases',
-                          subtitle: 'Supplier bills and money to pay',
-                          selected: workspace.isPurchases,
-                          onTap: () =>
-                              workspace.select(BusinessWorkspace.purchases),
-                        ),
+                    AppSearchField(
+                      hint: 'Search features',
+                      controller: controller.searchField,
+                      onChanged: controller.updateSearch,
+                      onClear: searching ? controller.clearSearch : null,
+                    ),
+                    if (groups.isEmpty) ...[
+                      const SizedBox(height: 28),
+                      AppEmptyState(
+                        icon: Icons.search_off_rounded,
+                        title: 'No matching features',
+                        message:
+                            'Try a different name, like GST, stock, or backup.',
+                        actionLabel: 'Clear search',
+                        onAction: controller.clearSearch,
+                      ),
+                    ] else ...[
+                      for (var index = 0; index < groups.length; index++) ...[
+                        SizedBox(height: index == 0 ? 18 : 22),
+                        _section(context, groups[index], searching: searching),
                       ],
-                    ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Text(
-                        'Tap Sales or Purchases to change mode. Records stay separate.',
-                        style: AppTextStyles.caption.copyWith(
-                          color: isDark
-                              ? AppColors.darkTextSecondary
-                              : AppColors.textTertiary,
-                          fontWeight: FontWeight.w400,
-                          height: 1.35,
-                        ),
-                      ),
-                    ),
+                    ],
                   ],
                 );
               }),
-              const SizedBox(height: 22),
-              const _SectionLabel('Customization'),
-              AppMenuGroup(
-                children: [
-                  AppMenuTile(
-                    icon: Icons.tune_rounded,
-                    title: 'Product settings',
-                    subtitle: 'Business category, fields and invoice display',
-                    onTap: () => Get.toNamed<void>(AppRoutes.productSettings),
-                  ),
-                  AppMenuTile(
-                    icon: Icons.straighten_rounded,
-                    title: 'Set default unit',
-                    subtitle:
-                        'Manage units and choose the default for new items',
-                    onTap: () => Get.toNamed<void>(AppRoutes.unitSettings),
-                  ),
-                ],
+              Obx(
+                () => controller.isSearching
+                    ? const SizedBox(height: 20)
+                    : const Padding(
+                        padding: EdgeInsets.only(top: 20),
+                        child: _PrivacyNote(),
+                      ),
               ),
-              const SizedBox(height: 22),
-              const _SectionLabel('Create & manage'),
-              Obx(() {
-                final stockOn = controller.stockEnabled.value;
-                return AppMenuGroup(
-                  children: [
-                    AppMenuTile(
-                      icon: Icons.inventory_2_outlined,
-                      title: 'Products & services',
-                      subtitle: 'Saved items, pricing and tax',
-                      onTap: () => Get.toNamed<void>(AppRoutes.products),
-                    ),
-                    if (stockOn)
-                      AppMenuTile(
-                        icon: Icons.warehouse_outlined,
-                        title: 'Stock',
-                        subtitle: 'Movements and quantity adjustments',
-                        onTap: () => Get.toNamed<void>(AppRoutes.stock),
-                      ),
-                    AppMenuTile(
-                      icon: Icons.request_quote_outlined,
-                      title: 'Estimates',
-                      subtitle: 'Create and manage client quotations',
-                      onTap: () => Get.toNamed<void>(AppRoutes.quotations),
-                    ),
-                    AppMenuTile(
-                      icon: Icons.local_shipping_outlined,
-                      title: 'Delivery challans',
-                      subtitle:
-                          'Dispatch goods, then convert remaining quantities',
-                      onTap: () =>
-                          Get.toNamed<void>(AppRoutes.deliveryChallans),
-                    ),
-                    AppMenuTile(
-                      icon: Icons.assignment_outlined,
-                      title: 'Purchase orders',
-                      subtitle:
-                          'Order from a supplier, receive goods, then bill remaining quantity',
-                      onTap: () => Get.toNamed<void>(AppRoutes.purchaseOrders),
-                    ),
-                    AppMenuTile(
-                      icon: Icons.payments_outlined,
-                      title: 'Expenses',
-                      subtitle: 'Rent, fuel, salary and other cash spends',
-                      onTap: () => Get.toNamed<void>(AppRoutes.expenses),
-                    ),
-                    AppMenuTile(
-                      icon: Icons.account_balance_wallet_outlined,
-                      title: 'Cash book',
-                      subtitle: 'Cash, bank, UPI, transfers and daily closing',
-                      onTap: () => Get.toNamed<void>(AppRoutes.cashBook),
-                    ),
-                  ],
-                );
-              }),
-              const SizedBox(height: 22),
-              const _SectionLabel('Insights & data'),
-              Obx(() {
-                final stockOn = controller.stockEnabled.value;
-                return AppMenuGroup(
-                  children: [
-                    AppMenuTile(
-                      icon: Icons.insert_chart_outlined_rounded,
-                      title: 'Reports',
-                      subtitle: 'Review sales, receipts and outstanding totals',
-                      onTap: () => Get.toNamed<void>(AppRoutes.reports),
-                    ),
-                    if (stockOn)
-                      AppMenuTile(
-                        icon: Icons.inventory_2_outlined,
-                        title: 'Stock reports',
-                        subtitle:
-                            'On-hand as of a date, and every posted movement',
-                        onTap: () => Get.toNamed<void>(AppRoutes.stockReports),
-                      ),
-                    AppMenuTile(
-                      icon: Icons.hourglass_bottom_rounded,
-                      title: 'Ageing & reminders',
-                      subtitle:
-                          'Buckets to collect or pay, then share a reminder',
-                      onTap: () => Get.toNamed<void>(AppRoutes.ageing),
-                    ),
-                    AppMenuTile(
-                      icon: Icons.file_upload_outlined,
-                      title: 'Import data',
-                      subtitle:
-                          'CSV templates for parties, items and unpaid bills',
-                      onTap: () => Get.toNamed<void>(AppRoutes.dataImport),
-                    ),
-                    AppMenuTile(
-                      icon: Icons.account_balance_outlined,
-                      title: 'GST / CA export',
-                      subtitle: 'Prepared registers for your accountant',
-                      onTap: () => Get.toNamed<void>(AppRoutes.gstExport),
-                    ),
-                    AppMenuTile(
-                      icon: Icons.settings_backup_restore_rounded,
-                      title: 'Backup & restore',
-                      subtitle: 'Export or restore your offline records',
-                      onTap: () => Get.toNamed<void>(AppRoutes.backup),
-                    ),
-                  ],
-                );
-              }),
-              const SizedBox(height: 22),
-              const _SectionLabel('Preferences'),
-              AppMenuGroup(
-                children: [
-                  AppMenuTile(
-                    icon: Icons.settings_outlined,
-                    title: 'App settings',
-                    subtitle: 'Invoice defaults, look, language and lock',
-                    onTap: () => Get.toNamed<void>(AppRoutes.settings),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const _PrivacyNote(),
             ],
           ),
         ),
       );
     });
+  }
+
+  Widget _section(
+    BuildContext context,
+    MoreDestinationGroup group, {
+    required bool searching,
+  }) {
+    final workspace = Get.find<BusinessWorkspaceService>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionLabel(group.label),
+        AppMenuGroup(
+          children: [
+            for (final item in group.items)
+              AppMenuTile(
+                icon: item.icon,
+                title: item.title,
+                subtitle: item.subtitle,
+                selected: switch (item.action) {
+                  MoreDestinationAction.salesWorkspace => workspace.isSales,
+                  MoreDestinationAction.purchasesWorkspace =>
+                    workspace.isPurchases,
+                  MoreDestinationAction.openRoute => null,
+                },
+                onTap: () => _open(item, workspace),
+              ),
+          ],
+        ),
+        if (group.id == 'workspace' && !searching) ...[
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(
+              'Tap Sales or Purchases to change mode. Records stay separate.',
+              style: AppTextStyles.caption.copyWith(
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textTertiary,
+                fontWeight: FontWeight.w400,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _open(MoreDestination item, BusinessWorkspaceService workspace) {
+    switch (item.action) {
+      case MoreDestinationAction.salesWorkspace:
+        workspace.select(BusinessWorkspace.sales);
+      case MoreDestinationAction.purchasesWorkspace:
+        workspace.select(BusinessWorkspace.purchases);
+      case MoreDestinationAction.openRoute:
+        final route = item.route;
+        if (route != null) Get.toNamed<void>(route);
+    }
   }
 }
 

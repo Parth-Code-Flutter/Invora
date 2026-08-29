@@ -14,6 +14,7 @@ class ProductServiceModel {
     this.attributes = const [],
     this.isDeleted = false,
     this.trackStock = false,
+    this.imagePaths = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -29,6 +30,7 @@ class ProductServiceModel {
   final List<ProductAttributeValue> attributes;
   final bool isDeleted;
   final bool trackStock;
+  final List<String> imagePaths;
   final DateTime createdAt;
   final DateTime updatedAt;
 }

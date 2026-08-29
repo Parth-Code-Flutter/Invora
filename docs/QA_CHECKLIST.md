@@ -80,6 +80,13 @@ remain intentionally out of scope until explicitly requested.
   new products); invoice sale + cancel reverse-not-edit; purchase bill +
   debit-note stock-out; credit-note restock; custom-line and service skip;
   schema 20→21 copies the old global flag onto products.
+- App lock: PIN and Fingerprint options; PIN remains the backup; fingerprint
+  enable/unlock uses an injectable biometric gate; PIN keypad still unlocks;
+  disable clears the fingerprint flag.
+- More tab feature search filters destinations by name/alias and shows an empty
+  state when nothing matches.
+- Add item catalog form: optional photos (up to 3), classic grouped cards;
+  schema 22 image paths; cover shows on catalog list/details.
 - Stock reports: on-hand as of a date excludes later movements; movement range
   CSV/PDF; hidden when no product keeps stock.
 - About and diagnostics: Settings → About shows version and schema, offline
@@ -122,6 +129,10 @@ remain intentionally out of scope until explicitly requested.
 - Grant/deny Contacts permission and import a real phone contact.
 - Pick logo and payment QR images from Android and iOS libraries. Signature
   supports draw-on-pad, gallery, or camera.
+- Add item photos: save without photos; add a cover from gallery and up to two
+  extras from camera; remove one before save; confirm the cover on catalog list
+  and item details; restore a backup and confirm `product_images/` returns;
+  confirm invoice PDFs stay text-only.
 - Save, share, and print PDFs through native sheets and common printers.
 - Save/share each CSV export on Android and iOS, then open it in Excel, Numbers,
   and Google Sheets and verify Unicode text, columns, and decimal amounts.
@@ -197,6 +208,11 @@ remain intentionally out of scope until explicitly requested.
   item with Keep stock off and confirm it does not move. Turn Keep stock off on
   the last tracked product and confirm Stock reports hide while movements remain
   after restore.
+- Open Settings → App lock. Confirm PIN and Fingerprint are both listed. Set a
+  PIN, then enable fingerprint (or Face ID / Touch ID). Lock the app, unlock
+  with fingerprint, then lock again and unlock with PIN after declining
+  biometrics. Confirm a device without enrolled biometrics explains that
+  fingerprint is unavailable and still allows PIN.
 - Open Settings → About. Confirm version and schema, then Share diagnostics in
   airplane mode. Open the file and confirm it has counts/versions only — no
   customer names, GSTIN, or amounts.

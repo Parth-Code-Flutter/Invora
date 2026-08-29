@@ -85,6 +85,7 @@ class ProductServices extends Table {
   TextColumn get attributesJson => text().withDefault(const Constant('[]'))();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   BoolColumn get trackStock => boolean().withDefault(const Constant(false))();
+  TextColumn get imagePathsJson => text().withDefault(const Constant('[]'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
@@ -952,6 +953,9 @@ class AppDatabase extends _$AppDatabase {
         await _addTrackStockColumn(migrator);
         await migrateProductStockTrackingFromSettings();
       }
+      if (from < 22) {
+        await _addImagePathsColumn(migrator);
+      }
     },
   );
 
@@ -979,6 +983,22 @@ class AppDatabase extends _$AppDatabase {
     );
     if (!hasTrackStock) {
       await migrator.addColumn(productServices, productServices.trackStock);
+    }
+  }
+
+  Future<void> _addImagePathsColumn(Migrator migrator) async {
+    final table = await customSelect(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'product_services'",
+    ).get();
+    if (table.isEmpty) return;
+    final columns = await customSelect(
+      'PRAGMA table_info(product_services)',
+    ).get();
+    final hasImages = columns.any(
+      (row) => row.read<String>('name') == 'image_paths_json',
+    );
+    if (!hasImages) {
+      await migrator.addColumn(productServices, productServices.imagePathsJson);
     }
   }
 

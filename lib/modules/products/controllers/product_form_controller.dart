@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../app/enums/item_type.dart';
 import '../../../app/utils/app_focus.dart';
@@ -14,6 +15,7 @@ import '../../../data/models/product_attribute_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
 import '../../../data/services/product_settings_service.dart';
+import '../../../data/services/product_image_service.dart';
 import '../../../data/services/stock_ledger.dart';
 import '../../../data/services/unit_service.dart';
 
@@ -24,6 +26,7 @@ class ProductFormController extends GetxController {
     this.unitService,
     this.productSettings, [
     this._ledger,
+    this._images,
   ]);
   static const taxRates = TaxUtils.gstRateBasisPoints;
 
@@ -32,6 +35,7 @@ class ProductFormController extends GetxController {
   final UnitService unitService;
   final ProductSettingsService productSettings;
   final StockLedger? _ledger;
+  final ProductImageService? _images;
   final formKey = GlobalKey<FormState>();
   final name = TextEditingController();
   final description = TextEditingController();
@@ -53,6 +57,8 @@ class ProductFormController extends GetxController {
   final isLoading = false.obs;
   final isSaving = false.obs;
   final isEditing = false.obs;
+  final imagePaths = <String>[].obs;
+  final List<String> _originalImagePaths = [];
   ProductServiceModel? _existing;
   int _loadedOnHandScaled = 0;
   String _baseline = '';
@@ -70,7 +76,30 @@ class ProductFormController extends GetxController {
     }
     _captureBaseline();
     _loadCurrency();
+    _prepareImages();
     _applyRouteArguments();
+  }
+
+  Future<void> _prepareImages() async {
+    await _images?.ensureReady();
+  }
+
+  bool get canAddImage =>
+      imagePaths.length < ProductImageService.maxImages && _images != null;
+
+  ProductImageService? get images => _images;
+
+  Future<void> addImageFromSource(ImageSource source) async {
+    final service = _images;
+    if (service == null || !canAddImage) return;
+    final stored = await service.pickAndStore(source: source);
+    if (stored == null) return;
+    imagePaths.add(stored);
+  }
+
+  Future<void> removeImageAt(int index) async {
+    if (index < 0 || index >= imagePaths.length) return;
+    imagePaths.removeAt(index);
   }
 
   /// Supports both legacy integer ids and [ProductFormArgs] from the scanner.
@@ -227,10 +256,12 @@ class ProductFormController extends GetxController {
               : 0,
           attributes: _attributeValues(),
           trackStock: type.value == ItemType.product && trackStock.value,
+          imagePaths: imagePaths.take(ProductImageService.maxImages).toList(),
           createdAt: _existing?.createdAt ?? now,
           updatedAt: now,
         ),
       );
+      await _purgeRemovedImages();
       if (saved.id != null && type.value == ItemType.product) {
         await _ledger?.applyCatalogQuantity(
           productId: saved.id!,
@@ -299,6 +330,10 @@ class ProductFormController extends GetxController {
               .text =
           attribute.value;
     }
+    imagePaths.assignAll(item.imagePaths);
+    _originalImagePaths
+      ..clear()
+      ..addAll(item.imagePaths);
     _captureBaseline();
   }
 
@@ -320,12 +355,23 @@ class ProductFormController extends GetxController {
     selectedUnit.value,
     selectedTaxBasisPoints.value.toString(),
     isCustomTax.value.toString(),
+    imagePaths.join(','),
     ...attributeControllers.entries.map(
       (entry) => '${entry.key}:${entry.value.text}',
     ),
   ].join('\u001f');
 
   void _captureBaseline() => _baseline = _snapshot();
+
+  Future<void> _purgeRemovedImages() async {
+    final kept = imagePaths.toSet();
+    for (final name in _originalImagePaths) {
+      if (!kept.contains(name)) await _images?.delete(name);
+    }
+    _originalImagePaths
+      ..clear()
+      ..addAll(imagePaths);
+  }
 
   int? _quantityToApply() {
     if (!showQtyField) return null;

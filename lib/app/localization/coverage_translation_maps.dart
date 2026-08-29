@@ -491,6 +491,10 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Add an item for faster invoicing': 'तेज़ चालान के लिए आइटम जोड़ें',
   'Estimates': 'अनुमान',
   'App settings': 'ऐप सेटिंग्स',
+  'Search features': 'सुविधाएँ खोजें',
+  'No matching features': 'कोई मेल खाती सुविधा नहीं',
+  'Try a different name, like GST, stock, or backup.':
+      'दूसरा नाम आज़माएँ, जैसे GST, स्टॉक या बैकअप।',
   'Appearance and preferences': 'दिखावट और प्राथमिकताएँ',
   'Saved items, pricing, tax and units': 'सहेजे आइटम, कीमत, कर और इकाइयाँ',
   'Create and manage client quotations': 'ग्राहक कोटेशन बनाएँ और प्रबंधित करें',
@@ -692,16 +696,46 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Four-digit PIN required': 'चार अंकों का पिन आवश्यक',
   'Protect the app with a four-digit PIN':
       'चार अंकों के पिन से ऐप सुरक्षित करें',
+  'Protect the app with a PIN or fingerprint':
+      'पिन या फिंगरप्रिंट से ऐप सुरक्षित करें',
+  'PIN and fingerprint': 'पिन और फिंगरप्रिंट',
+  'PIN or fingerprint': 'पिन या फिंगरप्रिंट',
   'On': 'चालू',
   'App lock is on': 'ऐप लॉक चालू है',
   'Protect your app': 'अपने ऐप को सुरक्षित करें',
   'Require a four-digit PIN when Creovo Billing opens or returns from the background.':
       'Creovo Billing खुलने या बैकग्राउंड से लौटने पर चार अंकों का पिन आवश्यक करें।',
+  'Require a PIN when Creovo Billing opens or returns from the background. You can also unlock with fingerprint.':
+      'Creovo Billing खुलने या बैकग्राउंड से लौटने पर पिन आवश्यक करें। फिंगरप्रिंट से भी अनलॉक कर सकते हैं।',
+  'Unlock with': 'इससे अनलॉक करें',
+  'PIN': 'पिन',
+  'Fingerprint': 'फिंगरप्रिंट',
+  'Four-digit code': 'चार अंकों का कोड',
+  'Required as backup': 'बैकअप के रूप में आवश्यक',
+  'Unlock with fingerprint': 'फिंगरप्रिंट से अनलॉक करें',
+  'Use fingerprint after PIN': 'पिन के बाद फिंगरप्रिंट इस्तेमाल करें',
+  'Not available on this device': 'इस डिवाइस पर उपलब्ध नहीं',
+  'Fingerprint is not available on this device.':
+      'इस डिवाइस पर फिंगरप्रिंट उपलब्ध नहीं है।',
+  'Fingerprint could not be enabled. Try again.':
+      'फिंगरप्रिंट चालू नहीं हो सका। फिर प्रयास करें।',
+  'PIN is on. Fingerprint could not be enabled.':
+      'पिन चालू है। फिंगरप्रिंट चालू नहीं हो सका।',
+  'Use a PIN you can remember. Fingerprint will be set up next.':
+      'ऐसा पिन रखें जो आपको याद रहे। इसके बाद फिंगरप्रिंट सेट होगा।',
+  'Confirm fingerprint to unlock Creovo Billing.':
+      'Creovo Billing अनलॉक करने के लिए फिंगरप्रिंट की पुष्टि करें।',
+  'Unlock Creovo Billing': 'Creovo Billing अनलॉक करें',
+  'Use fingerprint': 'फिंगरप्रिंट इस्तेमाल करें',
+  'Enter your PIN or use fingerprint to unlock Creovo Billing.':
+      'Creovo Billing अनलॉक करने के लिए पिन दर्ज करें या फिंगरप्रिंट इस्तेमाल करें।',
   'Change PIN': 'पिन बदलें',
   'Disable app lock': 'ऐप लॉक बंद करें',
   'Set up PIN': 'पिन सेट करें',
   'Your PIN protects access to this app on this device. Backups use a separate password. CSV exports remain unencrypted.':
       'आपका पिन इस डिवाइस पर ऐप की पहुँच सुरक्षित करता है। बैकअप के लिए अलग पासवर्ड लगता है। CSV एक्सपोर्ट अनएन्क्रिप्टेड रहते हैं।',
+  'Your PIN and fingerprint protect access to this app on this device. Backups use a separate password. CSV exports remain unencrypted.':
+      'आपका पिन और फिंगरप्रिंट इस डिवाइस पर ऐप की पहुँच सुरक्षित करते हैं। बैकअप के लिए अलग पासवर्ड लगता है। CSV एक्सपोर्ट अनएन्क्रिप्टेड रहते हैं।',
   'Create PIN': 'पिन बनाएँ',
   'Confirm PIN': 'पिन की पुष्टि करें',
   'Verify PIN': 'पिन सत्यापित करें',
@@ -1410,6 +1444,20 @@ const Map<String, String> appHindiCoverageTranslations = {
   'SAC code': 'SAC कोड',
   'Track product stock?': 'उत्पाद स्टॉक ट्रैक करें?',
   'Keep stock for this item': 'इस आइटम का स्टॉक रखें',
+  'Photos': 'फ़ोटो',
+  'Cover': 'कवर',
+  'Add photo': 'फ़ोटो जोड़ें',
+  'Take a photo': 'फ़ोटो लें',
+  'Choose from gallery': 'गैलरी से चुनें',
+  'Use the camera': 'कैमरा इस्तेमाल करें',
+  'Pick a saved picture': 'सहेजी तस्वीर चुनें',
+  'Optional. Up to 3 photos. The first one is the cover.':
+      'वैकल्पिक। अधिकतम 3 फ़ोटो। पहली कवर है।',
+  'The item': 'आइटम',
+  'Inventory': 'इन्वेंटरी',
+  'Count this item in Stock': 'इस आइटम को स्टॉक में गिनें',
+  'For invoices': 'चालान के लिए',
+  'Details': 'विवरण',
   'Quantity': 'मात्रा',
   'Catalog quantity': 'कैटलॉग मात्रा',
   'Keep stock for this item is off.': 'इस आइटम का स्टॉक रखना बंद है।',
@@ -1988,6 +2036,10 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Add an item for faster invoicing': 'ઝડપી ઇન્વૉઇસ માટે આઇટમ ઉમેરો',
   'Estimates': 'અંદાજ',
   'App settings': 'એપ સેટિંગ્સ',
+  'Search features': 'સુવિધાઓ શોધો',
+  'No matching features': 'કોઈ મેળ ખાતી સુવિધા નથી',
+  'Try a different name, like GST, stock, or backup.':
+      'બીજું નામ અજમાવો, જેમ કે GST, સ્ટોક અથવા બૅકઅપ.',
   'Appearance and preferences': 'દેખાવ અને પસંદગીઓ',
   'Saved items, pricing, tax and units': 'સાચવેલી આઇટમ, કિંમત, કર અને એકમો',
   'Create and manage client quotations': 'ગ્રાહક ક્વોટેશન બનાવો અને મેનેજ કરો',
@@ -2188,16 +2240,46 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'App lock': 'એપ લૉક',
   'Four-digit PIN required': 'ચાર અંકનો પિન જરૂરી',
   'Protect the app with a four-digit PIN': 'ચાર અંકના પિનથી એપ સુરક્ષિત કરો',
+  'Protect the app with a PIN or fingerprint':
+      'પિન અથવા ફિંગરપ્રિન્ટથી એપ સુરક્ષિત કરો',
+  'PIN and fingerprint': 'પિન અને ફિંગરપ્રિન્ટ',
+  'PIN or fingerprint': 'પિન અથવા ફિંગરપ્રિન્ટ',
   'On': 'ચાલુ',
   'App lock is on': 'એપ લૉક ચાલુ છે',
   'Protect your app': 'તમારી એપ સુરક્ષિત કરો',
   'Require a four-digit PIN when Creovo Billing opens or returns from the background.':
       'Creovo Billing ખુલે અથવા બેકગ્રાઉન્ડમાંથી પરત આવે ત્યારે ચાર અંકનો પિન જરૂરી કરો.',
+  'Require a PIN when Creovo Billing opens or returns from the background. You can also unlock with fingerprint.':
+      'Creovo Billing ખુલે અથવા બેકગ્રાઉન્ડમાંથી પરત આવે ત્યારે પિન જરૂરી કરો. ફિંગરપ્રિન્ટથી પણ અનલૉક કરી શકો છો.',
+  'Unlock with': 'આનાથી અનલૉક કરો',
+  'PIN': 'પિન',
+  'Fingerprint': 'ફિંગરપ્રિન્ટ',
+  'Four-digit code': 'ચાર અંકનો કોડ',
+  'Required as backup': 'બૅકઅપ તરીકે જરૂરી',
+  'Unlock with fingerprint': 'ફિંગરપ્રિન્ટથી અનલૉક કરો',
+  'Use fingerprint after PIN': 'પિન પછી ફિંગરપ્રિન્ટ વાપરો',
+  'Not available on this device': 'આ ડિવાઇસ પર ઉપલબ્ધ નથી',
+  'Fingerprint is not available on this device.':
+      'આ ડિવાઇસ પર ફિંગરપ્રિન્ટ ઉપલબ્ધ નથી.',
+  'Fingerprint could not be enabled. Try again.':
+      'ફિંગરપ્રિન્ટ ચાલુ થઈ શક્યું નહીં. ફરી પ્રયાસ કરો.',
+  'PIN is on. Fingerprint could not be enabled.':
+      'પિન ચાલુ છે. ફિંગરપ્રિન્ટ ચાલુ થઈ શક્યું નહીં.',
+  'Use a PIN you can remember. Fingerprint will be set up next.':
+      'તમને યાદ રહે એવો પિન વાપરો. ત્યારબાદ ફિંગરપ્રિન્ટ સેટ થશે.',
+  'Confirm fingerprint to unlock Creovo Billing.':
+      'Creovo Billing અનલૉક કરવા ફિંગરપ્રિન્ટની પુષ્ટિ કરો.',
+  'Unlock Creovo Billing': 'Creovo Billing અનલૉક કરો',
+  'Use fingerprint': 'ફિંગરપ્રિન્ટ વાપરો',
+  'Enter your PIN or use fingerprint to unlock Creovo Billing.':
+      'Creovo Billing અનલૉક કરવા તમારો પિન દાખલ કરો અથવા ફિંગરપ્રિન્ટ વાપરો.',
   'Change PIN': 'પિન બદલો',
   'Disable app lock': 'એપ લૉક બંધ કરો',
   'Set up PIN': 'પિન સેટ કરો',
   'Your PIN protects access to this app on this device. Backups use a separate password. CSV exports remain unencrypted.':
       'તમારો પિન આ ડિવાઇસ પર એપની ઍક્સેસ સુરક્ષિત કરે છે. બૅકઅપ માટે અલગ પાસવર્ડ લાગે છે. CSV એક્સપોર્ટ અનએન્ક્રિપ્ટેડ રહે છે.',
+  'Your PIN and fingerprint protect access to this app on this device. Backups use a separate password. CSV exports remain unencrypted.':
+      'તમારો પિન અને ફિંગરપ્રિન્ટ આ ડિવાઇસ પર એપની ઍક્સેસ સુરક્ષિત કરે છે. બૅકઅપ માટે અલગ પાસવર્ડ લાગે છે. CSV એક્સપોર્ટ અનએન્ક્રિપ્ટેડ રહે છે.',
   'Create PIN': 'પિન બનાવો',
   'Confirm PIN': 'પિનની પુષ્ટિ કરો',
   'Verify PIN': 'પિન ચકાસો',
@@ -2902,6 +2984,20 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'SAC code': 'SAC કોડ',
   'Track product stock?': 'ઉત્પાદ સ્ટોક ટ્રૅક કરો?',
   'Keep stock for this item': 'આ આઇટમનો સ્ટોક રાખો',
+  'Photos': 'ફોટો',
+  'Cover': 'કવર',
+  'Add photo': 'ફોટો ઉમેરો',
+  'Take a photo': 'ફોટો લો',
+  'Choose from gallery': 'ગૅલેરીમાંથી પસંદ કરો',
+  'Use the camera': 'કૅમેરો વાપરો',
+  'Pick a saved picture': 'સાચવેલી તસવીર પસંદ કરો',
+  'Optional. Up to 3 photos. The first one is the cover.':
+      'વૈકલ્પિક. વધુમાં વધુ 3 ફોટો. પહેલો કવર છે.',
+  'The item': 'આઇટમ',
+  'Inventory': 'ઇન્વેન્ટરી',
+  'Count this item in Stock': 'આ આઇટમને સ્ટોકમાં ગણો',
+  'For invoices': 'ઇન્વૉઇસ માટે',
+  'Details': 'વિગતો',
   'Quantity': 'માત્રા',
   'Catalog quantity': 'કેટલોગ માત્રા',
   'Keep stock for this item is off.': 'આ આઇટમનો સ્ટોક રાખવાનું બંધ છે.',

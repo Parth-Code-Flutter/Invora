@@ -5,6 +5,7 @@ import '../../app/enums/item_type.dart';
 import '../models/product_service_model.dart';
 import '../models/product_attribute_model.dart';
 import '../services/app_database.dart';
+import '../services/product_image_service.dart';
 import 'base_repository.dart';
 
 class ProductRepository extends BaseRepository {
@@ -92,6 +93,11 @@ class ProductRepository extends BaseRepository {
       ),
       isDeleted: Value(model.isDeleted),
       trackStock: Value(model.trackStock),
+      imagePathsJson: Value(
+        jsonEncode(
+          model.imagePaths.take(ProductImageService.maxImages).toList(),
+        ),
+      ),
       createdAt: Value(model.createdAt),
       updatedAt: Value(model.updatedAt),
     );
@@ -125,6 +131,7 @@ class ProductRepository extends BaseRepository {
       attributes: _attributes(row.attributesJson),
       isDeleted: row.isDeleted,
       trackStock: row.trackStock,
+      imagePaths: _imagePaths(row.imagePathsJson),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -140,6 +147,19 @@ class ProductRepository extends BaseRepository {
             ),
           )
           .where((value) => value.key.isNotEmpty && value.value.isNotEmpty)
+          .toList(growable: false);
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  List<String> _imagePaths(String raw) {
+    try {
+      return (jsonDecode(raw) as List)
+          .whereType<String>()
+          .map((value) => value.trim())
+          .where((value) => value.isNotEmpty)
+          .take(ProductImageService.maxImages)
           .toList(growable: false);
     } catch (_) {
       return const [];

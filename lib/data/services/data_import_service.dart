@@ -700,6 +700,7 @@ class DataImportService {
         taxRateBasisPoints:
             ImportValueParsers.parseGstBasisPoints(values['gst']) ?? 0,
         trackStock: !typeRaw.contains('service'),
+        imagePaths: match?.imagePaths ?? const [],
         createdAt: match?.createdAt ?? now,
         updatedAt: now,
       ),

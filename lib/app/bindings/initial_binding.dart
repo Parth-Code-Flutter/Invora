@@ -20,9 +20,11 @@ import '../../data/services/expense_pdf_service.dart';
 import '../../data/services/delivery_challan_pdf_service.dart';
 import '../../data/services/purchase_order_pdf_service.dart';
 import '../../data/services/purchase_attachment_service.dart';
+import '../../data/services/product_image_service.dart';
 import '../../data/services/backup_service.dart';
 import '../../data/services/unit_service.dart';
 import '../../data/services/app_lock_service.dart';
+import '../../data/services/biometric_unlock.dart';
 import '../../data/services/business_workspace_service.dart';
 import '../../data/repositories/business_repository.dart';
 import '../../data/repositories/customer_repository.dart';
@@ -55,7 +57,10 @@ class InitialBinding extends Bindings {
       BusinessWorkspaceService(appStorage),
       permanent: true,
     );
-    final appLockService = AppLockService(appStorage)..load();
+    final appLockService = AppLockService(
+      appStorage,
+      biometric: DeviceBiometricUnlock(),
+    )..load();
     Get.put<AppLockService>(appLockService, permanent: true);
     _registerDatabaseRuntime(databaseService, appStorage);
     Get.put<InvoiceCalculationService>(
@@ -96,6 +101,7 @@ class InitialBinding extends Bindings {
       const PurchaseAttachmentService(),
       permanent: true,
     );
+    Get.put<ProductImageService>(ProductImageService(), permanent: true);
     Get.put<UnitService>(UnitService(appStorage), permanent: true);
     Get.put<InvoiceDefaultsService>(
       InvoiceDefaultsService(appStorage),

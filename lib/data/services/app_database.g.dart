@@ -2598,6 +2598,18 @@ class $ProductServicesTable extends ProductServices
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _imagePathsJsonMeta = const VerificationMeta(
+    'imagePathsJson',
+  );
+  @override
+  late final GeneratedColumn<String> imagePathsJson = GeneratedColumn<String>(
+    'image_paths_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -2635,6 +2647,7 @@ class $ProductServicesTable extends ProductServices
     attributesJson,
     isDeleted,
     trackStock,
+    imagePathsJson,
     createdAt,
     updatedAt,
   ];
@@ -2733,6 +2746,15 @@ class $ProductServicesTable extends ProductServices
         trackStock.isAcceptableOrUnknown(data['track_stock']!, _trackStockMeta),
       );
     }
+    if (data.containsKey('image_paths_json')) {
+      context.handle(
+        _imagePathsJsonMeta,
+        imagePathsJson.isAcceptableOrUnknown(
+          data['image_paths_json']!,
+          _imagePathsJsonMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -2798,6 +2820,10 @@ class $ProductServicesTable extends ProductServices
         DriftSqlType.bool,
         data['${effectivePrefix}track_stock'],
       )!,
+      imagePathsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_paths_json'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2827,6 +2853,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
   final String attributesJson;
   final bool isDeleted;
   final bool trackStock;
+  final String imagePathsJson;
   final DateTime createdAt;
   final DateTime updatedAt;
   const ProductService({
@@ -2841,6 +2868,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     required this.attributesJson,
     required this.isDeleted,
     required this.trackStock,
+    required this.imagePathsJson,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -2862,6 +2890,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     map['attributes_json'] = Variable<String>(attributesJson);
     map['is_deleted'] = Variable<bool>(isDeleted);
     map['track_stock'] = Variable<bool>(trackStock);
+    map['image_paths_json'] = Variable<String>(imagePathsJson);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -2884,6 +2913,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       attributesJson: Value(attributesJson),
       isDeleted: Value(isDeleted),
       trackStock: Value(trackStock),
+      imagePathsJson: Value(imagePathsJson),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -2906,6 +2936,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       attributesJson: serializer.fromJson<String>(json['attributesJson']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       trackStock: serializer.fromJson<bool>(json['trackStock']),
+      imagePathsJson: serializer.fromJson<String>(json['imagePathsJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2925,6 +2956,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       'attributesJson': serializer.toJson<String>(attributesJson),
       'isDeleted': serializer.toJson<bool>(isDeleted),
       'trackStock': serializer.toJson<bool>(trackStock),
+      'imagePathsJson': serializer.toJson<String>(imagePathsJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2942,6 +2974,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     String? attributesJson,
     bool? isDeleted,
     bool? trackStock,
+    String? imagePathsJson,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => ProductService(
@@ -2956,6 +2989,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     attributesJson: attributesJson ?? this.attributesJson,
     isDeleted: isDeleted ?? this.isDeleted,
     trackStock: trackStock ?? this.trackStock,
+    imagePathsJson: imagePathsJson ?? this.imagePathsJson,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -2982,6 +3016,9 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       trackStock: data.trackStock.present
           ? data.trackStock.value
           : this.trackStock,
+      imagePathsJson: data.imagePathsJson.present
+          ? data.imagePathsJson.value
+          : this.imagePathsJson,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -3001,6 +3038,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
           ..write('attributesJson: $attributesJson, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('trackStock: $trackStock, ')
+          ..write('imagePathsJson: $imagePathsJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -3020,6 +3058,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     attributesJson,
     isDeleted,
     trackStock,
+    imagePathsJson,
     createdAt,
     updatedAt,
   );
@@ -3038,6 +3077,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
           other.attributesJson == this.attributesJson &&
           other.isDeleted == this.isDeleted &&
           other.trackStock == this.trackStock &&
+          other.imagePathsJson == this.imagePathsJson &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -3054,6 +3094,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
   final Value<String> attributesJson;
   final Value<bool> isDeleted;
   final Value<bool> trackStock;
+  final Value<String> imagePathsJson;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const ProductServicesCompanion({
@@ -3068,6 +3109,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     this.attributesJson = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.trackStock = const Value.absent(),
+    this.imagePathsJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -3083,6 +3125,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     this.attributesJson = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.trackStock = const Value.absent(),
+    this.imagePathsJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : name = Value(name),
@@ -3101,6 +3144,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     Expression<String>? attributesJson,
     Expression<bool>? isDeleted,
     Expression<bool>? trackStock,
+    Expression<String>? imagePathsJson,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -3117,6 +3161,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
       if (attributesJson != null) 'attributes_json': attributesJson,
       if (isDeleted != null) 'is_deleted': isDeleted,
       if (trackStock != null) 'track_stock': trackStock,
+      if (imagePathsJson != null) 'image_paths_json': imagePathsJson,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -3134,6 +3179,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     Value<String>? attributesJson,
     Value<bool>? isDeleted,
     Value<bool>? trackStock,
+    Value<String>? imagePathsJson,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -3149,6 +3195,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
       attributesJson: attributesJson ?? this.attributesJson,
       isDeleted: isDeleted ?? this.isDeleted,
       trackStock: trackStock ?? this.trackStock,
+      imagePathsJson: imagePathsJson ?? this.imagePathsJson,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -3190,6 +3237,9 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     if (trackStock.present) {
       map['track_stock'] = Variable<bool>(trackStock.value);
     }
+    if (imagePathsJson.present) {
+      map['image_paths_json'] = Variable<String>(imagePathsJson.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -3213,6 +3263,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
           ..write('attributesJson: $attributesJson, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('trackStock: $trackStock, ')
+          ..write('imagePathsJson: $imagePathsJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -29692,6 +29743,7 @@ typedef $$ProductServicesTableCreateCompanionBuilder =
       Value<String> attributesJson,
       Value<bool> isDeleted,
       Value<bool> trackStock,
+      Value<String> imagePathsJson,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -29708,6 +29760,7 @@ typedef $$ProductServicesTableUpdateCompanionBuilder =
       Value<String> attributesJson,
       Value<bool> isDeleted,
       Value<bool> trackStock,
+      Value<String> imagePathsJson,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -29773,6 +29826,11 @@ class $$ProductServicesTableFilterComposer
 
   ColumnFilters<bool> get trackStock => $composableBuilder(
     column: $table.trackStock,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imagePathsJson => $composableBuilder(
+    column: $table.imagePathsJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -29851,6 +29909,11 @@ class $$ProductServicesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get imagePathsJson => $composableBuilder(
+    column: $table.imagePathsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -29914,6 +29977,11 @@ class $$ProductServicesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get imagePathsJson => $composableBuilder(
+    column: $table.imagePathsJson,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -29969,6 +30037,7 @@ class $$ProductServicesTableTableManager
                 Value<String> attributesJson = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<bool> trackStock = const Value.absent(),
+                Value<String> imagePathsJson = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => ProductServicesCompanion(
@@ -29983,6 +30052,7 @@ class $$ProductServicesTableTableManager
                 attributesJson: attributesJson,
                 isDeleted: isDeleted,
                 trackStock: trackStock,
+                imagePathsJson: imagePathsJson,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -29999,6 +30069,7 @@ class $$ProductServicesTableTableManager
                 Value<String> attributesJson = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<bool> trackStock = const Value.absent(),
+                Value<String> imagePathsJson = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => ProductServicesCompanion.insert(
@@ -30013,6 +30084,7 @@ class $$ProductServicesTableTableManager
                 attributesJson: attributesJson,
                 isDeleted: isDeleted,
                 trackStock: trackStock,
+                imagePathsJson: imagePathsJson,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

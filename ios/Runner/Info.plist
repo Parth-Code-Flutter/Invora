@@ -27,11 +27,13 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Creovo Billing uses selected images for your business logo, signature, and payment QR.</string>
+	<string>Creovo Billing uses selected images for catalog photos, your business logo, signature, and payment QR.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Creovo Billing uses a contact you select to fill the customer name and mobile number.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Creovo Billing uses the camera to scan product barcodes and to photograph a signature, logo, or payment QR for your invoices.</string>
+	<string>Creovo Billing uses the camera to scan product barcodes, photograph catalog items, and capture a signature, logo, or payment QR for your invoices.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Creovo Billing uses Face ID or Touch ID to unlock the app on this device.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
