@@ -10,6 +10,8 @@ import '../models/cash_book_models.dart';
 import '../services/app_database.dart';
 import '../services/invoice_calculation_service.dart';
 import '../services/money_ledger.dart';
+import '../services/stock_ledger.dart';
+import '../models/stock_models.dart';
 import 'base_repository.dart';
 import 'invoice_repository.dart';
 
@@ -332,6 +334,20 @@ class CreditNoteRepository extends BaseRepository {
           note: 'Credit note refund',
         );
       }
+
+      await StockLedger(database).replaceSource(
+        sourceType: StockSourceType.creditNote,
+        sourceId: creditNoteId,
+        type: StockMovementType.creditNote,
+        lines: [
+          for (final snapshot in snapshots)
+            if (snapshot.item.productId != null)
+              StockLine(
+                productId: snapshot.item.productId!,
+                quantityScaled: snapshot.quantityScaled,
+              ),
+        ],
+      );
 
       return (await getById(creditNoteId))!;
     });

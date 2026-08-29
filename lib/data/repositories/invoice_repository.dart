@@ -13,6 +13,8 @@ import '../models/cash_book_models.dart';
 import '../services/app_database.dart';
 import '../services/invoice_validation_service.dart';
 import '../services/money_ledger.dart';
+import '../services/stock_ledger.dart';
+import '../models/stock_models.dart';
 import 'base_repository.dart';
 
 class InvoiceRepository extends BaseRepository {
@@ -583,14 +585,19 @@ class InvoiceRepository extends BaseRepository {
       id,
       'This invoice has a credit note and cannot be cancelled.',
     );
-    await (database.update(
-      database.invoices,
-    )..where((table) => table.id.equals(id))).write(
-      InvoicesCompanion(
-        status: Value(InvoiceStatus.cancelled.name),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+    await database.transaction(() async {
+      await (database.update(
+        database.invoices,
+      )..where((table) => table.id.equals(id))).write(
+        InvoicesCompanion(
+          status: Value(InvoiceStatus.cancelled.name),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+      await StockLedger(
+        database,
+      ).reverseSource(sourceType: StockSourceType.invoice, sourceId: id);
+    });
   }
 
   Future<void> updateStatus(int id, InvoiceStatus status) async {
@@ -622,7 +629,14 @@ class InvoiceRepository extends BaseRepository {
       ),
     );
     await updateStatus(quotationId, InvoiceStatus.accepted);
-    return (await getById(converted.id!))!;
+    final issued = (await getById(converted.id!))!;
+    await _syncInvoiceStock(
+      invoiceId: issued.id!,
+      documentType: DocumentType.invoice,
+      status: issued.status,
+      items: issued.items,
+    );
+    return issued;
   }
 
   Future<void> delete(int id) async {
@@ -630,9 +644,44 @@ class InvoiceRepository extends BaseRepository {
       id,
       'This invoice has a credit note and cannot be deleted.',
     );
-    await (database.delete(
-      database.invoices,
-    )..where((table) => table.id.equals(id))).go();
+    await database.transaction(() async {
+      await StockLedger(
+        database,
+      ).reverseSource(sourceType: StockSourceType.invoice, sourceId: id);
+      await (database.delete(
+        database.invoices,
+      )..where((table) => table.id.equals(id))).go();
+    });
+  }
+
+  Future<void> _syncInvoiceStock({
+    required int invoiceId,
+    required DocumentType documentType,
+    required InvoiceStatus status,
+    required List<InvoiceItemModel> items,
+  }) async {
+    final ledger = StockLedger(database);
+    if (documentType != DocumentType.invoice ||
+        status == InvoiceStatus.cancelled) {
+      await ledger.reverseSource(
+        sourceType: StockSourceType.invoice,
+        sourceId: invoiceId,
+      );
+      return;
+    }
+    await ledger.replaceSource(
+      sourceType: StockSourceType.invoice,
+      sourceId: invoiceId,
+      type: StockMovementType.sale,
+      lines: [
+        for (final item in items)
+          if (item.productId != null)
+            StockLine(
+              productId: item.productId!,
+              quantityScaled: item.quantityScaled,
+            ),
+      ],
+    );
   }
 
   Future<void> _assertNoCreditNotes(int invoiceId, String message) async {
@@ -879,6 +928,12 @@ class InvoiceRepository extends BaseRepository {
               ),
             );
       }
+      await _syncInvoiceStock(
+        invoiceId: invoiceId,
+        documentType: model.documentType,
+        status: settledStatus,
+        items: model.items,
+      );
       return (await getById(invoiceId))!;
     });
   }

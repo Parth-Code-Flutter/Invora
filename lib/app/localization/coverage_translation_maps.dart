@@ -1164,8 +1164,8 @@ const Map<String, String> appHindiCoverageTranslations = {
       'CSV या Excel टेम्पलेट, पूर्वावलोकन, फिर ऑफ़लाइन सहेजें',
   'CSV customers, suppliers, bills, invoices and ZIP':
       'ग्राहक, सप्लायर, बिल, चालान CSV और ZIP',
-  'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock waits until Inventory.':
-      'आयात इसी डिवाइस पर रहता है। टेम्पलेट डाउनलोड करें, CSV या Excel चुनें, पंक्तियाँ देखें, फिर एक चरण में सहेजें। ओपनिंग स्टॉक इन्वेंटरी तक प्रतीक्षा करता है।',
+  'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock posts only while Track product stock is on.':
+      'आयात इसी डिवाइस पर रहता है। टेम्पलेट डाउनलोड करें, CSV या Excel चुनें, पंक्तियाँ देखें, फिर एक चरण में सहेजें। ओपनिंग स्टॉक तभी दर्ज होता है जब उत्पाद स्टॉक ट्रैक चालू हो।',
   'WHAT TO IMPORT': 'क्या आयात करें',
   'If a row already exists': 'अगर पंक्ति पहले से मौजूद है',
   'Skip': 'छोड़ें',
@@ -1408,6 +1408,58 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Use in invoice': 'चालान में इस्तेमाल करें',
   'HSN code': 'HSN कोड',
   'SAC code': 'SAC कोड',
+  'Track product stock?': 'उत्पाद स्टॉक ट्रैक करें?',
+  'On-hand is calculated from movements. Off hides stock and stops posting.':
+      'मौजूद स्टॉक मूवमेंट से निकाला जाता है। बंद करने पर स्टॉक छिप जाता है और नई एंट्री रुक जाती है।',
+  'Turn off stock tracking?': 'स्टॉक ट्रैकिंग बंद करें?',
+  'Stock screens hide and new invoices or bills will not move stock. Saved movements stay on this device and in backup.':
+      'स्टॉक स्क्रीन छिप जाएँगी और नए चालान या बिल स्टॉक नहीं बदलेंगे। सहेजे मूवमेंट डिवाइस और बैकअप में रहेंगे।',
+  'Turn off': 'बंद करें',
+  'Stock tracking off': 'स्टॉक ट्रैकिंग बंद',
+  'Stock screens are hidden. Saved movements stay on this device.':
+      'स्टॉक स्क्रीन छिपी हैं। सहेजे मूवमेंट इसी डिवाइस पर रहते हैं।',
+  'Opening stock': 'ओपनिंग स्टॉक',
+  'Track product stock from this date': 'इस तारीख से उत्पाद स्टॉक ट्रैक करें',
+  'Enter on-hand quantity for each product. Leave blank for zero. Past invoices are not backfilled.':
+      'हर उत्पाद की मौजूद मात्रा लिखें। खाली छोड़ने पर शून्य माना जाता है। पुराने चालान पीछे से नहीं जोड़े जाते।',
+  'Opening as of': 'ओपनिंग तिथि',
+  'No products yet. You can turn tracking on now and add quantities later with an adjustment.':
+      'अभी कोई उत्पाद नहीं। ट्रैकिंग अब चालू कर सकते हैं और मात्रा बाद में समायोजन से जोड़ सकते हैं।',
+  'Turn on stock tracking': 'स्टॉक ट्रैकिंग चालू करें',
+  'Check quantities': 'मात्रा जाँचें',
+  'Use whole numbers or up to three decimals. Leave blank for zero.':
+      'पूर्ण संख्या या तीन दशमलव तक लिखें। खाली छोड़ने पर शून्य माना जाता है।',
+  'Stock tracking on': 'स्टॉक ट्रैकिंग चालू',
+  'Opening quantities are saved. Invoices and bills will move stock.':
+      'ओपनिंग मात्रा सहेज दी गई। चालान और बिल अब स्टॉक बदलेंगे।',
+  'Could not turn on stock': 'स्टॉक चालू नहीं हो सका',
+  'Please try again. Existing catalog items were not changed.':
+      'कृपया फिर कोशिश करें। कैटलॉग आइटम नहीं बदले।',
+  'Stock': 'स्टॉक',
+  'Movements and quantity adjustments': 'मूवमेंट और मात्रा समायोजन',
+  'Adjust stock': 'स्टॉक समायोजित करें',
+  'No stock movements yet': 'अभी कोई स्टॉक मूवमेंट नहीं',
+  'Opening quantities, invoices, bills, returns, and adjustments appear here.':
+      'ओपनिंग मात्रा, चालान, बिल, रिटर्न और समायोजन यहाँ दिखते हैं।',
+  'Stock adjusted': 'स्टॉक समायोजित',
+  'The movement is saved. On-hand is updated from the ledger.':
+      'मूवमेंट सहेजा गया। मौजूद स्टॉक लेजर से अपडेट है।',
+  'Could not adjust stock': 'स्टॉक समायोजित नहीं हो सका',
+  'Enter a quantity and a reason, then try again.':
+      'मात्रा और कारण लिखें, फिर कोशिश करें।',
+  'No products yet': 'अभी कोई उत्पाद नहीं',
+  'Add a catalog product before recording an adjustment.':
+      'समायोजन से पहले एक कैटलॉग उत्पाद जोड़ें।',
+  'Quantity change': 'मात्रा बदलाव',
+  'Use minus to reduce, e.g. -2': 'घटाने के लिए माइनस लिखें, जैसे -2',
+  'Reason *': 'कारण *',
+  'Damaged, count correction, own use…': 'क्षति, गिनती सुधार, स्वयं उपयोग…',
+  'Save adjustment': 'समायोजन सहेजें',
+  'Choose product': 'उत्पाद चुनें',
+  'Opening stock is applied only while Track product stock is on.':
+      'ओपनिंग स्टॉक तभी लागू होता है जब उत्पाद स्टॉक ट्रैक चालू हो।',
+  'Opening stock must be a number with up to three decimals.':
+      'ओपनिंग स्टॉक तीन दशमलव तक की संख्या होनी चाहिए।',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -2563,8 +2615,8 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'CSV અથવા Excel ટેમ્પલેટ, પૂર્વાવલોકન, પછી ઑફલાઇન સાચવો',
   'CSV customers, suppliers, bills, invoices and ZIP':
       'ગ્રાહક, સપ્લાયર, બિલ, ઇન્વૉઇસ CSV અને ZIP',
-  'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock waits until Inventory.':
-      'આયાત આ ઉપકરણ પર જ રહે છે. ટેમ્પલેટ ડાઉનલોડ કરો, CSV અથવા Excel પસંદ કરો, પંક્તિઓ જુઓ, પછી એક પગલામાં સાચવો. ઓપનિંગ સ્ટોક ઇન્વેન્ટરી સુધી રાહ જુએ છે.',
+  'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock posts only while Track product stock is on.':
+      'આયાત આ ઉપકરણ પર જ રહે છે. ટેમ્પલેટ ડાઉનલોડ કરો, CSV અથવા Excel પસંદ કરો, પંક્તિઓ જુઓ, પછી એક પગલામાં સાચવો. ઓપનિંગ સ્ટોક ત્યારે જ નોંધાય છે જ્યારે ઉત્પાદ સ્ટોક ટ્રૅક ચાલુ હોય.',
   'WHAT TO IMPORT': 'શું આયાત કરવું',
   'If a row already exists': 'જો પંક્તિ પહેલેથી હોય',
   'Skip': 'છોડો',
@@ -2808,4 +2860,56 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Use in invoice': 'ઇન્વૉઇસમાં વાપરો',
   'HSN code': 'HSN કોડ',
   'SAC code': 'SAC કોડ',
+  'Track product stock?': 'ઉત્પાદ સ્ટોક ટ્રૅક કરો?',
+  'On-hand is calculated from movements. Off hides stock and stops posting.':
+      'હાથ પરનો સ્ટોક મૂવમેન્ટથી ગણાય છે. બંધ કરતાં સ્ટોક છુપાય અને નવી નોંધ અટકે.',
+  'Turn off stock tracking?': 'સ્ટોક ટ્રૅકિંગ બંધ કરો?',
+  'Stock screens hide and new invoices or bills will not move stock. Saved movements stay on this device and in backup.':
+      'સ્ટોક સ્ક્રીન છુપાશે અને નવા ઇન્વૉઇસ કે બિલ સ્ટોક બદલશે નહીં. સાચવેલા મૂવમેન્ટ ઉપકરણ અને બૅકઅપમાં રહેશે.',
+  'Turn off': 'બંધ કરો',
+  'Stock tracking off': 'સ્ટોક ટ્રૅકિંગ બંધ',
+  'Stock screens are hidden. Saved movements stay on this device.':
+      'સ્ટોક સ્ક્રીન છુપાયેલી છે. સાચવેલા મૂવમેન્ટ આ ઉપકરણ પર રહે છે.',
+  'Opening stock': 'ઓપનિંગ સ્ટોક',
+  'Track product stock from this date': 'આ તારીખથી ઉત્પાદ સ્ટોક ટ્રૅક કરો',
+  'Enter on-hand quantity for each product. Leave blank for zero. Past invoices are not backfilled.':
+      'દરેક ઉત્પાદની હાથ પરની માત્રા લખો. ખાલી છોડો તો શૂન્ય. જૂના ઇન્વૉઇસ પાછળથી ઉમેરાતા નથી.',
+  'Opening as of': 'ઓપનિંગ તારીખ',
+  'No products yet. You can turn tracking on now and add quantities later with an adjustment.':
+      'હજુ કોઈ ઉત્પાદ નથી. ટ્રૅકિંગ હવે ચાલુ કરી શકો અને માત્રા પછીથી એડજસ્ટમેન્ટથી ઉમેરી શકો.',
+  'Turn on stock tracking': 'સ્ટોક ટ્રૅકિંગ ચાલુ કરો',
+  'Check quantities': 'માત્રા તપાસો',
+  'Use whole numbers or up to three decimals. Leave blank for zero.':
+      'પૂર્ણ સંખ્યા અથવા ત્રણ દશાંશ સુધી લખો. ખાલી છોડો તો શૂન્ય.',
+  'Stock tracking on': 'સ્ટોક ટ્રૅકિંગ ચાલુ',
+  'Opening quantities are saved. Invoices and bills will move stock.':
+      'ઓપનિંગ માત્રા સાચવાઈ. ઇન્વૉઇસ અને બિલ હવે સ્ટોક બદલશે.',
+  'Could not turn on stock': 'સ્ટોક ચાલુ થયો નહીં',
+  'Please try again. Existing catalog items were not changed.':
+      'કૃપા કરીને ફરી પ્રયાસ કરો. કેટલોગ આઇટમ બદલાઈ નથી.',
+  'Stock': 'સ્ટોક',
+  'Movements and quantity adjustments': 'મૂવમેન્ટ અને માત્રા ગોઠવણ',
+  'Adjust stock': 'સ્ટોક ગોઠવો',
+  'No stock movements yet': 'હજુ કોઈ સ્ટોક મૂવમેન્ટ નથી',
+  'Opening quantities, invoices, bills, returns, and adjustments appear here.':
+      'ઓપનિંગ માત્રા, ઇન્વૉઇસ, બિલ, રિટર્ન અને ગોઠવણ અહીં દેખાય.',
+  'Stock adjusted': 'સ્ટોક ગોઠવાયો',
+  'The movement is saved. On-hand is updated from the ledger.':
+      'મૂવમેન્ટ સાચવાયો. હાથ પરનો સ્ટોક લેજરથી અપડેટ છે.',
+  'Could not adjust stock': 'સ્ટોક ગોઠવાયો નહીં',
+  'Enter a quantity and a reason, then try again.':
+      'માત્રા અને કારણ લખો, પછી ફરી પ્રયાસ કરો.',
+  'No products yet': 'હજુ કોઈ ઉત્પાદ નથી',
+  'Add a catalog product before recording an adjustment.':
+      'ગોઠવણ પહેલાં કેટલોગ ઉત્પાદ ઉમેરો.',
+  'Quantity change': 'માત્રા ફેરફાર',
+  'Use minus to reduce, e.g. -2': 'ઘટાડવા માઇનસ લખો, જેમ કે -2',
+  'Reason *': 'કારણ *',
+  'Damaged, count correction, own use…': 'નુકસાન, ગણતરી સુધારો, પોતાનો ઉપયોગ…',
+  'Save adjustment': 'ગોઠવણ સાચવો',
+  'Choose product': 'ઉત્પાદ પસંદ કરો',
+  'Opening stock is applied only while Track product stock is on.':
+      'ઓપનિંગ સ્ટોક ત્યારે જ લાગુ પડે જ્યારે ઉત્પાદ સ્ટોક ટ્રૅક ચાલુ હોય.',
+  'Opening stock must be a number with up to three decimals.':
+      'ઓપનિંગ સ્ટોક ત્રણ દશાંશ સુધીની સંખ્યા હોવી જોઈએ.',
 };

@@ -35,6 +35,7 @@ import '../../data/repositories/expense_repository.dart';
 import '../../data/repositories/delivery_challan_repository.dart';
 import '../../data/repositories/purchase_order_repository.dart';
 import '../../data/repositories/cash_book_repository.dart';
+import '../../data/services/stock_ledger.dart';
 import '../../modules/dashboard/controllers/dashboard_controller.dart';
 import '../../modules/invoices/controllers/invoice_list_controller.dart';
 import '../../modules/delivery_challans/controllers/delivery_challan_controller.dart';
@@ -125,6 +126,7 @@ class InitialBinding extends Bindings {
     await Get.delete<CreditNoteRepository>(force: true);
     await Get.delete<DebitNoteRepository>(force: true);
     await Get.delete<CashBookRepository>(force: true);
+    await Get.delete<StockLedger>(force: true);
     await Get.delete<ExpenseRepository>(force: true);
     await Get.delete<DeliveryChallanRepository>(force: true);
     await Get.delete<PurchaseOrderRepository>(force: true);
@@ -211,6 +213,10 @@ class InitialBinding extends Bindings {
     );
     Get.put<CashBookRepository>(
       CashBookRepository(databaseService.database),
+      permanent: true,
+    );
+    Get.put<StockLedger>(
+      StockLedger(databaseService.database),
       permanent: true,
     );
     Get.put<DataExportService>(

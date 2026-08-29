@@ -107,48 +107,59 @@ class MoreScreen extends GetView<MoreController> {
               ),
               const SizedBox(height: 22),
               const _SectionLabel('Create & manage'),
-              AppMenuGroup(
-                children: [
-                  AppMenuTile(
-                    icon: Icons.inventory_2_outlined,
-                    title: 'Products & services',
-                    subtitle: 'Saved items, pricing and tax',
-                    onTap: () => Get.toNamed<void>(AppRoutes.products),
-                  ),
-                  AppMenuTile(
-                    icon: Icons.request_quote_outlined,
-                    title: 'Estimates',
-                    subtitle: 'Create and manage client quotations',
-                    onTap: () => Get.toNamed<void>(AppRoutes.quotations),
-                  ),
-                  AppMenuTile(
-                    icon: Icons.local_shipping_outlined,
-                    title: 'Delivery challans',
-                    subtitle:
-                        'Dispatch goods, then convert remaining quantities',
-                    onTap: () => Get.toNamed<void>(AppRoutes.deliveryChallans),
-                  ),
-                  AppMenuTile(
-                    icon: Icons.assignment_outlined,
-                    title: 'Purchase orders',
-                    subtitle:
-                        'Order from a supplier, receive goods, then bill remaining quantity',
-                    onTap: () => Get.toNamed<void>(AppRoutes.purchaseOrders),
-                  ),
-                  AppMenuTile(
-                    icon: Icons.payments_outlined,
-                    title: 'Expenses',
-                    subtitle: 'Rent, fuel, salary and other cash spends',
-                    onTap: () => Get.toNamed<void>(AppRoutes.expenses),
-                  ),
-                  AppMenuTile(
-                    icon: Icons.account_balance_wallet_outlined,
-                    title: 'Cash book',
-                    subtitle: 'Cash, bank, UPI, transfers and daily closing',
-                    onTap: () => Get.toNamed<void>(AppRoutes.cashBook),
-                  ),
-                ],
-              ),
+              Obx(() {
+                final stockOn = controller.stockEnabled.value;
+                return AppMenuGroup(
+                  children: [
+                    AppMenuTile(
+                      icon: Icons.inventory_2_outlined,
+                      title: 'Products & services',
+                      subtitle: 'Saved items, pricing and tax',
+                      onTap: () => Get.toNamed<void>(AppRoutes.products),
+                    ),
+                    if (stockOn)
+                      AppMenuTile(
+                        icon: Icons.warehouse_outlined,
+                        title: 'Stock',
+                        subtitle: 'Movements and quantity adjustments',
+                        onTap: () => Get.toNamed<void>(AppRoutes.stock),
+                      ),
+                    AppMenuTile(
+                      icon: Icons.request_quote_outlined,
+                      title: 'Estimates',
+                      subtitle: 'Create and manage client quotations',
+                      onTap: () => Get.toNamed<void>(AppRoutes.quotations),
+                    ),
+                    AppMenuTile(
+                      icon: Icons.local_shipping_outlined,
+                      title: 'Delivery challans',
+                      subtitle:
+                          'Dispatch goods, then convert remaining quantities',
+                      onTap: () =>
+                          Get.toNamed<void>(AppRoutes.deliveryChallans),
+                    ),
+                    AppMenuTile(
+                      icon: Icons.assignment_outlined,
+                      title: 'Purchase orders',
+                      subtitle:
+                          'Order from a supplier, receive goods, then bill remaining quantity',
+                      onTap: () => Get.toNamed<void>(AppRoutes.purchaseOrders),
+                    ),
+                    AppMenuTile(
+                      icon: Icons.payments_outlined,
+                      title: 'Expenses',
+                      subtitle: 'Rent, fuel, salary and other cash spends',
+                      onTap: () => Get.toNamed<void>(AppRoutes.expenses),
+                    ),
+                    AppMenuTile(
+                      icon: Icons.account_balance_wallet_outlined,
+                      title: 'Cash book',
+                      subtitle: 'Cash, bank, UPI, transfers and daily closing',
+                      onTap: () => Get.toNamed<void>(AppRoutes.cashBook),
+                    ),
+                  ],
+                );
+              }),
               const SizedBox(height: 22),
               const _SectionLabel('Insights & data'),
               AppMenuGroup(

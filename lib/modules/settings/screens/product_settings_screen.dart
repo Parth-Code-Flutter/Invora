@@ -4,6 +4,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dialog.dart';
@@ -118,6 +119,50 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
             ],
           ),
         ),
+        if (controller.canTrackStock.value) ...[
+          const SizedBox(height: 14),
+          AppCard(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                const _IconTile(
+                  icon: Icons.inventory_2_outlined,
+                  color: AppColors.secondary,
+                  background: AppColors.secondaryLight,
+                ),
+                const SizedBox(width: 13),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Track product stock?',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'On-hand is calculated from movements. Off hides stock and stops posting.',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12.5,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Switch.adaptive(
+                  value: controller.stockEnabled.value,
+                  onChanged: (value) => _toggleStock(context, value),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 22),
         _SectionHeader(
           title: 'Product fields',
@@ -208,6 +253,24 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
       confirmLabel: 'Change',
     );
     if (confirmed == true) await controller.changeCategory(selected);
+  }
+
+  Future<void> _toggleStock(BuildContext context, bool value) async {
+    if (value) {
+      await Get.toNamed<void>(AppRoutes.stockOpening);
+      await controller.reloadStock();
+      return;
+    }
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      tone: AppDialogTone.warning,
+      icon: Icons.inventory_2_outlined,
+      title: 'Turn off stock tracking?',
+      message:
+          'Stock screens hide and new invoices or bills will not move stock. Saved movements stay on this device and in backup.',
+      confirmLabel: 'Turn off',
+    );
+    if (confirmed == true) await controller.disableStock();
   }
 
   Future<void> _addCustomField(BuildContext context) async {

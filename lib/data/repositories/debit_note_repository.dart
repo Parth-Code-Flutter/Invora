@@ -5,6 +5,8 @@ import '../models/purchase_models.dart';
 import '../models/cash_book_models.dart';
 import '../services/app_database.dart';
 import '../services/money_ledger.dart';
+import '../services/stock_ledger.dart';
+import '../models/stock_models.dart';
 import 'base_repository.dart';
 import 'purchase_repository.dart';
 
@@ -162,6 +164,7 @@ class DebitNoteRepository extends BaseRepository {
       snapshots.add(
         _PreparedItem(
           purchaseItemId: sourceId,
+          productId: draft.purchaseItem.productId,
           name: draft.purchaseItem.name,
           quantityScaled: draft.returnedQuantityScaled,
           unit: draft.purchaseItem.unit,
@@ -178,6 +181,7 @@ class DebitNoteRepository extends BaseRepository {
       snapshots.add(
         _PreparedItem(
           purchaseItemId: null,
+          productId: null,
           name: 'Value adjustment',
           quantityScaled: 1000,
           unit: 'adjustment',
@@ -310,6 +314,20 @@ class DebitNoteRepository extends BaseRepository {
           note: 'Debit note refund',
         );
       }
+
+      await StockLedger(database).replaceSource(
+        sourceType: StockSourceType.debitNote,
+        sourceId: debitNoteId,
+        type: StockMovementType.debitNote,
+        lines: [
+          for (final snapshot in snapshots)
+            if (snapshot.productId != null)
+              StockLine(
+                productId: snapshot.productId!,
+                quantityScaled: snapshot.quantityScaled,
+              ),
+        ],
+      );
 
       return (await getById(debitNoteId))!;
     });
@@ -447,6 +465,7 @@ class DebitNoteRepository extends BaseRepository {
 class _PreparedItem {
   const _PreparedItem({
     required this.purchaseItemId,
+    this.productId,
     required this.name,
     required this.quantityScaled,
     required this.unit,
@@ -456,6 +475,7 @@ class _PreparedItem {
   });
 
   final int? purchaseItemId;
+  final int? productId;
   final String name;
   final int quantityScaled;
   final String unit;

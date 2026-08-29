@@ -16,4 +16,18 @@ abstract final class QuantityUtils {
     if (fraction == '000') return whole.toString();
     return '$whole.${fraction.replaceFirst(RegExp(r'0+$'), '')}';
   }
+
+  static String formatSigned(int scaled) {
+    if (scaled < 0) return '-${toInputValue(-scaled)}';
+    return toInputValue(scaled);
+  }
+
+  static int? parseSignedScaled(String input) {
+    final normalized = input.trim();
+    if (normalized.startsWith('-')) {
+      final value = parseScaled(normalized.substring(1));
+      return value == null ? null : -value;
+    }
+    return parseScaled(normalized);
+  }
 }

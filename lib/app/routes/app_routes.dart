@@ -49,6 +49,8 @@ abstract final class AppRoutes {
   static const dataExport = '/settings/data-export';
   static const dataImport = '/settings/data-import';
   static const productSettings = '/settings/products';
+  static const stockOpening = '/settings/products/stock-opening';
+  static const stock = '/more/stock';
   static const unitSettings = '/settings/units';
   static const appLock = '/settings/app-lock';
   static const cashBook = '/cash-book';

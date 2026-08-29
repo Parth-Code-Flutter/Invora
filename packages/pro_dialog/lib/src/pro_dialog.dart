@@ -337,6 +337,27 @@ class _ProDialogState extends State<ProDialog>
         : scheme.onSurface.withValues(alpha: .68);
     final align = widget.form ? TextAlign.start : TextAlign.center;
 
+    final contentStyle =
+        theme.textTheme.bodyMedium?.copyWith(color: bodyColor, height: 1.45) ??
+        TextStyle(fontSize: 14, color: bodyColor, height: 1.45);
+    final scrollBody = widget.scrollable || widget.form;
+    Widget? content;
+    if (widget.content != null) {
+      content = DefaultTextStyle.merge(
+        style: contentStyle,
+        textAlign: align,
+        child: widget.content!,
+      );
+      if (scrollBody) {
+        content = Flexible(
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: content,
+          ),
+        );
+      }
+    }
+
     final body = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: widget.form
@@ -362,19 +383,7 @@ class _ProDialogState extends State<ProDialog>
           textAlign: align,
           child: widget.title,
         ),
-        if (widget.content != null) ...[
-          const SizedBox(height: 8),
-          DefaultTextStyle.merge(
-            style:
-                theme.textTheme.bodyMedium?.copyWith(
-                  color: bodyColor,
-                  height: 1.45,
-                ) ??
-                TextStyle(fontSize: 14, color: bodyColor, height: 1.45),
-            textAlign: align,
-            child: widget.content!,
-          ),
-        ],
+        if (content != null) ...[const SizedBox(height: 8), content],
         if (widget.actions.isNotEmpty) ...[
           const SizedBox(height: 22),
           _ActionRow(actions: widget.actions, stacked: widget.stackedActions),
@@ -390,7 +399,14 @@ class _ProDialogState extends State<ProDialog>
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400),
+        constraints: BoxConstraints(
+          maxWidth: 400,
+          maxHeight:
+              MediaQuery.sizeOf(context).height -
+              MediaQuery.viewInsetsOf(context).bottom -
+              MediaQuery.paddingOf(context).vertical -
+              48,
+        ),
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(28),
@@ -410,9 +426,7 @@ class _ProDialogState extends State<ProDialog>
           ),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(22, 26, 22, 20),
-            child: widget.scrollable
-                ? SingleChildScrollView(child: body)
-                : body,
+            child: body,
           ),
         ),
       ),

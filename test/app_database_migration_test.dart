@@ -176,7 +176,7 @@ void main() {
       'delivery_challan_items',
       'delivery_challans',
     ]);
-    expect(database.schemaVersion, 19);
+    expect(database.schemaVersion, 20);
     await database.close();
   });
 
@@ -199,7 +199,33 @@ void main() {
       'purchase_order_items',
       'purchase_orders',
     ]);
-    expect(database.schemaVersion, 19);
+    expect(database.schemaVersion, 20);
+    await database.close();
+  });
+
+  test('creates stock tables when upgrading from schema 19', () async {
+    final database = AppDatabase.forTesting(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw.execute('PRAGMA user_version = 19');
+        },
+      ),
+    );
+
+    final tables = await database
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('stock_settings', 'stock_movements') ORDER BY name",
+        )
+        .get();
+    expect(tables.map((row) => row.read<String>('name')), [
+      'stock_movements',
+      'stock_settings',
+    ]);
+    expect(database.schemaVersion, 20);
+    final settings = await (database.select(
+      database.stockSettings,
+    )..where((table) => table.id.equals(1))).getSingle();
+    expect(settings.enabled, isFalse);
     await database.close();
   });
 }

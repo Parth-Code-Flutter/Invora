@@ -105,6 +105,7 @@ class DiagnosticsService {
         'Purchase orders': await _count('purchase_orders'),
         'Delivery challans': await _count('delivery_challans'),
         'Expenses': await _count('expenses'),
+        'Stock movements': await _count('stock_movements'),
       },
     );
   }

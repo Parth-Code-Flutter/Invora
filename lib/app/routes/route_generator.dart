@@ -66,6 +66,8 @@ import '../../modules/settings/screens/invoice_defaults_screen.dart';
 import '../../modules/settings/screens/data_export_screen.dart';
 import '../../modules/settings/screens/data_import_screen.dart';
 import '../../modules/settings/screens/product_settings_screen.dart';
+import '../../modules/settings/screens/stock_opening_screen.dart';
+import '../../modules/settings/screens/stock_list_screen.dart';
 import '../../modules/settings/screens/more_screen.dart';
 import '../../modules/settings/screens/unit_settings_screen.dart';
 import '../../modules/settings/screens/app_lock_screen.dart';
@@ -276,6 +278,16 @@ abstract final class AppRouter {
       name: AppRoutes.productSettings,
       page: ProductSettingsScreen.new,
       binding: ProductSettingsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.stockOpening,
+      page: StockOpeningScreen.new,
+      binding: StockOpeningBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.stock,
+      page: StockListScreen.new,
+      binding: StockBinding(),
     ),
     GetPage(
       name: AppRoutes.unitSettings,

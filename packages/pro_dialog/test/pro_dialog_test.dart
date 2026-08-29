@@ -228,4 +228,59 @@ void main() {
     expect(remove.top, greaterThan(keep.bottom));
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('form dialogs scroll instead of overflowing above the keyboard', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    tester.view.viewInsets = const FakeViewPadding(bottom: 280);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetViewInsets);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => showDialog<void>(
+                context: context,
+                builder: (context) => const ProDialog(
+                  form: true,
+                  title: Text('Adjust stock'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(height: 72, child: Placeholder()),
+                      SizedBox(height: 12),
+                      SizedBox(height: 72, child: Placeholder()),
+                      SizedBox(height: 12),
+                      SizedBox(height: 72, child: Placeholder()),
+                    ],
+                  ),
+                  actions: [
+                    ProDialogButton(
+                      label: 'Cancel',
+                      variant: ProDialogButtonVariant.outlined,
+                      onPressed: null,
+                    ),
+                    ProDialogButton(label: 'Save adjustment', onPressed: null),
+                  ],
+                ),
+              ),
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Adjust stock'), findsOneWidget);
+    expect(find.text('Save adjustment'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

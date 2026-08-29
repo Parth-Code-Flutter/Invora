@@ -88,7 +88,8 @@ abstract final class DataImportTemplates {
   static const products = ImportTemplate(
     kind: DataImportKind.products,
     title: 'Products & services',
-    subtitle: 'Catalog name, type, unit, sale price, HSN/SAC and GST',
+    subtitle:
+        'Catalog name, type, unit, sale price, HSN/SAC, GST and opening stock',
     fileName: 'creovo_import_products.csv',
     columns: [
       ImportColumnSpec(
@@ -120,9 +121,14 @@ abstract final class DataImportTemplates {
         header: 'GST rate',
         aliases: ['gst', 'tax rate', 'gst %'],
       ),
+      ImportColumnSpec(
+        key: 'stock',
+        header: 'Opening stock',
+        aliases: ['stock', 'qty', 'quantity', 'opening qty'],
+      ),
     ],
     sample: [
-      ['Notebook A5', 'Product', '70 page', 'Pcs', '40.00', '4820', '18'],
+      ['Notebook A5', 'Product', '70 page', 'Pcs', '40.00', '4820', '18', '12'],
     ],
   );
 
@@ -258,7 +264,7 @@ abstract final class DataImportTemplates {
     kind: DataImportKind.openingBalances,
     title: 'Opening balances',
     subtitle:
-        'Party receivable or payable as of a date. Stock quantity is ignored until Inventory.',
+        'Party receivable or payable as of a date. Opening stock applies when Track product stock is on.',
     fileName: 'creovo_import_opening_balances.csv',
     columns: [
       ImportColumnSpec(

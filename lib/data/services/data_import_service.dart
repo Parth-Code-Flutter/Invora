@@ -5,12 +5,14 @@ import 'package:drift/drift.dart';
 import '../../app/enums/invoice_status.dart';
 import '../../app/enums/item_type.dart';
 import '../../app/enums/tax_type.dart';
+import '../../app/utils/quantity_utils.dart';
 import '../models/customer_model.dart';
 import '../models/data_import_models.dart';
 import '../models/invoice_calculation_models.dart';
 import '../models/invoice_model.dart';
 import '../models/product_service_model.dart';
 import '../models/purchase_models.dart';
+import '../models/stock_models.dart';
 import '../repositories/customer_repository.dart';
 import '../repositories/invoice_repository.dart';
 import '../repositories/product_repository.dart';
@@ -21,6 +23,7 @@ import 'data_export_service.dart';
 import 'data_import_templates.dart';
 import 'import_value_parsers.dart';
 import 'invoice_calculation_service.dart';
+import 'stock_ledger.dart';
 import 'xlsx_sheet_reader.dart';
 
 class DataImportService {
@@ -387,6 +390,15 @@ class DataImportService {
         if (ImportValueParsers.hasOddHsn(values['hsn'])) {
           warn('HSN/SAC should be 4 to 8 digits.');
         }
+        if (ImportValueParsers.blankToNull(values['stock']) != null) {
+          if (QuantityUtils.parseScaled(values['stock']!) == null) {
+            warn('Opening stock must be a number with up to three decimals.');
+          } else {
+            warn(
+              'Opening stock is applied only while Track product stock is on.',
+            );
+          }
+        }
       case DataImportKind.unpaidInvoices:
       case DataImportKind.unpaidBills:
         final partyKey = kind == DataImportKind.unpaidInvoices
@@ -449,7 +461,13 @@ class DataImportService {
           error('Enter a valid 15-character GSTIN.');
         }
         if (ImportValueParsers.blankToNull(values['stock']) != null) {
-          warn('Opening stock is ignored until Inventory is enabled.');
+          if (QuantityUtils.parseScaled(values['stock']!) == null) {
+            warn('Opening stock must be a number with up to three decimals.');
+          } else {
+            warn(
+              'Opening stock is applied only while Track product stock is on.',
+            );
+          }
         }
     }
     return _RowCheck(
@@ -522,15 +540,15 @@ class DataImportService {
           'itemName': 'Opening balance',
           'quantity': '1',
         };
-        return isSupplier
-            ? _createBill(
+        final outcome = isSupplier
+            ? await _createBill(
                 values: mapped,
                 policy: policy,
                 suppliers: suppliers,
                 now: now,
                 generateNumber: true,
               )
-            : _createInvoice(
+            : await _createInvoice(
                 values: mapped,
                 policy: policy,
                 customers: customers,
@@ -538,6 +556,12 @@ class DataImportService {
                 now: now,
                 generateNumber: true,
               );
+        await _applyImportedOpeningByName(
+          name: values['name'] ?? '',
+          raw: values['stock'],
+          products: products,
+        );
+        return outcome;
     }
   }
 
@@ -693,6 +717,7 @@ class DataImportService {
     } else {
       products.add(saved);
     }
+    await _applyImportedOpening(productId: saved.id!, raw: values['stock']);
     return _ApplyOutcome(
       records: [('product', saved.id!, match == null ? 'created' : 'updated')],
     );
@@ -883,6 +908,42 @@ class DataImportService {
         ('purchase_bill', billId, 'created'),
       ],
     );
+  }
+
+  Future<void> _applyImportedOpening({
+    required int productId,
+    required String? raw,
+  }) async {
+    if (ImportValueParsers.blankToNull(raw) == null) return;
+    final qty = QuantityUtils.parseScaled(raw!) ?? 0;
+    await StockLedger(_database).replaceSource(
+      sourceType: StockSourceType.opening,
+      sourceId: productId,
+      type: StockMovementType.opening,
+      lines: [
+        if (qty > 0) StockLine(productId: productId, quantityScaled: qty),
+      ],
+    );
+  }
+
+  Future<void> _applyImportedOpeningByName({
+    required String name,
+    required String? raw,
+    required List<ProductServiceModel> products,
+  }) async {
+    if (ImportValueParsers.blankToNull(raw) == null) return;
+    final needle = name.trim().toLowerCase();
+    if (needle.isEmpty) return;
+    final hits = products
+        .where(
+          (row) =>
+              row.type == ItemType.product &&
+              row.id != null &&
+              row.name.trim().toLowerCase() == needle,
+        )
+        .toList(growable: false);
+    if (hits.length != 1) return;
+    await _applyImportedOpening(productId: hits.single.id!, raw: raw);
   }
 
   T? _matchParty<T>({

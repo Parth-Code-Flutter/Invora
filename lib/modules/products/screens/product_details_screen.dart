@@ -8,6 +8,7 @@ import '../../../app/enums/item_type.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
+import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
@@ -91,6 +92,7 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
                       symbol: controller.currencySymbol.value,
                     ),
                     gst: TaxUtils.formatBasisPoints(item.taxRateBasisPoints),
+                    onHandScaled: controller.onHandScaled.value,
                   ),
                   if (hasInformation) ...[
                     const SizedBox(height: 14),
@@ -157,6 +159,7 @@ class _ItemOverviewCard extends StatelessWidget {
     required this.unit,
     required this.price,
     required this.gst,
+    this.onHandScaled,
   });
 
   final String name;
@@ -164,6 +167,7 @@ class _ItemOverviewCard extends StatelessWidget {
   final String unit;
   final String price;
   final String gst;
+  final int? onHandScaled;
 
   @override
   Widget build(BuildContext context) {
@@ -249,6 +253,16 @@ class _ItemOverviewCard extends StatelessWidget {
               ],
             ),
           ),
+          if (onHandScaled != null) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'On hand ${QuantityUtils.formatSigned(onHandScaled!)} $unit',
+                style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
         ],
       ),
     );

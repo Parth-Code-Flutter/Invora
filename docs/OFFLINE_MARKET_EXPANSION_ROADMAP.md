@@ -86,8 +86,9 @@ Status: **Shipped this slice 2026-08-28** (CSV templates and local import for
 customers, suppliers, products, unpaid invoices, unpaid bills, and party
 opening balances; column mapping; preview; Skip / Update / Import as new;
 one-transaction commit with downloadable errors and batch undo; UTF-8 CSV
-export for those modules plus expenses and an all-CSV ZIP). Opening stock is
-ignored until Inventory (`P1.1`). Complex multi-line invoices and competitor
+export for those modules plus expenses and an all-CSV ZIP). Opening stock posts
+when Track product stock is on (`P1.1` core) and is skipped with a preview
+warning while Off. Complex multi-line invoices and competitor
 XLSX column packs remain later work; simple `.xlsx` first sheets are read
 best-effort.
 
@@ -305,6 +306,12 @@ accessibility pass, and signed release artifacts remain.
 # P1 — Optional inventory, barcode, and retail
 
 ## P1.1 Immutable stock ledger
+
+Status: **Partial 2026-08-29** (optional Track product stock, default Off;
+immutable movements; derived on-hand; posting from invoices, purchase bills,
+credit notes, debit notes, and manual adjustments; opening capture; catalog
+on-hand and More → Stock). Reports, reorder/low-stock, negative-stock policy,
+unit conversion, committed/incoming, and challan/PO-receive posting remain.
 
 Settings asks **Track product stock?** Existing businesses default Off.
 Enabling captures opening date/quantities. Disabling hides UI but preserves data.

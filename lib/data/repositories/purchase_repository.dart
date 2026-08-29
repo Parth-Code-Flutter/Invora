@@ -4,6 +4,8 @@ import '../models/cash_book_models.dart';
 import '../models/purchase_models.dart';
 import '../services/app_database.dart';
 import '../services/money_ledger.dart';
+import '../services/stock_ledger.dart';
+import '../models/stock_models.dart';
 import 'base_repository.dart';
 
 class PurchaseRepository extends BaseRepository {
@@ -158,6 +160,7 @@ class PurchaseRepository extends BaseRepository {
           .map(
             (i) => PurchaseItemModel(
               id: i.id,
+              productId: i.productId,
               name: i.name,
               quantity: i.quantityScaled / 1000,
               unit: i.unit,
@@ -318,6 +321,7 @@ class PurchaseRepository extends BaseRepository {
             .insert(
               PurchaseItemsCompanion.insert(
                 purchaseBillId: billId,
+                productId: Value(item.productId),
                 name: item.name,
                 quantityScaled: (item.quantity * 1000).round(),
                 unit: item.unit,
@@ -329,6 +333,7 @@ class PurchaseRepository extends BaseRepository {
               ),
             );
       }
+      await _syncBillStock(billId: billId, status: status, items: model.items);
       return billId;
     },
   );
@@ -499,16 +504,21 @@ class PurchaseRepository extends BaseRepository {
         'Reverse recorded supplier payments before cancelling this bill.',
       );
     }
-    await (database.update(
-      database.purchaseBills,
-    )..where((t) => t.id.equals(id))).write(
-      PurchaseBillsCompanion(
-        status: const Value('cancelled'),
-        cancellationReason: Value(reason.trim()),
-        cancelledAt: Value(DateTime.now()),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+    await database.transaction(() async {
+      await (database.update(
+        database.purchaseBills,
+      )..where((t) => t.id.equals(id))).write(
+        PurchaseBillsCompanion(
+          status: const Value('cancelled'),
+          cancellationReason: Value(reason.trim()),
+          cancelledAt: Value(DateTime.now()),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+      await StockLedger(
+        database,
+      ).reverseSource(sourceType: StockSourceType.purchaseBill, sourceId: id);
+    });
   }
 
   Future<int> duplicateBill(int id) async {
@@ -709,6 +719,9 @@ class PurchaseRepository extends BaseRepository {
         'Bills with payment history must be cancelled, not deleted.',
       );
     }
+    await StockLedger(
+      database,
+    ).reverseSource(sourceType: StockSourceType.purchaseBill, sourceId: id);
     await (database.delete(
       database.purchaseBills,
     )..where((t) => t.id.equals(id))).go();
@@ -743,6 +756,34 @@ class PurchaseRepository extends BaseRepository {
 
   int _financialYear(DateTime date) =>
       date.month >= 4 ? date.year : date.year - 1;
+
+  Future<void> _syncBillStock({
+    required int billId,
+    required String status,
+    required List<PurchaseItemModel> items,
+  }) async {
+    final ledger = StockLedger(database);
+    if (status == 'cancelled') {
+      await ledger.reverseSource(
+        sourceType: StockSourceType.purchaseBill,
+        sourceId: billId,
+      );
+      return;
+    }
+    await ledger.replaceSource(
+      sourceType: StockSourceType.purchaseBill,
+      sourceId: billId,
+      type: StockMovementType.purchase,
+      lines: [
+        for (final item in items)
+          if (item.productId != null)
+            StockLine(
+              productId: item.productId!,
+              quantityScaled: (item.quantity * 1000).round(),
+            ),
+      ],
+    );
+  }
 
   Future<SupplierModel?> getSupplier(int id) async {
     final row = await (database.select(

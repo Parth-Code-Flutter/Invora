@@ -128,10 +128,21 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   salted, iterated SHA-256 hash rather than plain PIN text. This is an access
   guard for the local app and does not encrypt SQLite data or CSV exports.
   Backup files use a separate password.
-- Settings → About is a real screen: app version and build, schema 19, short
+- Settings → About is a real screen: app version and build, schema 20, short
   offline / GST Prepared / local-backup help, and Share/Save diagnostics. The
   diagnostics file is versions plus record counts only — not names, GSTIN,
-  amounts, invoices, passwords, or a backup.
+  amounts, invoices, passwords, or a backup. Counts include stock movements
+  when the table exists.
+- Optional product stock ledger (`P1.1` core) defaults **Off** in
+  `stock_settings`. When On, on-hand is the sum of immutable `stock_movements`
+  (×1000 quantity scale). Invoice save (not quotations), purchase bill save,
+  credit-note issue, debit-note issue, and manual adjustments post or reverse
+  movements in the same database transaction. Posted rows are reversed, never
+  edited or deleted. Services and custom lines without `productId` skip stock.
+  Purchase-order receive and delivery challans do not post. Negative on-hand is
+  allowed. Catalog list/details and More → Stock show only while tracking is
+  on; disabling hides UI and stops posting but keeps SQLite/backup rows.
+  Opening stock on product and opening-balance import posts only while On.
 - GitHub Actions CI on `parth-dev` and `main` runs `dart format` (lib/test),
   `flutter analyze --no-fatal-infos`, and `flutter test` with Flutter 3.44.4.
   Signing, store privacy URLs, and device-farm checks are not in CI.
@@ -160,7 +171,8 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   for questions, coral-to-orange for warnings, red for destructive, teal for
   success). Outlined cancel/continue actions stay plum on cream unless the
   button sets a tone such as error. Form dialogs keep the same chrome with
-  start-aligned fields.
+  start-aligned fields. When the keyboard is open, the field block scrolls and
+  Cancel/Save stay on screen instead of overflowing.
 - Shared unsaved-change protection covers invoice/quotation, customer,
   product/service, and business forms across AppBar back, system back, and iOS
   back gestures. Dirty document composers can save a draft before leaving.
@@ -427,7 +439,8 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   Duplicate masters can Skip, Update matching, or Import as new. Match key is
   GSTIN, then mobile, then name. Unpaid invoices/bills create one opening line
   each; opening-balance rows create a receivable or payable document. Opening
-  stock is ignored until Inventory (`P1.1`). Import batches, created record
+  stock posts only while Track product stock is on (`P1.1` core); otherwise the
+  preview warns and the quantity is skipped. Import batches, created record
   ids, and row errors live in schema 17 tables and are not a substitute for
   backup. Undo reverses a committed batch when later payments do not block
   delete. Nothing is uploaded.
@@ -666,11 +679,17 @@ As of 2026-08-28:
 7. Physical-device QA of purchase debit notes: partial return, over-return
    blocked, paid-bill refund vs supplier credit, apply leftover credit to
    another bill, supplier statement, debit-note PDF, and airplane mode.
-8. Next implementation is not inventory, POS, or barcode quantity changes
-   until the stock ledger (`P1.1`) exists. Remaining `P0.11` work is release
-   signing, store privacy URLs, high-volume benchmarks, and accessibility
-   polish. GitHub CI now runs format, analyze, and `flutter test` on `parth-dev`
-   and `main`. About / diagnostics shipped this slice.
+8. Physical-device QA of optional stock (`P1.1` core): leave Track product
+   stock Off and confirm Sales/Purchase create UX is unchanged and no
+   movements post; turn On with opening qty, confirm catalog on-hand, invoice
+   sale + cancel reverse (row count grows, old rows unchanged), purchase bill
+   in / debit-note out, credit-note restock, custom/service skip, More → Stock
+   adjust with reason, import opening while On, and airplane-mode on-hand.
+   Remaining inventory work is reports, reorder/low-stock, negative-stock
+   policy, unit conversion, committed/incoming, and challan/PO-receive posting.
+   Remaining `P0.11` work is release signing, store privacy URLs, high-volume
+   benchmarks, and accessibility polish. GitHub CI runs format, analyze, and
+   `flutter test` on `parth-dev` and `main`.
    Physical-device QA of purchase orders is still open: create from a supplier,
    partial receive, over-receipt blocked, convert remaining received qty to a
    bill (supplier bill number required), second bill for leftover qty, cancel
@@ -716,6 +735,34 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-29 — Adjust-stock keyboard overflow
+
+- Form dialogs (`form: true`), including More → Stock → Adjust stock, scroll
+  the field block when the keyboard reduces vertical space. Title and actions
+  stay visible; fields no longer report a bottom RenderFlex overflow.
+- Important files: `packages/pro_dialog/lib/src/pro_dialog.dart`, package
+  widget test.
+- Storage: none.
+- Verification: form-dialog keyboard overflow widget test, package dialog tests.
+
+### 2026-08-29 — Optional immutable stock ledger (P1.1 core)
+
+- Added schema 20 `stock_settings` (default Off) and append-only
+  `stock_movements`. On-hand is derived. Enabling from Product settings captures
+  an opening date and per-product quantities (blank = 0). Disabling hides stock
+  UI and stops posting; movements stay in SQLite and backup.
+- When On, invoice save (not quotations), purchase bill save, credit-note issue,
+  debit-note issue, and More → Stock adjustments post or reverse in the same
+  document transaction. Custom lines and services skip. PO receive and challans
+  do not post. Negative stock is allowed. Catalog list/details show on-hand only
+  while On. Import honors Opening stock while On.
+- Important files: `stock_ledger.dart`, `stock_models.dart`, invoice / purchase /
+  credit / debit repositories, Product settings + opening screen, More → Stock,
+  catalog list/details, `data_import_service.dart`, `diagnostics_service.dart`.
+- Storage: schema 20; `purchase_items.productId` for bill/debit posting.
+- Verification: Dart formatting, targeted Flutter analysis, stock ledger tests,
+  schema 19→20 migration test.
 
 ### 2026-08-29 — Scannable catalog and focused item details
 

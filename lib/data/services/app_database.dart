@@ -295,6 +295,7 @@ class PurchaseItems extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get purchaseBillId =>
       integer().references(PurchaseBills, #id, onDelete: KeyAction.cascade)();
+  IntColumn get productId => integer().nullable()();
   TextColumn get name => text()();
   IntColumn get quantityScaled => integer()();
   TextColumn get unit => text()();
@@ -674,6 +675,30 @@ class PurchaseOrderBills extends Table {
   DateTimeColumn get convertedAt => dateTime()();
 }
 
+class StockSettings extends Table {
+  IntColumn get id => integer()();
+  BoolColumn get enabled => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get enabledAt => dateTime().nullable()();
+  DateTimeColumn get openingAsOf => dateTime().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+@TableIndex(name: 'stock_movements_product', columns: {#productId})
+@TableIndex(name: 'stock_movements_source', columns: {#sourceType, #sourceId})
+class StockMovements extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get productId => integer()();
+  IntColumn get quantityScaled => integer()();
+  TextColumn get type => text()();
+  TextColumn get reason => text().nullable()();
+  TextColumn get sourceType => text()();
+  IntColumn get sourceId => integer().nullable()();
+  IntColumn get reversesMovementId => integer().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 @DriftDatabase(
   tables: [
     DatabaseMetadata,
@@ -710,6 +735,8 @@ class PurchaseOrderBills extends Table {
     PurchaseOrders,
     PurchaseOrderItems,
     PurchaseOrderBills,
+    StockSettings,
+    StockMovements,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -725,6 +752,7 @@ class AppDatabase extends _$AppDatabase {
     onCreate: (migrator) async {
       await migrator.createAll();
       await seedDefaultMoneyAccounts();
+      await seedStockSettings();
     },
     onUpgrade: (migrator, from, to) async {
       if (from < 2) {
@@ -900,8 +928,38 @@ class AppDatabase extends _$AppDatabase {
         await migrator.createTable(purchaseOrderItems);
         await migrator.createTable(purchaseOrderBills);
       }
+      if (from < 20) {
+        await migrator.createTable(stockSettings);
+        await migrator.createTable(stockMovements);
+        final purchaseItemTable = await customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'purchase_items'",
+        ).get();
+        if (purchaseItemTable.isNotEmpty) {
+          final columns = await customSelect(
+            'PRAGMA table_info(purchase_items)',
+          ).get();
+          final hasProductId = columns.any(
+            (row) => row.read<String>('name') == 'product_id',
+          );
+          if (!hasProductId) {
+            await migrator.addColumn(purchaseItems, purchaseItems.productId);
+          }
+        }
+        await seedStockSettings();
+      }
     },
   );
+
+  Future<void> seedStockSettings() async {
+    final existing = await select(stockSettings).get();
+    if (existing.isNotEmpty) return;
+    await into(stockSettings).insert(
+      StockSettingsCompanion.insert(
+        id: const Value(1),
+        enabled: const Value(false),
+      ),
+    );
+  }
 
   Future<void> seedDefaultMoneyAccounts() async {
     final existing = await select(moneyAccounts).get();

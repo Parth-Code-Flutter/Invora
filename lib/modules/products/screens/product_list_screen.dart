@@ -8,6 +8,7 @@ import '../../../app/enums/item_type.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
+import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
@@ -112,6 +113,9 @@ class ProductListScreen extends GetView<ProductListController> {
                       item: controller.items[index],
                       currencySymbol: controller.currencySymbol.value,
                       showType: showType,
+                      onHandScaled: controller.onHandFor(
+                        controller.items[index],
+                      ),
                       position: position,
                       onDelete: () =>
                           _confirmDelete(context, controller.items[index]),
@@ -226,11 +230,13 @@ class _ProductCatalogTile extends StatelessWidget {
     required this.showType,
     required this.position,
     required this.onDelete,
+    this.onHandScaled,
   });
 
   final ProductServiceModel item;
   final String currencySymbol;
   final bool showType;
+  final int? onHandScaled;
   final AppGroupedPosition position;
   final VoidCallback onDelete;
 
@@ -338,6 +344,17 @@ class _ProductCatalogTile extends StatelessWidget {
                     fontSize: 10,
                   ),
                 ),
+                if (onHandScaled != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    'On hand ${QuantityUtils.formatSigned(onHandScaled!)}',
+                    style: AppTextStyles.caption.copyWith(
+                      color: secondary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 2),
                 IconButton(
                   tooltip: l10n('Item actions'),

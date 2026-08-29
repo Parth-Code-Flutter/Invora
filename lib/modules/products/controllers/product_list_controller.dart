@@ -6,12 +6,18 @@ import '../../../app/enums/item_type.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
+import '../../../data/services/stock_ledger.dart';
 
 class ProductListController extends GetxController {
-  ProductListController(this._repository, this._businessRepository);
+  ProductListController(
+    this._repository,
+    this._businessRepository, [
+    StockLedger? ledger,
+  ]) : _ledger = ledger ?? StockLedger(_repository.database);
 
   final ProductRepository _repository;
   final BusinessRepository _businessRepository;
+  final StockLedger _ledger;
   final items = <ProductServiceModel>[].obs;
   final catalogItems = <ProductServiceModel>[].obs;
   final isLoading = true.obs;
@@ -19,8 +25,11 @@ class ProductListController extends GetxController {
   final searchQuery = ''.obs;
   final selectedType = Rxn<ItemType>();
   final currencySymbol = '₹'.obs;
+  final stockEnabled = false.obs;
+  final onHandByProduct = <int, int>{}.obs;
   StreamSubscription<List<ProductServiceModel>>? _subscription;
   StreamSubscription<List<ProductServiceModel>>? _catalogSubscription;
+  StreamSubscription<bool>? _stockSubscription;
   Worker? _searchWorker;
   Worker? _filterWorker;
   int _bindingGeneration = 0;
@@ -32,6 +41,10 @@ class ProductListController extends GetxController {
     _loadCurrency();
     _bindCatalogSummary();
     _bindItems();
+    _stockSubscription = _ledger.watchEnabled().listen((enabled) {
+      stockEnabled.value = enabled;
+      _refreshOnHand();
+    });
     _searchWorker = debounce<String>(
       searchQuery,
       (_) => _bindItems(),
@@ -51,6 +64,15 @@ class ProductListController extends GetxController {
     if (item.id != null) await _repository.softDelete(item.id!);
   }
 
+  int? onHandFor(ProductServiceModel item) {
+    if (!stockEnabled.value ||
+        item.type != ItemType.product ||
+        item.id == null) {
+      return null;
+    }
+    return onHandByProduct[item.id!] ?? 0;
+  }
+
   Future<void> _loadCurrency() async {
     currencySymbol.value =
         (await _businessRepository.getProfile())?.currencySymbol ?? '₹';
@@ -68,6 +90,7 @@ class ProductListController extends GetxController {
             if (generation != _bindingGeneration || isClosed) return;
             items.assignAll(results);
             isLoading.value = false;
+            _refreshOnHand();
           },
           onError: (_) {
             if (generation != _bindingGeneration || isClosed) return;
@@ -92,6 +115,17 @@ class ProductListController extends GetxController {
     );
   }
 
+  Future<void> _refreshOnHand() async {
+    if (!stockEnabled.value) {
+      onHandByProduct.clear();
+      return;
+    }
+    final ids = items
+        .where((item) => item.type == ItemType.product && item.id != null)
+        .map((item) => item.id!);
+    onHandByProduct.assignAll(await _ledger.onHandByProduct(ids));
+  }
+
   int countFor(ItemType? type) => type == null
       ? catalogItems.length
       : catalogItems.where((item) => item.type == type).length;
@@ -104,6 +138,7 @@ class ProductListController extends GetxController {
     _filterWorker?.dispose();
     _subscription?.cancel();
     _catalogSubscription?.cancel();
+    _stockSubscription?.cancel();
     super.onClose();
   }
 }
