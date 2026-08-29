@@ -13,7 +13,6 @@ import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_empty_state.dart';
-import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_list_motion.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
@@ -53,41 +52,13 @@ class ProductListScreen extends GetView<ProductListController> {
               ResponsiveUtils.horizontalPadding(context),
               10,
             ),
-            child: SizedBox(
-              height: 42,
-              child: Obx(
-                () => ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    AppFilterChip(
-                      label: 'All',
-                      icon: Icons.grid_view_rounded,
-                      count: controller.countFor(null),
-                      selected: controller.selectedType.value == null,
-                      onSelected: (_) => controller.selectType(null),
-                    ),
-                    ResponsiveUtils.horizontalGap(context, 8),
-                    AppFilterChip(
-                      label: 'Products',
-                      icon: Icons.inventory_2_outlined,
-                      count: controller.countFor(ItemType.product),
-                      selected:
-                          controller.selectedType.value == ItemType.product,
-                      onSelected: (_) =>
-                          controller.selectType(ItemType.product),
-                    ),
-                    ResponsiveUtils.horizontalGap(context, 8),
-                    AppFilterChip(
-                      label: 'Services',
-                      icon: Icons.design_services_outlined,
-                      count: controller.countFor(ItemType.service),
-                      selected:
-                          controller.selectedType.value == ItemType.service,
-                      onSelected: (_) =>
-                          controller.selectType(ItemType.service),
-                    ),
-                  ],
-                ),
+            child: Obx(
+              () => _CatalogTypeSelector(
+                selected: controller.selectedType.value,
+                allCount: controller.countFor(null),
+                productCount: controller.countFor(ItemType.product),
+                serviceCount: controller.countFor(ItemType.service),
+                onChanged: controller.selectType,
               ),
             ),
           ),
@@ -134,30 +105,32 @@ class ProductListScreen extends GetView<ProductListController> {
               final columns = ResponsiveUtils.gridColumns(context);
               final horizontal = ResponsiveUtils.horizontalPadding(context);
               final showType = controller.selectedType.value == null;
-              Widget tile(int index) => AppListEntrance(
-                index: index,
-                child: _ProductCatalogTile(
-                  item: controller.items[index],
-                  currencySymbol: controller.currencySymbol.value,
-                  showType: showType,
-                  onDelete: () =>
-                      _confirmDelete(context, controller.items[index]),
-                ),
-              );
+              Widget tile(int index, {required AppGroupedPosition position}) =>
+                  AppListEntrance(
+                    index: index,
+                    child: _ProductCatalogTile(
+                      item: controller.items[index],
+                      currencySymbol: controller.currencySymbol.value,
+                      showType: showType,
+                      position: position,
+                      onDelete: () =>
+                          _confirmDelete(context, controller.items[index]),
+                    ),
+                  );
               if (columns == 1) {
-                return Column(
+                final count = controller.items.length;
+                return ListView(
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
+                  padding: EdgeInsets.fromLTRB(horizontal, 0, horizontal, 100),
                   children: [
                     Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        horizontal,
-                        0,
-                        horizontal,
-                        8,
-                      ),
+                      padding: const EdgeInsets.only(bottom: 8),
                       child: Row(
                         children: [
                           Text(
-                            '${controller.items.length} ${controller.items.length == 1 ? 'item' : 'items'}',
+                            '$count ${count == 1 ? 'item' : 'items'}',
                             style: AppTextStyles.small.copyWith(
                               color:
                                   Theme.of(context).brightness ==
@@ -181,22 +154,11 @@ class ProductListScreen extends GetView<ProductListController> {
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: ListView.separated(
-                        physics: const BouncingScrollPhysics(
-                          parent: AlwaysScrollableScrollPhysics(),
-                        ),
-                        padding: EdgeInsets.fromLTRB(
-                          horizontal,
-                          0,
-                          horizontal,
-                          100,
-                        ),
-                        itemCount: controller.items.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 9),
-                        itemBuilder: (_, index) => tile(index),
+                    for (var index = 0; index < count; index++)
+                      tile(
+                        index,
+                        position: AppGroupedPositionX.resolve(index, count),
                       ),
-                    ),
                   ],
                 );
               }
@@ -221,7 +183,13 @@ class ProductListScreen extends GetView<ProductListController> {
                             index < controller.items.length;
                             index++
                           )
-                            SizedBox(width: width, child: tile(index)),
+                            SizedBox(
+                              width: width,
+                              child: tile(
+                                index,
+                                position: AppGroupedPosition.single,
+                              ),
+                            ),
                         ],
                       );
                     },
@@ -256,12 +224,14 @@ class _ProductCatalogTile extends StatelessWidget {
     required this.item,
     required this.currencySymbol,
     required this.showType,
+    required this.position,
     required this.onDelete,
   });
 
   final ProductServiceModel item;
   final String currencySymbol;
   final bool showType;
+  final AppGroupedPosition position;
   final VoidCallback onDelete;
 
   @override
@@ -285,103 +255,110 @@ class _ProductCatalogTile extends StatelessWidget {
         ? AppColors.primary
         : AppColors.secondary;
 
-    return AppGroupedTile(
-      accentColor: accent,
-      padding: const EdgeInsets.fromLTRB(11, 11, 5, 11),
-      onTap: () =>
-          Get.toNamed<void>(AppRoutes.productDetails, arguments: item.id),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: isDark ? .16 : .1),
-              borderRadius: BorderRadius.circular(13),
+    return GestureDetector(
+      onLongPress: () => _showActions(context),
+      child: AppGroupedTile(
+        position: position,
+        accentColor: accent,
+        padding: const EdgeInsets.fromLTRB(12, 11, 4, 11),
+        onTap: () =>
+            Get.toNamed<void>(AppRoutes.productDetails, arguments: item.id),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: isDark ? .16 : .1),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Icon(
+                item.type == ItemType.product
+                    ? Icons.inventory_2_outlined
+                    : Icons.design_services_outlined,
+                color: accent,
+                size: 20,
+              ),
             ),
-            child: Icon(
-              item.type == ItemType.product
-                  ? Icons.inventory_2_outlined
-                  : Icons.design_services_outlined,
-              color: accent,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 11),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.listName,
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  meta,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    color: secondary,
-                    fontSize: 11,
-                  ),
-                ),
-                if (attributes != null) ...[
-                  const SizedBox(height: 2),
+            const SizedBox(width: 11),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    attributes,
+                    item.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.listName,
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    meta,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.caption.copyWith(
-                      color: tertiary,
+                      color: secondary,
                       fontSize: 11,
                     ),
                   ),
+                  if (attributes != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      attributes,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: tertiary,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
                 ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 112),
+                  child: AppAmountText(
+                    amountMinor: item.salePriceMinor,
+                    symbol: currencySymbol,
+                    style: AppTextStyles.listAmount,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  '/ ${item.unit}',
+                  style: AppTextStyles.caption.copyWith(
+                    color: tertiary,
+                    fontSize: 10,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                IconButton(
+                  tooltip: l10n('Item actions'),
+                  onPressed: () => _showActions(context),
+                  iconSize: 19,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 28,
+                  ),
+                  style: IconButton.styleFrom(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    foregroundColor: secondary,
+                  ),
+                  icon: const Icon(Icons.more_horiz_rounded),
+                ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 112),
-                child: AppAmountText(
-                  amountMinor: item.salePriceMinor,
-                  symbol: currencySymbol,
-                  style: AppTextStyles.listAmount,
-                ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                'per ${item.unit}',
-                style: AppTextStyles.caption.copyWith(
-                  color: tertiary,
-                  fontSize: 10,
-                ),
-              ),
-              const SizedBox(height: 2),
-              IconButton(
-                tooltip: l10n('Item actions'),
-                onPressed: () => _showActions(context),
-                iconSize: 19,
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 28),
-                style: IconButton.styleFrom(
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  foregroundColor: secondary,
-                ),
-                icon: const Icon(Icons.more_horiz_rounded),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -422,5 +399,130 @@ class _ProductCatalogTile extends StatelessWidget {
     } else if (action == 'delete') {
       onDelete();
     }
+  }
+}
+
+class _CatalogTypeSelector extends StatelessWidget {
+  const _CatalogTypeSelector({
+    required this.selected,
+    required this.allCount,
+    required this.productCount,
+    required this.serviceCount,
+    required this.onChanged,
+  });
+
+  final ItemType? selected;
+  final int allCount;
+  final int productCount;
+  final int serviceCount;
+  final ValueChanged<ItemType?> onChanged;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: 42,
+    child: Row(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 5),
+            child: _CatalogTypeOption(
+              label: 'All',
+              count: allCount,
+              selected: selected == null,
+              onTap: () => onChanged(null),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2.5),
+            child: _CatalogTypeOption(
+              label: 'Products',
+              count: productCount,
+              selected: selected == ItemType.product,
+              onTap: () => onChanged(ItemType.product),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child: _CatalogTypeOption(
+              label: 'Services',
+              count: serviceCount,
+              selected: selected == ItemType.service,
+              onTap: () => onChanged(ItemType.service),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _CatalogTypeOption extends StatelessWidget {
+  const _CatalogTypeOption({
+    required this.label,
+    required this.count,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final int count;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: '$label, $count',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          decoration: BoxDecoration(
+            color: selected
+                ? AppColors.secondary
+                : isDark
+                ? AppColors.darkSurface
+                : AppColors.surface,
+            borderRadius: BorderRadius.circular(13),
+            border: Border.all(
+              color: selected
+                  ? AppColors.secondary
+                  : isDark
+                  ? AppColors.darkBorder
+                  : AppColors.border,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  count > 0 ? '$label  $count' : label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.small.copyWith(
+                    color: selected
+                        ? Colors.white
+                        : isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

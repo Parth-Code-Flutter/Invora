@@ -5,15 +5,20 @@ import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
 
 class ProductDetailsController extends GetxController {
-  ProductDetailsController(this._repository, this._businessRepository);
+  ProductDetailsController(
+    this._repository,
+    this._businessRepository, {
+    this.seededItemId,
+  });
 
   final ProductRepository _repository;
   final BusinessRepository _businessRepository;
+  final int? seededItemId;
   final item = Rxn<ProductServiceModel>();
   final currencySymbol = '₹'.obs;
   final isLoading = true.obs;
 
-  int get itemId => Get.arguments as int;
+  int get itemId => seededItemId ?? Get.arguments as int;
 
   @override
   void onInit() {

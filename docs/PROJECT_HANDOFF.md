@@ -267,13 +267,14 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   scan action that fills name, price, tax, and SKU so values can be edited
   before saving. The catalog list has a scan action to open or create an
   item. Lookup is local-only against SKU/barcode attributes.
-- Catalog list rows use one compact grouped surface on phones rather than a
-  stack of oversized cards. A full-width three-way segmented selector keeps
+- Catalog list rows use lightweight, individually contained rows on phones
+  with comfortable separation instead of a settings-style grouped table. A
+  simple full-width three-way selector keeps
   All / Products / Services visible without horizontal scrolling; aligned icon,
   name, metadata, attributes, price, and unit columns make larger catalogs
   faster to scan. Tablet layouts retain responsive multi-column containment.
-  The details screen is a focused item record with a compact identity/price
-  overview, grouped pricing and tax facts, scannable attribute pills, optional
+  The details screen is a focused item record with one compact identity and
+  price/unit/GST summary, one non-duplicative information section, an optional
   invoice description, and a persistent `Use in invoice` action. Search lives
   in the AppBar and matches
   name, description, HSN/SAC, and attributes. Stable All / Products / Services
@@ -719,18 +720,19 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 ### 2026-08-29 — Scannable catalog and focused item details
 
 - Replaced horizontally clipped catalog filters with a full-width, counted
-  segmented selector and consolidated phone items into one dense grouped list.
+  selector and presented phone items as lightweight individual catalog rows.
   Stable left/right alignment prioritizes item recognition and price scanning;
   long press and the overflow menu retain edit/delete access.
 - Rebuilt item details around the decision users make most often: verify the
-  item and price, inspect GST/HSN and relevant attributes, then use it in an
+  item, price, unit and GST once, inspect only additional HSN/attribute data,
+  then use it in an
   invoice through a persistent bottom action. Empty/deleted-item handling is
   now explicit, and optional sections stay hidden when they have no content.
 - Important files: `product_list_screen.dart`,
   `product_details_screen.dart`, this handoff.
 - Storage: none; product data and invoice behavior are unchanged.
-- Verification: Dart formatting, targeted Flutter analysis, and diff
-  whitespace validation.
+- Verification: Dart formatting, targeted Flutter analysis, catalog list and
+  details widget tests.
 
 ### 2026-08-29 — CI, About, and diagnostics
 

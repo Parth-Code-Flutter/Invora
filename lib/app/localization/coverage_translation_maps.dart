@@ -1391,6 +1391,23 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Last backup:': 'अंतिम बैकअप:',
   'Never': 'कभी नहीं',
   'Schema': 'स्कीमा',
+  'Catalog unavailable': 'कैटलॉग उपलब्ध नहीं',
+  'Your saved items are unchanged. Try loading them again.':
+      'आपकी सहेजी आइटम वैसी ही हैं। उन्हें फिर से लोड करके देखें।',
+  'Your catalog is empty': 'आपका कैटलॉग खाली है',
+  'Save products and services once, then reuse them on every invoice.':
+      'उत्पाद और सेवाएँ एक बार सहेजें, फिर हर चालान पर इस्तेमाल करें।',
+  'No matching items': 'कोई मेल खाती आइटम नहीं',
+  'Try a different name, detail, HSN/SAC, or filter.':
+      'दूसरा नाम, विवरण, HSN/SAC या फ़िल्टर आज़माएँ।',
+  'Name · A–Z': 'नाम · A–Z',
+  'Item not found': 'आइटम नहीं मिला',
+  'This catalog item may have been removed.':
+      'यह कैटलॉग आइटम हटाया गया हो सकता है।',
+  'Go back': 'वापस जाएँ',
+  'Use in invoice': 'चालान में इस्तेमाल करें',
+  'HSN code': 'HSN कोड',
+  'SAC code': 'SAC कोड',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -2774,4 +2791,21 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Last backup:': 'છેલ્લું બૅકઅપ:',
   'Never': 'ક્યારેય નહીં',
   'Schema': 'સ્કીમા',
+  'Catalog unavailable': 'કેટલોગ ઉપલબ્ધ નથી',
+  'Your saved items are unchanged. Try loading them again.':
+      'તમારી સાચવેલી આઇટમ જેવી છે તેવી રહે છે. તેમને ફરી લોડ કરીને જુઓ.',
+  'Your catalog is empty': 'તમારો કેટલોગ ખાલી છે',
+  'Save products and services once, then reuse them on every invoice.':
+      'ઉત્પાદ અને સેવાઓ એક વાર સાચવો, પછી દરેક ઇન્વૉઇસ પર વાપરો.',
+  'No matching items': 'કોઈ મેળ ખાતી આઇટમ નથી',
+  'Try a different name, detail, HSN/SAC, or filter.':
+      'બીજું નામ, વિગત, HSN/SAC અથવા ફિલ્ટર અજમાવો.',
+  'Name · A–Z': 'નામ · A–Z',
+  'Item not found': 'આઇટમ મળી નથી',
+  'This catalog item may have been removed.':
+      'આ કેટલોગ આઇટમ દૂર કરાઈ હોઈ શકે છે.',
+  'Go back': 'પાછા જાઓ',
+  'Use in invoice': 'ઇન્વૉઇસમાં વાપરો',
+  'HSN code': 'HSN કોડ',
+  'SAC code': 'SAC કોડ',
 };
