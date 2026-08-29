@@ -40,6 +40,10 @@ Brand is **Creovo** (say Kree-oh-vo). Play / App Store title is
 alone; complete the pre-submit checklist there. Android/iOS package IDs remain
 `com.creovo.billing`. The in-app and launcher label is still Creovo Billing
 until a dedicated launch identity pass shortens the home-screen name to Creovo.
+The approved launcher identity is a cream receipt with a gold transfer badge on
+the Creovo coral-to-plum gradient. The full-bleed, opaque master is stored at
+`assets/icons/creovo_invoice_app_icon.png` and is installed across every Android
+mipmap density and the complete iOS `AppIcon.appiconset`.
 
 ### Application foundation
 
@@ -742,6 +746,20 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-29 — Approved Android and iOS app icon
+
+- Installed the approved receipt-and-transfer app icon with a full-bleed Creovo
+  coral-to-plum background and no black corner pixels.
+- Replaced every Android launcher mipmap density and every required iPhone,
+  iPad, and App Store icon size from one opaque master artwork.
+- Important files: `assets/icons/creovo_invoice_app_icon.png`,
+  `android/app/src/main/res/mipmap-*/ic_launcher.png`, and
+  `ios/Runner/Assets.xcassets/AppIcon.appiconset/`.
+- Storage and migrations: none.
+- Verification: checked master opacity, native icon dimensions, Android
+  manifest launcher reference, iOS asset-catalog assignments, Flutter analysis,
+  and automated tests.
 
 ### 2026-08-29 — Stock reports (P1.1)
 
