@@ -4,24 +4,19 @@ import '../../../app/widgets/app_notification.dart';
 import '../../../data/models/business_category_model.dart';
 import '../../../data/models/product_attribute_model.dart';
 import '../../../data/services/product_settings_service.dart';
-import '../../../data/services/stock_ledger.dart';
 
 class ProductSettingsController extends GetxController {
-  ProductSettingsController(this._service, [this._ledger]);
+  ProductSettingsController(this._service);
   final ProductSettingsService _service;
-  final StockLedger? _ledger;
   final category = BusinessCategory.generalBusiness.obs;
   final enabledFields = <String>{}.obs;
   final customFields = <ProductCustomField>[].obs;
   final showOnInvoice = true.obs;
-  final stockEnabled = false.obs;
-  final canTrackStock = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     _reload();
-    reloadStock();
   }
 
   void _reload() {
@@ -29,20 +24,6 @@ class ProductSettingsController extends GetxController {
     enabledFields.assignAll(_service.enabledFields);
     customFields.assignAll(_service.customFields);
     showOnInvoice.value = _service.showAttributesOnInvoice;
-  }
-
-  Future<void> reloadStock() async {
-    canTrackStock.value = _ledger != null;
-    stockEnabled.value = _ledger != null && await _ledger.isEnabled();
-  }
-
-  Future<void> disableStock() async {
-    await _ledger?.disable();
-    stockEnabled.value = false;
-    AppNotification.success(
-      'Stock tracking off',
-      'Stock screens are hidden. Saved movements stay on this device.',
-    );
   }
 
   Future<void> changeCategory(BusinessCategory value) async {

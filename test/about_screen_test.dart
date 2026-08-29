@@ -25,7 +25,7 @@ void main() {
       generatedAt: DateTime.utc(2026, 8, 29),
       appVersion: '1.0.0',
       buildNumber: '1',
-      schemaVersion: 20,
+      schemaVersion: 21,
       platform: 'android',
       osVersion: '16',
       appLockEnabled: false,
@@ -57,7 +57,7 @@ void main() {
     expect(find.text('About'), findsOneWidget);
     expect(find.text('Creovo Billing'), findsOneWidget);
     expect(find.text('Version 1.0.0 (1)'), findsOneWidget);
-    expect(find.text('Schema 20'), findsOneWidget);
+    expect(find.text('Schema 21'), findsOneWidget);
     expect(find.text('How this app works'), findsOneWidget);
     expect(find.text('Diagnostics'), findsOneWidget);
     expect(find.text('Share diagnostics'), findsOneWidget);

@@ -87,10 +87,9 @@ customers, suppliers, products, unpaid invoices, unpaid bills, and party
 opening balances; column mapping; preview; Skip / Update / Import as new;
 one-transaction commit with downloadable errors and batch undo; UTF-8 CSV
 export for those modules plus expenses and an all-CSV ZIP). Opening stock posts
-when Track product stock is on (`P1.1` core) and is skipped with a preview
-warning while Off. Complex multi-line invoices and competitor
-XLSX column packs remain later work; simple `.xlsx` first sheets are read
-best-effort.
+for imported products (`P1.1` core) and turns Keep stock on for that product.
+Complex multi-line invoices and competitor XLSX column packs remain later work;
+simple `.xlsx` first sheets are read best-effort.
 
 ### Workflow
 
@@ -307,15 +306,18 @@ accessibility pass, and signed release artifacts remain.
 
 ## P1.1 Immutable stock ledger
 
-Status: **Partial 2026-08-29** (optional Track product stock, default Off;
-immutable movements; derived on-hand; posting from invoices, purchase bills,
-credit notes, debit notes, and manual adjustments; opening capture; catalog
-on-hand and More → Stock; on-hand-as-of and movement reports with CSV/PDF).
+Status: **Partial 2026-08-29** (per-product Keep stock, default On for new
+products; immutable movements; derived on-hand; posting from invoices, purchase
+bills, credit notes, debit notes, and manual adjustments; opening on the product
+form; catalog on-hand and More → Stock when any product keeps stock; on-hand-as-of
+and movement reports with CSV/PDF).
 Reorder/low-stock, negative-stock policy, unit conversion, committed/incoming,
 and challan/PO-receive posting remain.
 
-Settings asks **Track product stock?** Existing businesses default Off.
-Enabling captures opening date/quantities. Disabling hides UI but preserves data.
+Add/Edit product asks **Keep stock for this item?** Services never track.
+Existing businesses migrate from the old global settings flag: On copies onto
+live products; Off leaves them untracked. Stock screens hide when no product
+keeps stock. Movement rows are reversed, not deleted.
 
 Every change creates a movement: opening, sale/cancellation, purchase receipt/
 cancellation, both returns, manual adjustment with reason, damaged/expired/lost/

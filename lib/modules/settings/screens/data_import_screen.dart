@@ -46,7 +46,7 @@ class DataImportScreen extends GetView<DataImportController> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock posts only while Track product stock is on.',
+                      'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock keeps stock for that product.',
                       style: AppTextStyles.secondaryBody,
                     ),
                   ),

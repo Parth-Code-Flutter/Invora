@@ -24,7 +24,10 @@ class StockController extends GetxController {
   Map<int, String> get productNames => namesById;
 
   List<ProductServiceModel> get trackedProducts => products
-      .where((item) => item.type == ItemType.product && item.id != null)
+      .where(
+        (item) =>
+            item.trackStock && item.type == ItemType.product && item.id != null,
+      )
       .toList(growable: false);
 
   @override

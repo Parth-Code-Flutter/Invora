@@ -13,6 +13,7 @@ import 'package:creovo_invoice/data/services/app_database.dart';
 import 'package:creovo_invoice/data/services/csv_codec.dart';
 import 'package:creovo_invoice/data/services/data_import_service.dart';
 import 'package:creovo_invoice/data/services/import_value_parsers.dart';
+import 'package:creovo_invoice/data/services/stock_ledger.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -123,6 +124,29 @@ void main() {
       expect(saved, hasLength(1));
       expect(saved.single.salePriceMinor, 5500);
     });
+
+    test(
+      'imported opening stock keeps stock without a settings flag',
+      () async {
+        final preview = importer.preview(
+          kind: DataImportKind.products,
+          sourceFileName: 'products.csv',
+          table: [
+            ['Name', 'Type', 'Sale price', 'Opening stock'],
+            ['Teak board', 'Product', '40.00', '12'],
+          ],
+        );
+        expect(preview.warningCount, 0);
+        final result = await importer.commit(
+          preview: preview,
+          policy: DuplicateImportPolicy.skip,
+        );
+        expect(result.importedCount, 1);
+        final saved = await products.watchItems().first;
+        expect(saved.single.trackStock, isTrue);
+        expect(await StockLedger(database).onHand(saved.single.id!), 12000);
+      },
+    );
 
     test('rejects bad GSTIN and still imports valid unpaid invoices', () async {
       final preview = importer.preview(

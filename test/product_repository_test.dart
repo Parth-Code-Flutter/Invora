@@ -87,6 +87,33 @@ void main() {
     },
   );
 
+  test('persists Keep stock on a product and defaults off', () async {
+    final now = DateTime(2026, 8, 29);
+    final tracked = await repository.save(
+      ProductServiceModel(
+        name: 'Ply',
+        type: ItemType.product,
+        unit: 'pcs',
+        salePriceMinor: 1000,
+        trackStock: true,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+    final untracked = await repository.save(
+      ProductServiceModel(
+        name: 'Install',
+        type: ItemType.service,
+        unit: 'service',
+        salePriceMinor: 2000,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    );
+    expect((await repository.getById(tracked.id!))!.trackStock, isTrue);
+    expect((await repository.getById(untracked.id!))!.trackStock, isFalse);
+  });
+
   test('finds an active product by SKU barcode', () async {
     final now = DateTime(2026, 8, 13);
     await repository.save(

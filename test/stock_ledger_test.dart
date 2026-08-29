@@ -321,6 +321,87 @@ void main() {
     expect(inRange, hasLength(1));
     expect(inRange.single.quantityScaled, -2000);
   });
+
+  test('posts only for products with Keep stock on', () async {
+    final tracked = await _product(products, name: 'Tracked board');
+    final skipped = await _product(products, name: 'Untracked sheet');
+    await ledger.setProductTracked(
+      productId: tracked.id!,
+      tracked: true,
+      openingQtyScaled: 10000,
+    );
+    expect(await ledger.isEnabled(), isTrue);
+    expect((await products.getById(skipped.id!))!.trackStock, isFalse);
+
+    await invoices.save(
+      _invoice(
+        productId: tracked.id,
+        quantityScaled: 2000,
+        number: 'INV-TRACKED',
+      ),
+    );
+    await invoices.save(
+      _invoice(
+        productId: skipped.id,
+        quantityScaled: 3000,
+        number: 'INV-SKIP',
+        name: 'Untracked sheet',
+      ),
+    );
+    expect(await ledger.onHand(tracked.id!), 8000);
+    expect(await ledger.onHand(skipped.id!), 0);
+  });
+
+  test('opening posts once and turning Keep stock off keeps rows', () async {
+    final product = await _product(products, name: 'First count');
+    await ledger.setProductTracked(
+      productId: product.id!,
+      tracked: true,
+      openingQtyScaled: 4000,
+    );
+    await ledger.setProductTracked(
+      productId: product.id!,
+      tracked: true,
+      openingQtyScaled: 9000,
+    );
+    expect(await ledger.onHand(product.id!), 4000);
+    expect(await _movementCount(database), 1);
+
+    await ledger.setProductTracked(productId: product.id!, tracked: false);
+    expect(await ledger.isEnabled(), isFalse);
+    expect(await ledger.onHand(product.id!), 4000);
+    expect((await products.getById(product.id!))!.trackStock, isFalse);
+  });
+
+  test('adjust requires Keep stock on that product', () async {
+    final product = await _product(products);
+    await expectLater(
+      ledger.adjust(
+        productId: product.id!,
+        quantityScaled: 1000,
+        reason: 'Count correction',
+      ),
+      throwsStateError,
+    );
+  });
+
+  test('catalog quantity posts opening then later adjusts on-hand', () async {
+    final product = await _product(products, name: 'Qty field');
+    await ledger.applyCatalogQuantity(
+      productId: product.id!,
+      tracked: true,
+      quantityScaled: 5000,
+    );
+    expect(await ledger.onHand(product.id!), 5000);
+
+    await ledger.applyCatalogQuantity(
+      productId: product.id!,
+      tracked: true,
+      quantityScaled: 8000,
+    );
+    expect(await ledger.onHand(product.id!), 8000);
+    expect(await _movementCount(database), 2);
+  });
 }
 
 Future<int> _movementCount(AppDatabase database) async {

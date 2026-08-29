@@ -2583,6 +2583,21 @@ class $ProductServicesTable extends ProductServices
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _trackStockMeta = const VerificationMeta(
+    'trackStock',
+  );
+  @override
+  late final GeneratedColumn<bool> trackStock = GeneratedColumn<bool>(
+    'track_stock',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("track_stock" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -2619,6 +2634,7 @@ class $ProductServicesTable extends ProductServices
     taxRateBasisPoints,
     attributesJson,
     isDeleted,
+    trackStock,
     createdAt,
     updatedAt,
   ];
@@ -2711,6 +2727,12 @@ class $ProductServicesTable extends ProductServices
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
     }
+    if (data.containsKey('track_stock')) {
+      context.handle(
+        _trackStockMeta,
+        trackStock.isAcceptableOrUnknown(data['track_stock']!, _trackStockMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -2772,6 +2794,10 @@ class $ProductServicesTable extends ProductServices
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
+      trackStock: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}track_stock'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2800,6 +2826,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
   final int taxRateBasisPoints;
   final String attributesJson;
   final bool isDeleted;
+  final bool trackStock;
   final DateTime createdAt;
   final DateTime updatedAt;
   const ProductService({
@@ -2813,6 +2840,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     required this.taxRateBasisPoints,
     required this.attributesJson,
     required this.isDeleted,
+    required this.trackStock,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -2833,6 +2861,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     map['tax_rate_basis_points'] = Variable<int>(taxRateBasisPoints);
     map['attributes_json'] = Variable<String>(attributesJson);
     map['is_deleted'] = Variable<bool>(isDeleted);
+    map['track_stock'] = Variable<bool>(trackStock);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -2854,6 +2883,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       taxRateBasisPoints: Value(taxRateBasisPoints),
       attributesJson: Value(attributesJson),
       isDeleted: Value(isDeleted),
+      trackStock: Value(trackStock),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -2875,6 +2905,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       taxRateBasisPoints: serializer.fromJson<int>(json['taxRateBasisPoints']),
       attributesJson: serializer.fromJson<String>(json['attributesJson']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      trackStock: serializer.fromJson<bool>(json['trackStock']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2893,6 +2924,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
       'taxRateBasisPoints': serializer.toJson<int>(taxRateBasisPoints),
       'attributesJson': serializer.toJson<String>(attributesJson),
       'isDeleted': serializer.toJson<bool>(isDeleted),
+      'trackStock': serializer.toJson<bool>(trackStock),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2909,6 +2941,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     int? taxRateBasisPoints,
     String? attributesJson,
     bool? isDeleted,
+    bool? trackStock,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => ProductService(
@@ -2922,6 +2955,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
     attributesJson: attributesJson ?? this.attributesJson,
     isDeleted: isDeleted ?? this.isDeleted,
+    trackStock: trackStock ?? this.trackStock,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -2945,6 +2979,9 @@ class ProductService extends DataClass implements Insertable<ProductService> {
           ? data.attributesJson.value
           : this.attributesJson,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      trackStock: data.trackStock.present
+          ? data.trackStock.value
+          : this.trackStock,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2963,6 +3000,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
           ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
           ..write('attributesJson: $attributesJson, ')
           ..write('isDeleted: $isDeleted, ')
+          ..write('trackStock: $trackStock, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2981,6 +3019,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
     taxRateBasisPoints,
     attributesJson,
     isDeleted,
+    trackStock,
     createdAt,
     updatedAt,
   );
@@ -2998,6 +3037,7 @@ class ProductService extends DataClass implements Insertable<ProductService> {
           other.taxRateBasisPoints == this.taxRateBasisPoints &&
           other.attributesJson == this.attributesJson &&
           other.isDeleted == this.isDeleted &&
+          other.trackStock == this.trackStock &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -3013,6 +3053,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
   final Value<int> taxRateBasisPoints;
   final Value<String> attributesJson;
   final Value<bool> isDeleted;
+  final Value<bool> trackStock;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const ProductServicesCompanion({
@@ -3026,6 +3067,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     this.taxRateBasisPoints = const Value.absent(),
     this.attributesJson = const Value.absent(),
     this.isDeleted = const Value.absent(),
+    this.trackStock = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -3040,6 +3082,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     this.taxRateBasisPoints = const Value.absent(),
     this.attributesJson = const Value.absent(),
     this.isDeleted = const Value.absent(),
+    this.trackStock = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : name = Value(name),
@@ -3057,6 +3100,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     Expression<int>? taxRateBasisPoints,
     Expression<String>? attributesJson,
     Expression<bool>? isDeleted,
+    Expression<bool>? trackStock,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -3072,6 +3116,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
         'tax_rate_basis_points': taxRateBasisPoints,
       if (attributesJson != null) 'attributes_json': attributesJson,
       if (isDeleted != null) 'is_deleted': isDeleted,
+      if (trackStock != null) 'track_stock': trackStock,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -3088,6 +3133,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     Value<int>? taxRateBasisPoints,
     Value<String>? attributesJson,
     Value<bool>? isDeleted,
+    Value<bool>? trackStock,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -3102,6 +3148,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
       taxRateBasisPoints: taxRateBasisPoints ?? this.taxRateBasisPoints,
       attributesJson: attributesJson ?? this.attributesJson,
       isDeleted: isDeleted ?? this.isDeleted,
+      trackStock: trackStock ?? this.trackStock,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -3140,6 +3187,9 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
     if (isDeleted.present) {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
+    if (trackStock.present) {
+      map['track_stock'] = Variable<bool>(trackStock.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -3162,6 +3212,7 @@ class ProductServicesCompanion extends UpdateCompanion<ProductService> {
           ..write('taxRateBasisPoints: $taxRateBasisPoints, ')
           ..write('attributesJson: $attributesJson, ')
           ..write('isDeleted: $isDeleted, ')
+          ..write('trackStock: $trackStock, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -29640,6 +29691,7 @@ typedef $$ProductServicesTableCreateCompanionBuilder =
       Value<int> taxRateBasisPoints,
       Value<String> attributesJson,
       Value<bool> isDeleted,
+      Value<bool> trackStock,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -29655,6 +29707,7 @@ typedef $$ProductServicesTableUpdateCompanionBuilder =
       Value<int> taxRateBasisPoints,
       Value<String> attributesJson,
       Value<bool> isDeleted,
+      Value<bool> trackStock,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -29715,6 +29768,11 @@ class $$ProductServicesTableFilterComposer
 
   ColumnFilters<bool> get isDeleted => $composableBuilder(
     column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get trackStock => $composableBuilder(
+    column: $table.trackStock,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -29788,6 +29846,11 @@ class $$ProductServicesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get trackStock => $composableBuilder(
+    column: $table.trackStock,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -29846,6 +29909,11 @@ class $$ProductServicesTableAnnotationComposer
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
+  GeneratedColumn<bool> get trackStock => $composableBuilder(
+    column: $table.trackStock,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -29900,6 +29968,7 @@ class $$ProductServicesTableTableManager
                 Value<int> taxRateBasisPoints = const Value.absent(),
                 Value<String> attributesJson = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
+                Value<bool> trackStock = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => ProductServicesCompanion(
@@ -29913,6 +29982,7 @@ class $$ProductServicesTableTableManager
                 taxRateBasisPoints: taxRateBasisPoints,
                 attributesJson: attributesJson,
                 isDeleted: isDeleted,
+                trackStock: trackStock,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -29928,6 +29998,7 @@ class $$ProductServicesTableTableManager
                 Value<int> taxRateBasisPoints = const Value.absent(),
                 Value<String> attributesJson = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
+                Value<bool> trackStock = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => ProductServicesCompanion.insert(
@@ -29941,6 +30012,7 @@ class $$ProductServicesTableTableManager
                 taxRateBasisPoints: taxRateBasisPoints,
                 attributesJson: attributesJson,
                 isDeleted: isDeleted,
+                trackStock: trackStock,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

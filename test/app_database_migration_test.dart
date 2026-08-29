@@ -176,7 +176,7 @@ void main() {
       'delivery_challan_items',
       'delivery_challans',
     ]);
-    expect(database.schemaVersion, 20);
+    expect(database.schemaVersion, 21);
     await database.close();
   });
 
@@ -199,7 +199,7 @@ void main() {
       'purchase_order_items',
       'purchase_orders',
     ]);
-    expect(database.schemaVersion, 20);
+    expect(database.schemaVersion, 21);
     await database.close();
   });
 
@@ -221,13 +221,54 @@ void main() {
       'stock_movements',
       'stock_settings',
     ]);
-    expect(database.schemaVersion, 20);
+    expect(database.schemaVersion, 21);
     final settings = await (database.select(
       database.stockSettings,
     )..where((table) => table.id.equals(1))).getSingle();
     expect(settings.enabled, isFalse);
     await database.close();
   });
+
+  test('schema 20 with stock Off leaves products untracked', () async {
+    final database = AppDatabase.forTesting(
+      NativeDatabase.memory(
+        setup: (raw) => _createV20StockFixture(raw, enabled: false),
+      ),
+    );
+    final columns = await database
+        .customSelect('PRAGMA table_info(product_services)')
+        .get();
+    expect(
+      columns.any((row) => row.read<String>('name') == 'track_stock'),
+      isTrue,
+    );
+    expect(database.schemaVersion, 21);
+    final product = await (database.select(
+      database.productServices,
+    )..where((table) => table.name.equals('Sheet'))).getSingle();
+    expect(product.trackStock, isFalse);
+    await database.close();
+  });
+
+  test(
+    'schema 20 with stock On copies Keep stock onto live products',
+    () async {
+      final database = AppDatabase.forTesting(
+        NativeDatabase.memory(
+          setup: (raw) => _createV20StockFixture(raw, enabled: true),
+        ),
+      );
+      final product = await (database.select(
+        database.productServices,
+      )..where((table) => table.name.equals('Sheet'))).getSingle();
+      final service = await (database.select(
+        database.productServices,
+      )..where((table) => table.name.equals('Install'))).getSingle();
+      expect(product.trackStock, isTrue);
+      expect(service.trackStock, isFalse);
+      await database.close();
+    },
+  );
 }
 
 void _createV5Fixture(dynamic raw) {
@@ -333,4 +374,55 @@ void _createV5Fixture(dynamic raw) {
     "INSERT INTO invoice_charges (invoice_id, title, amount_minor, sort_order) VALUES (1, 'Delivery', 500, 0)",
   );
   raw.execute('PRAGMA user_version = 5');
+}
+
+void _createV20StockFixture(dynamic raw, {required bool enabled}) {
+  raw.execute('''
+    CREATE TABLE product_services (
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL,
+      description TEXT NULL,
+      unit TEXT NOT NULL,
+      sale_price_minor INTEGER NOT NULL,
+      hsn_sac TEXT NULL,
+      tax_rate_basis_points INTEGER NOT NULL DEFAULT 0,
+      attributes_json TEXT NOT NULL DEFAULT '[]',
+      is_deleted INTEGER NOT NULL DEFAULT 0 CHECK (is_deleted IN (0, 1)),
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  ''');
+  raw.execute('''
+    INSERT INTO product_services
+      (name, type, unit, sale_price_minor, tax_rate_basis_points, is_deleted, created_at, updated_at)
+    VALUES
+      ('Sheet', 'product', 'pcs', 10000, 0, 0, 0, 0),
+      ('Install', 'service', 'service', 20000, 0, 0, 0, 0)
+  ''');
+  raw.execute('''
+    CREATE TABLE stock_settings (
+      id INTEGER NOT NULL PRIMARY KEY,
+      enabled INTEGER NOT NULL DEFAULT 0 CHECK (enabled IN (0, 1)),
+      enabled_at INTEGER NULL,
+      opening_as_of INTEGER NULL
+    )
+  ''');
+  raw.execute('INSERT INTO stock_settings (id, enabled) VALUES (1, ?)', [
+    enabled ? 1 : 0,
+  ]);
+  raw.execute('''
+    CREATE TABLE stock_movements (
+      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER NOT NULL,
+      quantity_scaled INTEGER NOT NULL,
+      type TEXT NOT NULL,
+      reason TEXT NULL,
+      source_type TEXT NOT NULL,
+      source_id INTEGER NULL,
+      reverses_movement_id INTEGER NULL,
+      created_at INTEGER NOT NULL
+    )
+  ''');
+  raw.execute('PRAGMA user_version = 20');
 }

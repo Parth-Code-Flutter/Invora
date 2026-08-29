@@ -41,9 +41,7 @@ void main() {
     expect(find.text('Stock reports'), findsOneWidget);
     expect(find.text('Stock tracking off'), findsOneWidget);
     expect(
-      find.text(
-        'Turn on Track product stock in Product settings to use these reports.',
-      ),
+      find.text('Keep stock for a product to use these reports.'),
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);

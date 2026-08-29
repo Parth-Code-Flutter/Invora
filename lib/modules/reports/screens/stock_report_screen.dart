@@ -84,10 +84,9 @@ class StockReportScreen extends GetView<StockReportController> {
         return AppEmptyState(
           icon: Icons.inventory_2_outlined,
           title: 'Stock tracking off',
-          message:
-              'Turn on Track product stock in Product settings to use these reports.',
-          actionLabel: 'Open Product settings',
-          onAction: controller.openProductSettings,
+          message: 'Keep stock for a product to use these reports.',
+          actionLabel: 'Create product',
+          onAction: controller.openAddProduct,
         );
       }
       final kind = controller.kind.value;

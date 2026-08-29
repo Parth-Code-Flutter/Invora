@@ -88,6 +88,7 @@ void main() {
         'Customer name *',
         'Save payment',
         'Create product',
+        'Keep stock for this item',
       ];
       for (final language in [AppLanguage.hindi, AppLanguage.gujarati]) {
         for (final phrase in phrases) {

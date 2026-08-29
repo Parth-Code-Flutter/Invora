@@ -13,6 +13,7 @@ class ProductServiceModel {
     this.taxRateBasisPoints = 0,
     this.attributes = const [],
     this.isDeleted = false,
+    this.trackStock = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -27,6 +28,7 @@ class ProductServiceModel {
   final int taxRateBasisPoints;
   final List<ProductAttributeValue> attributes;
   final bool isDeleted;
+  final bool trackStock;
   final DateTime createdAt;
   final DateTime updatedAt;
 }

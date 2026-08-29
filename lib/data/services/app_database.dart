@@ -84,6 +84,7 @@ class ProductServices extends Table {
       integer().withDefault(const Constant(0))();
   TextColumn get attributesJson => text().withDefault(const Constant('[]'))();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  BoolColumn get trackStock => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
@@ -947,6 +948,10 @@ class AppDatabase extends _$AppDatabase {
         }
         await seedStockSettings();
       }
+      if (from < 21) {
+        await _addTrackStockColumn(migrator);
+        await migrateProductStockTrackingFromSettings();
+      }
     },
   );
 
@@ -959,6 +964,40 @@ class AppDatabase extends _$AppDatabase {
         enabled: const Value(false),
       ),
     );
+  }
+
+  Future<void> _addTrackStockColumn(Migrator migrator) async {
+    final table = await customSelect(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'product_services'",
+    ).get();
+    if (table.isEmpty) return;
+    final columns = await customSelect(
+      'PRAGMA table_info(product_services)',
+    ).get();
+    final hasTrackStock = columns.any(
+      (row) => row.read<String>('name') == 'track_stock',
+    );
+    if (!hasTrackStock) {
+      await migrator.addColumn(productServices, productServices.trackStock);
+    }
+  }
+
+  /// Global Track stock On copies onto every live product. Off leaves them
+  /// untracked so invoices do not start posting overnight.
+  Future<void> migrateProductStockTrackingFromSettings() async {
+    final table = await customSelect(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'product_services'",
+    ).get();
+    if (table.isEmpty) return;
+    final settings = await (select(
+      stockSettings,
+    )..where((table) => table.id.equals(1))).getSingleOrNull();
+    if (settings == null || !settings.enabled) return;
+    await (update(productServices)..where(
+          (table) =>
+              table.type.equals('product') & table.isDeleted.equals(false),
+        ))
+        .write(const ProductServicesCompanion(trackStock: Value(true)));
   }
 
   Future<void> seedDefaultMoneyAccounts() async {

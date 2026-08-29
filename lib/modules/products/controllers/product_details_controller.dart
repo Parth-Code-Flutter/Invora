@@ -38,10 +38,9 @@ class ProductDetailsController extends GetxController {
     currencySymbol.value =
         (await _businessRepository.getProfile())?.currencySymbol ?? '₹';
     final current = item.value;
-    final enabled = await _ledger.isEnabled();
-    stockEnabled.value = enabled;
-    if (enabled &&
-        current != null &&
+    stockEnabled.value = current?.trackStock == true;
+    if (current != null &&
+        current.trackStock &&
         current.type == ItemType.product &&
         current.id != null) {
       onHandScaled.value = await _ledger.onHand(current.id!);

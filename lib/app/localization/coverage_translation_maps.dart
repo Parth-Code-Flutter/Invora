@@ -1164,8 +1164,8 @@ const Map<String, String> appHindiCoverageTranslations = {
       'CSV या Excel टेम्पलेट, पूर्वावलोकन, फिर ऑफ़लाइन सहेजें',
   'CSV customers, suppliers, bills, invoices and ZIP':
       'ग्राहक, सप्लायर, बिल, चालान CSV और ZIP',
-  'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock posts only while Track product stock is on.':
-      'आयात इसी डिवाइस पर रहता है। टेम्पलेट डाउनलोड करें, CSV या Excel चुनें, पंक्तियाँ देखें, फिर एक चरण में सहेजें। ओपनिंग स्टॉक तभी दर्ज होता है जब उत्पाद स्टॉक ट्रैक चालू हो।',
+  'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock keeps stock for that product.':
+      'आयात इसी डिवाइस पर रहता है। टेम्पलेट डाउनलोड करें, CSV या Excel चुनें, पंक्तियाँ देखें, फिर एक चरण में सहेजें। ओपनिंग स्टॉक उस उत्पाद का स्टॉक रखता है।',
   'WHAT TO IMPORT': 'क्या आयात करें',
   'If a row already exists': 'अगर पंक्ति पहले से मौजूद है',
   'Skip': 'छोड़ें',
@@ -1409,6 +1409,15 @@ const Map<String, String> appHindiCoverageTranslations = {
   'HSN code': 'HSN कोड',
   'SAC code': 'SAC कोड',
   'Track product stock?': 'उत्पाद स्टॉक ट्रैक करें?',
+  'Keep stock for this item': 'इस आइटम का स्टॉक रखें',
+  'Quantity': 'मात्रा',
+  'Catalog quantity': 'कैटलॉग मात्रा',
+  'Keep stock for this item is off.': 'इस आइटम का स्टॉक रखना बंद है।',
+  'Invoices and bills will update on-hand for this product.':
+      'चालान और बिल इस उत्पाद का मौजूद स्टॉक अपडेट करेंगे।',
+  'Opening quantity (optional)': 'ओपनिंग मात्रा (वैकल्पिक)',
+  'On-hand comes from invoices and bills. Opening is only for the first count.':
+      'मौजूद स्टॉक चालान और बिल से आता है। ओपनिंग केवल पहली गिनती के लिए है।',
   'On-hand is calculated from movements. Off hides stock and stops posting.':
       'मौजूद स्टॉक मूवमेंट से निकाला जाता है। बंद करने पर स्टॉक छिप जाता है और नई एंट्री रुक जाती है।',
   'Turn off stock tracking?': 'स्टॉक ट्रैकिंग बंद करें?',
@@ -1467,6 +1476,8 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Movements': 'मूवमेंट',
   'Turn on Track product stock in Product settings to use these reports.':
       'इन रिपोर्ट के लिए उत्पाद सेटिंग में उत्पाद स्टॉक ट्रैक चालू करें।',
+  'Keep stock for a product to use these reports.':
+      'इन रिपोर्ट के लिए किसी उत्पाद पर स्टॉक रखें चालू करें।',
   'Open Product settings': 'उत्पाद सेटिंग खोलें',
   'No movements in this period': 'इस अवधि में कोई मूवमेंट नहीं',
   'No products to show': 'दिखाने के लिए कोई उत्पाद नहीं',
@@ -2644,8 +2655,8 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'CSV અથવા Excel ટેમ્પલેટ, પૂર્વાવલોકન, પછી ઑફલાઇન સાચવો',
   'CSV customers, suppliers, bills, invoices and ZIP':
       'ગ્રાહક, સપ્લાયર, બિલ, ઇન્વૉઇસ CSV અને ZIP',
-  'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock posts only while Track product stock is on.':
-      'આયાત આ ઉપકરણ પર જ રહે છે. ટેમ્પલેટ ડાઉનલોડ કરો, CSV અથવા Excel પસંદ કરો, પંક્તિઓ જુઓ, પછી એક પગલામાં સાચવો. ઓપનિંગ સ્ટોક ત્યારે જ નોંધાય છે જ્યારે ઉત્પાદ સ્ટોક ટ્રૅક ચાલુ હોય.',
+  'Import stays on this device. Download a template, pick CSV or Excel, preview rows, then save in one step. Opening stock keeps stock for that product.':
+      'આયાત આ ઉપકરણ પર જ રહે છે. ટેમ્પલેટ ડાઉનલોડ કરો, CSV અથવા Excel પસંદ કરો, પંક્તિઓ જુઓ, પછી એક પગલામાં સાચવો. ઓપનિંગ સ્ટોક તે ઉત્પાદનો સ્ટોક રાખે છે.',
   'WHAT TO IMPORT': 'શું આયાત કરવું',
   'If a row already exists': 'જો પંક્તિ પહેલેથી હોય',
   'Skip': 'છોડો',
@@ -2890,6 +2901,15 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'HSN code': 'HSN કોડ',
   'SAC code': 'SAC કોડ',
   'Track product stock?': 'ઉત્પાદ સ્ટોક ટ્રૅક કરો?',
+  'Keep stock for this item': 'આ આઇટમનો સ્ટોક રાખો',
+  'Quantity': 'માત્રા',
+  'Catalog quantity': 'કેટલોગ માત્રા',
+  'Keep stock for this item is off.': 'આ આઇટમનો સ્ટોક રાખવાનું બંધ છે.',
+  'Invoices and bills will update on-hand for this product.':
+      'ઇન્વૉઇસ અને બિલ આ ઉત્પાદનો હાથ પરનો સ્ટોક અપડેટ કરશે.',
+  'Opening quantity (optional)': 'ઓપનિંગ માત્રા (વૈકલ્પિક)',
+  'On-hand comes from invoices and bills. Opening is only for the first count.':
+      'હાથ પરનો સ્ટોક ઇન્વૉઇસ અને બિલથી આવે છે. ઓપનિંગ ફક્ત પહેલી ગણતરી માટે છે.',
   'On-hand is calculated from movements. Off hides stock and stops posting.':
       'હાથ પરનો સ્ટોક મૂવમેન્ટથી ગણાય છે. બંધ કરતાં સ્ટોક છુપાય અને નવી નોંધ અટકે.',
   'Turn off stock tracking?': 'સ્ટોક ટ્રૅકિંગ બંધ કરો?',
@@ -2948,6 +2968,8 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Movements': 'મૂવમેન્ટ',
   'Turn on Track product stock in Product settings to use these reports.':
       'આ રિપોર્ટ માટે ઉત્પાદ સેટિંગમાં ઉત્પાદ સ્ટોક ટ્રૅક ચાલુ કરો.',
+  'Keep stock for a product to use these reports.':
+      'આ રિપોર્ટ માટે કોઈ ઉત્પાદ પર સ્ટોક રાખો ચાલુ કરો.',
   'Open Product settings': 'ઉત્પાદ સેટિંગ ખોલો',
   'No movements in this period': 'આ સમયગાળામાં કોઈ મૂવમેન્ટ નથી',
   'No products to show': 'બતાવવા માટે કોઈ ઉત્પાદ નથી',

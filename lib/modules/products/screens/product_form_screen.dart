@@ -79,16 +79,11 @@ class ProductFormScreen extends GetView<ProductFormController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _FormPurpose(
-                                isEditing: controller.isEditing.value,
-                                type: controller.type.value,
-                              ),
-                              const SizedBox(height: AppSpacing.sm),
                               _TypeSelector(
                                 value: controller.type.value,
                                 onChanged: controller.selectType,
                               ),
-                              const SizedBox(height: AppSpacing.md),
+                              const SizedBox(height: AppSpacing.sm),
                               AppCard(
                                 padding: const EdgeInsets.fromLTRB(
                                   14,
@@ -98,23 +93,21 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                 ),
                                 child: Column(
                                   children: [
-                                    _FormSectionHeading(
-                                      icon: Icons.sell_outlined,
-                                      title: 'Essentials',
-                                      subtitle: 'Required to save this item',
-                                      action: _RequiredBadge(),
+                                    AppTextField(
+                                      controller: controller.name,
+                                      label: 'Item name *',
+                                      hint:
+                                          controller.type.value ==
+                                              ItemType.product
+                                          ? 'e.g. 10 Inch MDF'
+                                          : 'e.g. Brand consultation',
+                                      validator: controller.validateName,
+                                      textCapitalization:
+                                          TextCapitalization.words,
                                     ),
                                     const SizedBox(height: AppSpacing.sm),
                                     _ResponsiveFields(
                                       children: [
-                                        AppTextField(
-                                          controller: controller.name,
-                                          label: 'Item name *',
-                                          hint: 'e.g. Brand consultation',
-                                          validator: controller.validateName,
-                                          textCapitalization:
-                                              TextCapitalization.words,
-                                        ),
                                         AppTextField(
                                           controller: controller.salePrice,
                                           label:
@@ -131,6 +124,18 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                             ),
                                           ],
                                         ),
+                                        if (controller.fieldEnabled('unit'))
+                                          AppUnitField(
+                                            value:
+                                                controller.selectedUnit.value,
+                                            unitService: controller.unitService,
+                                            recommendedUnits: controller
+                                                .productSettings
+                                                .preferredUnits,
+                                            onChanged: (value) =>
+                                                controller.selectedUnit.value =
+                                                    value,
+                                          ),
                                       ],
                                     ),
                                     if (controller.fieldEnabled(
@@ -146,13 +151,25 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                             TextCapitalization.sentences,
                                       ),
                                     ],
+                                    if (controller.showStockCard) ...[
+                                      const SizedBox(height: AppSpacing.sm),
+                                      _KeepStockRow(
+                                        trackStock: controller.trackStock.value,
+                                        showQty: controller.showQtyField,
+                                        quantity: controller.openingQty,
+                                        unit: controller.selectedUnit.value,
+                                        validateQty:
+                                            controller.validateOpeningQty,
+                                        onChanged: controller.setTrackStock,
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ),
-                              if (controller.fieldEnabled('unit') ||
-                                  controller.fieldEnabled('hsnSac') ||
-                                  controller.fieldEnabled('tax')) ...[
-                                const SizedBox(height: AppSpacing.md),
+                              if (controller.fieldEnabled('hsnSac') ||
+                                  (controller.fieldEnabled('tax') &&
+                                      controller.gstEnabled.value)) ...[
+                                const SizedBox(height: AppSpacing.sm),
                                 AppCard(
                                   padding: const EdgeInsets.fromLTRB(
                                     14,
@@ -164,40 +181,15 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const _FormSectionHeading(
-                                        icon: Icons.receipt_long_outlined,
-                                        title: 'Invoice essentials',
-                                        subtitle:
-                                            'Defaults used when adding this item',
-                                      ),
-                                      const SizedBox(height: AppSpacing.sm),
-                                      _ResponsiveFields(
-                                        children: [
-                                          if (controller.fieldEnabled('unit'))
-                                            AppUnitField(
-                                              value:
-                                                  controller.selectedUnit.value,
-                                              unitService:
-                                                  controller.unitService,
-                                              recommendedUnits: controller
-                                                  .productSettings
-                                                  .preferredUnits,
-                                              onChanged: (value) =>
-                                                  controller
-                                                          .selectedUnit
-                                                          .value =
-                                                      value,
-                                            ),
-                                          if (controller.fieldEnabled('hsnSac'))
-                                            AppTextField(
-                                              controller: controller.hsnSac,
-                                              label: 'HSN/SAC',
-                                            ),
-                                        ],
-                                      ),
+                                      if (controller.fieldEnabled('hsnSac'))
+                                        AppTextField(
+                                          controller: controller.hsnSac,
+                                          label: 'HSN/SAC',
+                                        ),
                                       if (controller.fieldEnabled('tax') &&
                                           controller.gstEnabled.value) ...[
-                                        const SizedBox(height: AppSpacing.sm),
+                                        if (controller.fieldEnabled('hsnSac'))
+                                          const SizedBox(height: AppSpacing.sm),
                                         Text(
                                           'GST rate',
                                           style: AppTextStyles.listName,
@@ -436,67 +428,6 @@ class ProductFormScreen extends GetView<ProductFormController> {
   }
 }
 
-class _FormPurpose extends StatelessWidget {
-  const _FormPurpose({required this.isEditing, required this.type});
-
-  final bool isEditing;
-  final ItemType type;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final itemLabel = type == ItemType.product ? 'product' : 'service';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(11),
-            ),
-            child: Icon(
-              isEditing ? Icons.edit_outlined : Icons.bolt_rounded,
-              size: 18,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isEditing
-                      ? 'Update $itemLabel'
-                      : 'Create once, invoice faster',
-                  style: AppTextStyles.listName,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  isEditing
-                      ? 'Changes apply the next time you use this item.'
-                      : 'Name and price are enough. Add other details only when needed.',
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                    height: 1.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _FormSectionHeading extends StatelessWidget {
   const _FormSectionHeading({
     required this.icon,
@@ -549,23 +480,53 @@ class _FormSectionHeading extends StatelessWidget {
   }
 }
 
-class _RequiredBadge extends StatelessWidget {
+class _KeepStockRow extends StatelessWidget {
+  const _KeepStockRow({
+    required this.trackStock,
+    required this.showQty,
+    required this.quantity,
+    required this.unit,
+    required this.validateQty,
+    required this.onChanged,
+  });
+
+  final bool trackStock;
+  final bool showQty;
+  final TextEditingController quantity;
+  final String unit;
+  final String? Function(String?) validateQty;
+  final ValueChanged<bool> onChanged;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        '2 required',
-        style: AppTextStyles.caption.copyWith(
-          color: AppColors.primaryDark,
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Keep stock for this item',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+              ),
+            ),
+            Switch.adaptive(value: trackStock, onChanged: onChanged),
+          ],
         ),
-      ),
+        if (showQty) ...[
+          const SizedBox(height: 4),
+          AppTextField(
+            controller: quantity,
+            label: 'Quantity',
+            hint: unit.isEmpty ? '0' : '0 $unit',
+            validator: validateQty,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }
@@ -583,6 +544,10 @@ class _TypeSelector extends StatelessWidget {
       child: SegmentedButton<ItemType>(
         showSelectedIcon: false,
         expandedInsets: EdgeInsets.zero,
+        style: ButtonStyle(
+          visualDensity: VisualDensity.compact,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
         segments: const [
           ButtonSegment(
             value: ItemType.product,

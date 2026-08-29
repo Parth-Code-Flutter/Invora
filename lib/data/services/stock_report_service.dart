@@ -28,7 +28,9 @@ class StockReportService {
 
   Future<StockReportPack> buildOnHand(DateTime asOf) async {
     final enabled = await _ledger.isEnabled();
-    final catalog = await _products.listItems(type: ItemType.product);
+    final catalog = (await _products.listItems(
+      type: ItemType.product,
+    )).where((product) => product.trackStock).toList(growable: false);
     final names = await _namesById(catalog);
     final ids = {
       for (final product in catalog)
@@ -38,7 +40,8 @@ class StockReportService {
     final extraIds = totals.keys.where((id) => !ids.contains(id));
     for (final id in extraIds) {
       final extra = await _fallbackProduct(id);
-      if (extra != null) names[id] = extra;
+      if (extra == null || !extra.trackStock) continue;
+      names[id] = extra;
     }
     final rows = [
       for (final product in catalog)
@@ -50,12 +53,13 @@ class StockReportService {
             quantityScaled: totals[product.id!] ?? 0,
           ),
       for (final id in extraIds)
-        StockOnHandRow(
-          productId: id,
-          name: names[id]?.name ?? 'Product',
-          unit: names[id]?.unit ?? 'pcs',
-          quantityScaled: totals[id] ?? 0,
-        ),
+        if (names.containsKey(id))
+          StockOnHandRow(
+            productId: id,
+            name: names[id]?.name ?? 'Product',
+            unit: names[id]?.unit ?? 'pcs',
+            quantityScaled: totals[id] ?? 0,
+          ),
     ]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     final day = StockDay.start(asOf);
     return StockReportPack(

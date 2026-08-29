@@ -69,12 +69,7 @@ class DataImportBinding extends Bindings {
 class ProductSettingsBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(
-      () => ProductSettingsController(
-        Get.find(),
-        Get.isRegistered<StockLedger>() ? Get.find<StockLedger>() : null,
-      ),
-    );
+    Get.lazyPut(() => ProductSettingsController(Get.find()));
   }
 }
 

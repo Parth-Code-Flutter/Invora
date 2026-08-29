@@ -132,24 +132,26 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
   salted, iterated SHA-256 hash rather than plain PIN text. This is an access
   guard for the local app and does not encrypt SQLite data or CSV exports.
   Backup files use a separate password.
-- Settings → About is a real screen: app version and build, schema 20, short
+- Settings → About is a real screen: app version and build, schema 21, short
   offline / GST Prepared / local-backup help, and Share/Save diagnostics. The
   diagnostics file is versions plus record counts only — not names, GSTIN,
   amounts, invoices, passwords, or a backup. Counts include stock movements
   when the table exists.
-- Optional product stock ledger (`P1.1` core) defaults **Off** in
-  `stock_settings`. When On, on-hand is the sum of immutable `stock_movements`
-  (×1000 quantity scale). Invoice save (not quotations), purchase bill save,
-  credit-note issue, debit-note issue, and manual adjustments post or reverse
-  movements in the same database transaction. Posted rows are reversed, never
-  edited or deleted. Services and custom lines without `productId` skip stock.
-  Purchase-order receive and delivery challans do not post. Negative on-hand is
-  allowed. Catalog list/details and More → Stock show only while tracking is
-  on; disabling hides UI and stops posting but keeps SQLite/backup rows.
-  Opening stock on product and opening-balance import posts only while On.
-  When On, Reports, More, and Stock open **Stock reports**: on-hand as of a
-  chosen date, movements in a period, and share/save CSV or PDF. Quantities
-  follow when the movement was posted, not the invoice date.
+- Product stock (`P1.1` core) is decided **on the product**, not in Product
+  settings. Add item defaults **Keep stock for this item** On for products
+  (services never track). Quantity is shown whenever Keep stock is on. First
+  save posts opening (blank = 0). Later quantity edits post an adjustment.
+  Invoice/bill/credit-note/debit-note/adjustment posting runs only for
+  products with Keep stock on. Custom lines skip. More → Stock, catalog
+  on-hand, and Stock reports show when **at least one** live product keeps
+  stock; they hide when none do. Turning Keep stock off on one item hides that
+  item's on-hand and stops new posting; movement rows stay (reverse-not-delete).
+  Schema 21 adds `product_services.track_stock` (default false). Upgrade from
+  schema 20 copies the old global `stock_settings.enabled` flag onto live
+  products when it was On; Off leaves existing products untracked. New form
+  products default Keep stock On; repository/model default remains false so
+  unspecified saves do not start posting. Opening stock on product import
+  turns Keep stock on for that product.
 - GitHub Actions CI on `parth-dev` and `main` runs `dart format` (lib/test),
   `flutter analyze --no-fatal-infos`, and `flutter test` with Flutter 3.44.4.
   Signing, store privacy URLs, and device-farm checks are not in CI.
@@ -446,8 +448,8 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
   Duplicate masters can Skip, Update matching, or Import as new. Match key is
   GSTIN, then mobile, then name. Unpaid invoices/bills create one opening line
   each; opening-balance rows create a receivable or payable document. Opening
-  stock posts only while Track product stock is on (`P1.1` core); otherwise the
-  preview warns and the quantity is skipped. Import batches, created record
+  stock posts for imported products (`P1.1` core) and turns Keep stock on for
+  that product. Import batches, created record
   ids, and row errors live in schema 17 tables and are not a substitute for
   backup. Undo reverses a committed batch when later payments do not block
   delete. Nothing is uploaded.
@@ -686,17 +688,18 @@ As of 2026-08-28:
 7. Physical-device QA of purchase debit notes: partial return, over-return
    blocked, paid-bill refund vs supplier credit, apply leftover credit to
    another bill, supplier statement, debit-note PDF, and airplane mode.
-8. Physical-device QA of optional stock (`P1.1` core): leave Track product
-   stock Off and confirm Sales/Purchase create UX is unchanged and no
-   movements post; turn On with opening qty, confirm catalog on-hand, invoice
-   sale + cancel reverse (row count grows, old rows unchanged), purchase bill
-   in / debit-note out, credit-note restock, custom/service skip, More → Stock
-   adjust with reason, import opening while On, and airplane-mode on-hand.
-   Open Stock reports from Reports, More, or Stock: On hand as of a past date
-   (later sales must not change that snapshot), Movements for This month /
-   custom range, share CSV and preview PDF in airplane mode. Turn Off and
-   confirm stock UI and reports hide while movements remain after restore.
-   Remaining inventory work is reorder/low-stock, negative-stock
+8. Physical-device QA of product stock (`P1.1` core): add a product with Keep
+   stock on (default) and an opening qty (blank = 0); confirm catalog on-hand,
+   invoice sale + cancel reverse (row count grows, old rows unchanged), purchase
+   bill in / debit-note out, credit-note restock, custom/service skip, More →
+   Stock adjust with reason, import opening, and airplane-mode on-hand. Open
+   Stock reports from Reports, More, or Stock: On hand as of a past date (later
+   sales must not change that snapshot), Movements for This month / custom
+   range, share CSV and preview PDF in airplane mode. Add a second product with
+   Keep stock off and confirm invoices do not move it. Turn Keep stock off on
+   the first product and confirm Stock UI hides when no products keep stock,
+   while movements remain after restore. Remaining inventory work is
+   reorder/low-stock, negative-stock
    policy, unit conversion, committed/incoming, and challan/PO-receive posting.
    Remaining `P0.11` work is release signing, store privacy URLs, high-volume
    benchmarks, and accessibility polish. GitHub CI runs format, analyze, and
@@ -746,6 +749,36 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-29 — Catalog quantity field and tighter item form
+
+- Keep stock now always shows a Quantity field, including on Edit after the
+  first count. Changing that number posts an adjustment; the first count still
+  posts opening. Name, price, unit, and stock sit in one card so adding
+  products is a shorter list.
+- Important files: `product_form_screen.dart`, `product_form_controller.dart`,
+  `stock_ledger.dart` (`applyCatalogQuantity`).
+- Storage: none.
+- Verification: product form Keep stock widget tests, catalog-quantity ledger
+  test, Dart formatting, Flutter analysis.
+
+### 2026-08-29 — Per-product Keep stock (P1.1)
+
+- Stock is now chosen on Add/Edit product (**Keep stock for this item**, default
+  On for new products). Product settings no longer has a global Track product
+  stock toggle. Services never track. Invoice create is unchanged. More →
+  Stock, catalog on-hand, and Stock reports appear when any live product keeps
+  stock. Turning Keep stock off on one item hides that on-hand and stops new
+  posting; movement rows stay.
+- Schema 20 businesses that had global stock On copy Keep stock onto live
+  products; Off leaves them untracked. New catalog saves without `trackStock`
+  still default false.
+- Important files: `product_services.trackStock`, `stock_ledger.dart`,
+  product form, Product settings, catalog list/details, stock reports, import.
+- Storage: schema 21 `product_services.track_stock`.
+- Verification: Dart formatting, Flutter analysis, schema 20→21 migration
+  tests, per-product ledger tests, product form Keep stock tests, import
+  opening without a settings flag, stock report empty-state copy, localization.
 
 ### 2026-08-29 — Approved Android and iOS app icon
 

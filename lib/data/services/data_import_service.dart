@@ -393,10 +393,6 @@ class DataImportService {
         if (ImportValueParsers.blankToNull(values['stock']) != null) {
           if (QuantityUtils.parseScaled(values['stock']!) == null) {
             warn('Opening stock must be a number with up to three decimals.');
-          } else {
-            warn(
-              'Opening stock is applied only while Track product stock is on.',
-            );
           }
         }
       case DataImportKind.unpaidInvoices:
@@ -463,10 +459,6 @@ class DataImportService {
         if (ImportValueParsers.blankToNull(values['stock']) != null) {
           if (QuantityUtils.parseScaled(values['stock']!) == null) {
             warn('Opening stock must be a number with up to three decimals.');
-          } else {
-            warn(
-              'Opening stock is applied only while Track product stock is on.',
-            );
           }
         }
     }
@@ -707,6 +699,7 @@ class DataImportService {
         hsnSac: hsn,
         taxRateBasisPoints:
             ImportValueParsers.parseGstBasisPoints(values['gst']) ?? 0,
+        trackStock: !typeRaw.contains('service'),
         createdAt: match?.createdAt ?? now,
         updatedAt: now,
       ),

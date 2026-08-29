@@ -144,7 +144,7 @@ class StockReportController extends GetxController {
     }
   }
 
-  void openProductSettings() => Get.toNamed<void>(AppRoutes.productSettings);
+  void openAddProduct() => Get.toNamed<void>(AppRoutes.productAdd);
 
   Future<void> _run(
     String key,

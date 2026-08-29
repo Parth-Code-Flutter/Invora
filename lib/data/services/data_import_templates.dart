@@ -264,7 +264,7 @@ abstract final class DataImportTemplates {
     kind: DataImportKind.openingBalances,
     title: 'Opening balances',
     subtitle:
-        'Party receivable or payable as of a date. Opening stock applies when Track product stock is on.',
+        'Party receivable or payable as of a date. Opening stock keeps stock for that product.',
     fileName: 'creovo_import_opening_balances.csv',
     columns: [
       ImportColumnSpec(

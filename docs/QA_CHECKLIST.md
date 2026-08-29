@@ -76,11 +76,12 @@ remain intentionally out of scope until explicitly requested.
   blocked, partial receive then convert remaining received qty to purchase
   bills, cancel-with-reason until billed, PDF bytes, empty-list UI, and schema
   18→19 migration.
-- Optional stock ledger (`P1.1` core): default Off with no movements; opening
-  quantities; invoice sale + cancel reverse-not-edit; purchase bill + debit-note
-  stock-out; credit-note restock; custom-line and service skip; schema 19→20.
+- Optional stock ledger (`P1.1` core): per-product Keep stock (default On for
+  new products); invoice sale + cancel reverse-not-edit; purchase bill +
+  debit-note stock-out; credit-note restock; custom-line and service skip;
+  schema 20→21 copies the old global flag onto products.
 - Stock reports: on-hand as of a date excludes later movements; movement range
-  CSV/PDF; Off hides report destinations.
+  CSV/PDF; hidden when no product keeps stock.
 - About and diagnostics: Settings → About shows version and schema, offline
   help, and a counts-only diagnostics text file (share/save). GitHub CI runs
   format, analyze, and tests.
@@ -185,16 +186,17 @@ remain intentionally out of scope until explicitly requested.
   convert the rest into a second bill. Confirm the PO does not change stock or
   payable until billed. Cancel an unused PO with a reason. Share the PDF in
   airplane mode, restore a backup, and confirm the order returns.
-- Product settings → Track product stock Off: invoice/bill create screens stay
-  unchanged and catalog/More hide on-hand. Turn On, enter opening date and qty
-  (blank = 0), confirm catalog on-hand, sell then cancel (on-hand returns;
-  movement rows are reversed, not edited), bill in / debit-note out, credit-note
-  restock, custom line and service skip, More → Stock adjust with a required
-  reason, import Opening stock while On, then check on-hand in airplane mode.
-  Open Stock reports (Reports, More, or Stock). Confirm On hand as of a date
-  before a sale still shows the earlier qty; Movements lists the sale after
-  that date; share CSV and preview PDF in airplane mode. Turn Off and confirm
-  Stock reports hide while movements remain after restore.
+- Add a product (Keep stock on by default). Confirm invoice/bill create screens
+  stay unchanged. Enter opening qty (blank = 0), confirm catalog on-hand, sell
+  then cancel (on-hand returns; movement rows are reversed, not edited), bill in
+  / debit-note out, credit-note restock, custom line and service skip, More →
+  Stock adjust with a required reason, import Opening stock, then check on-hand
+  in airplane mode. Open Stock reports (Reports, More, or Stock). Confirm On
+  hand as of a date before a sale still shows the earlier qty; Movements lists
+  the sale after that date; share CSV and preview PDF in airplane mode. Add an
+  item with Keep stock off and confirm it does not move. Turn Keep stock off on
+  the last tracked product and confirm Stock reports hide while movements remain
+  after restore.
 - Open Settings → About. Confirm version and schema, then Share diagnostics in
   airplane mode. Open the file and confirm it has counts/versions only — no
   customer names, GSTIN, or amounts.

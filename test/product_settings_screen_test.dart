@@ -81,6 +81,7 @@ void main() {
     );
     expect(find.text('Identity'), findsOneWidget);
     expect(find.byType(FilterChip), findsWidgets);
+    expect(find.text('Track product stock?'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

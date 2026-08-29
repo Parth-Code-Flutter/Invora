@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/enums/item_type.dart';
-import '../../../app/utils/currency_utils.dart';
-import '../../../app/utils/tax_utils.dart';
 import '../../../app/utils/app_focus.dart';
+import '../../../app/utils/currency_utils.dart';
+import '../../../app/utils/quantity_utils.dart';
+import '../../../app/utils/tax_utils.dart';
 import '../../../data/models/barcode_capture_result.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/models/product_form_args.dart';
@@ -12,29 +13,35 @@ import '../../../data/models/business_category_model.dart';
 import '../../../data/models/product_attribute_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
-import '../../../data/services/unit_service.dart';
 import '../../../data/services/product_settings_service.dart';
+import '../../../data/services/stock_ledger.dart';
+import '../../../data/services/unit_service.dart';
 
 class ProductFormController extends GetxController {
   ProductFormController(
     this._repository,
     this._businessRepository,
     this.unitService,
-    this.productSettings,
-  );
+    this.productSettings, [
+    this._ledger,
+  ]);
   static const taxRates = TaxUtils.gstRateBasisPoints;
 
   final ProductRepository _repository;
   final BusinessRepository _businessRepository;
   final UnitService unitService;
   final ProductSettingsService productSettings;
+  final StockLedger? _ledger;
   final formKey = GlobalKey<FormState>();
   final name = TextEditingController();
   final description = TextEditingController();
   final salePrice = TextEditingController();
   final hsnSac = TextEditingController();
   final taxRate = TextEditingController();
+  final openingQty = TextEditingController();
   final type = ItemType.product.obs;
+  final trackStock = true.obs;
+  final hasMovements = false.obs;
   final selectedUnit = ''.obs;
   final selectedTaxBasisPoints = 0.obs;
   final isCustomTax = false.obs;
@@ -47,6 +54,7 @@ class ProductFormController extends GetxController {
   final isSaving = false.obs;
   final isEditing = false.obs;
   ProductServiceModel? _existing;
+  int _loadedOnHandScaled = 0;
   String _baseline = '';
 
   bool get hasUnsavedChanges => !isLoading.value && _snapshot() != _baseline;
@@ -98,9 +106,28 @@ class ProductFormController extends GetxController {
 
   void selectType(ItemType value) {
     type.value = value;
+    if (value == ItemType.service) {
+      trackStock.value = false;
+    } else if (!isEditing.value) {
+      trackStock.value = true;
+    } else {
+      trackStock.value = _existing?.trackStock ?? true;
+    }
     if (!isEditing.value) {
       selectedUnit.value = unitService.defaultUnit;
     }
+  }
+
+  bool get showStockCard => type.value == ItemType.product;
+
+  bool get showQtyField => showStockCard && trackStock.value;
+
+  void setTrackStock(bool value) {
+    trackStock.value = value;
+    if (!value) return;
+    if (openingQty.text.trim().isNotEmpty) return;
+    if (_loadedOnHandScaled == 0 && !hasMovements.value) return;
+    openingQty.text = QuantityUtils.toInputValue(_loadedOnHandScaled);
   }
 
   void refreshFieldSettings() {
@@ -165,6 +192,15 @@ class ProductFormController extends GetxController {
         : null;
   }
 
+  String? validateOpeningQty(String? value) {
+    if (!showQtyField) return null;
+    final raw = (value ?? '').trim();
+    if (raw.isEmpty) return null;
+    return QuantityUtils.parseScaled(raw) == null
+        ? 'Use whole numbers or up to three decimals. Leave blank for zero.'
+        : null;
+  }
+
   String? validateTax(String? value) {
     return TaxUtils.parseBasisPoints(value ?? '') == null
         ? 'Enter a tax rate from 0 to 100.'
@@ -190,10 +226,18 @@ class ProductFormController extends GetxController {
               ? TaxUtils.parseBasisPoints(taxRate.text)!
               : 0,
           attributes: _attributeValues(),
+          trackStock: type.value == ItemType.product && trackStock.value,
           createdAt: _existing?.createdAt ?? now,
           updatedAt: now,
         ),
       );
+      if (saved.id != null && type.value == ItemType.product) {
+        await _ledger?.applyCatalogQuantity(
+          productId: saved.id!,
+          tracked: trackStock.value,
+          quantityScaled: _quantityToApply(),
+        );
+      }
       _captureBaseline();
       await AppFocus.dismissKeyboard();
       Get.back<ProductServiceModel>(result: saved);
@@ -230,6 +274,17 @@ class ProductFormController extends GetxController {
     salePrice.text = CurrencyUtils.toInputValue(item.salePriceMinor);
     hsnSac.text = item.hsnSac ?? '';
     type.value = item.type;
+    trackStock.value = item.type == ItemType.product && item.trackStock;
+    hasMovements.value =
+        item.id != null && (await _ledger?.hasMovements(item.id!) ?? false);
+    _loadedOnHandScaled = item.id != null
+        ? await _ledger?.onHand(item.id!) ?? 0
+        : 0;
+    if (trackStock.value && (hasMovements.value || _loadedOnHandScaled != 0)) {
+      openingQty.text = QuantityUtils.toInputValue(_loadedOnHandScaled);
+    } else {
+      openingQty.clear();
+    }
     selectedUnit.value = await unitService.create(item.unit);
     taxRate.text = TaxUtils.toInputValue(item.taxRateBasisPoints);
     selectedTaxBasisPoints.value = item.taxRateBasisPoints;
@@ -260,6 +315,8 @@ class ProductFormController extends GetxController {
     hsnSac.text,
     taxRate.text,
     type.value.name,
+    trackStock.value.toString(),
+    openingQty.text,
     selectedUnit.value,
     selectedTaxBasisPoints.value.toString(),
     isCustomTax.value.toString(),
@@ -269,6 +326,13 @@ class ProductFormController extends GetxController {
   ].join('\u001f');
 
   void _captureBaseline() => _baseline = _snapshot();
+
+  int? _quantityToApply() {
+    if (!showQtyField) return null;
+    final raw = openingQty.text.trim();
+    if (raw.isEmpty) return hasMovements.value ? null : 0;
+    return QuantityUtils.parseScaled(raw);
+  }
 
   String? _optional(String value) {
     final trimmed = value.trim();
@@ -282,6 +346,7 @@ class ProductFormController extends GetxController {
     salePrice.dispose();
     hsnSac.dispose();
     taxRate.dispose();
+    openingQty.dispose();
     for (final controller in attributeControllers.values) {
       controller.dispose();
     }

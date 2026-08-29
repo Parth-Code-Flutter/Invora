@@ -91,6 +91,7 @@ class ProductRepository extends BaseRepository {
         jsonEncode(model.attributes.map((value) => value.toJson()).toList()),
       ),
       isDeleted: Value(model.isDeleted),
+      trackStock: Value(model.trackStock),
       createdAt: Value(model.createdAt),
       updatedAt: Value(model.updatedAt),
     );
@@ -123,6 +124,7 @@ class ProductRepository extends BaseRepository {
       taxRateBasisPoints: row.taxRateBasisPoints,
       attributes: _attributes(row.attributesJson),
       isDeleted: row.isDeleted,
+      trackStock: row.trackStock,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );

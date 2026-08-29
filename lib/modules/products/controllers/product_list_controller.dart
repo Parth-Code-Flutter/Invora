@@ -66,6 +66,7 @@ class ProductListController extends GetxController {
 
   int? onHandFor(ProductServiceModel item) {
     if (!stockEnabled.value ||
+        !item.trackStock ||
         item.type != ItemType.product ||
         item.id == null) {
       return null;
@@ -121,7 +122,12 @@ class ProductListController extends GetxController {
       return;
     }
     final ids = items
-        .where((item) => item.type == ItemType.product && item.id != null)
+        .where(
+          (item) =>
+              item.trackStock &&
+              item.type == ItemType.product &&
+              item.id != null,
+        )
         .map((item) => item.id!);
     onHandByProduct.assignAll(await _ledger.onHandByProduct(ids));
   }

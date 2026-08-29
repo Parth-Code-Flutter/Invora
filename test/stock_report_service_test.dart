@@ -35,7 +35,7 @@ void main() {
     final product = await _product(products, name: 'Teak board');
     await ledger.enable(
       openingAsOf: DateTime(2026, 4, 1),
-      openingQtyByProduct: const {},
+      openingQtyByProduct: {product.id!: 0},
     );
     await database
         .into(database.stockMovements)
@@ -107,7 +107,7 @@ void main() {
         );
     final pack = await service.buildOnHand(DateTime(2026, 8, 29));
     expect(pack.enabled, isFalse);
-    expect(pack.onHand.single.quantityScaled, 1000);
+    expect(pack.onHand, isEmpty);
   });
 }
 
