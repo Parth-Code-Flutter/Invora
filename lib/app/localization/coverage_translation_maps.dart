@@ -1366,6 +1366,31 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Save purchase order': 'खरीद ऑर्डर सहेजें',
   'Part received': 'आंशिक प्राप्ति',
   'Part billed': 'आंशिक बिल',
+  'How this app works': 'यह ऐप कैसे काम करता है',
+  'Create, search, print, export, and restore work in airplane mode. Internet is never required to open the app or read business data.':
+      'बनाएँ, खोजें, प्रिंट, निर्यात और रिस्टोर एयरप्लेन मोड में काम करते हैं। ऐप खोलने या डेटा पढ़ने के लिए इंटरनेट ज़रूरी नहीं।',
+  'GST / CA files are labelled Prepared / Not submitted. Filing happens on the GST portal, not in this app.':
+      'GST / CA फ़ाइलें Prepared / Not submitted कहलाती हैं। फाइलिंग GST पोर्टल पर होती है, इस ऐप में नहीं।',
+  'Backup is a password-protected ZIP on this device. This app does not sync invoices to the cloud.':
+      'बैकअप इस डिवाइस पर पासवर्ड-सुरक्षित ZIP है। यह ऐप चालान क्लाउड पर सिंक नहीं करता।',
+  'Diagnostics': 'निदान',
+  'Share diagnostics': 'निदान साझा करें',
+  'Save diagnostics': 'निदान सहेजें',
+  'Share a text file with versions and record counts only — not names, GSTIN, amounts, or a backup.':
+      'केवल वर्शन और रिकॉर्ड गिनती वाली टेक्स्ट फ़ाइल साझा करें — नाम, GSTIN, राशि या बैकअप नहीं।',
+  'Diagnostics shared': 'निदान साझा हुआ',
+  'Diagnostics saved': 'निदान सहेजा गया',
+  'Cannot share diagnostics': 'निदान साझा नहीं हो सकता',
+  'Cannot save diagnostics': 'निदान सहेजा नहीं जा सकता',
+  'The file has counts and versions only — not a backup.':
+      'फ़ाइल में केवल गिनती और वर्शन हैं — बैकअप नहीं।',
+  'The diagnostics file could not be shared. Please try again.':
+      'निदान फ़ाइल साझा नहीं हो सकी। कृपया फिर कोशिश करें।',
+  'The diagnostics file could not be saved. Please try again.':
+      'निदान फ़ाइल सहेजी नहीं जा सकी। कृपया फिर कोशिश करें।',
+  'Last backup:': 'अंतिम बैकअप:',
+  'Never': 'कभी नहीं',
+  'Schema': 'स्कीमा',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -2724,4 +2749,29 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Save purchase order': 'ખરીદ ઓર્ડર સાચવો',
   'Part received': 'આંશિક પ્રાપ્તિ',
   'Part billed': 'આંશિક બિલ',
+  'How this app works': 'આ ઍપ કેવી રીતે કામ કરે છે',
+  'Create, search, print, export, and restore work in airplane mode. Internet is never required to open the app or read business data.':
+      'બનાવો, શોધો, પ્રિન્ટ, નિકાસ અને રિસ્ટોર એરપ્લેન મોડમાં કામ કરે છે. ઍપ ખોલવા અથવા ડેટા વાંચવા ઇન્ટરનેટ જરૂરી નથી.',
+  'GST / CA files are labelled Prepared / Not submitted. Filing happens on the GST portal, not in this app.':
+      'GST / CA ફાઇલો Prepared / Not submitted કહેવાય છે. ફાઇલિંગ GST પોર્ટલ પર થાય છે, આ ઍપમાં નહીં.',
+  'Backup is a password-protected ZIP on this device. This app does not sync invoices to the cloud.':
+      'બૅકઅપ આ ઉપકરણ પર પાસવર્ડ-સુરક્ષિત ZIP છે. આ ઍપ ઇન્વૉઇસ ક્લાઉડ પર સિંક કરતું નથી.',
+  'Diagnostics': 'નિદાન',
+  'Share diagnostics': 'નિદાન શેર કરો',
+  'Save diagnostics': 'નિદાન સાચવો',
+  'Share a text file with versions and record counts only — not names, GSTIN, amounts, or a backup.':
+      'ફક્ત વર્ઝન અને રેકોર્ડ ગણતરીવાળી ટેક્સ્ટ ફાઇલ શેર કરો — નામ, GSTIN, રકમ અથવા બૅકઅપ નહીં.',
+  'Diagnostics shared': 'નિદાન શેર થયું',
+  'Diagnostics saved': 'નિદાન સાચવાયું',
+  'Cannot share diagnostics': 'નિદાન શેર થઈ શકતું નથી',
+  'Cannot save diagnostics': 'નિદાન સાચવી શકાતું નથી',
+  'The file has counts and versions only — not a backup.':
+      'ફાઇલમાં ફક્ત ગણતરી અને વર્ઝન છે — બૅકઅપ નહીં.',
+  'The diagnostics file could not be shared. Please try again.':
+      'નિદાન ફાઇલ શેર થઈ શકી નહીં. કૃપા કરીને ફરી પ્રયાસ કરો.',
+  'The diagnostics file could not be saved. Please try again.':
+      'નિદાન ફાઇલ સાચવી શકાઈ નહીં. કૃપા કરીને ફરી પ્રયાસ કરો.',
+  'Last backup:': 'છેલ્લું બૅકઅપ:',
+  'Never': 'ક્યારેય નહીં',
+  'Schema': 'સ્કીમા',
 };

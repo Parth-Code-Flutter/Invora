@@ -44,6 +44,7 @@ abstract final class AppRoutes {
   static const expenseEdit = '/expenses/edit';
   static const expenseDetails = '/expenses/details';
   static const settings = '/settings';
+  static const about = '/settings/about';
   static const invoiceDefaults = '/settings/invoice-defaults';
   static const dataExport = '/settings/data-export';
   static const dataImport = '/settings/data-import';

@@ -1,6 +1,11 @@
 import 'package:get/get.dart';
 
+import '../controllers/about_controller.dart';
 import '../controllers/settings_controller.dart';
+import '../../../data/services/app_database.dart';
+import '../../../data/services/app_lock_service.dart';
+import '../../../data/services/app_storage.dart';
+import '../../../data/services/diagnostics_service.dart';
 import '../controllers/invoice_defaults_controller.dart';
 import '../controllers/data_export_controller.dart';
 import '../controllers/data_import_controller.dart';
@@ -16,6 +21,18 @@ class SettingsBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut(() => SettingsController(Get.find()));
+  }
+}
+
+class AboutBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut(
+      () => AboutController(
+        DiagnosticsService(Get.find<AppDatabase>(), Get.find<AppStorage>()),
+        Get.find<AppLockService>(),
+      ),
+    );
   }
 }
 

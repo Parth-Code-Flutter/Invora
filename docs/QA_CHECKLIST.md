@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-08-28
+Last updated: 2026-08-29
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -76,6 +76,9 @@ remain intentionally out of scope until explicitly requested.
   blocked, partial receive then convert remaining received qty to purchase
   bills, cancel-with-reason until billed, PDF bytes, empty-list UI, and schema
   18→19 migration.
+- About and diagnostics: Settings → About shows version and schema, offline
+  help, and a counts-only diagnostics text file (share/save). GitHub CI runs
+  format, analyze, and tests.
 - Invoice duplicate, cancel, and delete; duplicated documents start unpaid.
 - Quotation creation, acceptance, and conversion to invoice.
 - Historical customer/product snapshots survive catalog deletion.
@@ -177,6 +180,9 @@ remain intentionally out of scope until explicitly requested.
   convert the rest into a second bill. Confirm the PO does not change stock or
   payable until billed. Cancel an unused PO with a reason. Share the PDF in
   airplane mode, restore a backup, and confirm the order returns.
+- Open Settings → About. Confirm version and schema, then Share diagnostics in
+  airplane mode. Open the file and confirm it has counts/versions only — no
+  customer names, GSTIN, or amounts.
 - Open Expenses from More and Reports. Record a rent spend with GST and ITC,
   confirm this-month total, edit it, cancel with a reason (row stays, total
   drops), and share the PDF in airplane mode. Restore a backup and confirm

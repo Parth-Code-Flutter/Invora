@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-08-28
+Last updated: 2026-08-29
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -100,7 +100,8 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   Sales, and Purchase bottom navigation mirrors the Sales Material Symbol
   weights, selected states, raised create action, dark-mode border, and focus
   handling while retaining Purchase-specific routes.
-- Current Drift database schema is version 18. Version 18 adds delivery
+- Current Drift database schema is version 19. Version 19 adds purchase
+  order tables. Version 18 adds delivery
   challan tables. Version 17 adds bulk-import
   batch audit tables. Version 16 adds cash-book accounts and movements.
   Version 15 adds purchase debit notes and
@@ -127,6 +128,13 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   salted, iterated SHA-256 hash rather than plain PIN text. This is an access
   guard for the local app and does not encrypt SQLite data or CSV exports.
   Backup files use a separate password.
+- Settings → About is a real screen: app version and build, schema 19, short
+  offline / GST Prepared / local-backup help, and Share/Save diagnostics. The
+  diagnostics file is versions plus record counts only — not names, GSTIN,
+  amounts, invoices, passwords, or a backup.
+- GitHub Actions CI on `parth-dev` and `main` runs `dart format` (lib/test),
+  `flutter analyze --no-fatal-infos`, and `flutter test` with Flutter 3.44.4.
+  Signing, store privacy URLs, and device-farm checks are not in CI.
 - App-wide interface localization with English as the default and selectable
   Hindi or Gujarati under Settings > Appearance. The selected language is
   stored in `AppStorage`, applies immediately, and survives restart. Shared
@@ -179,9 +187,11 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   card per section, inset hairline dividers, compact 14px rows, plum icon
   wells, and a chevron instead of a circular arrow. More is the daily hub:
   workspace switch, product fields, units, catalog, estimates, expenses,
-  reports, ageing and reminders, GST / CA export, and backup. App Settings is unique preferences only: business
-  profile, invoice defaults, dark mode, language, app lock, CSV export, and
-  about. Product settings, units, GST / CA export, and backup are not repeated
+  reports, ageing and reminders, GST / CA export, and backup. App Settings is
+  unique preferences only: business profile, invoice defaults, dark mode,
+  language, app lock, CSV export, and About (version, schema, offline help,
+  and a counts-only diagnostics file). Product settings, units, GST / CA
+  export, and backup are not repeated
   inside Settings. More leads with a quiet business identity card (name plus
   owner/mobile/GSTIN, tap or Edit to open the profile) and a Change workspace
   list with named Sales and Purchases choices (check marks the active mode)
@@ -257,11 +267,15 @@ until a dedicated launch identity pass shortens the home-screen name to Creovo.
   scan action that fills name, price, tax, and SKU so values can be edited
   before saving. The catalog list has a scan action to open or create an
   item. Lookup is local-only against SKU/barcode attributes.
-- Catalog list rows match invoice/customer density: 14px name, 11px unit/GST
-  (plus a quiet Product/Service caption only when All is selected), one
-  ellipsized attribute line, and price/unit on the right via `AppAmountText`.
-  Product/service icon wells and a slim semantic edge make type recognizable
-  without repeating a large badge. Search lives in the AppBar and matches
+- Catalog list rows use one compact grouped surface on phones rather than a
+  stack of oversized cards. A full-width three-way segmented selector keeps
+  All / Products / Services visible without horizontal scrolling; aligned icon,
+  name, metadata, attributes, price, and unit columns make larger catalogs
+  faster to scan. Tablet layouts retain responsive multi-column containment.
+  The details screen is a focused item record with a compact identity/price
+  overview, grouped pricing and tax facts, scannable attribute pills, optional
+  invoice description, and a persistent `Use in invoice` action. Search lives
+  in the AppBar and matches
   name, description, HSN/SAC, and attributes. Stable All / Products / Services
   counts come from the complete catalog rather than the current query, and the
   list states its A–Z order. Stream generations prevent stale search/filter
@@ -651,8 +665,11 @@ As of 2026-08-28:
 7. Physical-device QA of purchase debit notes: partial return, over-return
    blocked, paid-bill refund vs supplier credit, apply leftover credit to
    another bill, supplier statement, debit-note PDF, and airplane mode.
-8. Next implementation after purchase orders (`P0.6`) is not inventory, POS, or
-   barcode quantity changes until the stock ledger (`P1.1`) exists.
+8. Next implementation is not inventory, POS, or barcode quantity changes
+   until the stock ledger (`P1.1`) exists. Remaining `P0.11` work is release
+   signing, store privacy URLs, high-volume benchmarks, and accessibility
+   polish. GitHub CI now runs format, analyze, and `flutter test` on `parth-dev`
+   and `main`. About / diagnostics shipped this slice.
    Physical-device QA of purchase orders is still open: create from a supplier,
    partial receive, over-receipt blocked, convert remaining received qty to a
    bill (supplier bill number required), second bill for leftover qty, cancel
@@ -681,7 +698,8 @@ As of 2026-08-28:
 14. Physical iPad/landscape QA of camera/scan, PDF preview, and composers.
    Tablet presentation (rail, two-column lists, capped CTAs, onboarding) is
    implemented; remaining work is device QA, not missing layout primitives.
-15. Add CI for formatting, analysis, tests, and release validation.
+15. GitHub Actions CI runs format, analyze, and tests on `parth-dev` and `main`.
+    Release-build validation and signed artifacts remain.
 16. Licensing / monetization is design-only. When picked up, follow
     [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md): store builds use
     RevenueCat/Play/App Store billing; direct APKs use GSTIN-bound keys;
@@ -697,6 +715,38 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-29 — Scannable catalog and focused item details
+
+- Replaced horizontally clipped catalog filters with a full-width, counted
+  segmented selector and consolidated phone items into one dense grouped list.
+  Stable left/right alignment prioritizes item recognition and price scanning;
+  long press and the overflow menu retain edit/delete access.
+- Rebuilt item details around the decision users make most often: verify the
+  item and price, inspect GST/HSN and relevant attributes, then use it in an
+  invoice through a persistent bottom action. Empty/deleted-item handling is
+  now explicit, and optional sections stay hidden when they have no content.
+- Important files: `product_list_screen.dart`,
+  `product_details_screen.dart`, this handoff.
+- Storage: none; product data and invoice behavior are unchanged.
+- Verification: Dart formatting, targeted Flutter analysis, and diff
+  whitespace validation.
+
+### 2026-08-29 — CI, About, and diagnostics
+
+- Added GitHub Actions CI on `parth-dev` and `main`: `dart format` (lib/test),
+  `flutter analyze --no-fatal-infos`, and `flutter test`, pinned to Flutter
+  3.44.4. Analyze still reports existing info-level lints; warnings and errors
+  fail the job.
+- Settings → About is now a screen: app version/build, schema 19, short offline
+  and GST Prepared help, and Share/Save diagnostics. The diagnostics file is
+  versions plus record counts only — not names, GSTIN, amounts, passwords, or
+  a backup.
+- Important files: `.github/workflows/ci.yml`, `diagnostics_service.dart`,
+  `about_screen.dart`, `about_controller.dart`, Settings/About routes.
+- Storage: none. Diagnostics reads existing tables and `last_backup_at`.
+- Verification: Dart formatting, `flutter analyze --no-fatal-infos`,
+  diagnostics and About tests.
 
 ### 2026-08-28 — Purchase orders and receiving
 

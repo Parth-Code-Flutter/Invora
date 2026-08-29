@@ -285,6 +285,11 @@ References: [GST Returns Offline Tool](https://tutorial.gst.gov.in/downloads/inv
 
 ## P0.11 Release, privacy, support, and performance
 
+Status: **Partial 2026-08-29** (GitHub CI for format/analyze/test; Settings →
+About with version, schema, offline help, and counts-only diagnostics share/
+save). Production signing, store privacy URL, high-volume benchmarks,
+accessibility pass, and signed release artifacts remain.
+
 - Production Android/iOS signing, repeatable release builds and beta tracks.
 - Privacy policy, store declarations, least-privilege permissions, offline help,
   support/diagnostics export and migration/version display.

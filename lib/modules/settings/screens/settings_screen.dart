@@ -137,7 +137,7 @@ class SettingsScreen extends GetView<SettingsController> {
                   subtitle: controller.appVersion.value.isEmpty
                       ? 'Privacy-first offline invoicing'
                       : 'Version ${controller.appVersion.value}',
-                  trailing: const SizedBox.shrink(),
+                  onTap: () => Get.toNamed<void>(AppRoutes.about),
                 ),
               ),
             ],

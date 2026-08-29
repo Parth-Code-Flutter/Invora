@@ -61,6 +61,7 @@ import '../../modules/backup_restore/screens/backup_screen.dart';
 import '../../modules/backup_restore/screens/restore_status_screen.dart';
 import '../../modules/settings/bindings/settings_binding.dart';
 import '../../modules/settings/screens/settings_screen.dart';
+import '../../modules/settings/screens/about_screen.dart';
 import '../../modules/settings/screens/invoice_defaults_screen.dart';
 import '../../modules/settings/screens/data_export_screen.dart';
 import '../../modules/settings/screens/data_import_screen.dart';
@@ -250,6 +251,11 @@ abstract final class AppRouter {
       name: AppRoutes.settings,
       page: SettingsScreen.new,
       binding: SettingsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.about,
+      page: AboutScreen.new,
+      binding: AboutBinding(),
     ),
     GetPage(
       name: AppRoutes.invoiceDefaults,
