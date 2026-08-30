@@ -83,10 +83,12 @@ remain intentionally out of scope until explicitly requested.
 - App lock: PIN and Fingerprint options; PIN remains the backup; fingerprint
   enable/unlock uses an injectable biometric gate; PIN keypad still unlocks;
   disable clears the fingerprint flag.
-- More tab feature search filters destinations by name/alias and shows an empty
-  state when nothing matches.
-- Add item catalog form: optional photos (up to 3), classic grouped cards;
-  schema 22 image paths; cover shows on catalog list/details.
+- More tab feature search is an AppBar icon like Invoices; filters by
+  name/alias; empty state when nothing matches. Business identity card shows
+  logo, name, contact, and GSTIN.
+- Add item catalog form: optional photos (up to 3), compact row with preview
+  and remove; classic grouped cards; schema 22 image paths; cover shows on
+  catalog list/details. Barcode scan is on the SKU / Code field, not the AppBar.
 - Stock reports: on-hand as of a date excludes later movements; movement range
   CSV/PDF; hidden when no product keeps stock.
 - About and diagnostics: Settings → About shows version and schema, offline

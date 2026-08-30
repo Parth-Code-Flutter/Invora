@@ -38,10 +38,10 @@ class ProductListScreen extends GetView<ProductListController> {
         hint: 'Search products or services',
         onChanged: controller.updateSearch,
         actions: [
-          IconButton(
+          AppBarIconButton(
             tooltip: l10n('Scan barcode'),
             onPressed: () => Get.toNamed<void>(AppRoutes.catalogScan),
-            icon: const Icon(Icons.qr_code_scanner_rounded),
+            icon: Icons.qr_code_scanner_rounded,
           ),
         ],
       ),
@@ -50,9 +50,9 @@ class ProductListScreen extends GetView<ProductListController> {
           Padding(
             padding: EdgeInsets.fromLTRB(
               ResponsiveUtils.horizontalPadding(context),
-              8,
-              ResponsiveUtils.horizontalPadding(context),
               10,
+              ResponsiveUtils.horizontalPadding(context),
+              8,
             ),
             child: Obx(
               () => _CatalogTypeSelector(
@@ -124,47 +124,49 @@ class ProductListScreen extends GetView<ProductListController> {
                   );
               if (columns == 1) {
                 final count = controller.items.length;
-                return ListView(
+                return ListView.builder(
                   physics: const BouncingScrollPhysics(
                     parent: AlwaysScrollableScrollPhysics(),
                   ),
                   padding: EdgeInsets.fromLTRB(horizontal, 0, horizontal, 100),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Text(
-                            '$count ${count == 1 ? 'item' : 'items'}',
-                            style: AppTextStyles.small.copyWith(
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? AppColors.darkTextSecondary
-                                  : AppColors.textSecondary,
-                              fontWeight: FontWeight.w700,
+                  itemCount: count + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Text(
+                              '$count ${count == 1 ? 'item' : 'items'}',
+                              style: AppTextStyles.caption.copyWith(
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            'Name · A–Z',
-                            style: AppTextStyles.caption.copyWith(
-                              color:
-                                  Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? AppColors.darkTextSecondary
-                                  : AppColors.textTertiary,
+                            const Spacer(),
+                            Text(
+                              'Name · A–Z',
+                              style: AppTextStyles.caption.copyWith(
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.textTertiary,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    for (var index = 0; index < count; index++)
-                      tile(
-                        index,
-                        position: AppGroupedPositionX.resolve(index, count),
-                      ),
-                  ],
+                          ],
+                        ),
+                      );
+                    }
+                    return tile(
+                      index - 1,
+                      position: AppGroupedPositionX.resolve(index - 1, count),
+                    );
+                  },
                 );
               }
               return ListView(
@@ -258,113 +260,116 @@ class _ProductCatalogTile extends StatelessWidget {
     final attributes = item.attributes.isEmpty
         ? null
         : item.attributes.take(3).map((value) => value.value).join(' · ');
-    final accent = item.type == ItemType.product
-        ? AppColors.primary
-        : AppColors.secondary;
 
     return GestureDetector(
       onLongPress: () => _showActions(context),
-      child: AppGroupedTile(
-        position: position,
-        accentColor: accent,
-        padding: const EdgeInsets.fromLTRB(12, 11, 4, 11),
-        onTap: () =>
-            Get.toNamed<void>(AppRoutes.productDetails, arguments: item.id),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ProductCoverThumb(
-              imagePaths: item.imagePaths,
-              type: item.type,
+      child: Material(
+        color: Colors.transparent,
+        child: Ink(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.surface,
+            borderRadius: _catalogRadius(position),
+            border: Border(
+              top:
+                  position == AppGroupedPosition.start ||
+                      position == AppGroupedPosition.single
+                  ? BorderSide(
+                      color: isDark ? AppColors.darkBorder : AppColors.border,
+                    )
+                  : BorderSide.none,
+              left: BorderSide(
+                color: isDark ? AppColors.darkBorder : AppColors.border,
+              ),
+              right: BorderSide(
+                color: isDark ? AppColors.darkBorder : AppColors.border,
+              ),
+              bottom: BorderSide(
+                color: isDark ? AppColors.darkBorder : AppColors.border,
+              ),
             ),
-            const SizedBox(width: 11),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          child: InkWell(
+            onTap: () =>
+                Get.toNamed<void>(AppRoutes.productDetails, arguments: item.id),
+            borderRadius: _catalogRadius(position),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 2, 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    item.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.listName,
+                  ProductCoverThumb(
+                    imagePaths: item.imagePaths,
+                    type: item.type,
+                    size: 44,
+                    radius: 12,
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    meta,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.caption.copyWith(
-                      color: secondary,
-                      fontSize: 11,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.listName,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          [
+                            meta,
+                            ?attributes,
+                            if (onHandScaled != null)
+                              'On hand ${QuantityUtils.formatSigned(onHandScaled!)} ${item.unit}',
+                          ].join(' · '),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption.copyWith(
+                            color: secondary,
+                            fontSize: 11,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  if (attributes != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      attributes,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.caption.copyWith(
-                        color: tertiary,
-                        fontSize: 11,
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 96),
+                        child: AppAmountText(
+                          amountMinor: item.salePriceMinor,
+                          symbol: currencySymbol,
+                          style: AppTextStyles.listAmount,
+                        ),
                       ),
+                      Text(
+                        '/ ${item.unit}',
+                        style: AppTextStyles.caption.copyWith(
+                          color: tertiary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    tooltip: l10n('Item actions'),
+                    onPressed: () => _showActions(context),
+                    iconSize: 20,
+                    visualDensity: VisualDensity.compact,
+                    style: IconButton.styleFrom(
+                      foregroundColor: tertiary,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                  ],
+                    icon: const Icon(Icons.more_horiz_rounded),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 112),
-                  child: AppAmountText(
-                    amountMinor: item.salePriceMinor,
-                    symbol: currencySymbol,
-                    style: AppTextStyles.listAmount,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  '/ ${item.unit}',
-                  style: AppTextStyles.caption.copyWith(
-                    color: tertiary,
-                    fontSize: 10,
-                  ),
-                ),
-                if (onHandScaled != null) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    'On hand ${QuantityUtils.formatSigned(onHandScaled!)}',
-                    style: AppTextStyles.caption.copyWith(
-                      color: secondary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 2),
-                IconButton(
-                  tooltip: l10n('Item actions'),
-                  onPressed: () => _showActions(context),
-                  iconSize: 19,
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 28,
-                  ),
-                  style: IconButton.styleFrom(
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    foregroundColor: secondary,
-                  ),
-                  icon: const Icon(Icons.more_horiz_rounded),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -425,46 +430,39 @@ class _CatalogTypeSelector extends StatelessWidget {
   final ValueChanged<ItemType?> onChanged;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 42,
-    child: Row(
-      children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 5),
-            child: _CatalogTypeOption(
-              label: 'All',
-              count: allCount,
-              selected: selected == null,
-              onTap: () => onChanged(null),
-            ),
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          _CatalogTypeOption(
+            label: 'All',
+            count: allCount,
+            selected: selected == null,
+            onTap: () => onChanged(null),
           ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2.5),
-            child: _CatalogTypeOption(
-              label: 'Products',
-              count: productCount,
-              selected: selected == ItemType.product,
-              onTap: () => onChanged(ItemType.product),
-            ),
+          _CatalogTypeOption(
+            label: 'Products',
+            count: productCount,
+            selected: selected == ItemType.product,
+            onTap: () => onChanged(ItemType.product),
           ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 5),
-            child: _CatalogTypeOption(
-              label: 'Services',
-              count: serviceCount,
-              selected: selected == ItemType.service,
-              onTap: () => onChanged(ItemType.service),
-            ),
+          _CatalogTypeOption(
+            label: 'Services',
+            count: serviceCount,
+            selected: selected == ItemType.service,
+            onTap: () => onChanged(ItemType.service),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 class _CatalogTypeOption extends StatelessWidget {
@@ -483,53 +481,84 @@ class _CatalogTypeOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: '$label, $count',
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          decoration: BoxDecoration(
-            color: selected
-                ? AppColors.secondary
-                : isDark
-                ? AppColors.darkSurface
-                : AppColors.surface,
-            borderRadius: BorderRadius.circular(13),
-            border: Border.all(
-              color: selected
-                  ? AppColors.secondary
-                  : isDark
-                  ? AppColors.darkBorder
-                  : AppColors.border,
+    final selectedColor = isDark ? AppColors.darkSurface : Colors.white;
+    return Expanded(
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: '$label, $count',
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(9),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected ? selectedColor : Colors.transparent,
+              borderRadius: BorderRadius.circular(9),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: Colors.black.withValues(
+                          alpha: isDark ? .28 : .08,
+                        ),
+                        blurRadius: 6,
+                        offset: const Offset(0, 1),
+                      ),
+                    ]
+                  : null,
             ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
-                  count > 0 ? '$label  $count' : label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.small.copyWith(
-                    color: selected
-                        ? Colors.white
-                        : isDark
-                        ? AppColors.darkTextPrimary
-                        : AppColors.textPrimary,
-                    fontWeight: FontWeight.w700,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.small.copyWith(
+                      color: selected
+                          ? (isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.textPrimary)
+                          : (isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.textSecondary),
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-            ],
+                if (count > 0) ...[
+                  const SizedBox(width: 4),
+                  Text(
+                    '$count',
+                    style: AppTextStyles.caption.copyWith(
+                      color: selected
+                          ? AppColors.secondary
+                          : (isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.textTertiary),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+BorderRadius _catalogRadius(AppGroupedPosition position) {
+  const radius = Radius.circular(12);
+  return switch (position) {
+    AppGroupedPosition.single => const BorderRadius.all(radius),
+    AppGroupedPosition.start => const BorderRadius.vertical(top: radius),
+    AppGroupedPosition.end => const BorderRadius.vertical(bottom: radius),
+    AppGroupedPosition.middle => BorderRadius.zero,
+  };
 }

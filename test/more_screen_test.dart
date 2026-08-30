@@ -65,7 +65,7 @@ void main() {
       await database.close();
     });
 
-    testWidgets('filters destinations from the search field', (tester) async {
+    testWidgets('filters destinations from the AppBar search', (tester) async {
       tester.view.physicalSize = const Size(400, 1200);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -76,9 +76,14 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Search features'), findsOneWidget);
+      expect(find.text('More'), findsWidgets);
+      expect(find.byTooltip('Search'), findsOneWidget);
       expect(find.text('Sales'), findsOneWidget);
       expect(find.text('App settings'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Search'));
+      await tester.pumpAndSettle();
+      expect(find.text('Search features'), findsOneWidget);
 
       await tester.enterText(find.byType(TextField), 'GST');
       await tester.pump();
@@ -95,7 +100,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('No matching features'), findsOneWidget);
-      await tester.tap(find.text('Clear search'));
+      await tester.tap(find.byTooltip('Clear search'));
       await tester.pump();
 
       expect(find.text('Sales'), findsOneWidget);

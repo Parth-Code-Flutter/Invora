@@ -8,13 +8,12 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
 import '../../../app/themes/app_text_styles.dart';
-import '../../../app/widgets/app_back_button.dart';
-import '../../../app/widgets/app_main_navigation.dart';
-import '../../../app/widgets/app_purchase_navigation.dart';
-import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/app_empty_state.dart';
+import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_menu_group.dart';
-import '../../../app/widgets/app_search_field.dart';
+import '../../../app/widgets/app_purchase_navigation.dart';
+import '../../../app/widgets/app_search_app_bar.dart';
+import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../../../data/services/business_workspace_service.dart';
@@ -31,7 +30,11 @@ class MoreScreen extends GetView<MoreController> {
       return AppShell(
         salesDestination: purchases ? null : MainDestination.more,
         purchaseDestination: purchases ? PurchaseDestination.more : null,
-        appBar: AppBar(title: const AppBarTitle('More')),
+        appBar: AppSearchAppBar(
+          title: 'More',
+          hint: 'Search features',
+          onChanged: controller.updateSearch,
+        ),
         body: ResponsiveContent(
           tabletMaxWidth: 720,
           child: ListView(
@@ -51,12 +54,6 @@ class MoreScreen extends GetView<MoreController> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    AppSearchField(
-                      hint: 'Search features',
-                      controller: controller.searchField,
-                      onChanged: controller.updateSearch,
-                      onClear: searching ? controller.clearSearch : null,
-                    ),
                     if (groups.isEmpty) ...[
                       const SizedBox(height: 28),
                       AppEmptyState(
@@ -64,8 +61,6 @@ class MoreScreen extends GetView<MoreController> {
                         title: 'No matching features',
                         message:
                             'Try a different name, like GST, stock, or backup.',
-                        actionLabel: 'Clear search',
-                        onAction: controller.clearSearch,
                       ),
                     ] else ...[
                       for (var index = 0; index < groups.length; index++) ...[
@@ -161,10 +156,19 @@ class _BusinessHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final name = profile?.businessName ?? 'Your business';
-    final detail = _detailLine(profile);
+    final name = profile?.businessName.trim().isNotEmpty == true
+        ? profile!.businessName.trim()
+        : 'Your business';
+    final contact = _contactLine(profile);
+    final gstin = profile?.gstin?.trim();
+    final secondary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
+    final tertiary = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textTertiary;
     return Material(
-      color: isDark ? AppColors.darkSurface : AppColors.surfaceSoft,
+      color: isDark ? AppColors.darkSurface : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
         side: BorderSide(
@@ -179,36 +183,46 @@ class _BusinessHeader extends StatelessWidget {
           child: Row(
             children: [
               _BusinessLogo(path: profile?.logoPath, name: name),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      'Business profile',
+                      style: AppTextStyles.caption.copyWith(
+                        color: tertiary,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
                     Text(
                       name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.sectionTitle,
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      detail,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.caption.copyWith(
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.textSecondary,
-                        fontWeight: FontWeight.w400,
+                    if (contact != null) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        contact,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption.copyWith(
+                          color: secondary,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                    ),
+                    ],
+                    if (gstin != null && gstin.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      _GstinChip(value: gstin, isDark: isDark),
+                    ],
                   ],
                 ),
               ),
-              TextButton(
-                onPressed: controller.editBusiness,
-                child: const Text('Edit'),
-              ),
+              Icon(Icons.chevron_right_rounded, color: tertiary, size: 22),
             ],
           ),
         ),
@@ -216,16 +230,43 @@ class _BusinessHeader extends StatelessWidget {
     );
   }
 
-  String _detailLine(BusinessProfileModel? profile) {
+  String? _contactLine(BusinessProfileModel? profile) {
     if (profile == null) return 'Complete your business profile';
     final parts = <String>[
       if (profile.ownerName?.trim().isNotEmpty == true)
         profile.ownerName!.trim(),
       if (profile.mobile?.trim().isNotEmpty == true) profile.mobile!.trim(),
-      if (profile.gstin?.trim().isNotEmpty == true) profile.gstin!.trim(),
     ];
     if (parts.isEmpty) return 'Complete your business profile';
     return parts.join(' · ');
+  }
+}
+
+class _GstinChip extends StatelessWidget {
+  const _GstinChip({required this.value, required this.isDark});
+
+  final String value;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurfaceVariant : AppColors.secondaryLight,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        value,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTextStyles.caption.copyWith(
+          color: isDark ? AppColors.darkTextPrimary : AppColors.secondary,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
   }
 }
 
@@ -236,23 +277,32 @@ class _BusinessLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final validPath = path != null && File(path!).existsSync();
     return Container(
-      width: 48,
-      height: 48,
+      width: 56,
+      height: 56,
       clipBehavior: Clip.antiAlias,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(14),
+        color: validPath
+            ? (isDark ? AppColors.darkSurfaceVariant : Colors.white)
+            : AppColors.secondary,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.border,
+        ),
       ),
       child: validPath
-          ? Image.file(File(path!), fit: BoxFit.cover, width: 48, height: 48)
+          ? Image.file(File(path!), fit: BoxFit.cover, width: 56, height: 56)
           : Text(
               name.trim().isEmpty
                   ? 'I'
                   : name.trim().characters.first.toUpperCase(),
-              style: AppTextStyles.sectionTitle.copyWith(color: Colors.white),
+              style: AppTextStyles.sectionTitle.copyWith(
+                color: Colors.white,
+                fontSize: 22,
+              ),
             ),
     );
   }

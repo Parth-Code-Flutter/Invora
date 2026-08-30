@@ -76,6 +76,8 @@ void main() {
       expect(find.text('Cover'), findsOneWidget);
       expect(find.text('Keep stock for this item'), findsOneWidget);
       expect(find.text('Quantity'), findsOneWidget);
+      expect(find.text('SKU / Code'), findsOneWidget);
+      expect(find.byTooltip('Scan barcode'), findsOneWidget);
 
       await tester.tap(find.text('Service'));
       await tester.pumpAndSettle();

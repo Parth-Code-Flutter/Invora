@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../../app/localization/app_localization.dart';
@@ -19,7 +18,6 @@ class MoreController extends GetxController {
   final isLoading = true.obs;
   final stockEnabled = false.obs;
   final searchQuery = ''.obs;
-  final searchField = TextEditingController();
   StreamSubscription<bool>? _stockSubscription;
 
   bool get isSearching => searchQuery.value.trim().isNotEmpty;
@@ -44,11 +42,6 @@ class MoreController extends GetxController {
 
   void updateSearch(String value) => searchQuery.value = value;
 
-  void clearSearch() {
-    searchField.clear();
-    searchQuery.value = '';
-  }
-
   Future<void> loadProfile() async {
     isLoading.value = true;
     profile.value = await _business.getProfile();
@@ -63,7 +56,6 @@ class MoreController extends GetxController {
   @override
   void onClose() {
     _stockSubscription?.cancel();
-    searchField.dispose();
     super.onClose();
   }
 }

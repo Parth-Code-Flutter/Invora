@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -24,6 +26,7 @@ import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/app_unit_field.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
 import '../../../data/models/barcode_capture_result.dart';
+import '../../../data/models/business_category_model.dart';
 import '../../../data/services/product_image_service.dart';
 import '../controllers/product_form_controller.dart';
 import '../widgets/product_cover_thumb.dart';
@@ -35,8 +38,19 @@ String? _attributeHint(String key) => switch (key) {
   'shape' => 'e.g. Round or Rectangle',
   'dimensions' => 'e.g. 10 × 6 × 6 inch',
   'weight' => 'e.g. 500 g',
+  'sku' => 'Scan or type the barcode',
   _ => null,
 };
+
+List<ProductFieldDefinition> _detailFields(ProductFormController controller) {
+  controller.attributeControllers.putIfAbsent('sku', TextEditingController.new);
+  final fields = controller.attributeDefinitions
+      .where((field) => controller.fieldEnabled(field.key))
+      .toList();
+  const sku = ProductFieldDefinition('sku', 'SKU / Code');
+  fields.removeWhere((field) => field.key == 'sku');
+  return [sku, ...fields];
+}
 
 class ProductFormScreen extends GetView<ProductFormController> {
   const ProductFormScreen({super.key});
@@ -54,13 +68,6 @@ class ProductFormScreen extends GetView<ProductFormController> {
               subtitle: 'Catalog',
             ),
           ),
-          actions: [
-            AppBarIconButton(
-              tooltip: l10n('Scan barcode'),
-              onPressed: () => _scanIntoForm(context, controller),
-              icon: Icons.qr_code_scanner_rounded,
-            ),
-          ],
         ),
         body: Obx(
           () => controller.isLoading.value
@@ -278,14 +285,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                 ),
                                 child: Builder(
                                   builder: (context) {
-                                    final fields = controller
-                                        .attributeDefinitions
-                                        .where(
-                                          (field) => controller.fieldEnabled(
-                                            field.key,
-                                          ),
-                                        )
-                                        .toList(growable: false);
+                                    final fields = _detailFields(controller);
                                     return Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
@@ -337,13 +337,31 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                                     .key]!,
                                             label: fields[i].label,
                                             hint: _attributeHint(fields[i].key),
+                                            suffixIcon: fields[i].key == 'sku'
+                                                ? IconButton(
+                                                    tooltip: l10n(
+                                                      'Scan barcode',
+                                                    ),
+                                                    onPressed: () =>
+                                                        _scanIntoForm(
+                                                          context,
+                                                          controller,
+                                                        ),
+                                                    icon: const Icon(
+                                                      Icons
+                                                          .qr_code_scanner_rounded,
+                                                    ),
+                                                  )
+                                                : null,
                                             keyboardType: fields[i].number
                                                 ? const TextInputType.numberWithOptions(
                                                     decimal: true,
                                                   )
                                                 : TextInputType.text,
                                             textCapitalization:
-                                                TextCapitalization.sentences,
+                                                fields[i].key == 'sku'
+                                                ? TextCapitalization.none
+                                                : TextCapitalization.sentences,
                                           ),
                                         ],
                                       ],
@@ -569,15 +587,14 @@ class _PhotoStudio extends StatelessWidget {
         children: [
           const _CatalogLabel('Photos'),
           SizedBox(
-            height: 156,
+            height: 88,
             child: Row(
               children: [
                 Expanded(
-                  flex: 2,
+                  flex: 5,
                   child: _PhotoSlot(
                     path: paths.isEmpty ? null : paths[0],
                     label: 'Cover',
-                    hint: 'Add photo',
                     images: controller.images,
                     enabled: paths.isEmpty && canAdd,
                     onAdd: onAdd,
@@ -588,43 +605,39 @@ class _PhotoStudio extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: _PhotoSlot(
-                          path: paths.length > 1 ? paths[1] : null,
-                          images: controller.images,
-                          enabled: paths.length == 1 && canAdd,
-                          onAdd: onAdd,
-                          onRemove: paths.length > 1
-                              ? () => controller.removeImageAt(1)
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: _PhotoSlot(
-                          path: paths.length > 2 ? paths[2] : null,
-                          images: controller.images,
-                          enabled: paths.length == 2 && canAdd,
-                          onAdd: onAdd,
-                          onRemove: paths.length > 2
-                              ? () => controller.removeImageAt(2)
-                              : null,
-                        ),
-                      ),
-                    ],
+                  flex: 4,
+                  child: _PhotoSlot(
+                    path: paths.length > 1 ? paths[1] : null,
+                    images: controller.images,
+                    enabled: paths.length == 1 && canAdd,
+                    onAdd: onAdd,
+                    onRemove: paths.length > 1
+                        ? () => controller.removeImageAt(1)
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 4,
+                  child: _PhotoSlot(
+                    path: paths.length > 2 ? paths[2] : null,
+                    images: controller.images,
+                    enabled: paths.length == 2 && canAdd,
+                    onAdd: onAdd,
+                    onRemove: paths.length > 2
+                        ? () => controller.removeImageAt(2)
+                        : null,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             'Optional. Up to 3 photos. The first one is the cover.',
             style: AppTextStyles.caption.copyWith(
               color: AppColors.textSecondary,
-              height: 1.35,
+              height: 1.3,
             ),
           ),
         ],
@@ -640,7 +653,6 @@ class _PhotoSlot extends StatelessWidget {
     required this.enabled,
     this.path,
     this.label,
-    this.hint,
     this.onRemove,
   });
 
@@ -649,7 +661,6 @@ class _PhotoSlot extends StatelessWidget {
   final bool enabled;
   final String? path;
   final String? label;
-  final String? hint;
   final VoidCallback? onRemove;
 
   @override
@@ -664,21 +675,29 @@ class _PhotoSlot extends StatelessWidget {
         : (isDark ? AppColors.darkBorder : AppColors.border);
     return Material(
       color: file != null ? Colors.transparent : emptyFill,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: file == null && enabled ? onAdd : null,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (file != null)
-              Image.file(file, fit: BoxFit.cover)
-            else ...[
-              CustomPaint(
-                painter: _DashedRRectPainter(color: dashColor, radius: 16),
-                child: const SizedBox.expand(),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (file != null)
+            InkWell(
+              onTap: () => _showPhotoPreview(
+                context,
+                file: file,
+                label: label,
+                onRemove: onRemove,
               ),
-              Column(
+              child: Image.file(file, fit: BoxFit.cover),
+            )
+          else ...[
+            CustomPaint(
+              painter: _DashedRRectPainter(color: dashColor, radius: 12),
+              child: const SizedBox.expand(),
+            ),
+            InkWell(
+              onTap: enabled ? onAdd : null,
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
@@ -686,78 +705,157 @@ class _PhotoSlot extends StatelessWidget {
                     color: enabled
                         ? AppColors.secondary
                         : AppColors.textTertiary,
-                    size: label == null ? 18 : 26,
+                    size: label == null ? 18 : 22,
                   ),
                   if (label != null) ...[
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       label!,
                       style: AppTextStyles.caption.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w700,
+                        fontSize: 11,
                       ),
                     ),
-                    if (hint != null && enabled)
-                      Text(
-                        hint!,
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textTertiary,
-                          fontSize: 11,
-                        ),
-                      ),
                   ],
                 ],
               ),
-            ],
-            if (file != null && onRemove != null)
-              Positioned(
-                top: 4,
-                right: 4,
-                child: Material(
-                  color: Colors.black54,
-                  shape: const CircleBorder(),
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: onRemove,
-                    child: const Padding(
-                      padding: EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if (file != null && label != null)
-              Positioned(
-                left: 8,
-                bottom: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    label!,
-                    style: AppTextStyles.caption.copyWith(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
+            ),
           ],
-        ),
+          if (file != null && onRemove != null)
+            Positioned(
+              top: 2,
+              right: 2,
+              child: IconButton(
+                tooltip: l10n('Remove photo'),
+                onPressed: onRemove,
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black54,
+                  foregroundColor: Colors.white,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                icon: const Icon(Icons.close_rounded, size: 16),
+              ),
+            ),
+          if (file != null && label != null)
+            Positioned(
+              left: 6,
+              bottom: 6,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  label!,
+                  style: AppTextStyles.caption.copyWith(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
+}
+
+Future<void> _showPhotoPreview(
+  BuildContext context, {
+  required File file,
+  String? label,
+  VoidCallback? onRemove,
+}) {
+  return showDialog<void>(
+    context: context,
+    barrierColor: Colors.black87,
+    builder: (dialogContext) {
+      final maxHeight = MediaQuery.sizeOf(dialogContext).height * 0.78;
+      return Dialog(
+        backgroundColor: Colors.black,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 28),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxHeight, maxWidth: 520),
+            child: Stack(
+              children: [
+                SizedBox(
+                  height: maxHeight,
+                  width: double.infinity,
+                  child: InteractiveViewer(
+                    minScale: 1,
+                    maxScale: 4,
+                    child: Center(child: Image.file(file, fit: BoxFit.contain)),
+                  ),
+                ),
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (onRemove != null)
+                        IconButton(
+                          tooltip: l10n('Remove photo'),
+                          onPressed: () {
+                            Navigator.pop(dialogContext);
+                            onRemove();
+                          },
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.black45,
+                            foregroundColor: Colors.white,
+                          ),
+                          icon: const Icon(Icons.delete_outline_rounded),
+                        ),
+                      IconButton(
+                        tooltip: l10n('Close'),
+                        onPressed: () => Navigator.pop(dialogContext),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.black45,
+                          foregroundColor: Colors.white,
+                        ),
+                        icon: const Icon(Icons.close_rounded),
+                      ),
+                    ],
+                  ),
+                ),
+                if (label != null)
+                  Positioned(
+                    left: 12,
+                    bottom: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        label,
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
 
 class _DashedRRectPainter extends CustomPainter {

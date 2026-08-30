@@ -217,15 +217,18 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
   card per section, inset hairline dividers, compact 14px rows, plum icon
   wells, and a chevron instead of a circular arrow. More is the daily hub:
   workspace switch, product fields, units, catalog, estimates, expenses,
-  reports, ageing and reminders, GST / CA export, and backup. A Search
-  features field filters those destinations by name, subtitle, section, and
-  common aliases (GST, quotation, PIN). Empty results can be cleared. App
+  reports, ageing and reminders, GST / CA export, and backup. Search sits in
+  the More AppBar like Invoices: the icon expands to Search features. It
+  filters destinations by name, subtitle, section, and common aliases (GST,
+  quotation, PIN). Empty results stay on screen until the query is cleared.
+  App
   Settings is unique preferences only: business profile, invoice defaults, dark mode,
   language, app lock, CSV export, and About (version, schema, offline help,
   and a counts-only diagnostics file). Product settings, units, GST / CA
   export, and backup are not repeated
-  inside Settings. More leads with a quiet business identity card (name plus
-  owner/mobile/GSTIN, tap or Edit to open the profile) and a Change workspace
+  inside Settings. More leads with a business identity card: logo, Business
+  profile label, name, owner/mobile, GSTIN chip when present, and a chevron.
+  Tap the card to edit the profile. A Change workspace
   list with named Sales and Purchases choices (check marks the active mode)
   that does not leave the screen. The privacy line is a caption, not a tinted
   banner. Secondary tools no longer require horizontal discovery scrolling.
@@ -276,16 +279,18 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
 - Price, description, HSN/SAC, GST rate, type, and unit support
 - Shared saved-unit picker plus a central manager for add, rename, delete, and
   app-wide default selection; new items prefill the selected default
-- Catalog add/edit is a classic catalog card: optional photos first (cover plus
-  two extras, up to 3), Product/Service as two kind tiles, then grouped
-  sections for the item, inventory, invoice codes, and extra details. Name and
+- Catalog add/edit is a classic catalog card: optional photos first (a compact
+  cover plus two extras, up to 3; tap to preview, X to remove), Product/Service
+  as two kind tiles, then grouped sections for the item, inventory, invoice
+  codes, and extra details. Name and
   price stay required; unit/HSN/GST appear when those fields are enabled;
   optional product fields keep Manage; save stays sticky. Photos are optional
   and never printed on invoice PDFs. The form uses the shared app typography
   scale and responsive padding on Android and iOS.
 - Product/service forms keep a live invoice-line preview for name, price, and
-  unit, with the cover thumb when a photo exists. AppBar barcode scan still
-  prefills name, price, tax, and SKU.
+  unit, with the cover thumb when a photo exists. Barcode scan lives on the
+  SKU / Code field (not the AppBar) and still prefills name, price, tax, and
+  SKU when a saved item matches.
 - Optional business-category presets recommend useful product fields and units
   for 15 business types without locking the catalog to a template. Category
   can be selected during business setup or changed under Product Settings.
@@ -298,16 +303,17 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
 - Products can be added by scanning barcodes. Invoice/quotation Add item
   opens a live camera with a scanned-items list, quantity steppers, and a
   running total; unknown codes can be saved to the catalog with the barcode
-  stored as SKU. The custom-item sheet and catalog Add item form also have a
-  scan action that fills name, price, tax, and SKU so values can be edited
+  stored as SKU. The custom-item sheet still has a scan action. Catalog Add
+  item scans from the SKU / Code field so the code lands next to the scanner.
+  Scan fills name, price, tax, and SKU so values can be edited
   before saving. The catalog list has a scan action to open or create an
   item. Lookup is local-only against SKU/barcode attributes.
-- Catalog list rows use lightweight, individually contained rows on phones
-  with comfortable separation instead of a settings-style grouped table. A
-  simple full-width three-way selector keeps
-  All / Products / Services visible without horizontal scrolling; aligned icon,
-  name, metadata, attributes, price, and unit columns make larger catalogs
-  faster to scan. Tablet layouts retain responsive multi-column containment.
+- Catalog list uses one segmented control for All / Products / Services, with
+  counts beside the labels. Items sit in one compact list with hairline
+  dividers (no red stripe, no separate puffy cards). Search and scan in the
+  AppBar share the same chrome. All / Products / Services stay full-width
+  without horizontal scrolling. Name, details, price, and unit stay aligned.
+  Tablet layouts retain responsive multi-column containment.
   The details screen is a focused item record with one compact identity and
   price/unit/GST summary, one non-duplicative information section, an optional
   invoice description, and a persistent `Use in invoice` action. Search lives
@@ -772,6 +778,56 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-30 — Catalog segmented control and compact list
+
+- All / Products / Services is one segmented control, not three outlined
+  buttons. Catalog items are a single compact list with hairline dividers.
+- Important files: `product_list_screen.dart` and this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, and catalog list tests.
+
+### 2026-08-30 — Catalog list as separate cards
+
+- Products & services no longer glues items into one settings table with a
+  red stripe. Each item is its own card: thumb, name/details, price, then
+  the overflow menu. On-hand sits under the name. Search and scan use the
+  same AppBar button chrome.
+- Important files: `product_list_screen.dart` and this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, and catalog list tests.
+
+### 2026-08-30 — Compact catalog photos with preview and remove
+
+- Add item photos are a single short row (cover plus two extras) instead of a
+  tall stacked studio. Tapping a photo opens a full-size preview; X or the
+  preview delete control removes it.
+- Important files: `product_form_screen.dart` and this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, and Add item widget tests.
+
+### 2026-08-30 — Scan barcode from the SKU field
+
+- Add/Edit item no longer puts a scanner in the AppBar. The scanner sits on
+  the SKU / Code row so the code being scanned is next to the camera action.
+  SKU stays visible on the form for that reason. Scan behavior is unchanged:
+  fill SKU, or load a matching saved item after confirm.
+- Important files: `product_form_screen.dart` and this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, and Add item widget tests.
+
+### 2026-08-30 — More AppBar search and business identity card
+
+- More search moved into the AppBar, matching Invoices: a search icon
+  expands to Search features. The in-body search field is gone.
+- The business card is an identity plate: larger logo, Business profile
+  label, name, owner/mobile, GSTIN chip, and a chevron. The whole card still
+  opens the profile. Other More sections are unchanged.
+- Important files: `more_screen.dart`, `more_controller.dart`, localization,
+  and this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, and More AppBar search
+  widget tests.
 
 ### 2026-08-29 — Classic Add item form and optional product photos
 
