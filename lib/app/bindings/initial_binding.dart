@@ -101,7 +101,6 @@ class InitialBinding extends Bindings {
       const PurchaseAttachmentService(),
       permanent: true,
     );
-    Get.put<ProductImageService>(ProductImageService(), permanent: true);
     Get.put<UnitService>(UnitService(appStorage), permanent: true);
     Get.put<InvoiceDefaultsService>(
       InvoiceDefaultsService(appStorage),
@@ -143,6 +142,9 @@ class InitialBinding extends Bindings {
     await Get.delete<BusinessRepository>(force: true);
     await Get.delete<LocalDatabaseService>(force: true);
     await Get.delete<AppDatabase>(force: true);
+    if (Get.isRegistered<ProductImageService>()) {
+      await Get.delete<ProductImageService>(force: true);
+    }
 
     final nextRuntime = replacement ?? LocalDatabaseService(AppDatabase());
     await nextRuntime.initialize();
@@ -273,5 +275,6 @@ class InitialBinding extends Bindings {
       ),
       permanent: true,
     );
+    Get.put<ProductImageService>(ProductImageService(), permanent: true);
   }
 }

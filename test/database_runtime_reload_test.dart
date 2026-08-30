@@ -9,6 +9,7 @@ import 'package:creovo_invoice/data/repositories/business_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/local_database_service.dart';
+import 'package:creovo_invoice/data/services/product_image_service.dart';
 import 'package:creovo_invoice/modules/invoices/controllers/invoice_list_controller.dart';
 
 void main() {
@@ -37,6 +38,7 @@ void main() {
     expect(Get.find<AppDatabase>(), same(replacementDatabase));
     expect(Get.find<BusinessRepository>(), isNot(same(originalRepository)));
     expect(Get.isRegistered<InvoiceListController>(), isFalse);
+    expect(Get.isRegistered<ProductImageService>(), isTrue);
     expect(
       await Get.find<AppDatabase>().customSelect('SELECT 1').getSingle(),
       isNotNull,

@@ -32,6 +32,9 @@ void main() {
       final lock = filterMoreDestinations(query: 'lock', stockEnabled: false);
       expect(_titles(lock), ['App settings']);
 
+      final erase = filterMoreDestinations(query: 'erase', stockEnabled: false);
+      expect(_titles(erase), ['Backup & restore']);
+
       final create = filterMoreDestinations(
         query: 'create & manage',
         stockEnabled: false,

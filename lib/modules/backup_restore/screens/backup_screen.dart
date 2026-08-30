@@ -181,6 +181,33 @@ class BackupScreen extends GetView<BackupController> {
               ],
             ),
           ),
+          const SizedBox(height: 16),
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('Erase all data', style: AppTextStyles.sectionTitle),
+                const SizedBox(height: 8),
+                const Text(
+                  'This cannot be undone. It deletes customers, invoices, bills, products, payments, stock, photos, business profile, PIN, and lock settings on this phone. Creovo then opens like a new install. ZIP files you already saved in Files, Drive, or WhatsApp are not deleted. Create a backup above first if you might need these records.',
+                ),
+                const SizedBox(height: 16),
+                Obx(
+                  () => OutlinedButton.icon(
+                    onPressed: controller.isWorking.value
+                        ? null
+                        : () => _confirmErase(context),
+                    icon: const Icon(Icons.delete_forever_outlined),
+                    label: const Text('Erase all data'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      side: const BorderSide(color: AppColors.error),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     ),
@@ -258,6 +285,28 @@ class BackupScreen extends GetView<BackupController> {
         password: password.isEmpty ? null : password,
       ),
     );
+  }
+
+  Future<void> _confirmErase(BuildContext context) async {
+    final warned = await showAppConfirmDialog(
+      context: context,
+      destructive: true,
+      tone: AppDialogTone.warning,
+      icon: Icons.delete_forever_outlined,
+      confirmIcon: Icons.arrow_forward_rounded,
+      title: 'Erase all data?',
+      message:
+          'This cannot be undone. Every record on this phone will be deleted, then Creovo will open like a new install. ZIP backups you already saved outside the app stay. Create a backup above first if you might need these records.',
+      confirmLabel: 'Continue',
+    );
+    if (!warned || !context.mounted) return;
+    final typed = await showAppBottomSheet<bool>(
+      context: context,
+      title: 'Type ERASE to confirm',
+      child: const _EraseConfirmationForm(),
+    );
+    if (typed != true || !context.mounted) return;
+    await controller.eraseAllData();
   }
 
   String _previewMessage(BackupPreview? preview) {
@@ -355,6 +404,70 @@ class _BackupStatusCard extends StatelessWidget {
     final hour = value.hour % 12 == 0 ? 12 : value.hour % 12;
     final minute = value.minute.toString().padLeft(2, '0');
     return '$date at $hour:$minute ${value.hour < 12 ? 'AM' : 'PM'}';
+  }
+}
+
+class _EraseConfirmationForm extends StatefulWidget {
+  const _EraseConfirmationForm();
+
+  @override
+  State<_EraseConfirmationForm> createState() => _EraseConfirmationFormState();
+}
+
+class _EraseConfirmationFormState extends State<_EraseConfirmationForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _phrase = TextEditingController();
+
+  @override
+  void dispose() {
+    _phrase.dispose();
+    super.dispose();
+  }
+
+  bool get _matches =>
+      _phrase.text.trim() == BackupService.eraseConfirmationPhrase;
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Type ERASE in capital letters to confirm.'),
+            const SizedBox(height: 16),
+            AppTextField(
+              controller: _phrase,
+              label: 'Type ERASE',
+              prefixIcon: Icons.warning_amber_rounded,
+              textCapitalization: TextCapitalization.characters,
+              textInputAction: TextInputAction.done,
+              onChanged: (_) => setState(() {}),
+              onFieldSubmitted: (_) => _submit(),
+              validator: (value) {
+                if (value?.trim() != BackupService.eraseConfirmationPhrase) {
+                  return 'Type ERASE in capital letters.';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            AppButton(
+              label: 'Erase all data',
+              icon: Icons.delete_forever_outlined,
+              onPressed: _matches ? _submit : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    Navigator.of(context).pop(true);
   }
 }
 

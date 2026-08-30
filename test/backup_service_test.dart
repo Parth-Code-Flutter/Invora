@@ -306,6 +306,65 @@ void main() {
     expect(service.isBackupDue, isFalse);
     await expectLater(service.setReminderDays(2), throwsArgumentError);
   });
+
+  test(
+    'eraseAllLocalData deletes sqlite, media, local generations, and prefs',
+    () async {
+      await database.close();
+      final support = Directory('${temporaryDirectory.path}/support');
+      await support.create();
+      final liveDb = File('${support.path}/invora.sqlite');
+      database = AppDatabase.forTesting(NativeDatabase(liveDb));
+      await database.customSelect('SELECT 1').get();
+
+      final images = Directory('${support.path}/product_images');
+      await images.create();
+      await File('${images.path}/cover.jpg').writeAsBytes([1, 2, 3]);
+      final assets = Directory('${support.path}/business_assets');
+      await assets.create();
+      await File('${assets.path}/logo.png').writeAsBytes([4]);
+      final attachments = Directory('${support.path}/purchase_attachments');
+      await attachments.create();
+      await File('${attachments.path}/bill.pdf').writeAsBytes([5]);
+      final generations = Directory(
+        '${temporaryDirectory.path}/creovo_backups',
+      );
+      await generations.create();
+      final localZip = File(
+        '${generations.path}/creovo_billing_backup_old.zip',
+      );
+      await localZip.writeAsBytes([6]);
+      final sharedCopy = File('${temporaryDirectory.path}/shared_backup.zip');
+      await sharedCopy.writeAsBytes([7]);
+
+      final storage = await AppStorage.create();
+      await storage.setBool(AppStorageKeyConst.onboardingCompleted, true);
+      await storage.setBool(AppStorageKeyConst.appLockEnabled, true);
+      await storage.setString(AppStorageKeyConst.appLockPinHash, 'abc');
+      await storage.setString(AppStorageKeyConst.appLockPinSalt, 'salt');
+
+      service = BackupService(
+        database,
+        BusinessRepository(database),
+        storage,
+        databaseFileProvider: () async => liveDb,
+        generationsDirectoryProvider: () async => generations,
+      );
+
+      await service.eraseAllLocalData();
+
+      expect(await liveDb.exists(), isFalse);
+      expect(await File('${liveDb.path}-wal').exists(), isFalse);
+      expect(await images.exists(), isFalse);
+      expect(await assets.exists(), isFalse);
+      expect(await attachments.exists(), isFalse);
+      expect(await localZip.exists(), isFalse);
+      expect(await sharedCopy.exists(), isTrue);
+      expect(storage.getBool(AppStorageKeyConst.onboardingCompleted), isNull);
+      expect(storage.getString(AppStorageKeyConst.appLockPinHash), isNull);
+      expect(storage.getBool(AppStorageKeyConst.appLockEnabled), isNull);
+    },
+  );
 }
 
 Future<File> _backupFile(

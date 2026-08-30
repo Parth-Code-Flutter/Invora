@@ -111,7 +111,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Creovo QA'), findsOneWidget);
-    expect(find.text('This month'), findsOneWidget);
+    expect(find.text('Net sales'), findsOneWidget);
     expect(find.byIcon(Icons.settings_outlined), findsNothing);
     expect(Get.find<AppController>().themeMode.value, ThemeMode.dark);
     expect(find.text('Products'), findsOneWidget);

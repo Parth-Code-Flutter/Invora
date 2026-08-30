@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-08-29
+Last updated: 2026-08-30
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -102,6 +102,8 @@ remain intentionally out of scope until explicitly requested.
   successful restore, failed replacement rollback, and reminder preferences.
 - Encrypted backup round-trip, wrong/missing password rejection, verify without
   touching live data, five local generations, and legacy unencrypted ZIP restore.
+- Erase all data: sqlite/media/in-app generation deletion, prefs clear, and
+  two-step confirm (warning then type `ERASE`) on Backup & restore.
 - Sales credit notes: partial line return, over-return rejection, paid-invoice
   leftover kept as customer credit or refunded, apply leftover to another
   invoice of the same customer, statement credit-note/refund rows, credit-note
@@ -117,7 +119,8 @@ remain intentionally out of scope until explicitly requested.
 - Required-field, mobile, email, money, quantity, tax, payment, and date rules.
 - Unsaved-change clean exit, continue editing, discard, and Save draft.
 - Onboarding tablet-landscape layout and dashboard small-phone dark-mode layout.
-- Dashboard Home: snapshot jump strip (Products, Estimates, Expenses, Reports).
+- Dashboard Home: this-month net sales (received / outstanding), jump strip
+  (Products, Estimates, Expenses, Reports).
   To collect shows Overdue/This week filters and up to three people to chase.
   Phone has no extra invoice stack. The center + still creates.
 - Customer and invoice lists use animated skeleton loading and staggered row
@@ -156,6 +159,10 @@ remain intentionally out of scope until explicitly requested.
 - Restore an older unencrypted Creovo ZIP without being asked for a password.
 - Restore an encrypted backup on a second device and confirm logo, signature,
   and payment QR paths work.
+- Erase all data from Backup & restore: read the warning, type `ERASE`, confirm
+  first-launch onboarding, empty invoices/catalog, PIN off, and that a ZIP
+  already saved in Files still opens while in-app `creovo_backups` copies are
+  gone.
 - From a posted invoice, issue a partial credit note / sales return. Confirm
   the original invoice total is unchanged and outstanding dropped. Try an
   over-return and confirm it is blocked.

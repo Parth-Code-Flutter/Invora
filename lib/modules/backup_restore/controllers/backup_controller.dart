@@ -2,7 +2,12 @@ import 'dart:io';
 
 import 'package:get/get.dart';
 
+import '../../../app/bindings/initial_binding.dart';
+import '../../../app/controllers/app_controller.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/widgets/app_notification.dart';
+import '../../../data/services/app_lock_service.dart';
+import '../../../data/services/app_storage.dart';
 import '../../../data/services/backup_service.dart';
 
 class BackupController extends GetxController {
@@ -59,6 +64,29 @@ class BackupController extends GetxController {
     } catch (_) {
       reminderDays.value = _service.reminderDays;
       rethrow;
+    }
+  }
+
+  Future<void> eraseAllData() async {
+    isWorking.value = true;
+    try {
+      await _service.eraseAllLocalData();
+      final storage = Get.find<AppStorage>();
+      await InitialBinding.reloadDatabaseRuntime(storage);
+      if (Get.isRegistered<AppLockService>()) {
+        Get.find<AppLockService>().load();
+      }
+      if (Get.isRegistered<AppController>()) {
+        await Get.find<AppController>().reloadFromStorage();
+      }
+      Get.offAllNamed<void>(AppRoutes.splash);
+    } catch (error) {
+      AppNotification.error(
+        'Could not erase data',
+        error.toString().replaceFirst('Bad state: ', ''),
+      );
+    } finally {
+      isWorking.value = false;
     }
   }
 }

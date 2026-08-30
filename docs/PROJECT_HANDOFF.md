@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-08-29
+Last updated: 2026-08-30
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -254,6 +254,15 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
   Restored logo, signature, and QR assets are remapped to current-device paths
   instead of retaining absolute paths from the source installation. Due
   reminders also appear on the dashboard.
+- Backup & restore includes **Erase all data** at the bottom of that screen
+  (not on More as a normal destination). Two-step confirm: warning dialog,
+  then type `ERASE`. Wipe closes Drift, deletes the SQLite file and WAL
+  sidecars, `business_assets`, `purchase_attachments`, `product_images`, and
+  in-app `Documents/creovo_backups` ZIPs, then clears SharedPreferences
+  (onboarding, profile flags, PIN/lock, language, theme). ZIP files already
+  shared to Files, Drive, or WhatsApp are not deleted. The app reloads the
+  empty database runtime and opens splash, which routes to first-launch
+  onboarding.
 
 ### Customers
 
@@ -555,10 +564,10 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
   12-month Line or Bars chart with a y-axis, grid, and selected-month
   amounts. Empty months stay a faint baseline. Paid and pending counts sit
   in an invoice-mix donut and open the invoice list; outstanding opens Ageing.
-- Dashboard Home is an action surface: a branded this-month snapshot with a
-  collection ring, sparkline, month-over-month trend, Received / Outstanding
-  chips, and a PhonePe-style jump strip (Products, Estimates, Expenses,
-  Reports). To collect is a separate card under that snapshot: compact Overdue
+- Dashboard Home is an action surface: this-month net sales (received vs
+  outstanding and collection progress), matching Reports, plus a jump strip
+  (Products, Estimates, Expenses, Reports). To collect is a separate card
+  under that snapshot: compact Overdue
   / This week filters, then up to three people with the balance due. Tap a
   name to open that invoice; View all opens the filtered list. Phone Home
   does not repeat a full invoice stack. Tablets still show follow-up or recent
@@ -771,6 +780,10 @@ As of 2026-08-28:
     (camera and gallery), skip photos and still save, edit/remove before save,
     cover thumb on catalog list and item details, restore of `product_images/`
     from backup, and confirm invoice PDFs stay text-only.
+20. Physical-device QA of Erase all data: Backup & restore → Erase all data →
+    warning → type `ERASE` → confirm onboarding opens with empty catalog and
+    invoices; PIN/lock is off; a ZIP previously shared to Files still opens;
+    in-app `creovo_backups` copies are gone.
 
 Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
@@ -778,6 +791,36 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-08-30 — Dashboard opens on this-month net sales
+
+- Home now uses the same net-sales snapshot as Reports: this month's total,
+  received vs outstanding, collection track, and the two KPI tiles. Period
+  chips and charts stay on Reports. Products / Estimates / Expenses / Reports
+  remain the jump strip under that snapshot.
+- Important files: `dashboard_screen.dart`, dashboard overview tests, and this
+  handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, dashboard overview and
+  small-phone layout tests.
+
+### 2026-08-30 — Erase all data from Backup & restore
+
+- Last-resort wipe so this phone acts like a new install. Label is **Erase
+  all data**, placed at the bottom of Backup & restore. Copy warns that the
+  action cannot be undone and that shared ZIP copies outside the app stay.
+- Confirm is two steps: a warning dialog, then type `ERASE`. Wipe closes the
+  database, deletes local sqlite/media/in-app backup generations, clears
+  prefs, rebuilds the Drift runtime, reloads lock/theme/language, and opens
+  splash (onboarding).
+- Important files: `backup_service.dart`, `backup_controller.dart`,
+  `backup_screen.dart`, `initial_binding.dart`, `app_controller.dart`,
+  localization, backup tests, and this handoff.
+- Storage: `AppStorage.clear()`; sqlite file plus `-wal`/`-shm` and
+  `business_assets`, `purchase_attachments`, `product_images`,
+  `Documents/creovo_backups`.
+- Verification: Dart formatting, Flutter analysis, backup service wipe test,
+  Backup screen confirmation widget test, runtime reload coverage.
 
 ### 2026-08-30 — Catalog segmented control and compact list
 

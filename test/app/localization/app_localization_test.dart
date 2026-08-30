@@ -24,6 +24,7 @@ void main() {
         'Reports',
         'Stock reports',
         'Backup & restore',
+        'Erase all data',
         'Choose language',
         'Fingerprint',
         'Search features',

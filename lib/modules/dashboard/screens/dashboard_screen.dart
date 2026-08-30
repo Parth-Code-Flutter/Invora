@@ -15,10 +15,10 @@ import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_shell.dart';
-import '../../../app/widgets/app_snapshot_visuals.dart';
 import '../../../app/widgets/app_workspace_switch.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/report_summary_model.dart';
+import '../../reports/widgets/report_charts.dart';
 import '../controllers/dashboard_controller.dart';
 
 class DashboardScreen extends GetView<DashboardController> {
@@ -340,89 +340,102 @@ class DashboardOverviewCard extends StatelessWidget {
     required this.report,
     required this.symbol,
     this.onOutstandingTap,
+    this.month,
     super.key,
   });
 
   final ReportSummaryModel report;
   final String symbol;
   final VoidCallback? onOutstandingTap;
+  final DateTime? month;
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final collected = report.totalSalesMinor <= 0
-        ? 0.0
-        : (report.totalReceivedMinor / report.totalSalesMinor).clamp(0.0, 1.0);
-    final sparkline = report.monthlySales
-        .map((point) => point.amountMinor.toDouble())
-        .toList(growable: false);
-    return AppCard(
-      padding: EdgeInsets.zero,
-      color: isDark ? const Color(0xFF3B2038) : Colors.white,
-      borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          AppSnapshotHero(
-            title: 'This month',
-            trailing: AppSnapshotBadge(
-              label:
-                  '${report.invoiceCount} ${report.invoiceCount == 1 ? 'invoice' : 'invoices'}',
+    final period = month ?? DateTime.now();
+    final change = report.salesChangePercent.round();
+    final trendLabel = !report.hasPreviousSales
+        ? (report.totalSalesMinor > 0 ? 'New vs last period' : null)
+        : '${change >= 0 ? '+' : ''}$change% from last period';
+    final outstandingTap = report.outstandingMinor > 0
+        ? onOutstandingTap
+        : null;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ReportCollectionCard(
+          salesMinor: report.totalSalesMinor,
+          receivedMinor: report.totalReceivedMinor,
+          outstandingMinor: report.outstandingMinor,
+          symbol: symbol,
+          periodLabel: _monthYear(period),
+          trendLabel: trendLabel,
+          trendUp: change >= 0,
+          onOutstanding: outstandingTap,
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: ReportKpiTile(
+                label: 'Received',
+                amountMinor: report.totalReceivedMinor,
+                symbol: symbol,
+                color: AppColors.success,
+                deltaLabel: _receivedDeltaLabel(report),
+                deltaUp:
+                    report.totalReceivedMinor >= report.previousReceivedMinor,
+              ),
             ),
-            amountCaption: 'Total invoiced',
-            amountMinor: report.totalSalesMinor,
-            symbol: symbol,
-            progress: collected,
-            ringCaption: 'Collected',
-            sparkline: sparkline,
-            trendLabel: _monthOverMonthTrend(report.monthlySales),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: AppMetricChip(
-                    label: 'Received',
-                    amountMinor: report.totalReceivedMinor,
-                    symbol: symbol,
-                    color: AppColors.success,
-                    icon: Icons.payments_outlined,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: AppMetricChip(
-                    label: 'Outstanding',
-                    amountMinor: report.outstandingMinor,
-                    symbol: symbol,
-                    color: AppColors.warning,
-                    icon: Icons.schedule_rounded,
-                    onTap: report.outstandingMinor > 0
-                        ? onOutstandingTap
-                        : null,
-                  ),
-                ),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: ReportKpiTile(
+                label: 'Outstanding',
+                amountMinor: report.outstandingMinor,
+                symbol: symbol,
+                color: AppColors.warning,
+                deltaLabel: report.outstandingMinor > 0
+                    ? '${((report.collectionRate) * 100).round()}% collected'
+                    : 'All collected',
+                deltaUp: true,
+                onTap: outstandingTap,
+              ),
             ),
-          ),
-          const _HomeJumpStrip(),
-        ],
-      ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const _HomeJumpStrip(),
+      ],
     );
   }
 }
 
-String? _monthOverMonthTrend(List<MonthlySalesPoint> points) {
-  if (points.length < 2) return null;
-  final previous = points[points.length - 2].amountMinor;
-  final current = points.last.amountMinor;
-  if (previous <= 0) return current > 0 ? 'Up from last month' : null;
+String _monthYear(DateTime value) {
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  return '${months[value.month - 1]} ${value.year}';
+}
+
+String _receivedDeltaLabel(ReportSummaryModel report) {
+  final previous = report.previousReceivedMinor;
+  final current = report.totalReceivedMinor;
+  if (previous <= 0) {
+    return current > 0 ? 'New vs last period' : 'From last period';
+  }
   final percent = ((current - previous) / previous * 100).round();
-  if (percent == 0) return 'Flat vs last month';
-  if (percent.abs() > 400) return null;
-  return '${percent > 0 ? '+' : ''}$percent% vs last month';
+  return '${percent >= 0 ? '+' : ''}$percent% from last period';
 }
 
 class _DashboardOverviewLoadingCard extends StatelessWidget {
@@ -436,7 +449,7 @@ class _DashboardOverviewLoadingCard extends StatelessWidget {
         : const Color(0xFFFCFAFF),
     padding: const EdgeInsets.all(14),
     child: const SizedBox(
-      height: 148,
+      height: 188,
       child: Center(
         child: SizedBox(
           width: 24,
@@ -517,7 +530,7 @@ class _HomeJumpStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
+      padding: const EdgeInsets.only(top: 4),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF472440) : const Color(0xFFFFF6F1),

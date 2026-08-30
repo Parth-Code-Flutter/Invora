@@ -18,6 +18,7 @@ void main() {
         home: Scaffold(
           body: DashboardOverviewCard(
             symbol: '₹',
+            month: DateTime(2026, 8),
             report: ReportSummaryModel(
               totalSalesMinor: 230800000,
               totalReceivedMinor: 65000,
@@ -39,13 +40,14 @@ void main() {
       ),
     );
 
-    expect(find.text('This month'), findsOneWidget);
-    expect(find.text('Received'), findsOneWidget);
-    expect(find.text('Outstanding'), findsOneWidget);
+    expect(find.text('Net sales'), findsOneWidget);
+    expect(find.text('August 2026'), findsOneWidget);
+    expect(find.text('Received'), findsWidgets);
+    expect(find.text('Outstanding'), findsWidgets);
     expect(find.text('₹2,308,000'), findsWidgets);
-    expect(find.text('₹650'), findsOneWidget);
-    expect(find.text('₹2,307,472'), findsOneWidget);
-    expect(find.text('3 invoices'), findsOneWidget);
+    expect(find.text('₹650'), findsWidgets);
+    expect(find.text('₹2,307,472'), findsWidgets);
+    expect(find.text('All collected'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -74,8 +76,8 @@ void main() {
     );
 
     expect(find.text('₹99,999,999'), findsWidgets);
-    expect(find.text('₹12,345,678.90'), findsOneWidget);
-    expect(find.text('₹87,654,321'), findsOneWidget);
+    expect(find.text('₹12,345,678.90'), findsWidgets);
+    expect(find.text('₹87,654,321'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 }

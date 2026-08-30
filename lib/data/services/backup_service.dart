@@ -39,6 +39,12 @@ class BackupService {
 
   static const maxLocalGenerations = 5;
   static const minPasswordLength = 8;
+  static const eraseConfirmationPhrase = 'ERASE';
+  static const _localMediaFolders = [
+    'business_assets',
+    'purchase_attachments',
+    ProductImageService.folderName,
+  ];
 
   DateTime? get lastBackupAt => DateTime.tryParse(
     _storage.getString(AppStorageKeyConst.lastBackupAt) ?? '',
@@ -405,6 +411,52 @@ class BackupService {
       if (bytes[index] != signature[index]) return false;
     }
     return true;
+  }
+
+  /// Deletes this install's SQLite file, app-local media, in-app backup ZIPs,
+  /// and SharedPreferences. Does not delete copies the user already shared
+  /// to Files, Drive, or WhatsApp. The Drift connection is closed first so
+  /// the sqlite file can be removed. Callers must rebuild the database runtime
+  /// afterwards.
+  Future<void> eraseAllLocalData() async {
+    try {
+      await _database.customStatement('PRAGMA wal_checkpoint(FULL)');
+    } catch (_) {}
+    await _database.close();
+
+    final target = await _databaseFileProvider();
+    for (final suffix in const [
+      '',
+      '-wal',
+      '-shm',
+      '-journal',
+      '.before_restore',
+    ]) {
+      await _deleteIfExists(File('${target.path}$suffix'));
+    }
+
+    final support = target.parent;
+    for (final name in _localMediaFolders) {
+      final folder = Directory(p.join(support.path, name));
+      if (await folder.exists()) {
+        await folder.delete(recursive: true);
+      }
+    }
+
+    try {
+      final generations = await _generationsDirectory();
+      if (await generations.exists()) {
+        await for (final entity in generations.list()) {
+          if (entity is File) await entity.delete();
+        }
+      }
+    } catch (_) {}
+
+    await _storage.clear();
+  }
+
+  Future<void> _deleteIfExists(File file) async {
+    if (await file.exists()) await file.delete();
   }
 
   Future<BackupRestoreResult> restore(File file, {String? password}) async {

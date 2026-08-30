@@ -1048,6 +1048,19 @@ const Map<String, String> appHindiCoverageTranslations = {
       'मौजूदा डेटा बदलने से पहले फ़ाइल अस्थायी फ़ोल्डर में डिक्रिप्ट और जाँची जाती है। पुराने अनएन्क्रिप्टेड बैकअप भी पुनर्स्थापित होते हैं।',
   'Verify backup': 'बैकअप सत्यापित करें',
   'Select backup file': 'बैकअप फ़ाइल चुनें',
+  'Erase all data': 'सभी डेटा मिटाएँ',
+  'Erase all data?': 'सभी डेटा मिटाएँ?',
+  'This cannot be undone. It deletes customers, invoices, bills, products, payments, stock, photos, business profile, PIN, and lock settings on this phone. Creovo then opens like a new install. ZIP files you already saved in Files, Drive, or WhatsApp are not deleted. Create a backup above first if you might need these records.':
+      'यह वापस नहीं हो सकता। इससे इस फ़ोन पर ग्राहक, चालान, बिल, उत्पाद, भुगतान, स्टॉक, फ़ोटो, व्यवसाय प्रोफ़ाइल, PIN और लॉक सेटिंग्स मिट जाती हैं। फिर Creovo नए इंस्टॉल की तरह खुलता है। Files, Drive या WhatsApp में पहले से सहेजी ZIP फ़ाइलें नहीं मिटतीं। अगर ये रिकॉर्ड बाद में चाहिए हों तो पहले ऊपर से बैकअप बनाएँ।',
+  'This cannot be undone. Every record on this phone will be deleted, then Creovo will open like a new install. ZIP backups you already saved outside the app stay. Create a backup above first if you might need these records.':
+      'यह वापस नहीं हो सकता। इस फ़ोन का हर रिकॉर्ड मिट जाएगा, फिर Creovo नए इंस्टॉल की तरह खुलेगा। ऐप के बाहर सहेजे ZIP बैकअप रहेंगे। अगर ये रिकॉर्ड चाहिए हों तो पहले ऊपर से बैकअप बनाएँ।',
+  'Type ERASE to confirm': 'पुष्टि के लिए ERASE लिखें',
+  'Type ERASE': 'ERASE लिखें',
+  'Type ERASE in capital letters to confirm.':
+      'पुष्टि के लिए ERASE को बड़े अक्षरों में लिखें।',
+  'Type ERASE in capital letters.': 'ERASE को बड़े अक्षरों में लिखें।',
+  'Could not erase data': 'डेटा मिटाया नहीं जा सका',
+  'Continue': 'जारी रखें',
   'Create encrypted backup': 'एन्क्रिप्टेड बैकअप बनाएँ',
   'Unlock backup': 'बैकअप अनलॉक करें',
   'Backup preview': 'बैकअप पूर्वावलोकन',
@@ -2594,6 +2607,19 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'હાલનો ડેટા બદલતા પહેલાં ફાઇલ કામચલાઉ ફોલ્ડરમાં ડિક્રિપ્ટ અને ચકાસાય છે. જૂના અનએન્ક્રિપ્ટેડ બૅકઅપ પણ પુનઃસ્થાપિત થાય છે.',
   'Verify backup': 'બૅકઅપ ચકાસો',
   'Select backup file': 'બૅકઅપ ફાઇલ પસંદ કરો',
+  'Erase all data': 'બધો ડેટા મિટાવો',
+  'Erase all data?': 'બધો ડેટા મિટાવો?',
+  'This cannot be undone. It deletes customers, invoices, bills, products, payments, stock, photos, business profile, PIN, and lock settings on this phone. Creovo then opens like a new install. ZIP files you already saved in Files, Drive, or WhatsApp are not deleted. Create a backup above first if you might need these records.':
+      'આ પાછું થઈ શકતું નથી. આ ફોન પરના ગ્રાહક, ઇન્વૉઇસ, બિલ, ઉત્પાદ, ચુકવણી, સ્ટોક, ફોટો, વ્યવસાય પ્રોફાઇલ, PIN અને લૉક સેટિંગ્સ મિટાય છે. પછી Creovo નવા ઇન્સ્ટોલ જેવું ખુલે છે. Files, Drive અથવા WhatsAppમાં પહેલાં સાચવેલી ZIP ફાઇલો મિટાતી નથી. જો આ રેકોર્ડ પછી જોઈએ તો પહેલાં ઉપરથી બૅકઅપ બનાવો.',
+  'This cannot be undone. Every record on this phone will be deleted, then Creovo will open like a new install. ZIP backups you already saved outside the app stay. Create a backup above first if you might need these records.':
+      'આ પાછું થઈ શકતું નથી. આ ફોનનો દરેક રેકોર્ડ મિટાશે, પછી Creovo નવા ઇન્સ્ટોલ જેવું ખુલશે. એપની બહાર સાચવેલા ZIP બૅકઅપ રહેશે. જો આ રેકોર્ડ જોઈએ તો પહેલાં ઉપરથી બૅકઅપ બનાવો.',
+  'Type ERASE to confirm': 'પુષ્ટિ માટે ERASE લખો',
+  'Type ERASE': 'ERASE લખો',
+  'Type ERASE in capital letters to confirm.':
+      'પુષ્ટિ માટે ERASE મોટા અક્ષરમાં લખો.',
+  'Type ERASE in capital letters.': 'ERASE મોટા અક્ષરમાં લખો.',
+  'Could not erase data': 'ડેટા મિટાવી શકાયો નહીં',
+  'Continue': 'આગળ વધો',
   'Create encrypted backup': 'એન્ક્રિપ્ટેડ બૅકઅપ બનાવો',
   'Unlock backup': 'બૅકઅપ અનલૉક કરો',
   'Backup preview': 'બૅકઅપ પૂર્વાવલોકન',

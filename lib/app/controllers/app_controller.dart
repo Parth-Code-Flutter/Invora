@@ -29,6 +29,19 @@ class AppController extends GetxController {
     _loadLanguage();
   }
 
+  Future<void> reloadFromStorage() async {
+    final storedValue = _storage.getBool(AppStorageKeyConst.isDarkMode);
+    if (storedValue == null) {
+      themeMode.value = ThemeMode.system;
+      Get.changeThemeMode(ThemeMode.system);
+    } else {
+      _loadThemeMode();
+      Get.changeThemeMode(themeMode.value);
+    }
+    _loadLanguage();
+    await Get.updateLocale(language.value.locale);
+  }
+
   Future<void> setLanguage(AppLanguage value) async {
     language.value = value;
     await Get.updateLocale(value.locale);
