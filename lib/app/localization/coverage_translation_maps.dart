@@ -475,6 +475,14 @@ const Map<String, String> appHindiCoverageTranslations = {
       'ZIP एन्क्रिप्टेड नहीं है। इसे निजी और सुरक्षित स्थान पर रखें।',
   'This only recommends useful product fields and units. You can change it later.':
       'यह केवल उपयोगी उत्पाद फ़ील्ड और इकाइयाँ सुझाता है। आप इसे बाद में बदल सकते हैं।',
+  'Type your shop name to start. Logo and extras can wait.':
+      'शुरू करने के लिए दुकान का नाम लिखें। लोगो और बाकी बाद में चलेंगे।',
+  'What do you sell?': 'आप क्या बेचते हैं?',
+  'General': 'सामान्य',
+  'Kirana': 'किराना',
+  'Clothing': 'कपड़े',
+  'Add a business logo': 'व्यवसाय लोगो जोड़ें',
+  'Add logo': 'लोगो जोड़ें',
   'Your default is preselected whenever you create a new item. Existing invoices and saved products stay unchanged.':
       'नई आइटम बनाते समय डिफ़ॉल्ट पहले से चुना रहेगा। मौजूदा चालान और सहेजे उत्पाद नहीं बदलेंगे।',
   'e.g. Payment is due within the selected period.':
@@ -2039,6 +2047,14 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'ZIP એન્ક્રિપ્ટેડ નથી. તેને ખાનગી અને સુરક્ષિત જગ્યાએ રાખો.',
   'This only recommends useful product fields and units. You can change it later.':
       'આ ફક્ત ઉપયોગી ઉત્પાદન ફીલ્ડ અને એકમ સૂચવે છે. તમે તેને પછી બદલી શકો છો.',
+  'Type your shop name to start. Logo and extras can wait.':
+      'શરૂ કરવા દુકાનનું નામ લખો. લોગો અને બાકી પછી ચાલશે.',
+  'What do you sell?': 'તમે શું વેચો છો?',
+  'General': 'સામાન્ય',
+  'Kirana': 'કિરાણા',
+  'Clothing': 'કપડાં',
+  'Add a business logo': 'વ્યવસાય લોગો ઉમેરો',
+  'Add logo': 'લોગો ઉમેરો',
   'Your default is preselected whenever you create a new item. Existing invoices and saved products stay unchanged.':
       'નવી આઇટમ બનાવતી વખતે ડિફૉલ્ટ પહેલેથી પસંદ રહેશે. હાલના ઇન્વૉઇસ અને સાચવેલા ઉત્પાદનો બદલાશે નહીં.',
   'e.g. Payment is due within the selected period.':

@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-08-30
+Last updated: 2026-09-01
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -47,7 +47,10 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
 
 ### Application foundation
 
-- First-launch onboarding and business setup
+- First-launch onboarding and business setup. First setup leads with a live
+  identity preview (logo placeholder, shop name, category), then the name
+  field and a searchable category dropdown. Optional logo is added from the
+  preview placeholder, which shows an Add logo camera prompt.
 - One-time onboarding workspace choice between Sales and Purchases. Existing
   installations default safely to Sales; the initial choice and most recently
   active workspace persist locally. Users can switch from the dashboard, the
@@ -791,6 +794,19 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-01 — First setup starts with the shop name
+
+- First-launch business setup no longer leads with a large optional logo.
+  The live identity preview sits at the top, the shop name field is focused
+  next, category is a searchable dropdown, and logo is added from the
+  preview placeholder (camera + Add logo). The preview no longer shows an
+  INVOICE badge.
+- Important files: `business_setup_screen.dart`, `app_text_field.dart`,
+  localization, first-launch widget test, and this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, first-launch setup and
+  edit-mode tests.
 
 ### 2026-08-30 — Dashboard opens on this-month net sales
 

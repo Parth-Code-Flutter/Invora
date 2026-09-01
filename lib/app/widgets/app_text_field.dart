@@ -21,6 +21,7 @@ class AppTextField extends StatelessWidget {
     this.onChanged,
     this.onFieldSubmitted,
     this.enabled = true,
+    this.autofocus = false,
     super.key,
   });
 
@@ -39,6 +40,7 @@ class AppTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onFieldSubmitted;
   final bool enabled;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,7 @@ class AppTextField extends StatelessWidget {
       onChanged: onChanged,
       onFieldSubmitted: onFieldSubmitted,
       enabled: enabled,
+      autofocus: autofocus,
       decoration: InputDecoration(
         labelText: AppLocalizer.text(label),
         hintText: AppLocalizer.text(hint),

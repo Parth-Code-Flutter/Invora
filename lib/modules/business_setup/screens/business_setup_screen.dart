@@ -86,124 +86,8 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                         if (controller.setupStep.value == 0) ...[
                           if (controller.isEditing) ...[
                             _BusinessIdentityEditor(controller: controller),
-                          ] else ...[
-                            _SectionLabel(
-                              title: 'Your identity',
-                              caption: 'Required to create your first invoice.',
-                            ),
-                            const SizedBox(height: 12),
-                            if (ResponsiveUtils.isTablet(context))
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    width: 168,
-                                    child: Obx(
-                                      () => _LogoPicker(
-                                        path: controller.logoPath.value,
-                                        onTap: controller.pickLogo,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 24),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        AppTextField(
-                                          controller: controller.businessName,
-                                          label: 'Business name *',
-                                          hint: 'e.g. Creovo Studio',
-                                          prefixIcon: Icons.storefront_outlined,
-                                          validator:
-                                              controller.requiredBusinessName,
-                                          textCapitalization:
-                                              TextCapitalization.words,
-                                        ),
-                                        const SizedBox(height: 14),
-                                        Obx(
-                                          () => AppDropdownField<BusinessCategory>(
-                                            label: 'Business category',
-                                            value: controller
-                                                .businessCategory
-                                                .value,
-                                            sheetTitle:
-                                                'Choose your business category',
-                                            searchable: true,
-                                            sheetHeightFactor: .75,
-                                            prefixIcon: Icons.category_outlined,
-                                            options: BusinessCategory.values
-                                                .map(
-                                                  (value) => AppDropdownOption(
-                                                    value: value,
-                                                    label: value.label,
-                                                  ),
-                                                )
-                                                .toList(growable: false),
-                                            onChanged: (value) =>
-                                                controller
-                                                        .businessCategory
-                                                        .value =
-                                                    value,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          'This only recommends useful product fields and units. You can change it later.',
-                                          style: AppTextStyles.small.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              )
-                            else ...[
-                              Obx(
-                                () => _LogoPicker(
-                                  path: controller.logoPath.value,
-                                  onTap: controller.pickLogo,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              AppTextField(
-                                controller: controller.businessName,
-                                label: 'Business name *',
-                                hint: 'e.g. Creovo Studio',
-                                prefixIcon: Icons.storefront_outlined,
-                                validator: controller.requiredBusinessName,
-                                textCapitalization: TextCapitalization.words,
-                              ),
-                              const SizedBox(height: 14),
-                              Obx(
-                                () => AppDropdownField<BusinessCategory>(
-                                  label: 'Business category',
-                                  value: controller.businessCategory.value,
-                                  sheetTitle: 'Choose your business category',
-                                  searchable: true,
-                                  sheetHeightFactor: .75,
-                                  prefixIcon: Icons.category_outlined,
-                                  options: BusinessCategory.values
-                                      .map(
-                                        (value) => AppDropdownOption(
-                                          value: value,
-                                          label: value.label,
-                                        ),
-                                      )
-                                      .toList(growable: false),
-                                  onChanged: (value) =>
-                                      controller.businessCategory.value = value,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'This only recommends useful product fields and units. You can change it later.',
-                                style: AppTextStyles.small.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ],
+                          ] else
+                            _FirstLaunchIdentityForm(controller: controller),
                         ] else ...[
                           const _SectionLabel(
                             title: 'Contact details',
@@ -666,6 +550,69 @@ class _EditStepHeader extends StatelessWidget {
   );
 }
 
+class _FirstLaunchIdentityForm extends StatelessWidget {
+  const _FirstLaunchIdentityForm({required this.controller});
+
+  final BusinessSetupController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Obx(() {
+          final category = controller.businessCategory.value.label;
+          final logoPath = controller.logoPath.value;
+          return ValueListenableBuilder<TextEditingValue>(
+            valueListenable: controller.businessName,
+            builder: (context, name, _) => _IdentityPreviewCard(
+              name: name.text.trim(),
+              category: category,
+              logoPath: logoPath,
+              onLogoTap: controller.pickLogo,
+            ),
+          );
+        }),
+        const SizedBox(height: 14),
+        AppTextField(
+          controller: controller.businessName,
+          label: 'Business name *',
+          hint: 'e.g. Creovo Studio',
+          prefixIcon: Icons.storefront_outlined,
+          validator: controller.requiredBusinessName,
+          textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.done,
+          autofocus: true,
+          onFieldSubmitted: (_) => controller.continueToDetails(),
+        ),
+        const SizedBox(height: 14),
+        Obx(
+          () => AppDropdownField<BusinessCategory>(
+            label: 'Business category',
+            value: controller.businessCategory.value,
+            sheetTitle: 'Choose your business category',
+            searchable: true,
+            sheetHeightFactor: .75,
+            prefixIcon: Icons.category_outlined,
+            options: BusinessCategory.values
+                .map(
+                  (value) =>
+                      AppDropdownOption(value: value, label: value.label),
+                )
+                .toList(growable: false),
+            onChanged: (value) => controller.businessCategory.value = value,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'This only recommends useful product fields and units. You can change it later.',
+          style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+        ),
+      ],
+    );
+  }
+}
+
 class _BusinessIdentityEditor extends StatelessWidget {
   const _BusinessIdentityEditor({required this.controller});
 
@@ -795,11 +742,13 @@ class _IdentityPreviewCard extends StatelessWidget {
     required this.name,
     required this.category,
     required this.logoPath,
+    this.onLogoTap,
   });
 
   final String name;
   final String category;
   final String? logoPath;
+  final VoidCallback? onLogoTap;
 
   @override
   Widget build(BuildContext context) {
@@ -824,25 +773,10 @@ class _IdentityPreviewCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 58,
-            height: 58,
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(17),
-            ),
-            child: validLogo
-                ? Image.file(File(logoPath!), fit: BoxFit.cover)
-                : Center(
-                    child: Text(
-                      displayName.characters.first.toUpperCase(),
-                      style: AppTextStyles.cardTitle.copyWith(
-                        color: AppColors.primary,
-                        fontSize: 22,
-                      ),
-                    ),
-                  ),
+          _PreviewLogoMark(
+            displayName: displayName,
+            logoPath: validLogo ? logoPath : null,
+            onTap: onLogoTap,
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -870,20 +804,124 @@ class _IdentityPreviewCard extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .16),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              'INVOICE',
-              style: AppTextStyles.small.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 10,
-                letterSpacing: .7,
+        ],
+      ),
+    );
+  }
+}
+
+class _PreviewLogoMark extends StatelessWidget {
+  const _PreviewLogoMark({
+    required this.displayName,
+    required this.logoPath,
+    this.onTap,
+  });
+
+  final String displayName;
+  final String? logoPath;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasLogo = logoPath != null;
+    final showAddPrompt = onTap != null && !hasLogo;
+    final mark = Container(
+      width: 62,
+      height: 62,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(17),
+      ),
+      child: hasLogo
+          ? Image.file(File(logoPath!), fit: BoxFit.cover)
+          : showAddPrompt
+          ? const _AddLogoPlaceholder()
+          : Center(
+              child: Text(
+                displayName.characters.first.toUpperCase(),
+                style: AppTextStyles.cardTitle.copyWith(
+                  color: AppColors.primary,
+                  fontSize: 22,
+                ),
               ),
+            ),
+    );
+    if (onTap == null) return mark;
+    return Semantics(
+      button: true,
+      label: hasLogo ? 'Change business logo' : 'Add business logo',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(17),
+        child: SizedBox(
+          width: 70,
+          height: 70,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(top: 0, left: 0, child: mark),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: .18),
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    hasLogo ? Icons.edit_rounded : Icons.add_rounded,
+                    size: 13,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddLogoPlaceholder extends StatelessWidget {
+  const _AddLogoPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.add_a_photo_outlined,
+            size: 20,
+            color: AppColors.primary,
+          ),
+          const SizedBox(height: 3),
+          Text(
+            'Add logo',
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.small.copyWith(
+              color: AppColors.primary,
+              fontSize: 9,
+              fontWeight: FontWeight.w800,
+              height: 1,
             ),
           ),
         ],
@@ -1006,7 +1044,7 @@ class _SetupHeader extends StatelessWidget {
                     ? 'Update the name, category, or logo shown across your invoices.'
                     : 'Review contact, tax, payment, and invoice preferences for your business.'
               : step == 0
-              ? 'Add your business name and an optional logo for a polished invoice header.'
+              ? 'Type your shop name to start. Logo and extras can wait.'
               : 'Contact, tax and payment details are optional. Add only what you need.',
           style: AppTextStyles.body.copyWith(
             color: AppColors.textSecondary,
@@ -1181,94 +1219,6 @@ class _ImagePickerCard extends StatelessWidget {
                   ),
                 ],
               ),
-      ),
-    );
-  }
-}
-
-class _LogoPicker extends StatelessWidget {
-  const _LogoPicker({required this.path, required this.onTap});
-
-  final String? path;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final validPath = path != null && File(path!).existsSync();
-    return Center(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(70),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 94,
-                  height: 94,
-                  padding: const EdgeInsets.all(5),
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.border, width: 1.5),
-                  ),
-                  child: ClipOval(
-                    child: !validPath
-                        ? const ColoredBox(
-                            color: Colors.white,
-                            child: Icon(
-                              Icons.storefront_rounded,
-                              color: AppColors.primary,
-                              size: 32,
-                            ),
-                          )
-                        : Image.file(File(path!), fit: BoxFit.cover),
-                  ),
-                ),
-                Positioned(
-                  right: -2,
-                  bottom: 2,
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x29765E6D),
-                          blurRadius: 8,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      validPath ? Icons.edit_rounded : Icons.add_rounded,
-                      color: Colors.white,
-                      size: 17,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              path == null ? 'Add business logo' : 'Change business logo',
-              style: AppTextStyles.cardTitle.copyWith(fontSize: 14),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'Optional · PNG or JPG',
-              style: AppTextStyles.small.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

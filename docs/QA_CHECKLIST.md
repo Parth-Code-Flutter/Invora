@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-08-30
+Last updated: 2026-09-01
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -44,7 +44,9 @@ remain intentionally out of scope until explicitly requested.
 - Opening, typing in, cancelling, or saving the custom-field dialog completes
   its close animation without disposed-controller or cascading overflow errors.
 
-- First launch reaches onboarding and continues to business setup.
+- First launch reaches onboarding and continues to business setup. First setup
+  leads with the identity preview (Add logo placeholder, no INVOICE badge),
+  then the shop name and a category dropdown.
 - Business profile persists with GST identity and invoice defaults.
 - Customer create, search, edit, validation, and soft delete.
 - Product/service create, filter, edit, units, GST presets, and soft delete.
