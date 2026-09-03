@@ -104,15 +104,29 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
                                   prefixIcon: Icons.person_outline_rounded,
                                   textCapitalization: TextCapitalization.words,
                                 ),
-                                AppTextField(
-                                  controller: controller.mobile,
-                                  label: 'Mobile number',
-                                  prefixIcon: Icons.phone_outlined,
-                                  keyboardType: TextInputType.phone,
-                                  validator: controller.validateMobile,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                    LengthLimitingTextInputFormatter(10),
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AppTextField(
+                                      controller: controller.mobile,
+                                      label: 'Invoice mobile',
+                                      hint: 'Shown on invoices only',
+                                      prefixIcon: Icons.phone_outlined,
+                                      keyboardType: TextInputType.phone,
+                                      validator: controller.validateMobile,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly,
+                                        LengthLimitingTextInputFormatter(10),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      'Shown on invoices. This is not your Creovo account.',
+                                      style: AppTextStyles.small.copyWith(
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 AppTextField(

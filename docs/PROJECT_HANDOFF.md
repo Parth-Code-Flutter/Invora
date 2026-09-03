@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-09-01
+Last updated: 2026-09-03
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -17,12 +17,11 @@ every material code change.
 ## Product boundaries
 
 Creovo Billing is a Flutter Android and iOS app for fast, privacy-first,
-offline invoicing. It has no backend, authentication, cloud dependency, ads,
-subscriptions, payment gateway, inventory accounting, or multi-user system.
-Paid unlock, store billing, license keys, and time-limited demo APKs are
-planned in [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md) and are not in the
-live app. That design keeps invoice data offline and keeps entitlement out of
-backups.
+offline invoicing. Invoice, customer, and GST data stay on-device. There is no
+invoice sync. Account mobile + OTP (Firebase) is used only for trial and
+subscription identity. Paid unlock for Play/App Store billing is still designed
+in [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md). That design keeps invoice
+data offline and keeps entitlement out of backups.
 
 - Flutter and Dart
 - GetX for routing, dependency injection, and reactive state
@@ -47,10 +46,18 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
 
 ### Application foundation
 
-- First-launch onboarding and business setup. First setup leads with a live
+- First-launch onboarding and business setup. Splash requires a verified
+  account mobile (OTP) before onboarding. First setup leads with a live
   identity preview (logo placeholder, shop name, category), then the name
   field and a searchable category dropdown. Optional logo is added from the
-  preview placeholder, which shows an Add logo camera prompt.
+  preview placeholder, which shows an Add logo camera prompt. Account OTP
+  uses a country picker (India +91 by default), explains that the number is
+  only for the plan, and opens numbers saved on this phone in a tap-to-select
+  sheet. Business profile **Invoice mobile** is local letterhead only and is
+  never written to Firebase. Android Firebase is wired with
+  `android/app/google-services.json` and `lib/firebase_options.dart` for
+  project `creovobilling` (`com.creovo.billing`). iOS still needs
+  `GoogleService-Info.plist`.
 - One-time onboarding workspace choice between Sales and Purchases. Existing
   installations default safely to Sales; the initial choice and most recently
   active workspace persist locally. Users can switch from the dashboard, the
@@ -787,6 +794,10 @@ As of 2026-08-28:
     warning → type `ERASE` → confirm onboarding opens with empty catalog and
     invoices; PIN/lock is off; a ZIP previously shared to Files still opens;
     in-app `creovo_backups` copies are gone.
+21. Firebase console still needs Phone provider enabled, `plans/default`
+    seeded, and Firestore rules deployed. iOS OTP needs
+    `GoogleService-Info.plist`. Real SMS on Spark usually needs a test phone
+    number; production SMS often needs Blaze.
 
 Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
@@ -794,6 +805,59 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-03 — Account OTP welcome copy and number sheet
+
+- First-run OTP title is now **Your first offline billing app**. Device
+  numbers are chosen from a tap-to-select sheet (same pattern as other app
+  sheets), not chips on the main screen.
+- Important files: `account_otp_screen.dart`, `account_phone.dart`,
+  localization, and this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, account OTP widget test.
+
+### 2026-09-03 — Account OTP country picker and device numbers
+
+- Account mobile rejects Indian numbers that are 10 digits but do not start
+  with 6–9, with a clearer error. The screen now has a country picker
+  (India +91 default), copy that the number is only for the trial/plan, and
+  a control to use numbers saved on this phone (profile, SIM, contacts).
+- Important files: `account_otp_screen.dart`, `account_otp_controller.dart`,
+  `account_phone.dart`, `device_account_numbers.dart`, localization, and this
+  handoff.
+- Storage: none. Account identity is still Firebase Phone E.164.
+- Verification: Dart formatting, Flutter analysis, account OTP widget test.
+
+### 2026-09-03 — Android google-services.json wired
+
+- Copied the Firebase Android config into `android/app/google-services.json`
+  (package `com.creovo.billing`, project `creovobilling`) and added
+  `lib/firebase_options.dart` so `Firebase.initializeApp` uses those options
+  on Android. Failed init still falls back to the unconfigured OTP service
+  instead of crashing, and now logs the error.
+- Important files: `android/app/google-services.json`,
+  `lib/firebase_options.dart`, `lib/main.dart`, and this handoff.
+- Storage: none locally. Firebase project `creovobilling` is unchanged.
+- Verification: Gradle `processDebugGoogleServices`, Dart formatting,
+  Flutter analysis, account OTP widget test.
+
+### 2026-09-03 — Account mobile OTP (Firebase)
+
+- First launch and returning users without a Firebase Phone session land on
+  **Your Creovo account**, verify a 10-digit Indian mobile with OTP, then
+  continue to onboarding or the shop. Firestore stores only that account
+  number plus trial/plan fields (`entitlements/{91…}`, `plans/default`).
+  Invoice mobile stays on the local business profile and is never uploaded.
+  Entitlement is not written into backup `settings.json`. Erase all data
+  signs out Firebase.
+- Important files: account OTP screen/controller, `account_auth_service.dart`,
+  `account_entitlement_service.dart`, `startup_navigator.dart`, Firestore
+  rules, splash routing, and this handoff.
+- Storage: Firebase Auth session on device (not in ZIP). Firestore
+  entitlements and plans. No Drift schema change.
+- Verification: Dart formatting, Flutter analysis, account OTP widget test
+  and existing first-launch tests. Physical OTP requires Firebase console
+  Phone provider, SHA-1, and a `plans/default` document.
 
 ### 2026-09-01 — First setup starts with the shop name
 

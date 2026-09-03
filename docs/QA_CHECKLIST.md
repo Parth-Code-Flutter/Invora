@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-09-01
+Last updated: 2026-09-03
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -44,9 +44,11 @@ remain intentionally out of scope until explicitly requested.
 - Opening, typing in, cancelling, or saving the custom-field dialog completes
   its close animation without disposed-controller or cascading overflow errors.
 
-- First launch reaches onboarding and continues to business setup. First setup
-  leads with the identity preview (Add logo placeholder, no INVOICE badge),
-  then the shop name and a category dropdown.
+- First launch reaches account OTP, then onboarding, then business setup. OTP
+  shows a country picker (India +91), plan-only copy, and numbers saved on
+  this phone. Indian account mobiles must start with 6–9. Tap Use a number
+  from this phone to pick from a sheet. Invoice mobile is
+  local letterhead only. Account mobile is not printed on invoices.
 - Business profile persists with GST identity and invoice defaults.
 - Customer create, search, edit, validation, and soft delete.
 - Product/service create, filter, edit, units, GST presets, and soft delete.
@@ -134,6 +136,11 @@ remain intentionally out of scope until explicitly requested.
 ## Native/manual device pass still required
 
 - Grant/deny Contacts permission and import a real phone contact.
+- First launch: country picker defaults to +91; a 10-digit number starting
+  with 1 is rejected; a valid 6–9 number sends OTP (Firebase test number or
+  real SMS). Use a number from this phone to pick from a sheet. Continue to
+  onboarding. Confirm Invoice mobile on business setup
+  does not change the account number.
 - Pick logo and payment QR images from Android and iOS libraries. Signature
   supports draw-on-pad, gallery, or camera.
 - Add item photos: save without photos; add a cover from gallery and up to two

@@ -98,6 +98,8 @@ Future<T?> showAppDropdownSheet<T>({
   required T value,
   required List<AppDropdownOption<T>> options,
   bool searchable = false,
+  String searchHint = 'Search categories',
+  String emptyLabel = 'No matching category',
   double? heightFactor,
 }) {
   FocusManager.instance.primaryFocus?.unfocus();
@@ -118,6 +120,8 @@ Future<T?> showAppDropdownSheet<T>({
       value: value,
       options: options,
       searchable: searchable,
+      searchHint: searchHint,
+      emptyLabel: emptyLabel,
       requestedHeight: requestedHeight,
     ),
   );
@@ -129,6 +133,8 @@ class _DropdownSheet<T> extends StatefulWidget {
     required this.value,
     required this.options,
     required this.searchable,
+    this.searchHint = 'Search categories',
+    this.emptyLabel = 'No matching category',
     this.requestedHeight,
   });
 
@@ -136,6 +142,8 @@ class _DropdownSheet<T> extends StatefulWidget {
   final T value;
   final List<AppDropdownOption<T>> options;
   final bool searchable;
+  final String searchHint;
+  final String emptyLabel;
   final double? requestedHeight;
 
   @override
@@ -167,7 +175,7 @@ class _DropdownSheetState<T> extends State<_DropdownSheet<T>> {
               autofocus: false,
               onChanged: (value) => setState(() => query = value.trim()),
               decoration: InputDecoration(
-                hintText: AppLocalizer.text('Search categories'),
+                hintText: AppLocalizer.text(widget.searchHint),
                 prefixIcon: const Icon(Icons.search_rounded),
               ),
             ),
@@ -177,7 +185,7 @@ class _DropdownSheetState<T> extends State<_DropdownSheet<T>> {
             child: filtered.isEmpty
                 ? Center(
                     child: Text(
-                      'No matching category',
+                      widget.emptyLabel,
                       style: AppTextStyles.body.copyWith(
                         color: AppColors.textSecondary,
                       ),

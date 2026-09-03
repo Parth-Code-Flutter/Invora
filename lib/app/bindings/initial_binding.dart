@@ -26,6 +26,8 @@ import '../../data/services/unit_service.dart';
 import '../../data/services/app_lock_service.dart';
 import '../../data/services/biometric_unlock.dart';
 import '../../data/services/business_workspace_service.dart';
+import '../../data/services/account_auth_service.dart';
+import '../../data/services/account_entitlement_service.dart';
 import '../../data/repositories/business_repository.dart';
 import '../../data/repositories/customer_repository.dart';
 import '../../data/repositories/product_repository.dart';
@@ -45,14 +47,23 @@ import '../../modules/purchase_orders/controllers/purchase_order_controller.dart
 import '../controllers/app_controller.dart';
 
 class InitialBinding extends Bindings {
-  InitialBinding(this.appStorage, this.databaseService);
+  InitialBinding(this.appStorage, this.databaseService, {this.accountAuth});
 
   final AppStorage appStorage;
   final LocalDatabaseService databaseService;
+  final AccountAuthService? accountAuth;
 
   @override
   void dependencies() {
     Get.put<AppStorage>(appStorage, permanent: true);
+    Get.put<AccountAuthService>(
+      accountAuth ?? SkipAccountAuthService(isVerified: true),
+      permanent: true,
+    );
+    Get.put<AccountEntitlementService>(
+      AccountEntitlementService(),
+      permanent: true,
+    );
     Get.put<BusinessWorkspaceService>(
       BusinessWorkspaceService(appStorage),
       permanent: true,

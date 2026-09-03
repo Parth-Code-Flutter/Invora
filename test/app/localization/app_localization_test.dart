@@ -29,6 +29,7 @@ void main() {
         'Fingerprint',
         'Search features',
         'Your business',
+        'Your first offline billing app',
         'Complete your business profile',
         'Photos',
         'Remove photo',

@@ -58,6 +58,9 @@ dependencies:
   crypto: ^3.0.6
   cryptography: ^2.7.0
   local_auth: ^2.3.0
+  firebase_core: ^4.14.0
+  firebase_auth: ^6.6.1
+  cloud_firestore: ^6.9.0
 
 dev_dependencies:
   flutter_test:

@@ -1,0 +1,106 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: plans
+// Document ID: default (and later plan ids)
+// Fields:
+//   - trialDays: int (required, 1-365)
+//   - title: string (required)
+//   - priceInr: number (required)
+//   - period: string (required, e.g. yearly)
+//   - active: bool (required)
+//   - playProductId: string (optional)
+//   - appStoreProductId: string (optional)
+//
+// Collection: entitlements
+// Document ID: E.164 without plus (91XXXXXXXXXX)
+// Fields:
+//   - mobile: string E.164 with plus (required, immutable, must match auth)
+//   - status: string (required, trial on client create)
+//   - planId: string (required)
+//   - trialStartedAt: timestamp (required)
+//   - trialEndsAt: timestamp (required, ~now + plans/default.trialDays)
+//   - source: string (required, otp on client create)
+//   - updatedAt: timestamp (required)
+// Invoice mobile is never stored here.
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isPhoneUser() {
+      return isAuthenticated() && request.auth.token.phone_number is string;
+    }
+
+    function phoneKey() {
+      return request.auth.token.phone_number.substring(1);
+    }
+
+    function isValidPlan(data) {
+      return data.keys().hasOnly([
+          'trialDays',
+          'title',
+          'priceInr',
+          'period',
+          'active',
+          'playProductId',
+          'appStoreProductId'
+        ])
+        && data.trialDays is int
+        && data.trialDays > 0
+        && data.trialDays <= 365
+        && data.title is string
+        && data.title.size() > 0
+        && data.title.size() < 80
+        && data.priceInr is number
+        && data.priceInr >= 0
+        && data.period is string
+        && data.active is bool;
+    }
+
+    function planTrialDays() {
+      return int(get(/databases/$(database)/documents/plans/default).data.trialDays);
+    }
+
+    function isValidEntitlement(data) {
+      let days = planTrialDays();
+      return data.keys().hasOnly([
+          'mobile',
+          'status',
+          'planId',
+          'trialStartedAt',
+          'trialEndsAt',
+          'source',
+          'updatedAt'
+        ])
+        && data.mobile == request.auth.token.phone_number
+        && data.status == 'trial'
+        && data.planId == 'default'
+        && data.source == 'otp'
+        && data.trialStartedAt is timestamp
+        && data.trialEndsAt is timestamp
+        && data.updatedAt is timestamp
+        && data.trialEndsAt > request.time + duration.value(days - 1, 'd')
+        && data.trialEndsAt < request.time + duration.value(days + 1, 'd');
+    }
+
+    match /plans/{planId} {
+      allow read: if isPhoneUser();
+      allow create, update, delete: if false;
+    }
+
+    match /entitlements/{mobileKey} {
+      allow read: if isPhoneUser() && phoneKey() == mobileKey;
+      allow create: if isPhoneUser()
+        && phoneKey() == mobileKey
+        && isValidEntitlement(request.resource.data);
+      allow update, delete: if false;
+    }
+  }
+}

@@ -1,7 +1,7 @@
 # Creovo Billing — Licensing, paid unlock, and demo APK
 
-Status: **Design only. Not implemented.**  
-Captured: 2026-08-17  
+Status: **Phone OTP entitlement is in the app. Store billing is still design only.**  
+Captured: 2026-08-17; OTP path added 2026-09-03  
 Live app status: [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md)
 
 This note records the agreed monetization design so later sessions can
@@ -167,9 +167,14 @@ converted into a Pro license.
 
 ## Current codebase facts this design depends on
 
+- Phone OTP account identity is implemented. Firestore holds `entitlements`
+  (account mobile + trial/plan) and `plans` (price, trialDays). Invoice data
+  is not stored there. Invoice mobile on the business profile is a separate
+  local field.
 - No Play Billing, RevenueCat, or Keygen in the project today.
 - Backup: full SQLite + settings whitelist + media; restore remaps media
-  paths and rebuilds database-bound GetX runtime.
+  paths and rebuilds database-bound GetX runtime. Firebase Auth session is
+  not in the ZIP.
 - `AppStorageKeyConst` holds UI/business defaults and app-lock hashes, not
   entitlements.
 - Product plan (`CODEX_IMPLEMENTATION_PLAN.md`) still says no cloud of

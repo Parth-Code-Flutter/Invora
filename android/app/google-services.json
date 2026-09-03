@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "927000045835",
+    "project_id": "creovobilling",
+    "storage_bucket": "creovobilling.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927000045835:android:f939e168a25acdae97da0e",
+        "android_client_info": {
+          "package_name": "com.creovo.billing"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0kqkiPvmlRzmazXMPfGgOIKbGn6sonJ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

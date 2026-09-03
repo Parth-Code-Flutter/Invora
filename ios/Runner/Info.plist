@@ -29,7 +29,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Creovo Billing uses selected images for catalog photos, your business logo, signature, and payment QR.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Creovo Billing uses a contact you select to fill the customer name and mobile number.</string>
+	<string>Creovo Billing uses a contact you select to fill a customer, supplier, or your Creovo account mobile number.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Creovo Billing uses the camera to scan product barcodes, photograph catalog items, and capture a signature, logo, or payment QR for your invoices.</string>
 	<key>NSFaceIDUsageDescription</key>

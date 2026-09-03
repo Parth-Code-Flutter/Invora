@@ -47,6 +47,9 @@ app.*.map.json
 # Editor
 .vscode/
 
+# Local Firebase rules notes
+.firestore-rules-analysis.md
+
 ### AL ###
 #Template for AL projects for Dynamics 365 Business Central
 #Cache folder

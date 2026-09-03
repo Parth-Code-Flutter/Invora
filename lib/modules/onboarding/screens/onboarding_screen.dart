@@ -26,7 +26,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
       icon: Icons.lock_rounded,
       title: 'Your business stays yours',
       message:
-          'Create and manage invoices offline. No account, no cloud, no compromise.',
+          'Bills stay on this phone. Your account number is only for the plan.',
       accent: AppColors.primary,
     ),
     _OnboardingData(

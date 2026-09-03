@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../../modules/account/bindings/account_otp_binding.dart';
+import '../../modules/account/screens/account_otp_screen.dart';
 import '../../modules/splash/screens/splash_screen.dart';
 import '../../modules/splash/bindings/splash_binding.dart';
 import '../../modules/onboarding/bindings/onboarding_binding.dart';
@@ -83,6 +85,11 @@ abstract final class AppRouter {
       page: SplashScreen.new,
       binding: SplashBinding(),
       transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: AppRoutes.accountOtp,
+      page: AccountOtpScreen.new,
+      binding: AccountOtpBinding(),
     ),
     GetPage(
       name: AppRoutes.onboarding,

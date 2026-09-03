@@ -679,6 +679,59 @@ const Map<String, String> appHindiCoverageTranslations = {
       'ग्राहक और आइटम चुनें, कुल गणना Creovo पर छोड़ें।',
   'Create and manage invoices offline. No account, no cloud, no compromise.':
       'चालान ऑफ़लाइन बनाएँ और प्रबंधित करें। न खाता, न क्लाउड, न समझौता।',
+  'Bills stay on this phone. Your account number is only for the plan.':
+      'बिल इसी फ़ोन पर रहते हैं। खाता नंबर केवल प्लान के लिए है।',
+  'Your Creovo account': 'आपका Creovo खाता',
+  'Your first offline billing app': 'आपका पहला ऑफ़लाइन बिलिंग ऐप',
+  'WELCOME TO CREOVO': 'CREOVO में आपका स्वागत है',
+  'Choose a number': 'नंबर चुनें',
+  'Choose from contacts': 'संपर्कों में से चुनें',
+  'Pick any number saved on this phone': 'इस फ़ोन पर सहेजा कोई भी नंबर चुनें',
+  'Saved on this phone': 'इस फ़ोन पर सहेजा गया',
+  'This number is only for your Creovo plan. We never print it on invoices, and your bills stay on this phone.':
+      'यह नंबर केवल आपके Creovo प्लान के लिए है। यह चालान पर नहीं छपेगा, और बिल इसी फ़ोन पर रहेंगे।',
+  'We will send a 6-digit OTP to this number. It is not printed on invoices.':
+      'हम इस नंबर पर 6 अंकों का OTP भेजेंगे। यह चालान पर नहीं छपेगा।',
+  'Account mobile *': 'खाता मोबाइल *',
+  '10-digit Indian mobile': '10 अंकों का भारतीय मोबाइल',
+  '10 digits, starting with 6–9': '10 अंक, 6–9 से शुरू',
+  'Mobile number': 'मोबाइल नंबर',
+  'On this phone': 'इस फ़ोन पर',
+  'This phone': 'यह फ़ोन',
+  'SIM': 'SIM',
+  'Use a number from this phone': 'इस फ़ोन का नंबर इस्तेमाल करें',
+  'Choose country': 'देश चुनें',
+  'Search country': 'देश खोजें',
+  'No matching country': 'कोई मेल खाता देश नहीं',
+  'Used only to check your trial and subscription.':
+      'केवल ट्रायल और सब्सक्रिप्शन जाँचने के लिए।',
+  'Never shown on invoices. Add a separate Invoice mobile later if you want it on bills.':
+      'चालान पर नहीं दिखेगा। चाहें तो बाद में अलग चालान मोबाइल जोड़ें।',
+  'Indian mobiles are 10 digits and start with 6, 7, 8 or 9.':
+      'भारतीय मोबाइल 10 अंक के होते हैं और 6, 7, 8 या 9 से शुरू होते हैं।',
+  'Enter a valid mobile number for this country.':
+      'इस देश के लिए मान्य मोबाइल नंबर दर्ज करें।',
+  'Allow contacts to fill a number saved on this phone.':
+      'इस फ़ोन पर सहेजा नंबर भरने के लिए संपर्क अनुमति दें।',
+  'Choose a contact with a valid mobile number.':
+      'मान्य मोबाइल नंबर वाला संपर्क चुनें।',
+  'Send OTP': 'OTP भेजें',
+  'Enter OTP *': 'OTP डालें *',
+  '6-digit code': '6 अंकों का कोड',
+  'Verify & continue': 'सत्यापित करें और आगे बढ़ें',
+  'Resend OTP': 'OTP फिर भेजें',
+  'Change number': 'नंबर बदलें',
+  'Invoice mobile': 'चालान मोबाइल',
+  'Shown on invoices only': 'केवल चालान पर दिखेगा',
+  'Shown on invoices. This is not your Creovo account.':
+      'चालान पर दिखेगा। यह आपका Creovo खाता नहीं है।',
+  'Enter the 6-digit OTP.': '6 अंकों का OTP डालें।',
+  'That OTP is incorrect. Try again.': 'OTP गलत है। फिर कोशिश करें।',
+  'OTP expired. Send a new one.': 'OTP समाप्त। नया भेजें।',
+  'Too many attempts. Wait a minute and try again.':
+      'बहुत कोशिशें हो गईं। एक मिनट बाद कोशिश करें।',
+  'No internet. Connect once to verify this number.':
+      'इंटरनेट नहीं है। इस नंबर को सत्यापित करने के लिए एक बार कनेक्ट करें।',
   'Preview a polished PDF, then share or print it in just a tap.':
       'सुंदर PDF देखें, फिर एक टैप में साझा या प्रिंट करें।',
   'The invoice remains in your records but cannot be edited.':
@@ -2251,6 +2304,59 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'ગ્રાહક અને આઇટમ પસંદ કરો, કુલ ગણતરી Creovoને કરવા દો.',
   'Create and manage invoices offline. No account, no cloud, no compromise.':
       'ઇન્વૉઇસ ઑફલાઇન બનાવો અને મેનેજ કરો. ખાતું નહીં, ક્લાઉડ નહીં, સમાધાન નહીં.',
+  'Bills stay on this phone. Your account number is only for the plan.':
+      'બિલ આ ફોન પર રહે છે. ખાતાનો નંબર ફક્ત પ્લાન માટે છે.',
+  'Your Creovo account': 'તમારું Creovo ખાતું',
+  'Your first offline billing app': 'તમારી પહેલી ઑફલાઇન બિલિંગ ઍપ',
+  'WELCOME TO CREOVO': 'CREOVOમાં આપનું સ્વાગત છે',
+  'Choose a number': 'નંબર પસંદ કરો',
+  'Choose from contacts': 'સંપર્કોમાંથી પસંદ કરો',
+  'Pick any number saved on this phone': 'આ ફોન પર સાચવેલો કોઈ પણ નંબર પસંદ કરો',
+  'Saved on this phone': 'આ ફોન પર સાચવેલું',
+  'This number is only for your Creovo plan. We never print it on invoices, and your bills stay on this phone.':
+      'આ નંબર ફક્ત તમારા Creovo પ્લાન માટે છે. તે ઇન્વૉઇસ પર છપાશે નહીં, અને બિલ આ ફોન પર રહે છે.',
+  'We will send a 6-digit OTP to this number. It is not printed on invoices.':
+      'અમે આ નંબર પર 6 અંકનો OTP મોકલીશું. તે ઇન્વૉઇસ પર છપાશે નહીં.',
+  'Account mobile *': 'ખાતાનો મોબાઇલ *',
+  '10-digit Indian mobile': '10 અંકનો ભારતીય મોબાઇલ',
+  '10 digits, starting with 6–9': '10 અંક, 6–9થી શરૂ',
+  'Mobile number': 'મોબાઇલ નંબર',
+  'On this phone': 'આ ફોન પર',
+  'This phone': 'આ ફોન',
+  'SIM': 'SIM',
+  'Use a number from this phone': 'આ ફોનનો નંબર વાપરો',
+  'Choose country': 'દેશ પસંદ કરો',
+  'Search country': 'દેશ શોધો',
+  'No matching country': 'મેળ ખાતો દેશ નથી',
+  'Used only to check your trial and subscription.':
+      'ફક્ત ટ્રાયલ અને સબ્સ્ક્રિપ્શન તપાસવા માટે.',
+  'Never shown on invoices. Add a separate Invoice mobile later if you want it on bills.':
+      'ઇન્વૉઇસ પર દેખાશે નહીં. જોઈએ તો પછીથી અલગ ઇન્વૉઇસ મોબાઇલ ઉમેરો.',
+  'Indian mobiles are 10 digits and start with 6, 7, 8 or 9.':
+      'ભારતીય મોબાઇલ 10 અંકના હોય છે અને 6, 7, 8 અથવા 9થી શરૂ થાય છે.',
+  'Enter a valid mobile number for this country.':
+      'આ દેશ માટે માન્ય મોબાઇલ નંબર દાખલ કરો.',
+  'Allow contacts to fill a number saved on this phone.':
+      'આ ફોન પર સાચવેલો નંબર ભરવા સંપર્કની પરવાનગી આપો.',
+  'Choose a contact with a valid mobile number.':
+      'માન્ય મોબાઇલ નંબરવાળો સંપર્ક પસંદ કરો.',
+  'Send OTP': 'OTP મોકલો',
+  'Enter OTP *': 'OTP દાખલ કરો *',
+  '6-digit code': '6 અંકનો કોડ',
+  'Verify & continue': 'ચકાસો અને આગળ વધો',
+  'Resend OTP': 'OTP ફરી મોકલો',
+  'Change number': 'નંબર બદલો',
+  'Invoice mobile': 'ઇન્વૉઇસ મોબાઇલ',
+  'Shown on invoices only': 'ફક્ત ઇન્વૉઇસ પર દેખાશે',
+  'Shown on invoices. This is not your Creovo account.':
+      'ઇન્વૉઇસ પર દેખાશે. આ તમારું Creovo ખાતું નથી.',
+  'Enter the 6-digit OTP.': '6 અંકનો OTP દાખલ કરો.',
+  'That OTP is incorrect. Try again.': 'OTP ખોટો છે. ફરી પ્રયાસ કરો.',
+  'OTP expired. Send a new one.': 'OTP સમાપ્ત. નવો મોકલો.',
+  'Too many attempts. Wait a minute and try again.':
+      'ઘણા પ્રયાસ થયા. એક મિનિટ પછી ફરી પ્રયાસ કરો.',
+  'No internet. Connect once to verify this number.':
+      'ઇન્ટરનેટ નથી. આ નંબર ચકાસવા એક વાર કનેક્ટ કરો.',
   'Preview a polished PDF, then share or print it in just a tap.':
       'સુંદર PDF જુઓ, પછી એક ટેપમાં શેર અથવા પ્રિન્ટ કરો.',
   'The invoice remains in your records but cannot be edited.':
