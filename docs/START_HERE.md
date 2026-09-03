@@ -42,6 +42,8 @@ expansion-roadmap item, the expansion roadmap wins.
 - Public release: `PRODUCTION_ROADMAP.md`
 - Play / App Store listing and upload: `STORE_DEPLOYMENT.md`
 - Licensing/demo: `LICENSING_AND_DEMO.md`
+- Account OTP / Firebase console / Firestore rules: `PROJECT_HANDOFF.md`
+  section **Account identity (Firebase Phone + Firestore plans)**
 
 These add detail but do not override current facts in `PROJECT_HANDOFF.md` or
 the expansion priority order.

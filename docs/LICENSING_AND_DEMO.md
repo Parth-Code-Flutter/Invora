@@ -170,7 +170,12 @@ converted into a Pro license.
 - Phone OTP account identity is implemented. Firestore holds `entitlements`
   (account mobile + trial/plan) and `plans` (price, trialDays). Invoice data
   is not stored there. Invoice mobile on the business profile is a separate
-  local field.
+  local field. Splash blocks onboarding and shop setup until Phone Auth and
+  entitlement sync both succeed. Operator steps and the OTP screen live in
+  [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) under Account identity.
+- If shops later ask for cloud bills: keep SQLite on device; do not put
+  invoices in Firestore. Optional sync would be Postgres (Supabase), still
+  keyed by account mobile. Firebase stays OTP + plan only.
 - No Play Billing, RevenueCat, or Keygen in the project today.
 - Backup: full SQLite + settings whitelist + media; restore remaps media
   paths and rebuilds database-bound GetX runtime. Firebase Auth session is

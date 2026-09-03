@@ -142,11 +142,15 @@ remain intentionally out of scope until explicitly requested.
 ## Native/manual device pass still required
 
 - Grant/deny Contacts permission and import a real phone contact.
-- First launch: country picker defaults to +91; a 10-digit number starting
-  with 1 is rejected; a valid 6–9 number sends OTP (Firebase test number or
-  real SMS). Use a number from this phone to pick from a sheet. Continue to
-  onboarding. Confirm Invoice mobile on business setup
-  does not change the account number.
+- First launch: no Welcome title or brand AppBar; hero, then mobile/OTP
+  field, then benefit pills. Country picker defaults to +91; a 10-digit
+  number starting with 1 is rejected; a valid 6–9 number sends OTP (Firebase
+  test number or real SMS). Use a number from this phone to pick from a
+  sheet. If Firestore rules are comments-only, Verify shows plan-storage
+  denied and restart must return to OTP, not shop setup. After real rules
+  and `plans/default`, Verify opens onboarding. Confirm Invoice mobile on
+  business setup does not change the account number. Do not create
+  `entitlements` in the console by hand.
 - Pick logo and payment QR images from Android and iOS libraries. Signature
   supports draw-on-pad, gallery, or camera.
 - Add item photos: save without photos; add a cover from gallery and up to two

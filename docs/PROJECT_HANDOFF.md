@@ -44,19 +44,89 @@ the Creovo coral-to-plum gradient. The full-bleed, opaque master is stored at
 `assets/icons/creovo_invoice_app_icon.png` and is installed across every Android
 mipmap density and the complete iOS `AppIcon.appiconset`.
 
+### Account identity (Firebase Phone + Firestore plans)
+
+Firebase project: **`creovobilling`**. Android package / iOS bundle:
+`com.creovo.billing`. Debug SHA-1 already registered:
+`EE:B6:9E:21:6D:89:6A:A3:BD:5F:2C:84:15:3F:72:D5:96:BD:7A:B0`.
+SHA-256:
+`5F:58:4E:5D:10:90:FC:43:7A:BF:BD:B8:26:62:DC:EC:5D:D3:A7:2E:2F:E6:FE:0E:86:B4:D0:EA:DA:6D:6F:4E`.
+
+**What lives where**
+
+- Shop data (invoices, customers, GST, payments) stays in local Drift/SQLite.
+  It is never written to Firebase or any other cloud.
+- Firebase Phone Auth stores only the **account mobile** (subscription key).
+- Cloud Firestore stores only `plans/default` and `entitlements/{91…}`
+  (E.164 without `+`). **Invoice mobile** on the business profile is local
+  letterhead and must never be uploaded.
+- Do not create `entitlements` by hand. The app writes that document after
+  a successful OTP when it can read `plans/default`.
+
+**First-run screen (current UI)**
+
+- Cream-to-lilac page, coral-to-plum hero (“Your first bill is minutes away”
+  / Offline GST invoicing). No brand AppBar and no “Welcome to Creovo
+  Billing” heading.
+- Account mobile or OTP field first, then pills: Works offline, Bills stay
+  here, Ready in minutes. Country picker defaults to India +91. Device
+  numbers open in a tap-to-select sheet, not chips.
+- Sticky **Send OTP** / **Verify & continue**. Plan-only helper under the
+  number: used for the plan, never printed on invoices.
+
+**Gate**
+
+- Splash requires Phone Auth **and** a successful `syncAfterLogin`
+  (readable/create entitlement). A leftover Firebase user is not enough to
+  open onboarding or shop setup. If plan storage fails, stay on OTP; Verify
+  retries sync without a new SMS when the session already exists. Change
+  number signs out.
+
+**Firestore console (operator)**
+
+1. Enable the Firestore API for `creovobilling` if the native log says it
+   has not been used:
+   `https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=creovobilling`
+2. Create the **(default)** Native database. Location cannot change later;
+   prefer `asia-south1` (Mumbai) for Indian shops.
+3. Collection `plans`, document ID **`default`** (not Auto-ID). Fields:
+   `trialDays` number `90`, `title` string `Default`, `priceInr` number `0`
+   (capital I, not `pricelnr`), `period` string `yearly`, `active` boolean
+   `true`.
+4. Rules tab: publish the **full** repo file `firestore.rules`, starting at
+   `rules_version = '2';` so `allow read` / `allow create` are present.
+   Publishing only the `//` data-model comments leaves production deny-all
+   and shows “Plan storage denied this number.”
+5. Authentication → Sign-in method → Phone enabled. Authentication →
+   Settings → SMS region policy → allow **India**. Spark: add a test phone
+   + fake OTP; production SMS often needs Blaze. iOS still needs
+   `GoogleService-Info.plist`.
+
+**Errors vs log noise**
+
+| What you see | Meaning |
+|---|---|
+| 17006 / SMS region / “SMS to India is not allowed yet” | Phone is on but India is blocked in SMS region policy. |
+| `PERMISSION_DENIED` Firestore API not used, or Dart `unavailable` / “client is offline” after OTP | Firestore API off, no database, or rules not the real file. |
+| “Plan storage denied this number” | Rules not published, or comments-only publish. |
+| “Subscription plans are not set up yet” | `plans/default` missing. |
+| `IJankManager`, Oppo drag, `X-Firebase-Locale`, `Unknown calling package name 'com.google.android.gms'` | Device/Play Services noise. Ignore. |
+
+**Future cloud (if shops ask to sync bills)**
+
+Keep SQLite as the working copy (offline India). Do not put invoices in
+Firestore. Optional later sync of shop data should be Postgres
+(**Supabase**), still signed in with the same account mobile. Firebase
+stays identity + trial/plan only. Do not run both as long-term invoice
+stores.
+
 ### Application foundation
 
-- First-launch onboarding and business setup. Splash requires a verified
-  account mobile (OTP) **and** a readable plan entitlement before
-  onboarding or shop setup. A Firebase Phone session alone is not enough.
-  First setup leads with a live
+- First-launch onboarding and business setup. Splash requires the account
+  OTP gate above before onboarding or shop setup. First setup leads with a live
   identity preview (logo placeholder, shop name, category), then the name
   field and a searchable category dropdown. Optional logo is added from the
-  preview placeholder, which shows an Add logo camera prompt. Account OTP
-  opens with a coral-to-plum hero (no brand AppBar or Welcome title). The
-  mobile or OTP field is first, then compact pills (offline / private / ready),
-  with a country picker (India +91 by default), plan-only helper copy, and
-  numbers saved on this phone in a tap-to-select sheet. Business profile
+  preview placeholder, which shows an Add logo camera prompt. Business profile
   **Invoice mobile** is local letterhead only and is
   never written to Firebase. Android Firebase is wired with
   `android/app/google-services.json` and `lib/firebase_options.dart` for
@@ -798,16 +868,14 @@ As of 2026-08-28:
     warning → type `ERASE` → confirm onboarding opens with empty catalog and
     invoices; PIN/lock is off; a ZIP previously shared to Files still opens;
     in-app `creovo_backups` copies are gone.
-21. Firebase console still needs Cloud Firestore created and the Firestore
-    API enabled for `creovobilling` (OTP succeeds, then Verify fails with
-    PERMISSION_DENIED / “client is offline” until that exists), India
-    allowed in Authentication → Settings → SMS region policy,
-    `plans/default` seeded, and Firestore rules published as the full
-    `firestore.rules` file (must start with `rules_version = '2';`, not
-    the comment block only). Error 17006 is
-    the SMS region block. iOS OTP needs `GoogleService-Info.plist`. Real
-    SMS on Spark usually needs a test phone number; production SMS often
-    needs Blaze.
+21. Firebase console: `(default)` Firestore and `plans/default` were created
+    2026-09-03. Confirm Rules are the full `firestore.rules` file (must
+    start with `rules_version = '2';`, not the comment block). Confirm India
+    is allowed in Authentication → Settings → SMS region policy. Error
+    17006 is that SMS region block. iOS OTP still needs
+    `GoogleService-Info.plist`. Spark real SMS usually needs a test phone;
+    production SMS often needs Blaze. See **Account identity** under
+    Current implementation.
 
 Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
@@ -815,6 +883,18 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-03 — Account identity documented in handoff
+
+- Current implementation now has a single Account identity section:
+  OTP UI, splash/entitlement gate, Firestore operator steps
+  (`plans/default` fields, rules vs comments), error table, log noise to
+  ignore, debug SHA fingerprints, and the future split (Firebase for
+  identity; Supabase/Postgres only if shops later ask to sync bills).
+- Important files: this handoff, `QA_CHECKLIST.md`, `START_HERE.md`,
+  `LICENSING_AND_DEMO.md`.
+- Storage: none.
+- Verification: documentation only.
 
 ### 2026-09-03 — OTP plus entitlement required before shop setup
 
