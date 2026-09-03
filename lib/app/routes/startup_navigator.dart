@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../data/repositories/business_repository.dart';
 import '../../data/services/account_auth_service.dart';
+import '../../data/services/account_entitlement_service.dart';
 import '../../data/services/app_storage.dart';
 import '../../data/services/business_workspace_service.dart';
 import '../constants/app_storage_key_const.dart';
@@ -14,6 +15,14 @@ abstract final class StartupNavigator {
         : Future<void>.value();
     final account = Get.find<AccountAuthService>();
     if (!account.isVerified) {
+      await delay;
+      Get.offAllNamed<void>(AppRoutes.accountOtp);
+      return;
+    }
+
+    try {
+      await Get.find<AccountEntitlementService>().syncAfterLogin(account);
+    } on AccountAuthException {
       await delay;
       Get.offAllNamed<void>(AppRoutes.accountOtp);
       return;

@@ -682,13 +682,21 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Bills stay on this phone. Your account number is only for the plan.':
       'बिल इसी फ़ोन पर रहते हैं। खाता नंबर केवल प्लान के लिए है।',
   'Your Creovo account': 'आपका Creovo खाता',
-  'Your first offline billing app': 'आपका पहला ऑफ़लाइन बिलिंग ऐप',
-  'WELCOME TO CREOVO': 'CREOVO में आपका स्वागत है',
+  'Welcome to Creovo Billing': 'Creovo Billing में आपका स्वागत है',
+  'Make GST invoices in minutes. Your bills stay on this phone.':
+      'मिनटों में GST चालान बनाएँ। बिल इसी फ़ोन पर रहते हैं।',
+  'Offline GST invoicing': 'ऑफ़लाइन GST चालान',
+  'Your first bill is minutes away': 'पहला बिल कुछ ही मिनट दूर है',
+  'Works offline': 'ऑफ़लाइन चलता है',
+  'Bills stay here': 'बिल यहीं रहते हैं',
+  'Ready in minutes': 'मिनटों में तैयार',
+  'Used for your plan only. Never printed on invoices.':
+      'केवल आपके प्लान के लिए। चालान पर नहीं छपेगा।',
   'Choose a number': 'नंबर चुनें',
   'Choose from contacts': 'संपर्कों में से चुनें',
   'Pick any number saved on this phone': 'इस फ़ोन पर सहेजा कोई भी नंबर चुनें',
   'Saved on this phone': 'इस फ़ोन पर सहेजा गया',
-  'This number is only for your Creovo plan. We never print it on invoices, and your bills stay on this phone.':
+  'This Number Is Only For Your Creovo Plan. We Never Print It On Invoices, And Your Bills Stay On This Phone.':
       'यह नंबर केवल आपके Creovo प्लान के लिए है। यह चालान पर नहीं छपेगा, और बिल इसी फ़ोन पर रहेंगे।',
   'We will send a 6-digit OTP to this number. It is not printed on invoices.':
       'हम इस नंबर पर 6 अंकों का OTP भेजेंगे। यह चालान पर नहीं छपेगा।',
@@ -703,9 +711,9 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Choose country': 'देश चुनें',
   'Search country': 'देश खोजें',
   'No matching country': 'कोई मेल खाता देश नहीं',
-  'Used only to check your trial and subscription.':
+  'Used Only To Check Your Trial And Subscription.':
       'केवल ट्रायल और सब्सक्रिप्शन जाँचने के लिए।',
-  'Never shown on invoices. Add a separate Invoice mobile later if you want it on bills.':
+  'Never Shown On Invoices. Add A Separate Invoice Mobile Later If You Want It On Bills.':
       'चालान पर नहीं दिखेगा। चाहें तो बाद में अलग चालान मोबाइल जोड़ें।',
   'Indian mobiles are 10 digits and start with 6, 7, 8 or 9.':
       'भारतीय मोबाइल 10 अंक के होते हैं और 6, 7, 8 या 9 से शुरू होते हैं।',
@@ -726,6 +734,18 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Shown on invoices. This is not your Creovo account.':
       'चालान पर दिखेगा। यह आपका Creovo खाता नहीं है।',
   'Enter the 6-digit OTP.': '6 अंकों का OTP डालें।',
+  'SMS to India is not allowed yet. In Firebase, enable Phone sign-in and allow India in SMS region policy.':
+      'भारत के लिए SMS अभी बंद है। Firebase में Phone साइन-इन चालू करें और SMS region policy में India अनुमति दें।',
+  'Cloud Firestore is off. In Firebase, create a Firestore database for creovobilling, wait a minute, then tap Verify again.':
+      'Cloud Firestore बंद है। Firebase में creovobilling के लिए Firestore database बनाएँ, एक मिनट रुकें, फिर Verify दबाएँ।',
+  'Plan storage denied this number. Deploy Firestore rules for creovobilling, then tap Verify again.':
+      'प्लान स्टोरेज ने इस नंबर को रोक दिया। creovobilling पर Firestore rules डिप्लॉय करें, फिर Verify दबाएँ।',
+  'Subscription plans are not set up yet.':
+      'सब्सक्रिप्शन प्लान अभी सेट नहीं हैं।',
+  'Could not start the plan for this number.':
+      'इस नंबर के लिए प्लान शुरू नहीं हो सका।',
+  'Phone sign-in is off. Enable Phone in Firebase Authentication → Sign-in method.':
+      'Phone साइन-इन बंद है। Firebase Authentication → Sign-in method में Phone चालू करें।',
   'That OTP is incorrect. Try again.': 'OTP गलत है। फिर कोशिश करें।',
   'OTP expired. Send a new one.': 'OTP समाप्त। नया भेजें।',
   'Too many attempts. Wait a minute and try again.':
@@ -2307,13 +2327,22 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Bills stay on this phone. Your account number is only for the plan.':
       'બિલ આ ફોન પર રહે છે. ખાતાનો નંબર ફક્ત પ્લાન માટે છે.',
   'Your Creovo account': 'તમારું Creovo ખાતું',
-  'Your first offline billing app': 'તમારી પહેલી ઑફલાઇન બિલિંગ ઍપ',
-  'WELCOME TO CREOVO': 'CREOVOમાં આપનું સ્વાગત છે',
+  'Welcome to Creovo Billing': 'Creovo Billingમાં આપનું સ્વાગત છે',
+  'Make GST invoices in minutes. Your bills stay on this phone.':
+      'મિનિટોમાં GST ઇન્વૉઇસ બનાવો. બિલ આ ફોન પર રહે છે.',
+  'Offline GST invoicing': 'ઑફલાઇન GST ઇન્વૉઇસિંગ',
+  'Your first bill is minutes away': 'પહેલું બિલ થોડી મિનિટમાં તૈયાર',
+  'Works offline': 'ઑફલાઇન ચાલે છે',
+  'Bills stay here': 'બિલ અહીં રહે છે',
+  'Ready in minutes': 'મિનિટોમાં તૈયાર',
+  'Used for your plan only. Never printed on invoices.':
+      'ફક્ત તમારા પ્લાન માટે. ઇન્વૉઇસ પર છપાશે નહીં.',
   'Choose a number': 'નંબર પસંદ કરો',
   'Choose from contacts': 'સંપર્કોમાંથી પસંદ કરો',
-  'Pick any number saved on this phone': 'આ ફોન પર સાચવેલો કોઈ પણ નંબર પસંદ કરો',
+  'Pick any number saved on this phone':
+      'આ ફોન પર સાચવેલો કોઈ પણ નંબર પસંદ કરો',
   'Saved on this phone': 'આ ફોન પર સાચવેલું',
-  'This number is only for your Creovo plan. We never print it on invoices, and your bills stay on this phone.':
+  'This Number Is Only For Your Creovo Plan. We Never Print It On Invoices, And Your Bills Stay On This Phone.':
       'આ નંબર ફક્ત તમારા Creovo પ્લાન માટે છે. તે ઇન્વૉઇસ પર છપાશે નહીં, અને બિલ આ ફોન પર રહે છે.',
   'We will send a 6-digit OTP to this number. It is not printed on invoices.':
       'અમે આ નંબર પર 6 અંકનો OTP મોકલીશું. તે ઇન્વૉઇસ પર છપાશે નહીં.',
@@ -2328,9 +2357,9 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Choose country': 'દેશ પસંદ કરો',
   'Search country': 'દેશ શોધો',
   'No matching country': 'મેળ ખાતો દેશ નથી',
-  'Used only to check your trial and subscription.':
+  'Used Only To Check Your Trial And Subscription.':
       'ફક્ત ટ્રાયલ અને સબ્સ્ક્રિપ્શન તપાસવા માટે.',
-  'Never shown on invoices. Add a separate Invoice mobile later if you want it on bills.':
+  'Never Shown On Invoices. Add A Separate Invoice Mobile Later If You Want It On Bills.':
       'ઇન્વૉઇસ પર દેખાશે નહીં. જોઈએ તો પછીથી અલગ ઇન્વૉઇસ મોબાઇલ ઉમેરો.',
   'Indian mobiles are 10 digits and start with 6, 7, 8 or 9.':
       'ભારતીય મોબાઇલ 10 અંકના હોય છે અને 6, 7, 8 અથવા 9થી શરૂ થાય છે.',
@@ -2351,6 +2380,17 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Shown on invoices. This is not your Creovo account.':
       'ઇન્વૉઇસ પર દેખાશે. આ તમારું Creovo ખાતું નથી.',
   'Enter the 6-digit OTP.': '6 અંકનો OTP દાખલ કરો.',
+  'SMS to India is not allowed yet. In Firebase, enable Phone sign-in and allow India in SMS region policy.':
+      'ભારત માટે SMS હજુ બંધ છે. Firebaseમાં Phone સાઇન-ઇન ચાલુ કરો અને SMS region policyમાં Indiaને મંજૂરી આપો.',
+  'Cloud Firestore is off. In Firebase, create a Firestore database for creovobilling, wait a minute, then tap Verify again.':
+      'Cloud Firestore બંધ છે. Firebaseમાં creovobilling માટે Firestore database બનાવો, એક મિનિટ રાહ જુઓ, પછી Verify દબાવો.',
+  'Plan storage denied this number. Deploy Firestore rules for creovobilling, then tap Verify again.':
+      'પ્લાન સ્ટોરેજે આ નંબર રોક્યો. creovobilling પર Firestore rules ડિપ્લોય કરો, પછી Verify દબાવો.',
+  'Subscription plans are not set up yet.': 'સબ્સ્ક્રિપ્શન પ્લાન હજુ સેટ નથી.',
+  'Could not start the plan for this number.':
+      'આ નંબર માટે પ્લાન શરૂ થઈ શક્યો નહીં.',
+  'Phone sign-in is off. Enable Phone in Firebase Authentication → Sign-in method.':
+      'Phone સાઇન-ઇન બંધ છે. Firebase Authentication → Sign-in methodમાં Phone ચાલુ કરો.',
   'That OTP is incorrect. Try again.': 'OTP ખોટો છે. ફરી પ્રયાસ કરો.',
   'OTP expired. Send a new one.': 'OTP સમાપ્ત. નવો મોકલો.',
   'Too many attempts. Wait a minute and try again.':

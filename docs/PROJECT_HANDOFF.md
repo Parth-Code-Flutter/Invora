@@ -47,13 +47,17 @@ mipmap density and the complete iOS `AppIcon.appiconset`.
 ### Application foundation
 
 - First-launch onboarding and business setup. Splash requires a verified
-  account mobile (OTP) before onboarding. First setup leads with a live
+  account mobile (OTP) **and** a readable plan entitlement before
+  onboarding or shop setup. A Firebase Phone session alone is not enough.
+  First setup leads with a live
   identity preview (logo placeholder, shop name, category), then the name
   field and a searchable category dropdown. Optional logo is added from the
   preview placeholder, which shows an Add logo camera prompt. Account OTP
-  uses a country picker (India +91 by default), explains that the number is
-  only for the plan, and opens numbers saved on this phone in a tap-to-select
-  sheet. Business profile **Invoice mobile** is local letterhead only and is
+  opens with a coral-to-plum hero (no brand AppBar or Welcome title). The
+  mobile or OTP field is first, then compact pills (offline / private / ready),
+  with a country picker (India +91 by default), plan-only helper copy, and
+  numbers saved on this phone in a tap-to-select sheet. Business profile
+  **Invoice mobile** is local letterhead only and is
   never written to Firebase. Android Firebase is wired with
   `android/app/google-services.json` and `lib/firebase_options.dart` for
   project `creovobilling` (`com.creovo.billing`). iOS still needs
@@ -794,10 +798,16 @@ As of 2026-08-28:
     warning → type `ERASE` → confirm onboarding opens with empty catalog and
     invoices; PIN/lock is off; a ZIP previously shared to Files still opens;
     in-app `creovo_backups` copies are gone.
-21. Firebase console still needs Phone provider enabled, `plans/default`
-    seeded, and Firestore rules deployed. iOS OTP needs
-    `GoogleService-Info.plist`. Real SMS on Spark usually needs a test phone
-    number; production SMS often needs Blaze.
+21. Firebase console still needs Cloud Firestore created and the Firestore
+    API enabled for `creovobilling` (OTP succeeds, then Verify fails with
+    PERMISSION_DENIED / “client is offline” until that exists), India
+    allowed in Authentication → Settings → SMS region policy,
+    `plans/default` seeded, and Firestore rules published as the full
+    `firestore.rules` file (must start with `rules_version = '2';`, not
+    the comment block only). Error 17006 is
+    the SMS region block. iOS OTP needs `GoogleService-Info.plist`. Real
+    SMS on Spark usually needs a test phone number; production SMS often
+    needs Blaze.
 
 Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
@@ -806,9 +816,77 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
 
+### 2026-09-03 — OTP plus entitlement required before shop setup
+
+- Splash stays on account OTP until Phone Auth and `plans`/`entitlements`
+  sync both succeed. A leftover Firebase session can no longer open
+  onboarding or business setup. Publish the full `firestore.rules` file
+  (rules, not only the comment model).
+- Important files: `startup_navigator.dart`, `account_otp_controller.dart`,
+  `firestore.rules`, this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, account OTP widget test.
+
+### 2026-09-03 — Firestore-off error after OTP verify
+
+- Phone OTP can succeed while Cloud Firestore is still off. Verify no
+  longer crashes; it explains that a Firestore database must be created
+  for `creovobilling`, and a second Verify retries plan sync without a
+  new SMS.
+- Important files: `account_entitlement_service.dart`,
+  `account_auth_service.dart`, `account_otp_controller.dart`,
+  localization, and this handoff.
+- Storage: none. Entitlement still writes only after Firestore is reachable.
+- Verification: Dart formatting, Flutter analysis, account OTP mapping test.
+
+### 2026-09-03 — Account OTP without AppBar title
+
+- First-run OTP no longer shows the Creovo Billing brand row or the
+  Welcome to Creovo Billing heading. The hero, number/OTP field, and
+  benefit pills remain.
+- Important files: `account_otp_screen.dart`, this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, account OTP widget test.
+
+### 2026-09-03 — Account OTP field before benefits
+
+- Mobile and OTP fields sit above the Works offline / Bills stay here /
+  Ready in minutes pills so the join action is first.
+- Important files: `account_otp_screen.dart`, this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, account OTP widget test.
+
+### 2026-09-03 — Account OTP welcome UX
+
+- First-run OTP now matches onboarding: cream-to-lilac page, Creovo mark,
+  coral-to-plum hero (“Your first bill is minutes away”), short sentence-case
+  invite, and compact pills (offline / private / ready). Plan-vs-invoice
+  copy is one helper line under the number field, not a disclaimer wall.
+- Important files: `account_otp_screen.dart`, localization, this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, account OTP widget test.
+
+### 2026-09-03 — Firebase SMS region error copy
+
+- OTP now explains Firebase error 17006: SMS to India is blocked until
+  Phone sign-in is on and India is allowed in SMS region policy. The app
+  cannot enable that from code.
+- Important files: `account_auth_service.dart`, `firebase_account_auth_service.dart`,
+  localization, and this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, account OTP mapping test.
+
+### 2026-09-03 — Account OTP welcome title
+
+- First-run OTP title is **Welcome to Creovo Billing**. Supporting copy on
+  that screen uses title case.
+- Important files: `account_otp_screen.dart`, localization, and this handoff.
+- Storage: none.
+- Verification: Dart formatting, Flutter analysis, account OTP widget test.
+
 ### 2026-09-03 — Account OTP welcome copy and number sheet
 
-- First-run OTP title is now **Your first offline billing app**. Device
+- First-run OTP title is now **Welcome to Creovo Billing**. Device
   numbers are chosen from a tap-to-select sheet (same pattern as other app
   sheets), not chips on the main screen.
 - Important files: `account_otp_screen.dart`, `account_phone.dart`,

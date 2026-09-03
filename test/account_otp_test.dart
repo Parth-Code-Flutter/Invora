@@ -35,6 +35,35 @@ void main() {
     },
   );
 
+  test('maps Firebase SMS region blocks to a clear account error', () {
+    expect(
+      mapPhoneAuthFailure(
+        code: 'operation-not-allowed',
+        message:
+            'This operation is not allowed. [ SMS unable to be sent until this region enabled by the app developer. ]',
+      ).message,
+      'SMS to India is not allowed yet. In Firebase, enable Phone sign-in and allow India in SMS region policy.',
+    );
+  });
+
+  test('maps Firestore API-off to a clear account error', () {
+    expect(
+      mapEntitlementFailure(
+        code: 'unavailable',
+        message: 'Failed to get document because the client is offline.',
+      ).message,
+      'Cloud Firestore is off. In Firebase, create a Firestore database for creovobilling, wait a minute, then tap Verify again.',
+    );
+    expect(
+      mapEntitlementFailure(
+        code: 'permission-denied',
+        message:
+            'Cloud Firestore API has not been used in project creovobilling before or it is disabled.',
+      ).message,
+      'Cloud Firestore is off. In Firebase, create a Firestore database for creovobilling, wait a minute, then tap Verify again.',
+    );
+  });
+
   testWidgets('unverified launch opens account OTP before onboarding', (
     tester,
   ) async {
@@ -56,13 +85,18 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1700));
     await tester.pumpAndSettle();
 
-    expect(find.text('Your first offline billing app'), findsOneWidget);
+    expect(find.text('Welcome to Creovo Billing'), findsNothing);
+    expect(find.text('Your first bill is minutes away'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Account mobile *')).dy,
+      lessThan(tester.getTopLeft(find.text('Works offline')).dy),
+    );
     expect(find.text('+91'), findsWidgets);
     expect(find.text('Use a number from this phone'), findsOneWidget);
     expect(find.text('On this phone'), findsNothing);
     expect(
-      find.text('Used only to check your trial and subscription.'),
-      findsOneWidget,
+      find.text('Used Only To Check Your Trial And Subscription.'),
+      findsNothing,
     );
     expect(find.text('Your invoice, ready in minutes'), findsNothing);
 

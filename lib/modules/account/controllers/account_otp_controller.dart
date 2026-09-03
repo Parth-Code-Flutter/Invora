@@ -37,6 +37,20 @@ class AccountOtpController extends GetxController {
       : 'Mobile number';
 
   @override
+  void onInit() {
+    super.onInit();
+    final e164 = _auth.e164Mobile;
+    if (_auth.isVerified && e164 != null) {
+      final imported = AccountPhone.parseImported(e164);
+      if (imported != null) applyDeviceNumber(imported);
+      waitingForOtp.value = true;
+    }
+    if (_entitlements.lastSyncError.isNotEmpty) {
+      errorMessage.value = _entitlements.lastSyncError;
+    }
+  }
+
+  @override
   void onClose() {
     mobile.dispose();
     otp.dispose();
@@ -107,14 +121,18 @@ class AccountOtpController extends GetxController {
 
   Future<void> verifyOtp() async {
     errorMessage.value = '';
-    final code = otp.text.trim();
-    if (code.length != 6) {
-      errorMessage.value = 'Enter the 6-digit OTP.';
-      return;
+    if (!_auth.isVerified) {
+      final code = otp.text.trim();
+      if (code.length != 6) {
+        errorMessage.value = 'Enter the 6-digit OTP.';
+        return;
+      }
     }
     isWorking.value = true;
     try {
-      await _auth.verifyOtp(code);
+      if (!_auth.isVerified) {
+        await _auth.verifyOtp(otp.text.trim());
+      }
       await _finish();
     } on AccountAuthException catch (error) {
       errorMessage.value = error.message;
@@ -128,10 +146,13 @@ class AccountOtpController extends GetxController {
     await sendOtp();
   }
 
-  void editNumber() {
+  Future<void> editNumber() async {
     waitingForOtp.value = false;
     otp.clear();
     errorMessage.value = '';
+    if (_auth.isVerified) {
+      await _auth.signOut();
+    }
   }
 
   Future<void> _finish() async {

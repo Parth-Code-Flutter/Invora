@@ -90,32 +90,7 @@ class FirebaseAccountAuthService implements AccountAuthService {
   AccountAuthException _mapAuthError(Object error) {
     if (error is AccountAuthException) return error;
     if (error is FirebaseAuthException) {
-      switch (error.code) {
-        case 'invalid-phone-number':
-          return AccountAuthException(
-            'Enter a valid mobile number for this country.',
-          );
-        case 'invalid-verification-code':
-          return AccountAuthException('That OTP is incorrect. Try again.');
-        case 'session-expired':
-          return AccountAuthException('OTP expired. Send a new one.');
-        case 'too-many-requests':
-          return AccountAuthException(
-            'Too many attempts. Wait a minute and try again.',
-          );
-        case 'network-request-failed':
-          return AccountAuthException(
-            'No internet. Connect once to verify this number.',
-          );
-        case 'missing-client-identifier':
-          return AccountAuthException(
-            'Phone OTP is not set up for this Android build yet.',
-          );
-        default:
-          return AccountAuthException(
-            error.message ?? 'Could not verify this number.',
-          );
-      }
+      return mapPhoneAuthFailure(code: error.code, message: error.message);
     }
     return AccountAuthException('Could not verify this number.');
   }

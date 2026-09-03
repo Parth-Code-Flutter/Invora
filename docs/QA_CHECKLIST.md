@@ -45,10 +45,16 @@ remain intentionally out of scope until explicitly requested.
   its close animation without disposed-controller or cascading overflow errors.
 
 - First launch reaches account OTP, then onboarding, then business setup. OTP
-  shows a country picker (India +91), plan-only copy, and numbers saved on
-  this phone. Indian account mobiles must start with 6–9. Tap Use a number
-  from this phone to pick from a sheet. Invoice mobile is
-  local letterhead only. Account mobile is not printed on invoices.
+  shows the hero, then number/OTP card, then benefit pills (no brand AppBar
+  or Welcome title), with a country picker (India +91), plan-only helper copy,
+  and numbers saved on this phone.
+  Indian account mobiles must start with 6–9. Tap Use a number from this
+  phone to pick from a sheet. Invoice mobile is local letterhead only.
+  Account mobile is not printed on invoices. If Firestore is off, Verify
+  shows a create-database or deploy-rules error instead of crashing.
+  Shop setup must not open until Verify succeeds; a restart with a Phone
+  session but no entitlement returns to OTP. Publish the full
+  `firestore.rules` file starting with `rules_version`.
 - Business profile persists with GST identity and invoice defaults.
 - Customer create, search, edit, validation, and soft delete.
 - Product/service create, filter, edit, units, GST presets, and soft delete.
