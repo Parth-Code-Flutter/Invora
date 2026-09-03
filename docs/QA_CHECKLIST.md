@@ -141,7 +141,9 @@ remain intentionally out of scope until explicitly requested.
 
 ## Native/manual device pass still required
 
-- Grant/deny Contacts permission and import a real phone contact.
+- iOS first launch (after plist + APNs): same OTP UI and gate as Android.
+  Confirm Push Notifications + APNs key, then a Firebase test phone, then
+  Verify → onboarding. Without APNs, Phone Auth may show reCAPTCHA or fail.
 - First launch: no Welcome title or brand AppBar; hero, then mobile/OTP
   field, then benefit pills. Country picker defaults to +91; a 10-digit
   number starting with 1 is rejected; a valid 6–9 number sends OTP (Firebase

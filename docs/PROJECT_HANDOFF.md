@@ -99,8 +99,33 @@ SHA-256:
    and shows “Plan storage denied this number.”
 5. Authentication → Sign-in method → Phone enabled. Authentication →
    Settings → SMS region policy → allow **India**. Spark: add a test phone
-   + fake OTP; production SMS often needs Blaze. iOS still needs
-   `GoogleService-Info.plist`.
+   + fake OTP; production SMS often needs Blaze.
+
+**iOS (keep in lockstep with Android)**
+
+Same Firebase project, Phone provider, SMS region, Firestore database, and
+rules. iOS does **not** use SHA-1. It uses bundle ID + APNs.
+
+Repo today: bundle ID `com.creovo.billing`. `ios/Runner/GoogleService-Info.plist`
+is in the tree (iOS app id `1:927000045835:ios:e25e5e82a2c6385097da0e`).
+`lib/firebase_options.dart` has matching `DefaultFirebaseOptions.ios`.
+`Info.plist` has the Phone Auth URL scheme
+`app-1-927000045835-ios-e25e5e82a2c6385097da0e` (this download had no
+`REVERSED_CLIENT_ID`). Runner has Push entitlements
+(`aps-environment` development) and remote-notification background mode.
+
+Still operator-only on Apple/Firebase:
+
+1. Xcode signing: select your Team for `com.creovo.billing`.
+2. Apple Developer → Keys → **APNs Auth Key** (.p8). Firebase → Project
+   settings → Cloud Messaging → Apple app configuration → upload Key ID +
+   Team ID. Without this, a real iPhone OTP uses reCAPTCHA or fails.
+3. Same as Android: India SMS region, published `firestore.rules`,
+   `plans/default`. Test with a Firebase test phone first. App Check can wait.
+
+If Firebase later adds `REVERSED_CLIENT_ID` to a new plist, add that URL
+scheme too. Do not create a second Firestore database. Do not put invoices
+in Firebase. Team ID / APNs key stay in the consoles, not this repo.
 
 **Errors vs log noise**
 
@@ -128,10 +153,11 @@ stores.
   field and a searchable category dropdown. Optional logo is added from the
   preview placeholder, which shows an Add logo camera prompt. Business profile
   **Invoice mobile** is local letterhead only and is
-  never written to Firebase. Android Firebase is wired with
-  `android/app/google-services.json` and `lib/firebase_options.dart` for
-  project `creovobilling` (`com.creovo.billing`). iOS still needs
-  `GoogleService-Info.plist`.
+  never written to Firebase. Android uses `android/app/google-services.json`
+  and iOS uses `ios/Runner/GoogleService-Info.plist` with matching entries in
+  `lib/firebase_options.dart` for project `creovobilling`
+  (`com.creovo.billing`). iOS still needs an APNs auth key in the Firebase
+  console for reliable Phone OTP on a device.
 - One-time onboarding workspace choice between Sales and Purchases. Existing
   installations default safely to Sales; the initial choice and most recently
   active workspace persist locally. Users can switch from the dashboard, the
@@ -869,13 +895,11 @@ As of 2026-08-28:
     invoices; PIN/lock is off; a ZIP previously shared to Files still opens;
     in-app `creovo_backups` copies are gone.
 21. Firebase console: `(default)` Firestore and `plans/default` were created
-    2026-09-03. Confirm Rules are the full `firestore.rules` file (must
-    start with `rules_version = '2';`, not the comment block). Confirm India
-    is allowed in Authentication → Settings → SMS region policy. Error
-    17006 is that SMS region block. iOS OTP still needs
-    `GoogleService-Info.plist`. Spark real SMS usually needs a test phone;
-    production SMS often needs Blaze. See **Account identity** under
-    Current implementation.
+    2026-09-03. Confirm Rules are the full `firestore.rules` file. Confirm
+    India in SMS region policy. iOS app + plist + Flutter options are in
+    the repo; upload an APNs auth key (Key ID + Team ID) under Cloud
+    Messaging for real iPhone OTP. Spark real SMS usually needs a test
+    phone; production SMS often needs Blaze. See **Account identity**.
 
 Do not add cloud sync, authentication, inventory, full accounting, e-invoice,
 e-way bill, online payments, or multi-user features without changing V1 scope.
@@ -883,6 +907,29 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-03 — Wire iOS Firebase Phone Auth config
+
+- Added `ios/Runner/GoogleService-Info.plist` (bundle `com.creovo.billing`,
+  app id `…:ios:e25e5e82a2c6385097da0e`), `DefaultFirebaseOptions.ios`,
+  Phone Auth URL scheme, Push entitlements, and remote-notification
+  background mode. Remaining: APNs key in Firebase Cloud Messaging and
+  Xcode Team signing.
+- Important files: `GoogleService-Info.plist`, `firebase_options.dart`,
+  `Info.plist`, `Runner.entitlements`, `project.pbxproj`, this handoff.
+- Storage: none beyond the client plist (same class as
+  `google-services.json`).
+- Verification: Dart formatting, Flutter analysis, account OTP widget test.
+
+### 2026-09-03 — iOS Firebase OTP operator steps in handoff
+
+- Account identity now documents how to keep iOS in lockstep with Android:
+  iOS app for `com.creovo.billing`, `GoogleService-Info.plist`, FlutterFire
+  options, REVERSED_CLIENT_ID URL scheme, Push/APNs. Same Phone/Firestore
+  project; no second database.
+- Important files: this handoff.
+- Storage: none. Plist is not in the repo yet.
+- Verification: documentation only.
 
 ### 2026-09-03 — Account identity documented in handoff
 

@@ -744,6 +744,8 @@ const Map<String, String> appHindiCoverageTranslations = {
       'सब्सक्रिप्शन प्लान अभी सेट नहीं हैं।',
   'Could not start the plan for this number.':
       'इस नंबर के लिए प्लान शुरू नहीं हो सका।',
+  'Firebase is not configured yet. Add google-services.json (Android) or GoogleService-Info.plist (iOS) and try again.':
+      'Firebase अभी सेट नहीं है। google-services.json (Android) या GoogleService-Info.plist (iOS) जोड़ें।',
   'Phone sign-in is off. Enable Phone in Firebase Authentication → Sign-in method.':
       'Phone साइन-इन बंद है। Firebase Authentication → Sign-in method में Phone चालू करें।',
   'That OTP is incorrect. Try again.': 'OTP गलत है। फिर कोशिश करें।',
@@ -2389,6 +2391,8 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Subscription plans are not set up yet.': 'સબ્સ્ક્રિપ્શન પ્લાન હજુ સેટ નથી.',
   'Could not start the plan for this number.':
       'આ નંબર માટે પ્લાન શરૂ થઈ શક્યો નહીં.',
+  'Firebase is not configured yet. Add google-services.json (Android) or GoogleService-Info.plist (iOS) and try again.':
+      'Firebase હજુ સેટ નથી. google-services.json (Android) અથવા GoogleService-Info.plist (iOS) ઉમેરો.',
   'Phone sign-in is off. Enable Phone in Firebase Authentication → Sign-in method.':
       'Phone સાઇન-ઇન બંધ છે. Firebase Authentication → Sign-in methodમાં Phone ચાલુ કરો.',
   'That OTP is incorrect. Try again.': 'OTP ખોટો છે. ફરી પ્રયાસ કરો.',

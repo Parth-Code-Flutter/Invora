@@ -1,5 +1,5 @@
-// Android Firebase options from android/app/google-services.json
-// (project creovobilling). iOS needs GoogleService-Info.plist later.
+// Firebase options from android/app/google-services.json and
+// ios/Runner/GoogleService-Info.plist (project creovobilling).
 
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
@@ -14,12 +14,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'Add GoogleService-Info.plist before running Firebase on iOS.',
-        );
+        return ios;
       default:
         throw UnsupportedError(
-          'Firebase is only configured for Android in this app.',
+          'Firebase is only configured for Android and iOS in this app.',
         );
     }
   }
@@ -30,5 +28,14 @@ class DefaultFirebaseOptions {
     messagingSenderId: '927000045835',
     projectId: 'creovobilling',
     storageBucket: 'creovobilling.firebasestorage.app',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyBZQqc5Zmx6Y4q10PAygniT8xA1nYEe8j8',
+    appId: '1:927000045835:ios:e25e5e82a2c6385097da0e',
+    messagingSenderId: '927000045835',
+    projectId: 'creovobilling',
+    storageBucket: 'creovobilling.firebasestorage.app',
+    iosBundleId: 'com.creovo.billing',
   );
 }

@@ -153,14 +153,14 @@ class UnconfiguredAccountAuthService implements AccountAuthService {
   @override
   Future<void> sendOtp(String phone) async {
     throw AccountAuthException(
-      'Firebase is not configured yet. Add google-services.json and try again.',
+      'Firebase is not configured yet. Add google-services.json (Android) or GoogleService-Info.plist (iOS) and try again.',
     );
   }
 
   @override
   Future<void> verifyOtp(String smsCode) async {
     throw AccountAuthException(
-      'Firebase is not configured yet. Add google-services.json and try again.',
+      'Firebase is not configured yet. Add google-services.json (Android) or GoogleService-Info.plist (iOS) and try again.',
     );
   }
 
