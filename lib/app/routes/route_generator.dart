@@ -6,8 +6,8 @@ import '../../modules/splash/screens/splash_screen.dart';
 import '../../modules/splash/bindings/splash_binding.dart';
 import '../../modules/onboarding/bindings/onboarding_binding.dart';
 import '../../modules/onboarding/screens/onboarding_screen.dart';
-import '../../modules/onboarding/screens/workspace_setup_screen.dart';
-import '../../modules/purchases/screens/purchase_workspace_screen.dart';
+import '../../modules/documents/screens/documents_screen.dart';
+import '../../modules/parties/screens/parties_screen.dart';
 import '../../modules/purchases/screens/purchase_screens.dart';
 import '../../modules/purchases/screens/purchase_bill_pdf_screen.dart';
 import '../../modules/purchases/screens/debit_note_create_screen.dart';
@@ -20,7 +20,6 @@ import '../../modules/dashboard/screens/dashboard_screen.dart';
 import '../../modules/customers/bindings/customer_bindings.dart';
 import '../../modules/customers/screens/customer_details_screen.dart';
 import '../../modules/customers/screens/customer_form_screen.dart';
-import '../../modules/customers/screens/customer_list_screen.dart';
 import '../../modules/customers/screens/customer_statement_screen.dart';
 import '../../modules/products/bindings/product_bindings.dart';
 import '../../modules/products/screens/product_details_screen.dart';
@@ -103,18 +102,27 @@ abstract final class AppRouter {
     ),
     GetPage(
       name: AppRoutes.workspaceSetup,
-      page: WorkspaceSetupScreen.new,
-      binding: OnboardingBinding(),
+      page: BusinessSetupScreen.new,
+      binding: BusinessSetupBinding(),
     ),
     GetPage(
       name: AppRoutes.purchases,
-      page: PurchaseWorkspaceScreen.new,
+      page: DashboardScreen.new,
+      binding: DashboardBinding(),
+      transition: Transition.noTransition,
+      transitionDuration: Duration.zero,
+    ),
+    GetPage(
+      name: AppRoutes.documents,
+      page: DocumentsScreen.new,
+      binding: InvoiceListBinding(),
       transition: Transition.noTransition,
       transitionDuration: Duration.zero,
     ),
     GetPage(
       name: AppRoutes.purchaseBills,
-      page: PurchaseBillListScreen.new,
+      page: () => const DocumentsScreen(purchases: true),
+      binding: InvoiceListBinding(),
       transition: Transition.noTransition,
       transitionDuration: Duration.zero,
     ),
@@ -139,7 +147,8 @@ abstract final class AppRouter {
     ),
     GetPage(
       name: AppRoutes.suppliers,
-      page: SupplierListScreen.new,
+      page: () => const PartiesScreen(suppliers: true),
+      binding: CustomerListBinding(),
       transition: Transition.noTransition,
       transitionDuration: Duration.zero,
     ),
@@ -156,8 +165,15 @@ abstract final class AppRouter {
       transitionDuration: Duration.zero,
     ),
     GetPage(
+      name: AppRoutes.parties,
+      page: PartiesScreen.new,
+      binding: CustomerListBinding(),
+      transition: Transition.noTransition,
+      transitionDuration: Duration.zero,
+    ),
+    GetPage(
       name: AppRoutes.customers,
-      page: CustomerListScreen.new,
+      page: PartiesScreen.new,
       binding: CustomerListBinding(),
       transition: Transition.noTransition,
       transitionDuration: Duration.zero,
@@ -204,7 +220,7 @@ abstract final class AppRouter {
     ),
     GetPage(
       name: AppRoutes.invoices,
-      page: InvoiceListScreen.new,
+      page: DocumentsScreen.new,
       binding: InvoiceListBinding(),
       transition: Transition.noTransition,
       transitionDuration: Duration.zero,

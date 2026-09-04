@@ -129,7 +129,7 @@ class InvoicePreviewController extends GetxController {
         Get.offAllNamed<void>(
           saved.documentType == DocumentType.quotation
               ? AppRoutes.quotations
-              : AppRoutes.invoices,
+              : AppRoutes.documents,
         );
       }
     } finally {

@@ -5,32 +5,49 @@ import 'package:get/get.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
+import '../../../data/repositories/purchase_repository.dart';
 import '../../../data/models/report_summary_model.dart';
 import '../../../data/models/invoice_model.dart';
+import '../../../data/models/purchase_models.dart';
 import '../../../data/services/backup_service.dart';
 import '../../../app/enums/invoice_status.dart';
 import '../../../app/routes/app_routes.dart';
+import '../../../app/routes/shell_args.dart';
 import '../../invoices/controllers/invoice_list_controller.dart';
 
 class DashboardController extends GetxController {
   DashboardController(
     this._repository,
     this._invoiceRepository,
+    this._purchaseRepository,
     this._backupService,
   );
 
   final BusinessRepository _repository;
   final InvoiceRepository _invoiceRepository;
+  final PurchaseRepository _purchaseRepository;
   final BackupService _backupService;
   final profile = Rxn<BusinessProfileModel>();
   final report = const ReportSummaryModel().obs;
   final invoices = <InvoiceSummaryModel>[].obs;
   final recentInvoices = <InvoiceSummaryModel>[].obs;
+  final purchase = const PurchaseDashboardSummary(
+    totalSpendMinor: 0,
+    paidMinor: 0,
+    payableMinor: 0,
+    overdueMinor: 0,
+    billCount: 0,
+    supplierCount: 0,
+  ).obs;
   final backupDue = false.obs;
   final reportLoading = true.obs;
   final recentLoading = true.obs;
+  final purchaseLoading = true.obs;
   StreamSubscription<ReportSummaryModel>? _reportSubscription;
   StreamSubscription<List<InvoiceSummaryModel>>? _recentSubscription;
+  StreamSubscription<PurchaseDashboardSummary>? _purchaseSubscription;
+
+  bool get hasPayables => purchase.value.payableMinor > 0;
 
   @override
   void onInit() {
@@ -50,6 +67,12 @@ class DashboardController extends GetxController {
           recentInvoices.assignAll(values.take(5));
           recentLoading.value = false;
         }, onError: (_) => recentLoading.value = false);
+    _purchaseSubscription = _purchaseRepository.watchDashboard().listen((
+      value,
+    ) {
+      purchase.value = value;
+      purchaseLoading.value = false;
+    }, onError: (_) => purchaseLoading.value = false);
   }
 
   void refreshBackupStatus() => backupDue.value = _backupService.isBackupDue;
@@ -106,7 +129,17 @@ class DashboardController extends GetxController {
     if (Get.isRegistered<InvoiceListController>()) {
       Get.find<InvoiceListController>().selectFilter(filter);
     }
-    Get.offAllNamed<void>(AppRoutes.invoices, arguments: filter);
+    Get.offAllNamed<void>(
+      AppRoutes.documents,
+      arguments: DocumentsOpenArgs(invoiceFilter: filter),
+    );
+  }
+
+  void openPurchaseBills({String? billFilter}) {
+    Get.offAllNamed<void>(
+      AppRoutes.documents,
+      arguments: DocumentsOpenArgs(purchases: true, billFilter: billFilter),
+    );
   }
 
   Future<void> _loadProfile() async {
@@ -117,6 +150,7 @@ class DashboardController extends GetxController {
   void onClose() {
     _reportSubscription?.cancel();
     _recentSubscription?.cancel();
+    _purchaseSubscription?.cancel();
     super.onClose();
   }
 }

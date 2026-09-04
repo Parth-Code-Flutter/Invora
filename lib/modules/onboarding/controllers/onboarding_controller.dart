@@ -33,7 +33,8 @@ class OnboardingController extends GetxController {
   }
 
   Future<void> complete() async {
-    Get.offAllNamed<void>(AppRoutes.workspaceSetup);
+    await _storage.setBool(AppStorageKeyConst.onboardingCompleted, true);
+    Get.offAllNamed<void>(AppRoutes.businessSetup);
   }
 
   Future<void> selectWorkspace(BusinessWorkspace workspace) async {

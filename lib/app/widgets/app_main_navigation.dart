@@ -11,7 +11,7 @@ import '../utils/app_focus.dart';
 import '../utils/responsive_utils.dart';
 import 'app_bottom_sheet.dart';
 
-enum MainDestination { home, invoices, customers, more }
+enum MainDestination { home, documents, parties, more }
 
 class AppMainNavigation extends StatelessWidget {
   const AppMainNavigation({required this.current, super.key});
@@ -59,17 +59,17 @@ class AppMainNavigation extends StatelessWidget {
                       route: AppRoutes.dashboard,
                     ),
                     _destination(
-                      destination: MainDestination.invoices,
+                      destination: MainDestination.documents,
                       icon: Symbols.receipt_long_rounded,
-                      label: 'Invoices',
-                      route: AppRoutes.invoices,
+                      label: 'Documents',
+                      route: AppRoutes.documents,
                     ),
                     const Expanded(child: SizedBox()),
                     _destination(
-                      destination: MainDestination.customers,
+                      destination: MainDestination.parties,
                       icon: Symbols.group_rounded,
-                      label: 'Customers',
-                      route: AppRoutes.customers,
+                      label: 'Parties',
+                      route: AppRoutes.parties,
                     ),
                     _destination(
                       destination: MainDestination.more,
@@ -136,7 +136,7 @@ class AppMainNavigation extends StatelessWidget {
       button: true,
       label: 'Create new',
       child: InkWell(
-        onTap: () => showSalesCreateSheet(context),
+        onTap: () => showCreateSheet(context),
         customBorder: const CircleBorder(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -196,43 +196,74 @@ class AppMainNavigation extends StatelessWidget {
   }
 }
 
-Future<void> showSalesCreateSheet(BuildContext context) async {
+Future<void> showCreateSheet(BuildContext context) async {
   await AppFocus.dismissKeyboard();
   if (!context.mounted) return;
   await showAppBottomSheet<void>(
     context: context,
     title: 'Create new',
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _CreateAction(
-          icon: Symbols.receipt_long_rounded,
-          title: 'Invoice',
-          subtitle: 'Create a customer invoice',
-          onTap: () => _openCreateRoute(context, AppRoutes.invoiceCreate),
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.72,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CreateAction(
+              icon: Symbols.receipt_long_rounded,
+              title: 'Invoice',
+              subtitle: 'Create a customer invoice',
+              onTap: () => _openCreateRoute(context, AppRoutes.invoiceCreate),
+            ),
+            _CreateAction(
+              icon: Symbols.request_quote_rounded,
+              title: 'Estimate',
+              subtitle: 'Create a quotation or estimate',
+              onTap: () => _openCreateRoute(context, AppRoutes.quotationCreate),
+            ),
+            _CreateAction(
+              icon: Symbols.receipt_long_rounded,
+              title: 'Purchase bill',
+              subtitle: 'Record a supplier bill',
+              onTap: () =>
+                  _openCreateRoute(context, AppRoutes.purchaseBillCreate),
+            ),
+            _CreateAction(
+              icon: Symbols.assignment_rounded,
+              title: 'Purchase order',
+              subtitle: 'Order goods, then receive and bill later',
+              onTap: () =>
+                  _openCreateRoute(context, AppRoutes.purchaseOrderCreate),
+            ),
+            _CreateAction(
+              icon: Symbols.person_add_rounded,
+              title: 'Customer',
+              subtitle: 'Save a new customer',
+              onTap: () => _openCreateRoute(context, AppRoutes.customerAdd),
+            ),
+            _CreateAction(
+              icon: Symbols.storefront_rounded,
+              title: 'Supplier',
+              subtitle: 'Add a supplier',
+              onTap: () => _openCreateRoute(context, AppRoutes.supplierAdd),
+            ),
+            _CreateAction(
+              icon: Symbols.inventory_2_rounded,
+              title: 'Product or service',
+              subtitle: 'Add an item for faster invoicing',
+              onTap: () => _openCreateRoute(context, AppRoutes.productAdd),
+            ),
+          ],
         ),
-        _CreateAction(
-          icon: Symbols.request_quote_rounded,
-          title: 'Estimate',
-          subtitle: 'Create a quotation or estimate',
-          onTap: () => _openCreateRoute(context, AppRoutes.quotationCreate),
-        ),
-        _CreateAction(
-          icon: Symbols.person_add_rounded,
-          title: 'Customer',
-          subtitle: 'Save a new customer',
-          onTap: () => _openCreateRoute(context, AppRoutes.customerAdd),
-        ),
-        _CreateAction(
-          icon: Symbols.inventory_2_rounded,
-          title: 'Product or service',
-          subtitle: 'Add an item for faster invoicing',
-          onTap: () => _openCreateRoute(context, AppRoutes.productAdd),
-        ),
-      ],
+      ),
     ),
   );
 }
+
+@Deprecated('Use showCreateSheet')
+Future<void> showSalesCreateSheet(BuildContext context) =>
+    showCreateSheet(context);
 
 void _openCreateRoute(BuildContext context, String route) {
   Navigator.pop(context);
@@ -245,8 +276,8 @@ class AppSalesNavigationRail extends StatelessWidget {
 
   static const _routes = [
     AppRoutes.dashboard,
-    AppRoutes.invoices,
-    AppRoutes.customers,
+    AppRoutes.documents,
+    AppRoutes.parties,
     AppRoutes.more,
   ];
 
@@ -281,7 +312,7 @@ class AppSalesNavigationRail extends StatelessWidget {
             child: FloatingActionButton(
               heroTag: 'sales-rail-create',
               tooltip: l10n('Create new'),
-              onPressed: () => showSalesCreateSheet(context),
+              onPressed: () => showCreateSheet(context),
               child: const Icon(Symbols.add_rounded),
             ),
           ),
@@ -296,12 +327,12 @@ class AppSalesNavigationRail extends StatelessWidget {
         NavigationRailDestination(
           icon: Icon(Symbols.receipt_long_rounded),
           selectedIcon: Icon(Symbols.receipt_long_rounded, fill: 1),
-          label: Text('Invoices'),
+          label: Text('Documents'),
         ),
         NavigationRailDestination(
           icon: Icon(Symbols.group_rounded),
           selectedIcon: Icon(Symbols.group_rounded, fill: 1),
-          label: Text('Customers'),
+          label: Text('Parties'),
         ),
         NavigationRailDestination(
           icon: Icon(Symbols.widgets_rounded),

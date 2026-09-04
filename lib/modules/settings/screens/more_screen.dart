@@ -11,12 +11,10 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_menu_group.dart';
-import '../../../app/widgets/app_purchase_navigation.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/business_profile_model.dart';
-import '../../../data/services/business_workspace_service.dart';
 import '../controllers/more_controller.dart';
 import '../more_destinations.dart';
 
@@ -25,74 +23,63 @@ class MoreScreen extends GetView<MoreController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final purchases = Get.find<BusinessWorkspaceService>().isPurchases;
-      return AppShell(
-        salesDestination: purchases ? null : MainDestination.more,
-        purchaseDestination: purchases ? PurchaseDestination.more : null,
-        appBar: AppSearchAppBar(
-          title: 'More',
-          hint: 'Search features',
-          onChanged: controller.updateSearch,
-        ),
-        body: ResponsiveContent(
-          tabletMaxWidth: 720,
-          child: ListView(
-            padding: const EdgeInsets.only(top: 4, bottom: 12),
-            children: [
-              Obx(
-                () => _BusinessHeader(
-                  controller: controller,
-                  profile: controller.profile.value,
-                ),
+    return AppShell(
+      destination: MainDestination.more,
+      appBar: AppSearchAppBar(
+        title: 'More',
+        hint: 'Search features',
+        onChanged: controller.updateSearch,
+      ),
+      body: ResponsiveContent(
+        tabletMaxWidth: 720,
+        child: ListView(
+          padding: const EdgeInsets.only(top: 4, bottom: 12),
+          children: [
+            Obx(
+              () => _BusinessHeader(
+                controller: controller,
+                profile: controller.profile.value,
               ),
-              const SizedBox(height: 14),
-              Obx(() {
-                final searching = controller.isSearching;
-                final groups = controller.visibleGroups;
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (groups.isEmpty) ...[
-                      const SizedBox(height: 28),
-                      AppEmptyState(
-                        icon: Icons.search_off_rounded,
-                        title: 'No matching features',
-                        message:
-                            'Try a different name, like GST, stock, or backup.',
-                      ),
-                    ] else ...[
-                      for (var index = 0; index < groups.length; index++) ...[
-                        SizedBox(height: index == 0 ? 18 : 22),
-                        _section(context, groups[index], searching: searching),
-                      ],
+            ),
+            const SizedBox(height: 14),
+            Obx(() {
+              final groups = controller.visibleGroups;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (groups.isEmpty) ...[
+                    const SizedBox(height: 28),
+                    AppEmptyState(
+                      icon: Icons.search_off_rounded,
+                      title: 'No matching features',
+                      message:
+                          'Try a different name, like GST, stock, or backup.',
+                    ),
+                  ] else ...[
+                    for (var index = 0; index < groups.length; index++) ...[
+                      SizedBox(height: index == 0 ? 18 : 22),
+                      _section(groups[index]),
                     ],
                   ],
-                );
-              }),
-              Obx(
-                () => controller.isSearching
-                    ? const SizedBox(height: 20)
-                    : const Padding(
-                        padding: EdgeInsets.only(top: 20),
-                        child: _PrivacyNote(),
-                      ),
-              ),
-            ],
-          ),
+                ],
+              );
+            }),
+            Obx(
+              () => controller.isSearching
+                  ? const SizedBox(height: 20)
+                  : const Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: _PrivacyNote(),
+                    ),
+            ),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 
-  Widget _section(
-    BuildContext context,
-    MoreDestinationGroup group, {
-    required bool searching,
-  }) {
-    final workspace = Get.find<BusinessWorkspaceService>();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Widget _section(MoreDestinationGroup group) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,46 +92,17 @@ class MoreScreen extends GetView<MoreController> {
                 icon: item.icon,
                 title: item.title,
                 subtitle: item.subtitle,
-                selected: switch (item.action) {
-                  MoreDestinationAction.salesWorkspace => workspace.isSales,
-                  MoreDestinationAction.purchasesWorkspace =>
-                    workspace.isPurchases,
-                  MoreDestinationAction.openRoute => null,
-                },
-                onTap: () => _open(item, workspace),
+                onTap: () => _open(item),
               ),
           ],
         ),
-        if (group.id == 'workspace' && !searching) ...[
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.only(left: 4),
-            child: Text(
-              'Tap Sales or Purchases to change mode. Records stay separate.',
-              style: AppTextStyles.caption.copyWith(
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.textTertiary,
-                fontWeight: FontWeight.w400,
-                height: 1.35,
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }
 
-  void _open(MoreDestination item, BusinessWorkspaceService workspace) {
-    switch (item.action) {
-      case MoreDestinationAction.salesWorkspace:
-        workspace.select(BusinessWorkspace.sales);
-      case MoreDestinationAction.purchasesWorkspace:
-        workspace.select(BusinessWorkspace.purchases);
-      case MoreDestinationAction.openRoute:
-        final route = item.route;
-        if (route != null) Get.toNamed<void>(route);
-    }
+  void _open(MoreDestination item) {
+    final route = item.route;
+    if (route != null) Get.toNamed<void>(route);
   }
 }
 

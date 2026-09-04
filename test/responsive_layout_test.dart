@@ -242,7 +242,7 @@ void main() {
       await tester.pumpWidget(
         const GetMaterialApp(
           home: AppShell(
-            salesDestination: MainDestination.home,
+            destination: MainDestination.home,
             body: SizedBox.expand(),
           ),
         ),

@@ -4,7 +4,6 @@ import '../../data/repositories/business_repository.dart';
 import '../../data/services/account_auth_service.dart';
 import '../../data/services/account_entitlement_service.dart';
 import '../../data/services/app_storage.dart';
-import '../../data/services/business_workspace_service.dart';
 import '../constants/app_storage_key_const.dart';
 import 'app_routes.dart';
 
@@ -46,9 +45,6 @@ abstract final class StartupNavigator {
       return;
     }
     await delay;
-    final workspace = Get.find<BusinessWorkspaceService>();
-    Get.offAllNamed<void>(
-      workspace.isPurchases ? AppRoutes.purchases : AppRoutes.dashboard,
-    );
+    Get.offAllNamed<void>(AppRoutes.dashboard);
   }
 }

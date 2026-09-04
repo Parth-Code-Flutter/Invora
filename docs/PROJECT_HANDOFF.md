@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-09-03
+Last updated: 2026-09-04
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -113,6 +113,8 @@ is in the tree (iOS app id `1:927000045835:ios:e25e5e82a2c6385097da0e`).
 `app-1-927000045835-ios-e25e5e82a2c6385097da0e` (this download had no
 `REVERSED_CLIENT_ID`). Runner has Push entitlements
 (`aps-environment` development) and remote-notification background mode.
+The Runner iOS deployment target is **15.0** (Podfile was already 15; Xcode
+was 13). Firebase Auth / Core / Firestore SPM products require 15.
 
 Still operator-only on Apple/Firebase:
 
@@ -158,17 +160,25 @@ stores.
   `lib/firebase_options.dart` for project `creovobilling`
   (`com.creovo.billing`). iOS still needs an APNs auth key in the Firebase
   console for reliable Phone OTP on a device.
-- One-time onboarding workspace choice between Sales and Purchases. Existing
-  installations default safely to Sales; the initial choice and most recently
-  active workspace persist locally. Users can switch from the dashboard, the
-  isolated Purchase workspace, or the first More tile without converting,
-  deleting, or mixing sales records.
-- Purchase is a complete, separate offline workspace rather than a placeholder:
-  it has a purchase overview, searchable suppliers, searchable purchase bills,
-  supplier-bill creation/editing with GST line items, bill details, payable
-  balances, supplier-payment history, and its own Home/Bills/Create/Suppliers/
-  More navigation. A labelled Sales/Purchases control switches workspaces;
-  sales customers/invoices and purchase suppliers/bills use separate tables.
+- One app after OTP and business setup: splash, onboarding, and first save
+  always open Home. There is no Sales vs Purchases workspace choice and no
+  Change workspace control. Phone dock is **Home · Documents · + · Parties ·
+  More** (still five items). Documents has Sales | Purchases tabs wrapping the
+  existing invoice list and purchase-bill list. Parties has Customers |
+  Suppliers wrapping the existing lists. The + sheet creates Invoice,
+  Estimate, Purchase bill, Purchase order, Customer, Supplier, or Product.
+  Last Documents/Parties tab is remembered in `AppStorage` only; sales and
+  purchase records stay in separate tables. `/workspace-setup`, `/purchases`,
+  `/invoices`, `/customers`, `/purchases/bills`, and `/purchases/suppliers`
+  redirect into this shell so old links are not stranded.
+- Purchase remains a complete, separate offline ledger rather than a
+  placeholder: searchable suppliers, searchable purchase bills, supplier-bill
+  creation/editing with GST line items, bill details, payable balances,
+  supplier-payment history. Users reach those screens from Documents →
+  Purchases and Parties → Suppliers, not from a second dock. A labelled
+  Sales/Purchases control used to switch workspaces; that switcher is gone.
+  Sales customers/invoices and purchase suppliers/bills still use separate
+  tables.
   Supplier creation supports the same native phone-contact import behavior and
   contact validation as customer creation. Supplier profiles persist a GST
   registration type (Unregistered, Regular, Composition, or SEZ); the focused
@@ -211,10 +221,10 @@ stores.
   included. Saved bill details accept original PDF/image attachments,
   and portable attachment files are included in local backup/restore archives.
   Purchase GST/payment selectors use the same shared bottom-sheet dropdown as
-  Sales, and Purchase bottom navigation mirrors the Sales Material Symbol
-  weights, selected states, raised create action, dark-mode border, and focus
-  handling while retaining Purchase-specific routes.
-- Current Drift database schema is version 19. Version 19 adds purchase
+  Sales.
+- Current Drift database schema is version 22. Version 22 adds catalog
+  photo paths. Version 21 adds per-product stock tracking. Version 20 adds
+  stock settings and movement rows. Version 19 adds purchase
   order tables. Version 18 adds delivery
   challan tables. Version 17 adds bulk-import
   batch audit tables. Version 16 adds cash-book accounts and movements.
@@ -231,8 +241,8 @@ stores.
   live invoice-header preview, explicit add/replace/remove logo actions, and a
   category impact note, while first-run onboarding keeps its guided setup UI.
 - Responsive phone/tablet layouts and dark mode. Phone screens keep the existing
-  bottom dock and stacked forms. Tablets use a shared `AppShell` NavigationRail
-  on Sales and Purchase root tabs. Home screens are two-pane (actions +
+  bottom dock and stacked forms.   Tablets use a shared `AppShell` NavigationRail
+  on Home, Documents, Parties, and More. Home screens are two-pane (snapshot +
   activity). Onboarding is a centred visual plus copy/CTA cluster. Forms stay
   on a readable canvas instead of stretching edge-to-edge. Lists use 2/3-column
   cards; sheets open as centred dialogs.
@@ -325,8 +335,8 @@ stores.
   barcode workflows remain separate.
 - More and App Settings use classic grouped settings panels: one bordered
   card per section, inset hairline dividers, compact 14px rows, plum icon
-  wells, and a chevron instead of a circular arrow. More is the daily hub:
-  workspace switch, product fields, units, catalog, estimates, expenses,
+  wells, and a chevron instead of a circular arrow.   More is the daily hub:
+  product fields, units, catalog, estimates, expenses,
   reports, ageing and reminders, GST / CA export, and backup. Search sits in
   the More AppBar like Invoices: the icon expands to Search features. It
   filters destinations by name, subtitle, section, and common aliases (GST,
@@ -338,9 +348,8 @@ stores.
   export, and backup are not repeated
   inside Settings. More leads with a business identity card: logo, Business
   profile label, name, owner/mobile, GSTIN chip when present, and a chevron.
-  Tap the card to edit the profile. A Change workspace
-  list with named Sales and Purchases choices (check marks the active mode)
-  that does not leave the screen. The privacy line is a caption, not a tinted
+  Tap the card to edit the profile. Sales invoices and purchase bills are
+  opened from Documents; customers and suppliers from Parties. The privacy line is a caption, not a tinted
   banner. Secondary tools no longer require horizontal discovery scrolling.
 - App Settings includes a focused Invoice Defaults workspace for immediate,
   7/15/30-day, or custom due periods; tax mode and GST rate; document notes and
@@ -679,13 +688,13 @@ stores.
   (Products, Estimates, Expenses, Reports). To collect is a separate card
   under that snapshot: compact Overdue
   / This week filters, then up to three people with the balance due. Tap a
-  name to open that invoice; View all opens the filtered list. Phone Home
-  does not repeat a full invoice stack. Tablets still show follow-up or recent
+  name to open that invoice; View all opens the filtered Documents sales list.
+  Phone Home does not repeat a full invoice stack. When unpaid supplier bills
+  exist, a compact To pay strip under To collect opens Documents on Purchases
+  (overdue or unpaid). Tablets still show follow-up or recent
   invoices in the right pane. Backup appears when due. Create stays on the
-  center + (phone) and the sales rail FAB (tablet). Invoices, Customers, and
-  GST / CA export are not duplicated as Home tiles. Purchase Home uses the
-  same snapshot language for payables (amount to pay, paid ring, and Purchased /
-  Paid / Overdue chips).
+  center + (phone) and the rail FAB (tablet). GST / CA export is not
+  duplicated as a Home tile.
 - Automated whole-flow QA covers the offline GST lifecycle from business,
   customer, and catalog data through invoice payments/reversal, quotation
   conversion, PDF generation, and backup validation. Native picker/share/print
@@ -810,10 +819,15 @@ As of 2026-08-28:
 
 ## Known issues / next work
 
-1. Purchase CSV export shipped 2026-08-28 with bulk import (`P0.2`):
+1. Physical-device QA of the unified shell: splash → OTP → onboarding →
+   business setup → Home; dock Home / Documents / + / Parties / More;
+   Sales|Purchases and Customers|Suppliers tabs; create sheet includes
+   Invoice and Purchase bill; Home To pay opens overdue bills; confirm no
+   workspace switcher remains.
+2. Purchase CSV export shipped 2026-08-28 with bulk import (`P0.2`):
    suppliers, purchase bills, and purchase payments from Export data, plus
    the all-CSV ZIP. Physical-device open-in-Excel checks remain.
-2. Configure secure Android release signing; release still references debug
+3. Configure secure Android release signing; release still references debug
    signing.
 3. Verify Android AAB and iOS archive release builds.
 4. Complete native Android/iOS picker, share, print, restore/restart, gesture,
@@ -907,6 +921,33 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-04 — One app shell: Documents, Parties, unified create
+
+- Users no longer choose or switch Sales vs Purchases workspaces. One dock
+  (Home, Documents, +, Parties, More) hosts both ledgers. Documents tabs
+  wrap the existing invoice list and purchase-bill list; Parties tabs wrap
+  customers and suppliers. Home keeps To collect and adds a To pay strip.
+  Onboarding skip/complete and first business save always land on Home.
+  `/workspace-setup` and `/purchases` redirect into that shell.
+- Important files: `app_main_navigation.dart`, `app_shell.dart`,
+  `documents_screen.dart`, `parties_screen.dart`, `dashboard_screen.dart`,
+  `more_destinations.dart`, `startup_navigator.dart`, `route_generator.dart`,
+  this handoff.
+- Storage: `unified_documents_tab` and `unified_parties_tab` in AppStorage.
+  Workspace keys remain in backups but no longer route the app.
+- Verification: `flutter analyze`, widget tests for dock/create sheet,
+  Documents tabs, onboarding skip, More search without workspace tiles, and
+  splash-to-dock coverage in `unified_shell_test.dart`.
+
+### 2026-09-03 — iOS deployment target 15.0 for Firebase SPM
+
+- Xcode Runner still targeted iOS 13 while Podfile and Firebase Auth/Core/
+  Firestore require 15. Raised `IPHONEOS_DEPLOYMENT_TARGET` to 15.0 so the
+  simulator can build with Swift Package Manager Firebase plugins.
+- Important files: `ios/Runner.xcodeproj/project.pbxproj`.
+- Storage: none.
+- Verification: deployment target is 15.0 in all Runner build configs.
 
 ### 2026-09-03 — Wire iOS Firebase Phone Auth config
 

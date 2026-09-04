@@ -135,7 +135,7 @@ class ReportController extends GetxController {
   }
 
   void _openInvoices(InvoiceListFilter filter) {
-    Get.toNamed<void>(AppRoutes.invoices, arguments: filter);
+    Get.toNamed<void>(AppRoutes.documents, arguments: filter);
   }
 
   @override

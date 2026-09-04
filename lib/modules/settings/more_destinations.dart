@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/routes/app_routes.dart';
 
-enum MoreDestinationAction { salesWorkspace, purchasesWorkspace, openRoute }
+enum MoreDestinationAction { openRoute }
 
 class MoreDestination {
   const MoreDestination({
@@ -37,26 +37,6 @@ class MoreDestinationGroup {
 }
 
 const moreDestinationCatalog = <MoreDestinationGroup>[
-  MoreDestinationGroup(
-    id: 'workspace',
-    label: 'Change workspace',
-    items: [
-      MoreDestination(
-        title: 'Sales',
-        subtitle: 'Invoices, customers and money to receive',
-        icon: Icons.trending_up_rounded,
-        action: MoreDestinationAction.salesWorkspace,
-        keywords: ['invoice', 'customer', 'receive', 'collect'],
-      ),
-      MoreDestination(
-        title: 'Purchases',
-        subtitle: 'Supplier bills and money to pay',
-        icon: Icons.shopping_bag_outlined,
-        action: MoreDestinationAction.purchasesWorkspace,
-        keywords: ['supplier', 'bill', 'payable', 'pay'],
-      ),
-    ],
-  ),
   MoreDestinationGroup(
     id: 'customization',
     label: 'Customization',

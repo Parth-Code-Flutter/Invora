@@ -22,93 +22,107 @@ import '../controllers/customer_list_controller.dart';
 import '../widgets/customer_list_overview.dart';
 
 class CustomerListScreen extends GetView<CustomerListController> {
-  const CustomerListScreen({super.key});
+  const CustomerListScreen({this.embedded = false, super.key});
+
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
-    return AppShell(
-      salesDestination: MainDestination.customers,
-      appBar: AppSearchAppBar(
-        title: 'Customers',
-        titleSuffix: Obx(
-          () => Text(
-            '(${controller.totalCustomerCount.value})',
-            style: AppTextStyles.caption.copyWith(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.textSecondary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
+    final searchBar = AppSearchAppBar(
+      title: 'Customers',
+      titleSuffix: Obx(
+        () => Text(
+          '(${controller.totalCustomerCount.value})',
+          style: AppTextStyles.caption.copyWith(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.darkTextSecondary
+                : AppColors.textSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        hint: 'Name, mobile or GSTIN',
-        onChanged: controller.updateSearch,
-        onScan: BarcodeCaptureScreen.captureQuery,
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const AppListSkeleton();
-        }
-        if (controller.customers.isEmpty) {
-          return AppEmptyState(
-            icon: Icons.people_outline_rounded,
-            title: controller.searchQuery.value.isEmpty
-                ? 'No customers yet'
-                : 'No customers found',
-            message: controller.searchQuery.value.isEmpty
-                ? 'Add your first customer to make invoicing faster.'
-                : 'Try a different name, company, mobile or GSTIN.',
-            actionLabel: controller.searchQuery.value.isEmpty
-                ? 'Add customer'
-                : null,
-            onAction: controller.searchQuery.value.isEmpty
-                ? () => Get.toNamed<void>(AppRoutes.customerAdd)
-                : null,
-          );
-        }
-        final due = controller.customers
-            .where((customer) => controller.balanceFor(customer) > 0)
-            .toList();
-        final allOthers = controller.customers
-            .where((customer) => controller.balanceFor(customer) == 0)
-            .toList();
-        final horizontal = ResponsiveUtils.horizontalPadding(context);
-        return ListView(
-          padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, 100),
-          children: [
-            CustomerListOverview(
-              totalCustomers: controller.totalCustomerCount.value,
-              amountDueMinor: controller.totalAmountDueMinor,
-              dueCustomers: controller.dueCustomerCount,
-              paidAmountMinor: controller.totalPaidAmountMinor,
-              paidCustomers: controller.paidCustomerCount,
-              currencySymbol: controller.currencySymbol.value,
-            ),
-            if (due.isNotEmpty) ...[
-              const SizedBox(height: 22),
-              _CustomerSection(
-                title: 'Needs attention',
-                count: due.length,
-                attention: true,
-                customers: due,
-                cardBuilder: (customer, index) =>
-                    _customerCard(context, customer, index),
-              ),
-            ],
-            if (allOthers.isNotEmpty) ...[
-              const SizedBox(height: 22),
-              _CustomerSection(
-                title: 'All customers',
-                count: allOthers.length,
-                customers: allOthers,
-                cardBuilder: (customer, index) =>
-                    _customerCard(context, customer, due.length + index),
-              ),
-            ],
-          ],
+      hint: 'Name, mobile or GSTIN',
+      onChanged: controller.updateSearch,
+      onScan: BarcodeCaptureScreen.captureQuery,
+      primary: !embedded,
+    );
+    final body = Obx(() {
+      if (controller.isLoading.value) {
+        return const AppListSkeleton();
+      }
+      if (controller.customers.isEmpty) {
+        return AppEmptyState(
+          icon: Icons.people_outline_rounded,
+          title: controller.searchQuery.value.isEmpty
+              ? 'No customers yet'
+              : 'No customers found',
+          message: controller.searchQuery.value.isEmpty
+              ? 'Add your first customer to make invoicing faster.'
+              : 'Try a different name, company, mobile or GSTIN.',
+          actionLabel: controller.searchQuery.value.isEmpty
+              ? 'Add customer'
+              : null,
+          onAction: controller.searchQuery.value.isEmpty
+              ? () => Get.toNamed<void>(AppRoutes.customerAdd)
+              : null,
         );
-      }),
+      }
+      final due = controller.customers
+          .where((customer) => controller.balanceFor(customer) > 0)
+          .toList();
+      final allOthers = controller.customers
+          .where((customer) => controller.balanceFor(customer) == 0)
+          .toList();
+      final horizontal = ResponsiveUtils.horizontalPadding(context);
+      return ListView(
+        padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, 100),
+        children: [
+          CustomerListOverview(
+            totalCustomers: controller.totalCustomerCount.value,
+            amountDueMinor: controller.totalAmountDueMinor,
+            dueCustomers: controller.dueCustomerCount,
+            paidAmountMinor: controller.totalPaidAmountMinor,
+            paidCustomers: controller.paidCustomerCount,
+            currencySymbol: controller.currencySymbol.value,
+          ),
+          if (due.isNotEmpty) ...[
+            const SizedBox(height: 22),
+            _CustomerSection(
+              title: 'Needs attention',
+              count: due.length,
+              attention: true,
+              customers: due,
+              cardBuilder: (customer, index) =>
+                  _customerCard(context, customer, index),
+            ),
+          ],
+          if (allOthers.isNotEmpty) ...[
+            const SizedBox(height: 22),
+            _CustomerSection(
+              title: 'All customers',
+              count: allOthers.length,
+              customers: allOthers,
+              cardBuilder: (customer, index) =>
+                  _customerCard(context, customer, due.length + index),
+            ),
+          ],
+        ],
+      );
+    });
+    if (embedded) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: searchBar.preferredSize.height, child: searchBar),
+          Expanded(child: body),
+        ],
+      );
+    }
+    return AppShell(
+      destination: MainDestination.parties,
+      appBar: searchBar,
+      body: body,
     );
   }
 

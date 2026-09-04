@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
-import 'package:get/get.dart';
 import 'package:creovo_invoice/app/localization/localized_text.dart';
+import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
@@ -10,9 +10,8 @@ import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
-import '../../../app/widgets/app_purchase_navigation.dart';
+import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_shell.dart';
-import '../../../app/widgets/app_workspace_switch.dart';
 import '../../../data/models/purchase_models.dart';
 import '../../../data/repositories/purchase_repository.dart';
 import 'purchase_screens.dart';
@@ -23,16 +22,9 @@ class PurchaseWorkspaceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      purchaseDestination: PurchaseDestination.home,
+      destination: MainDestination.home,
       appBar: AppBar(
         title: const AppBarTitle('Purchases', subtitle: 'Bills & payables'),
-        actions: [
-          AppBarIconButton(
-            tooltip: l10n('Switch workspace'),
-            onPressed: () => showWorkspaceSwitcher(context),
-            icon: Icons.swap_horiz_rounded,
-          ),
-        ],
       ),
       body: Padding(
         padding: EdgeInsets.fromLTRB(

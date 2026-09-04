@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/invoice_repository.dart';
+import '../../../data/repositories/purchase_repository.dart';
 import '../../../data/services/backup_service.dart';
 import '../controllers/dashboard_controller.dart';
 
@@ -13,6 +14,7 @@ class DashboardBinding extends Bindings {
         DashboardController(
           Get.find<BusinessRepository>(),
           Get.find<InvoiceRepository>(),
+          Get.find<PurchaseRepository>(),
           Get.find<BackupService>(),
         ),
         permanent: true,

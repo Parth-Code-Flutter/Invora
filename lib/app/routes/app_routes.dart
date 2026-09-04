@@ -5,6 +5,8 @@ abstract final class AppRoutes {
   static const businessSetup = '/business-setup';
   static const workspaceSetup = '/workspace-setup';
   static const dashboard = '/dashboard';
+  static const documents = '/documents';
+  static const parties = '/parties';
   static const purchases = '/purchases';
   static const purchaseBills = '/purchases/bills';
   static const purchaseBillCreate = '/purchases/bills/create';

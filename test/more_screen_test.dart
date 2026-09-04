@@ -81,7 +81,7 @@ void main() {
 
       expect(find.text('More'), findsWidgets);
       expect(find.byTooltip('Search'), findsOneWidget);
-      expect(find.text('Sales'), findsOneWidget);
+      expect(find.text('Products & services'), findsOneWidget);
       expect(find.text('App settings'), findsOneWidget);
 
       await tester.tap(find.byTooltip('Search'));
@@ -92,7 +92,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('GST / CA export'), findsOneWidget);
-      expect(find.text('Sales'), findsNothing);
+      expect(find.text('Products & services'), findsNothing);
       expect(find.text('App settings'), findsNothing);
       expect(
         find.text('Private by design. Your data stays on this device.'),
@@ -106,7 +106,7 @@ void main() {
       await tester.tap(find.byTooltip('Clear search'));
       await tester.pump();
 
-      expect(find.text('Sales'), findsOneWidget);
+      expect(find.text('Products & services'), findsOneWidget);
       expect(find.text('App settings'), findsOneWidget);
     });
   });

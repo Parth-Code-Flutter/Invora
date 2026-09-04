@@ -3,45 +3,50 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:creovo_invoice/app/themes/app_theme.dart';
+import 'package:creovo_invoice/app/constants/app_storage_key_const.dart';
+import 'package:creovo_invoice/app/routes/app_routes.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/business_workspace_service.dart';
 import 'package:creovo_invoice/modules/onboarding/controllers/onboarding_controller.dart';
-import 'package:creovo_invoice/modules/onboarding/screens/workspace_setup_screen.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  late AppStorage storage;
+
   setUp(() async {
     Get.testMode = true;
     SharedPreferences.setMockInitialValues({});
-    final storage = await AppStorage.create();
-    final workspace = BusinessWorkspaceService(storage);
-    Get.put(OnboardingController(storage, workspace));
+    storage = await AppStorage.create();
+    Get.put(OnboardingController(storage, BusinessWorkspaceService(storage)));
   });
 
   tearDown(Get.reset);
 
-  testWidgets('workspace choice stays usable on a narrow Android phone', (
+  testWidgets('onboarding complete skips workspace choice and opens setup', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(360, 720);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
     await tester.pumpWidget(
-      MaterialApp(theme: AppTheme.light, home: const WorkspaceSetupScreen()),
+      GetMaterialApp(
+        getPages: [
+          GetPage(
+            name: AppRoutes.businessSetup,
+            page: () => const Scaffold(body: Text('Business setup')),
+          ),
+          GetPage(
+            name: AppRoutes.workspaceSetup,
+            page: () => const Scaffold(body: Text('Workspace choice')),
+          ),
+        ],
+        home: const SizedBox.shrink(),
+      ),
     );
 
-    expect(find.text('What do you manage most?'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Continue with Sales'), 220);
-    expect(find.text('Continue with Sales'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Purchases'), -180);
-    await tester.tap(find.text('Purchases'));
+    await Get.find<OnboardingController>().complete();
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Continue with Purchases'), 220);
-    expect(find.text('Continue with Purchases'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+
+    expect(find.text('Business setup'), findsOneWidget);
+    expect(find.text('Workspace choice'), findsNothing);
+    expect(storage.getBool(AppStorageKeyConst.onboardingCompleted), isTrue);
   });
 }

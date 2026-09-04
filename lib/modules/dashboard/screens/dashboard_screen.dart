@@ -10,12 +10,10 @@ import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
-import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_shell.dart';
-import '../../../app/widgets/app_workspace_switch.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../../data/models/report_summary_model.dart';
 import '../../reports/widgets/report_charts.dart';
@@ -27,7 +25,7 @@ class DashboardScreen extends GetView<DashboardController> {
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      salesDestination: MainDestination.home,
+      destination: MainDestination.home,
       appBar: AppBar(
         title: Obx(
           () => Row(
@@ -67,13 +65,6 @@ class DashboardScreen extends GetView<DashboardController> {
             ],
           ),
         ),
-        actions: [
-          AppBarIconButton(
-            tooltip: l10n('Switch workspace'),
-            onPressed: () => showWorkspaceSwitcher(context),
-            icon: Icons.swap_horiz_rounded,
-          ),
-        ],
       ),
       body: Padding(
         padding: EdgeInsets.fromLTRB(
@@ -128,6 +119,19 @@ class DashboardScreen extends GetView<DashboardController> {
                         ? InvoiceListFilter.overdue
                         : InvoiceListFilter.unpaid,
                   ),
+                ),
+              ],
+              if (!controller.purchaseLoading.value &&
+                  controller.hasPayables) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _PayCard(
+                  payableMinor: controller.purchase.value.payableMinor,
+                  overdueMinor: controller.purchase.value.overdueMinor,
+                  symbol: _symbol,
+                  onOverdue: () =>
+                      controller.openPurchaseBills(billFilter: 'overdue'),
+                  onPayable: () =>
+                      controller.openPurchaseBills(billFilter: 'unpaid'),
                 ),
               ],
               if (!controller.reportLoading.value &&
@@ -218,6 +222,19 @@ class _TabletDashboardHome extends StatelessWidget {
                         ? InvoiceListFilter.overdue
                         : InvoiceListFilter.unpaid,
                   ),
+                ),
+              ],
+              if (!controller.purchaseLoading.value &&
+                  controller.hasPayables) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _PayCard(
+                  payableMinor: controller.purchase.value.payableMinor,
+                  overdueMinor: controller.purchase.value.overdueMinor,
+                  symbol: symbol,
+                  onOverdue: () =>
+                      controller.openPurchaseBills(billFilter: 'overdue'),
+                  onPayable: () =>
+                      controller.openPurchaseBills(billFilter: 'unpaid'),
                 ),
               ],
               if (!controller.reportLoading.value &&
@@ -615,6 +632,68 @@ class _JumpAction extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   fontSize: 11,
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PayCard extends StatelessWidget {
+  const _PayCard({
+    required this.payableMinor,
+    required this.overdueMinor,
+    required this.symbol,
+    required this.onOverdue,
+    required this.onPayable,
+  });
+
+  final int payableMinor;
+  final int overdueMinor;
+  final String symbol;
+  final VoidCallback onOverdue;
+  final VoidCallback onPayable;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final overdue = overdueMinor > 0;
+    return AppCard(
+      padding: EdgeInsets.zero,
+      color: isDark ? const Color(0xFF3B2038) : Colors.white,
+      borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
+      child: InkWell(
+        onTap: overdue ? onOverdue : onPayable,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'To pay',
+                      style: AppTextStyles.listName.copyWith(fontSize: 14),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      overdue
+                          ? 'Includes overdue bills'
+                          : 'Unpaid supplier bills',
+                      style: AppTextStyles.caption,
+                    ),
+                  ],
+                ),
+              ),
+              AppAmountText(
+                amountMinor: payableMinor,
+                symbol: symbol,
+                color: overdue ? AppColors.error : AppColors.warning,
+                style: AppTextStyles.listAmount.copyWith(fontSize: 16),
               ),
             ],
           ),

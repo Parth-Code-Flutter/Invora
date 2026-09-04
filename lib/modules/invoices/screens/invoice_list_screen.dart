@@ -23,8 +23,13 @@ import '../controllers/invoice_list_controller.dart';
 import '../widgets/invoice_list_overview.dart';
 
 class InvoiceListScreen extends StatefulWidget {
-  const InvoiceListScreen({this.quotation = false, super.key});
+  const InvoiceListScreen({
+    this.quotation = false,
+    this.embedded = false,
+    super.key,
+  });
   final bool quotation;
+  final bool embedded;
 
   @override
   State<InvoiceListScreen> createState() => _InvoiceListScreenState();
@@ -56,8 +61,244 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final searchBar = AppSearchAppBar(
+      leading: quotation ? const AppBackButton() : null,
+      title: quotation ? 'Quotations' : 'Invoices',
+      titleSuffix: Obx(
+        () => Text(
+          '(${controller.summaryInvoices.length})',
+          style: AppTextStyles.caption.copyWith(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.darkTextSecondary
+                : AppColors.textSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      hint: quotation ? 'Quote or customer' : 'Invoice or customer',
+      onChanged: controller.updateSearch,
+      onScan: BarcodeCaptureScreen.captureQuery,
+      primary: !widget.embedded,
+      actions: [
+        Obx(
+          () => PopupMenuButton<InvoiceSort>(
+            tooltip: l10n('Sort invoices'),
+            initialValue: controller.selectedSort.value,
+            onSelected: controller.selectSort,
+            position: PopupMenuPosition.under,
+            offset: const Offset(0, 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            itemBuilder: (_) => InvoiceSort.values
+                .map(
+                  (sort) => PopupMenuItem(
+                    value: sort,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 24,
+                          child: controller.selectedSort.value == sort
+                              ? const Icon(
+                                  Icons.check_rounded,
+                                  size: 19,
+                                  color: AppColors.primary,
+                                )
+                              : null,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(_sortLabel(sort)),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
+            child: _HeaderActionIcon(
+              icon: Icons.swap_vert_rounded,
+              showIndicator:
+                  controller.selectedSort.value != InvoiceSort.newest,
+            ),
+          ),
+        ),
+        SizedBox(width: ResponsiveUtils.horizontalPadding(context)),
+      ],
+    );
+    final body = Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            ResponsiveUtils.horizontalPadding(context),
+            8,
+            ResponsiveUtils.horizontalPadding(context),
+            10,
+          ),
+          child: Column(
+            children: [
+              if (!quotation) ...[
+                Obx(
+                  () => InvoiceListOverview(
+                    invoices: controller.summaryInvoices.toList(),
+                    currencySymbol: controller.currencySymbol.value,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              SizedBox(
+                height: 44,
+                child: Obx(() {
+                  final filters = quotation
+                      ? const [
+                          InvoiceListFilter.all,
+                          InvoiceListFilter.draft,
+                          InvoiceListFilter.sent,
+                          InvoiceListFilter.accepted,
+                          InvoiceListFilter.rejected,
+                          InvoiceListFilter.expired,
+                        ]
+                      : const [
+                          InvoiceListFilter.all,
+                          InvoiceListFilter.overdue,
+                          InvoiceListFilter.unpaid,
+                          InvoiceListFilter.draft,
+                          InvoiceListFilter.paid,
+                        ];
+                  final summaries = controller.summaryInvoices.toList();
+                  return Stack(
+                    children: [
+                      ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.only(right: 24),
+                        itemCount: filters.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (context, index) {
+                          final filter = filters[index];
+                          if (quotation) {
+                            return AppFilterChip(
+                              label: _filterLabel(filter),
+                              selected:
+                                  controller.selectedFilter.value == filter,
+                              onSelected: (_) =>
+                                  controller.selectFilter(filter),
+                            );
+                          }
+                          return _InvoiceStatusFilterChip(
+                            filter: filter,
+                            count: _invoiceFilterCount(filter, summaries),
+                            selected: controller.selectedFilter.value == filter,
+                            onSelected: () => controller.selectFilter(filter),
+                          );
+                        },
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: IgnorePointer(
+                          child: Container(
+                            width: 20,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  (Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? AppColors.darkBackground
+                                          : AppColors.background)
+                                      .withValues(alpha: 0),
+                                  Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? AppColors.darkBackground
+                                      : AppColors.background,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Obx(() {
+            if (controller.isLoading.value) {
+              return const AppListSkeleton();
+            }
+            if (controller.invoices.isEmpty) {
+              final searching =
+                  controller.searchQuery.value.isNotEmpty ||
+                  controller.selectedFilter.value != InvoiceListFilter.all;
+              return AppEmptyState(
+                icon: Icons.receipt_long_outlined,
+                title: searching
+                    ? (quotation ? 'No quotations found' : 'No invoices found')
+                    : (quotation ? 'No quotations yet' : 'No invoices yet'),
+                message: searching
+                    ? 'Try a different search or status filter.'
+                    : 'Create your first offline ${quotation ? 'quotation' : 'invoice'} to see it here.',
+                actionLabel: searching
+                    ? null
+                    : quotation
+                    ? 'Create quotation'
+                    : 'Create invoice',
+                onAction: searching
+                    ? null
+                    : () => Get.toNamed<void>(
+                        quotation
+                            ? AppRoutes.quotationCreate
+                            : AppRoutes.invoiceCreate,
+                      ),
+              );
+            }
+            final padding = ResponsiveUtils.horizontalPadding(context);
+            final entries = _invoiceListEntries(
+              controller.invoices.toList(),
+              controller.selectedSort.value,
+              DateTime.now(),
+            );
+            final columns = ResponsiveUtils.gridColumns(context);
+            if (columns == 1) {
+              return ListView.builder(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                padding: EdgeInsets.fromLTRB(padding, 2, padding, 90),
+                itemCount: entries.length,
+                itemBuilder: (_, index) => _invoiceListTile(
+                  context,
+                  entries[index],
+                  index,
+                  controller.currencySymbol.value,
+                ),
+              );
+            }
+            return ListView(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
+              padding: EdgeInsets.fromLTRB(padding, 2, padding, 90),
+              children: _tabletInvoiceSections(
+                context,
+                entries,
+                controller.currencySymbol.value,
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+    if (widget.embedded) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: searchBar.preferredSize.height, child: searchBar),
+          Expanded(child: body),
+        ],
+      );
+    }
     return AppShell(
-      salesDestination: quotation ? null : MainDestination.invoices,
+      destination: quotation ? null : MainDestination.documents,
       floatingActionButton: quotation
           ? FloatingActionButton(
               tooltip: l10n('Create quotation'),
@@ -65,235 +306,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
               child: const Icon(Icons.add_rounded),
             )
           : null,
-      appBar: AppSearchAppBar(
-        leading: quotation ? const AppBackButton() : null,
-        title: quotation ? 'Quotations' : 'Invoices',
-        titleSuffix: Obx(
-          () => Text(
-            '(${controller.summaryInvoices.length})',
-            style: AppTextStyles.caption.copyWith(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppColors.darkTextSecondary
-                  : AppColors.textSecondary,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        hint: quotation ? 'Quote or customer' : 'Invoice or customer',
-        onChanged: controller.updateSearch,
-        onScan: BarcodeCaptureScreen.captureQuery,
-        actions: [
-          Obx(
-            () => PopupMenuButton<InvoiceSort>(
-              tooltip: l10n('Sort invoices'),
-              initialValue: controller.selectedSort.value,
-              onSelected: controller.selectSort,
-              position: PopupMenuPosition.under,
-              offset: const Offset(0, 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              itemBuilder: (_) => InvoiceSort.values
-                  .map(
-                    (sort) => PopupMenuItem(
-                      value: sort,
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 24,
-                            child: controller.selectedSort.value == sort
-                                ? const Icon(
-                                    Icons.check_rounded,
-                                    size: 19,
-                                    color: AppColors.primary,
-                                  )
-                                : null,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(_sortLabel(sort)),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
-              child: _HeaderActionIcon(
-                icon: Icons.swap_vert_rounded,
-                showIndicator:
-                    controller.selectedSort.value != InvoiceSort.newest,
-              ),
-            ),
-          ),
-          SizedBox(width: ResponsiveUtils.horizontalPadding(context)),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              ResponsiveUtils.horizontalPadding(context),
-              8,
-              ResponsiveUtils.horizontalPadding(context),
-              10,
-            ),
-            child: Column(
-              children: [
-                if (!quotation) ...[
-                  Obx(
-                    () => InvoiceListOverview(
-                      invoices: controller.summaryInvoices.toList(),
-                      currencySymbol: controller.currencySymbol.value,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                SizedBox(
-                  height: 44,
-                  child: Obx(() {
-                    final filters = quotation
-                        ? const [
-                            InvoiceListFilter.all,
-                            InvoiceListFilter.draft,
-                            InvoiceListFilter.sent,
-                            InvoiceListFilter.accepted,
-                            InvoiceListFilter.rejected,
-                            InvoiceListFilter.expired,
-                          ]
-                        : const [
-                            InvoiceListFilter.all,
-                            InvoiceListFilter.overdue,
-                            InvoiceListFilter.unpaid,
-                            InvoiceListFilter.draft,
-                            InvoiceListFilter.paid,
-                          ];
-                    final summaries = controller.summaryInvoices.toList();
-                    return Stack(
-                      children: [
-                        ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.only(right: 24),
-                          itemCount: filters.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 8),
-                          itemBuilder: (context, index) {
-                            final filter = filters[index];
-                            if (quotation) {
-                              return AppFilterChip(
-                                label: _filterLabel(filter),
-                                selected:
-                                    controller.selectedFilter.value == filter,
-                                onSelected: (_) =>
-                                    controller.selectFilter(filter),
-                              );
-                            }
-                            return _InvoiceStatusFilterChip(
-                              filter: filter,
-                              count: _invoiceFilterCount(filter, summaries),
-                              selected:
-                                  controller.selectedFilter.value == filter,
-                              onSelected: () => controller.selectFilter(filter),
-                            );
-                          },
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: IgnorePointer(
-                            child: Container(
-                              width: 20,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    (Theme.of(context).brightness ==
-                                                Brightness.dark
-                                            ? AppColors.darkBackground
-                                            : AppColors.background)
-                                        .withValues(alpha: 0),
-                                    Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? AppColors.darkBackground
-                                        : AppColors.background,
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return const AppListSkeleton();
-              }
-              if (controller.invoices.isEmpty) {
-                final searching =
-                    controller.searchQuery.value.isNotEmpty ||
-                    controller.selectedFilter.value != InvoiceListFilter.all;
-                return AppEmptyState(
-                  icon: Icons.receipt_long_outlined,
-                  title: searching
-                      ? (quotation
-                            ? 'No quotations found'
-                            : 'No invoices found')
-                      : (quotation ? 'No quotations yet' : 'No invoices yet'),
-                  message: searching
-                      ? 'Try a different search or status filter.'
-                      : 'Create your first offline ${quotation ? 'quotation' : 'invoice'} to see it here.',
-                  actionLabel: searching
-                      ? null
-                      : quotation
-                      ? 'Create quotation'
-                      : 'Create invoice',
-                  onAction: searching
-                      ? null
-                      : () => Get.toNamed<void>(
-                          quotation
-                              ? AppRoutes.quotationCreate
-                              : AppRoutes.invoiceCreate,
-                        ),
-                );
-              }
-              final padding = ResponsiveUtils.horizontalPadding(context);
-              final entries = _invoiceListEntries(
-                controller.invoices.toList(),
-                controller.selectedSort.value,
-                DateTime.now(),
-              );
-              final columns = ResponsiveUtils.gridColumns(context);
-              if (columns == 1) {
-                return ListView.builder(
-                  physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
-                  ),
-                  padding: EdgeInsets.fromLTRB(padding, 2, padding, 90),
-                  itemCount: entries.length,
-                  itemBuilder: (_, index) => _invoiceListTile(
-                    context,
-                    entries[index],
-                    index,
-                    controller.currencySymbol.value,
-                  ),
-                );
-              }
-              return ListView(
-                physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
-                ),
-                padding: EdgeInsets.fromLTRB(padding, 2, padding, 90),
-                children: _tabletInvoiceSections(
-                  context,
-                  entries,
-                  controller.currencySymbol.value,
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
+      appBar: searchBar,
+      body: body,
     );
   }
 }

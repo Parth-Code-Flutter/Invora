@@ -18,6 +18,7 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.actions = const [],
     this.onScan,
     this.scanTooltip = 'Scan to search',
+    this.primary = true,
     super.key,
   });
 
@@ -34,6 +35,9 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// catalog open-or-create on Products & services.
   final Future<String?> Function()? onScan;
   final String scanTooltip;
+
+  /// Nested list hosts pass false so the bar does not add status-bar padding.
+  final bool primary;
 
   @override
   Size get preferredSize => const Size.fromHeight(64);
@@ -103,6 +107,7 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
     return AppBar(
+      primary: widget.primary,
       automaticallyImplyLeading: widget.leading == null && !_searching,
       leading: _searching
           ? AppBackButton(

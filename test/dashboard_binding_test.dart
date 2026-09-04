@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:creovo_invoice/data/repositories/business_repository.dart';
 import 'package:creovo_invoice/data/repositories/invoice_repository.dart';
+import 'package:creovo_invoice/data/repositories/purchase_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/backup_service.dart';
@@ -21,6 +22,7 @@ void main() {
     final business = BusinessRepository(database);
     Get.put<BusinessRepository>(business);
     Get.put<InvoiceRepository>(InvoiceRepository(database));
+    Get.put<PurchaseRepository>(PurchaseRepository(database));
     Get.put<BackupService>(BackupService(database, business, storage));
 
     DashboardBinding().dependencies();

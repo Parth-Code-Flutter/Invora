@@ -6,6 +6,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
+import '../../../app/routes/shell_args.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
 import '../../../app/utils/quantity_utils.dart';
@@ -24,13 +25,12 @@ import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_list_motion.dart';
-import '../../../app/widgets/app_purchase_navigation.dart';
+import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/app_form_grid.dart';
 import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_unit_field.dart';
-import '../../../app/widgets/app_workspace_switch.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/models/purchase_models.dart';
@@ -90,18 +90,13 @@ String _billStatusLabel(String status) => switch (status) {
   _ => 'Unpaid',
 };
 
-class WorkspaceSwitchButton extends StatelessWidget {
-  const WorkspaceSwitchButton({super.key});
-  @override
-  Widget build(BuildContext context) => AppBarIconButton(
-    tooltip: l10n('Switch workspace'),
-    onPressed: () => showWorkspaceSwitcher(context),
-    icon: Icons.swap_horiz_rounded,
-  );
-}
-
 class PurchaseBillListScreen extends StatefulWidget {
-  const PurchaseBillListScreen({super.key});
+  const PurchaseBillListScreen({this.embedded = false, super.key});
+
+  /// Applied once when Documents opens with a bill status filter.
+  static String? pendingFilter;
+
+  final bool embedded;
   @override
   State<PurchaseBillListScreen> createState() => _PurchaseBillListScreenState();
 }
@@ -111,130 +106,150 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
   String filter = 'all';
 
   @override
+  void initState() {
+    super.initState();
+    final pending = PurchaseBillListScreen.pendingFilter;
+    if (pending != null) {
+      filter = pending;
+      PurchaseBillListScreen.pendingFilter = null;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final repo = Get.find<PurchaseRepository>();
+    final searchBar = AppSearchAppBar(
+      title: 'Purchase bills',
+      hint: 'Bill number or supplier',
+      onChanged: (value) => setState(() => query = value),
+      primary: !widget.embedded,
+    );
+    final body = StreamBuilder<PurchaseDashboardSummary>(
+      stream: repo.watchDashboard(),
+      builder: (context, dashboard) {
+        return StreamBuilder<List<PurchaseBillSummary>>(
+          stream: repo.watchBills(query: query),
+          builder: (context, snapshot) {
+            final bills = snapshot.data;
+            if (bills == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final visible = filter == 'all'
+                ? bills
+                : bills.where((bill) => bill.status == filter).toList();
+            final searching = query.isNotEmpty || filter != 'all';
+            return Column(
+              children: [
+                if (dashboard.data != null)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      ResponsiveUtils.horizontalPadding(context),
+                      10,
+                      ResponsiveUtils.horizontalPadding(context),
+                      0,
+                    ),
+                    child: PurchaseOverviewCard(
+                      data: dashboard.data!,
+                      compact: true,
+                    ),
+                  ),
+                SizedBox(
+                  height: 52,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.fromLTRB(
+                      ResponsiveUtils.horizontalPadding(context),
+                      10,
+                      ResponsiveUtils.horizontalPadding(context),
+                      4,
+                    ),
+                    children: [
+                      for (final option in const [
+                        ('all', 'All'),
+                        ('unpaid', 'Unpaid'),
+                        ('partially_paid', 'Part paid'),
+                        ('overdue', 'Overdue'),
+                        ('paid', 'Paid'),
+                        ('cancelled', 'Cancelled'),
+                      ])
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: AppFilterChip(
+                            label: option.$2,
+                            selected: filter == option.$1,
+                            count: option.$1 == 'all'
+                                ? bills.length
+                                : bills
+                                      .where((bill) => bill.status == option.$1)
+                                      .length,
+                            onSelected: (_) =>
+                                setState(() => filter = option.$1),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: visible.isEmpty
+                      ? AppEmptyState(
+                          icon: Icons.receipt_long_outlined,
+                          title: searching
+                              ? 'No matching bills'
+                              : 'No purchase bills yet',
+                          message: searching
+                              ? 'Try a different bill number, supplier or status.'
+                              : 'Record supplier bills and track what you need to pay.',
+                          actionLabel: searching
+                              ? null
+                              : 'Create purchase bill',
+                          onAction: searching
+                              ? null
+                              : () => Get.toNamed<void>(
+                                  AppRoutes.purchaseBillCreate,
+                                ),
+                        )
+                      : ListView(
+                          padding: EdgeInsets.fromLTRB(
+                            ResponsiveUtils.horizontalPadding(context),
+                            4,
+                            ResponsiveUtils.horizontalPadding(context),
+                            90,
+                          ),
+                          children: [
+                            AppResponsiveCards(
+                              itemCount: visible.length,
+                              itemBuilder: (_, i) =>
+                                  PurchaseBillRow(bill: visible[i], index: i),
+                            ),
+                          ],
+                        ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    if (widget.embedded) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: searchBar.preferredSize.height, child: searchBar),
+          Expanded(child: body),
+        ],
+      );
+    }
     return AppShell(
-      purchaseDestination: PurchaseDestination.bills,
-      appBar: AppSearchAppBar(
-        title: 'Purchase bills',
-        hint: 'Bill number or supplier',
-        onChanged: (value) => setState(() => query = value),
-        actions: const [WorkspaceSwitchButton()],
-      ),
-      body: StreamBuilder<PurchaseDashboardSummary>(
-        stream: repo.watchDashboard(),
-        builder: (context, dashboard) {
-          return StreamBuilder<List<PurchaseBillSummary>>(
-            stream: repo.watchBills(query: query),
-            builder: (context, snapshot) {
-              final bills = snapshot.data;
-              if (bills == null) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final visible = filter == 'all'
-                  ? bills
-                  : bills.where((bill) => bill.status == filter).toList();
-              final searching = query.isNotEmpty || filter != 'all';
-              return Column(
-                children: [
-                  if (dashboard.data != null)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        ResponsiveUtils.horizontalPadding(context),
-                        10,
-                        ResponsiveUtils.horizontalPadding(context),
-                        0,
-                      ),
-                      child: PurchaseOverviewCard(
-                        data: dashboard.data!,
-                        compact: true,
-                      ),
-                    ),
-                  SizedBox(
-                    height: 52,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.fromLTRB(
-                        ResponsiveUtils.horizontalPadding(context),
-                        10,
-                        ResponsiveUtils.horizontalPadding(context),
-                        4,
-                      ),
-                      children: [
-                        for (final option in const [
-                          ('all', 'All'),
-                          ('unpaid', 'Unpaid'),
-                          ('partially_paid', 'Part paid'),
-                          ('overdue', 'Overdue'),
-                          ('paid', 'Paid'),
-                          ('cancelled', 'Cancelled'),
-                        ])
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: AppFilterChip(
-                              label: option.$2,
-                              selected: filter == option.$1,
-                              count: option.$1 == 'all'
-                                  ? bills.length
-                                  : bills
-                                        .where(
-                                          (bill) => bill.status == option.$1,
-                                        )
-                                        .length,
-                              onSelected: (_) =>
-                                  setState(() => filter = option.$1),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: visible.isEmpty
-                        ? AppEmptyState(
-                            icon: Icons.receipt_long_outlined,
-                            title: searching
-                                ? 'No matching bills'
-                                : 'No purchase bills yet',
-                            message: searching
-                                ? 'Try a different bill number, supplier or status.'
-                                : 'Record supplier bills and track what you need to pay.',
-                            actionLabel: searching
-                                ? null
-                                : 'Create purchase bill',
-                            onAction: searching
-                                ? null
-                                : () => Get.toNamed<void>(
-                                    AppRoutes.purchaseBillCreate,
-                                  ),
-                          )
-                        : ListView(
-                            padding: EdgeInsets.fromLTRB(
-                              ResponsiveUtils.horizontalPadding(context),
-                              4,
-                              ResponsiveUtils.horizontalPadding(context),
-                              90,
-                            ),
-                            children: [
-                              AppResponsiveCards(
-                                itemCount: visible.length,
-                                itemBuilder: (_, i) =>
-                                    PurchaseBillRow(bill: visible[i], index: i),
-                              ),
-                            ],
-                          ),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      ),
+      destination: MainDestination.documents,
+      appBar: searchBar,
+      body: body,
     );
   }
 }
 
 class SupplierListScreen extends StatefulWidget {
-  const SupplierListScreen({super.key});
+  const SupplierListScreen({this.embedded = false, super.key});
+  final bool embedded;
   @override
   State<SupplierListScreen> createState() => _SupplierListScreenState();
 }
@@ -243,15 +258,14 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
   String query = '';
 
   @override
-  Widget build(BuildContext context) => AppShell(
-    purchaseDestination: PurchaseDestination.suppliers,
-    appBar: AppSearchAppBar(
+  Widget build(BuildContext context) {
+    final searchBar = AppSearchAppBar(
       title: 'Suppliers',
       hint: 'Name, mobile or GSTIN',
       onChanged: (value) => setState(() => query = value),
-      actions: const [WorkspaceSwitchButton()],
-    ),
-    body: StreamBuilder<List<PurchaseBillSummary>>(
+      primary: !widget.embedded,
+    );
+    final body = StreamBuilder<List<PurchaseBillSummary>>(
       stream: Get.find<PurchaseRepository>().watchBills(),
       builder: (context, billsSnapshot) {
         return StreamBuilder<List<SupplierModel>>(
@@ -330,8 +344,22 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
           },
         );
       },
-    ),
-  );
+    );
+    if (widget.embedded) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: searchBar.preferredSize.height, child: searchBar),
+          Expanded(child: body),
+        ],
+      );
+    }
+    return AppShell(
+      destination: MainDestination.parties,
+      appBar: searchBar,
+      body: body,
+    );
+  }
 
   Future<bool> _confirmDeleteSupplier(
     BuildContext context,
@@ -2573,7 +2601,10 @@ class _PurchaseBillDetailsScreenState extends State<PurchaseBillDetailsScreen> {
                     file.localPath,
                   );
                 }
-                Get.offAllNamed<void>(AppRoutes.purchaseBills);
+                Get.offAllNamed<void>(
+                  AppRoutes.documents,
+                  arguments: const DocumentsOpenArgs(purchases: true),
+                );
               } catch (e) {
                 _message(e.toString());
               }
