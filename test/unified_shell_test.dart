@@ -20,7 +20,7 @@ void main() {
   tearDown(Get.reset);
 
   testWidgets(
-    'splash-to-home dock covers documents, parties, create, and pay',
+    'splash-to-home dock covers documents, products, parties, and pay',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
@@ -93,7 +93,7 @@ void main() {
       expect(find.text('Purchase bills'), findsWidgets);
       expect(find.text('PB-100'), findsWidgets);
 
-      await tester.tap(find.byIcon(Symbols.group_rounded));
+      await tester.tap(find.byIcon(Symbols.groups_rounded));
       await tester.pumpAndSettle();
       expect(find.text('Customers'), findsWidgets);
       expect(find.text('Suppliers'), findsWidgets);
@@ -102,17 +102,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Paper Vendor'), findsWidgets);
 
-      await tester.tap(find.byIcon(Symbols.add_rounded));
+      await tester.tap(find.byIcon(Symbols.package_2_rounded));
       await tester.pumpAndSettle();
-      expect(find.text('Create new'), findsOneWidget);
-      expect(find.text('Invoice'), findsOneWidget);
-      expect(find.text('Purchase bill'), findsOneWidget);
-      expect(find.text('Customer'), findsOneWidget);
-      expect(find.text('Supplier'), findsOneWidget);
-      Get.back<void>();
-      await tester.pumpAndSettle();
+      expect(find.text('Products & services'), findsOneWidget);
+      expect(find.text('Create new'), findsNothing);
 
-      await tester.tap(find.byIcon(Symbols.widgets_rounded));
+      await tester.tap(find.byIcon(Symbols.apps_rounded));
       await tester.pumpAndSettle();
       expect(find.text('Products & services'), findsOneWidget);
       expect(find.text('Change workspace'), findsNothing);

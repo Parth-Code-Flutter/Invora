@@ -217,7 +217,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Genz Clothes'), findsWidgets);
-    expect(find.text('Products'), findsOneWidget);
+    expect(find.text('Products'), findsWidgets);
     expect(find.text('Estimates'), findsOneWidget);
     expect(find.text('Expenses'), findsOneWidget);
     expect(find.text('Reports'), findsOneWidget);

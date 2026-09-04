@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/app_spacing.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_main_navigation.dart';
@@ -92,6 +93,8 @@ class MoreScreen extends GetView<MoreController> {
                 icon: item.icon,
                 title: item.title,
                 subtitle: item.subtitle,
+                color: item.color,
+                background: item.background,
                 onTap: () => _open(item),
               ),
           ],
@@ -102,7 +105,12 @@ class MoreScreen extends GetView<MoreController> {
 
   void _open(MoreDestination item) {
     final route = item.route;
-    if (route != null) Get.toNamed<void>(route);
+    if (route == null) return;
+    if (route == AppRoutes.products) {
+      Get.offAllNamed<void>(route);
+      return;
+    }
+    Get.toNamed<void>(route);
   }
 }
 

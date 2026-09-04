@@ -561,7 +561,7 @@ class _HomeJumpStrip extends StatelessWidget {
                 label: 'Products',
                 icon: Icons.inventory_2_outlined,
                 tint: AppColors.accent,
-                onTap: () => Get.toNamed<void>(AppRoutes.products),
+                onTap: () => Get.offAllNamed<void>(AppRoutes.products),
               ),
               _JumpAction(
                 label: 'Estimates',

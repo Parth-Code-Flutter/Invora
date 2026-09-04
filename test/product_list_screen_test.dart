@@ -43,7 +43,7 @@ void main() {
 
     expect(find.text('Your catalog is empty'), findsOneWidget);
     expect(find.text('All'), findsOneWidget);
-    expect(find.text('Products'), findsOneWidget);
+    expect(find.text('Products'), findsWidgets);
     expect(find.text('Services'), findsOneWidget);
     expect(find.text('Add item'), findsOneWidget);
     expect(tester.takeException(), isNull);

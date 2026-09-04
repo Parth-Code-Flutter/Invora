@@ -16,7 +16,9 @@ import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_list_motion.dart';
+import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
+import '../../../app/widgets/app_shell.dart';
 import '../../../data/models/product_service_model.dart';
 import '../controllers/product_list_controller.dart';
 import '../widgets/product_cover_thumb.dart';
@@ -26,14 +28,16 @@ class ProductListScreen extends GetView<ProductListController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final canPop = Navigator.of(context).canPop();
+    return AppShell(
+      destination: MainDestination.products,
       floatingActionButton: FloatingActionButton(
         tooltip: l10n('Add product or service'),
         onPressed: () => Get.toNamed<void>(AppRoutes.productAdd),
         child: const Icon(Icons.add_rounded),
       ),
       appBar: AppSearchAppBar(
-        leading: const AppBackButton(),
+        leading: canPop ? const AppBackButton() : null,
         title: 'Products & services',
         hint: 'Search products or services',
         onChanged: controller.updateSearch,

@@ -31,7 +31,7 @@ class AppMenuGroup extends StatelessWidget {
               Divider(
                 height: 1,
                 thickness: 0.5,
-                indent: 64,
+                indent: 66,
                 endIndent: 16,
                 color: border,
               ),
@@ -92,13 +92,21 @@ class AppMenuTile extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 38,
-                height: 38,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: iconSurface,
-                  borderRadius: BorderRadius.circular(11),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 22,
+                  fill: 0,
+                  weight: 520,
+                  opticalSize: 24,
+                  grade: 0,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

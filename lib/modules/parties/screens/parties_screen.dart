@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart' hide Text;
 
+import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_storage_key_const.dart';
+import '../../../app/routes/app_routes.dart';
 import '../../../app/routes/shell_args.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_pair_tabs.dart';
@@ -58,6 +60,13 @@ class _PartiesScreenState extends State<PartiesScreen> {
   Widget build(BuildContext context) {
     return AppShell(
       destination: MainDestination.parties,
+      floatingActionButton: FloatingActionButton(
+        tooltip: l10n(_index == 0 ? 'Add customer' : 'Add supplier'),
+        onPressed: () => Get.toNamed<void>(
+          _index == 0 ? AppRoutes.customerAdd : AppRoutes.supplierAdd,
+        ),
+        child: const Icon(Icons.add_rounded),
+      ),
       body: SafeArea(
         bottom: false,
         child: Column(

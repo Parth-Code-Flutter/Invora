@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
+import '../../app/constants/app_colors.dart';
 import '../../app/routes/app_routes.dart';
 
 enum MoreDestinationAction { openRoute }
@@ -11,6 +13,8 @@ class MoreDestination {
     required this.icon,
     required this.action,
     this.route,
+    this.color = AppColors.secondary,
+    this.background = AppColors.secondaryLight,
     this.keywords = const [],
     this.requiresStock = false,
   });
@@ -20,6 +24,8 @@ class MoreDestination {
   final IconData icon;
   final MoreDestinationAction action;
   final String? route;
+  final Color color;
+  final Color background;
   final List<String> keywords;
   final bool requiresStock;
 }
@@ -44,7 +50,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Product settings',
         subtitle: 'Business category, fields and invoice display',
-        icon: Icons.tune_rounded,
+        icon: Symbols.tune_rounded,
+        color: AppColors.secondary,
+        background: AppColors.secondaryLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.productSettings,
         keywords: ['category', 'HSN', 'fields', 'attributes'],
@@ -52,7 +60,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Set default unit',
         subtitle: 'Manage units and choose the default for new items',
-        icon: Icons.straighten_rounded,
+        icon: Symbols.straighten_rounded,
+        color: AppColors.accent,
+        background: AppColors.successLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.unitSettings,
         keywords: ['UOM', 'kg', 'pcs', 'units'],
@@ -66,7 +76,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Products & services',
         subtitle: 'Saved items, pricing and tax',
-        icon: Icons.inventory_2_outlined,
+        icon: Symbols.package_2_rounded,
+        color: AppColors.primary,
+        background: AppColors.primaryLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.products,
         keywords: ['catalog', 'item', 'price', 'HSN'],
@@ -74,7 +86,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Stock',
         subtitle: 'Movements and quantity adjustments',
-        icon: Icons.warehouse_outlined,
+        icon: Symbols.warehouse_rounded,
+        color: AppColors.success,
+        background: AppColors.successLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.stock,
         keywords: ['inventory', 'warehouse', 'quantity', 'opening'],
@@ -83,7 +97,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Estimates',
         subtitle: 'Create and manage client quotations',
-        icon: Icons.request_quote_outlined,
+        icon: Symbols.request_quote_rounded,
+        color: AppColors.secondary,
+        background: AppColors.secondaryLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.quotations,
         keywords: ['quotation', 'quote', 'estimate'],
@@ -91,7 +107,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Delivery challans',
         subtitle: 'Dispatch goods, then convert remaining quantities',
-        icon: Icons.local_shipping_outlined,
+        icon: Symbols.local_shipping_rounded,
+        color: AppColors.warning,
+        background: AppColors.warningLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.deliveryChallans,
         keywords: ['DC', 'dispatch', 'e-way', 'challan'],
@@ -100,7 +118,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
         title: 'Purchase orders',
         subtitle:
             'Order from a supplier, receive goods, then bill remaining quantity',
-        icon: Icons.assignment_outlined,
+        icon: Symbols.order_approve_rounded,
+        color: AppColors.accent,
+        background: AppColors.successLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.purchaseOrders,
         keywords: ['PO', 'order', 'receive', 'supplier'],
@@ -108,7 +128,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Expenses',
         subtitle: 'Rent, fuel, salary and other cash spends',
-        icon: Icons.payments_outlined,
+        icon: Symbols.payments_rounded,
+        color: AppColors.primaryDark,
+        background: AppColors.primaryLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.expenses,
         keywords: ['rent', 'fuel', 'salary', 'spend'],
@@ -116,7 +138,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Cash book',
         subtitle: 'Cash, bank, UPI, transfers and daily closing',
-        icon: Icons.account_balance_wallet_outlined,
+        icon: Symbols.account_balance_wallet_rounded,
+        color: AppColors.success,
+        background: AppColors.successLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.cashBook,
         keywords: ['bank', 'UPI', 'cheque', 'transfer', 'closing'],
@@ -130,7 +154,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Reports',
         subtitle: 'Review sales, receipts and outstanding totals',
-        icon: Icons.insert_chart_outlined_rounded,
+        icon: Symbols.monitoring_rounded,
+        color: AppColors.secondary,
+        background: AppColors.secondaryLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.reports,
         keywords: ['sales', 'outstanding', 'receipts'],
@@ -138,7 +164,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Stock reports',
         subtitle: 'On-hand as of a date, and every posted movement',
-        icon: Icons.inventory_2_outlined,
+        icon: Symbols.inventory_2_rounded,
+        color: AppColors.success,
+        background: AppColors.successLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.stockReports,
         keywords: ['on-hand', 'movement', 'inventory'],
@@ -147,7 +175,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Ageing & reminders',
         subtitle: 'Buckets to collect or pay, then share a reminder',
-        icon: Icons.hourglass_bottom_rounded,
+        icon: Symbols.hourglass_rounded,
+        color: AppColors.warning,
+        background: AppColors.warningLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.ageing,
         keywords: ['overdue', 'collect', 'reminder', 'ageing'],
@@ -155,7 +185,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Import data',
         subtitle: 'CSV templates for parties, items and unpaid bills',
-        icon: Icons.file_upload_outlined,
+        icon: Symbols.upload_file_rounded,
+        color: AppColors.accent,
+        background: AppColors.successLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.dataImport,
         keywords: ['CSV', 'Excel', 'upload', 'parties'],
@@ -163,7 +195,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'GST / CA export',
         subtitle: 'Prepared registers for your accountant',
-        icon: Icons.account_balance_outlined,
+        icon: Symbols.account_balance_rounded,
+        color: AppColors.secondary,
+        background: AppColors.secondaryLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.gstExport,
         keywords: ['GSTR', 'tax', 'accountant', 'CA', 'GST'],
@@ -171,7 +205,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'Backup & restore',
         subtitle: 'Export or restore your offline records',
-        icon: Icons.settings_backup_restore_rounded,
+        icon: Symbols.cloud_sync_rounded,
+        color: AppColors.primary,
+        background: AppColors.primaryLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.backup,
         keywords: [
@@ -193,7 +229,9 @@ const moreDestinationCatalog = <MoreDestinationGroup>[
       MoreDestination(
         title: 'App settings',
         subtitle: 'Invoice defaults, look, language and lock',
-        icon: Icons.settings_outlined,
+        icon: Symbols.settings_rounded,
+        color: AppColors.secondary,
+        background: AppColors.secondaryLight,
         action: MoreDestinationAction.openRoute,
         route: AppRoutes.settings,
         keywords: ['PIN', 'fingerprint', 'dark', 'language', 'defaults'],

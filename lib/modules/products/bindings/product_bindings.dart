@@ -11,12 +11,15 @@ import '../controllers/product_list_controller.dart';
 class ProductListBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<ProductListController>(
-      () => ProductListController(
-        Get.find<ProductRepository>(),
-        Get.find<BusinessRepository>(),
-      ),
-    );
+    if (!Get.isRegistered<ProductListController>()) {
+      Get.put<ProductListController>(
+        ProductListController(
+          Get.find<ProductRepository>(),
+          Get.find<BusinessRepository>(),
+        ),
+        permanent: true,
+      );
+    }
   }
 }
 

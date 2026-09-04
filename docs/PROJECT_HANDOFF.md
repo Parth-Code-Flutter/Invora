@@ -162,13 +162,21 @@ stores.
   console for reliable Phone OTP on a device.
 - One app after OTP and business setup: splash, onboarding, and first save
   always open Home. There is no Sales vs Purchases workspace choice and no
-  Change workspace control. Phone dock is **Home · Documents · + · Parties ·
-  More** (still five items). Documents has Sales | Purchases tabs wrapping the
-  existing invoice list and purchase-bill list. Parties has Customers |
-  Suppliers wrapping the existing lists. The + sheet creates Invoice,
-  Estimate, Purchase bill, Purchase order, Customer, Supplier, or Product.
-  Last Documents/Parties tab is remembered in `AppStorage` only; sales and
-  purchase records stay in separate tables. `/workspace-setup`, `/purchases`,
+  Change workspace control. Phone dock is **Home · Documents · Products ·
+  Parties · More** (still five items). The dock is a floating glass capsule
+  with a 1px warm border (`AppColors.border` / `darkBorder`) and icon-only
+  tabs (names stay on Semantics for VoiceOver / TalkBack; stronger blur on
+  iOS, denser fill on Android). The selected tab uses a filled coral icon,
+  a sliding underline, and no chip/background behind the icon. Dock glyphs
+  are Material Symbols (home, receipt, package, groups, apps). More list
+  rows use the same icon set in coral, plum, teal, and amber wells. There is no center + or global create
+  sheet. Documents has Sales | Purchases tabs wrapping the existing invoice
+  list and purchase-bill list, with a FAB for invoice or purchase bill.
+  Parties has Customers | Suppliers wrapping the existing lists, with a FAB
+  for customer or supplier. Products is a root catalog tab with its own add
+  FAB. Estimates, purchase orders, and other create flows stay on their
+  screens and under More. Last Documents/Parties tab is remembered in
+  `AppStorage` only; sales and purchase records stay in separate tables. `/workspace-setup`, `/purchases`,
   `/invoices`, `/customers`, `/purchases/bills`, and `/purchases/suppliers`
   redirect into this shell so old links are not stranded.
 - Purchase remains a complete, separate offline ledger rather than a
@@ -242,7 +250,7 @@ stores.
   category impact note, while first-run onboarding keeps its guided setup UI.
 - Responsive phone/tablet layouts and dark mode. Phone screens keep the existing
   bottom dock and stacked forms.   Tablets use a shared `AppShell` NavigationRail
-  on Home, Documents, Parties, and More. Home screens are two-pane (snapshot +
+  on Home, Documents, Products, Parties, and More. Home screens are two-pane (snapshot +
   activity). Onboarding is a centred visual plus copy/CTA cluster. Forms stay
   on a readable canvas instead of stretching edge-to-edge. Lists use 2/3-column
   cards; sheets open as centred dialogs.
@@ -692,9 +700,9 @@ stores.
   Phone Home does not repeat a full invoice stack. When unpaid supplier bills
   exist, a compact To pay strip under To collect opens Documents on Purchases
   (overdue or unpaid). Tablets still show follow-up or recent
-  invoices in the right pane. Backup appears when due. Create stays on the
-  center + (phone) and the rail FAB (tablet). GST / CA export is not
-  duplicated as a Home tile.
+  invoices in the right pane. Backup appears when due. Create lives on each
+  list (Documents, Products, Parties FABs and empty states), not on a global
+  dock button. GST / CA export is not duplicated as a Home tile.
 - Automated whole-flow QA covers the offline GST lifecycle from business,
   customer, and catalog data through invoice payments/reversal, quotation
   conversion, PDF generation, and backup validation. Native picker/share/print
@@ -820,10 +828,10 @@ As of 2026-08-28:
 ## Known issues / next work
 
 1. Physical-device QA of the unified shell: splash → OTP → onboarding →
-   business setup → Home; dock Home / Documents / + / Parties / More;
-   Sales|Purchases and Customers|Suppliers tabs; create sheet includes
-   Invoice and Purchase bill; Home To pay opens overdue bills; confirm no
-   workspace switcher remains.
+   business setup → Home; dock Home / Documents / Products / Parties / More;
+   Sales|Purchases and Customers|Suppliers tabs; list FABs create invoice,
+   purchase bill, customer, supplier, and catalog items; Home To pay opens
+   overdue bills; confirm no workspace switcher or center + remains.
 2. Purchase CSV export shipped 2026-08-28 with bulk import (`P0.2`):
    suppliers, purchase bills, and purchase payments from Export data, plus
    the all-CSV ZIP. Physical-device open-in-Excel checks remain.
@@ -921,6 +929,61 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-04 — Colorful More tiles and dock glyphs
+
+- More destinations use Material Symbols with per-row coral, plum, teal,
+  and amber wells. Phone dock icons are home, receipt, package, groups,
+  and apps; selected tabs still fill coral with no chip behind the icon.
+- Important files: `more_destinations.dart`, `more_screen.dart`,
+  `app_menu_group.dart`, `app_main_navigation.dart`, this handoff.
+- Storage: none.
+- Verification: More search tests and dock icon tests.
+
+### 2026-09-04 — Icon-only phone dock
+
+- Removed Home / Documents / Products / Parties / More labels from the
+  phone dock. Icons stay, with Semantics labels for VoiceOver and
+  TalkBack. Bar height is 52px.
+- Important files: `app_main_navigation.dart`, this handoff.
+- Storage: none.
+- Verification: `main_navigation_test.dart` asserts hidden labels and
+  semantics names.
+
+### 2026-09-04 — Dock border and smaller labels
+
+- Floating dock now draws a 1px warm border so the capsule reads against
+  the white screen. Tab labels are 8.5pt.
+- Important files: `app_main_navigation.dart`, this handoff.
+- Storage: none.
+- Verification: widget tests for the labelled dock.
+
+### 2026-09-04 — Glass dock, no selected-icon chip
+
+- Removed the pink/lavender selected-tab fill. Phone dock is a floating
+  glass capsule: BackdropFilter blur (heavier on iOS), translucent fill
+  (denser on Android for cheaper GPUs), coral filled icon plus a sliding
+  14×3 underline. No InkWell splash. Tablet rail uses `useIndicator:
+  false` so selected items are tint + fill only.
+- Important files: `app_main_navigation.dart`, this handoff.
+- Storage: none.
+- Verification: `flutter analyze lib test`; `flutter test`.
+
+### 2026-09-04 — Dock: Products tab, no center +
+
+- Replaced the raised center + and 7-item Create new sheet with a fifth
+  equal tab: Products. Phone dock is Home · Documents · Products · Parties
+  · More. Icons use Material Symbols fill/weight morph plus a bounce and a
+  sliding selected pill; short labels stay visible on a 320px phone.
+  Documents, Parties, and Products keep their own create FABs. Home jump
+  strip and More → Products & services open the catalog as the root tab.
+- Important files: `app_main_navigation.dart`, `product_list_screen.dart`,
+  `documents_screen.dart`, `parties_screen.dart`, `route_generator.dart`,
+  `dashboard_screen.dart`, `more_screen.dart`, this handoff.
+- Storage: none.
+- Verification: `flutter analyze lib test`; widget tests for the labelled
+  dock, Products tab, and splash-to-dock coverage in
+  `unified_shell_test.dart`.
 
 ### 2026-09-04 — One app shell: Documents, Parties, unified create
 

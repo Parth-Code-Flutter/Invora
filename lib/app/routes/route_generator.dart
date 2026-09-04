@@ -202,6 +202,8 @@ abstract final class AppRouter {
       name: AppRoutes.products,
       page: ProductListScreen.new,
       binding: ProductListBinding(),
+      transition: Transition.noTransition,
+      transitionDuration: Duration.zero,
     ),
     GetPage(
       name: AppRoutes.productAdd,
