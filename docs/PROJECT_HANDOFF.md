@@ -175,7 +175,10 @@ stores.
   the page to switch), wrapping the existing lists, with a FAB for invoice
   or purchase bill. Parties and the catalog type filter use the same
   control. Parties shows Customers or Suppliers first, then Customers |
-  Suppliers tabs with the same swipe, with a FAB for customer or supplier. Products is a root catalog tab with its own add
+  Suppliers tabs with the same swipe, with a FAB for customer or supplier. The
+  shared tab control uses icons, a transparent selected tab with a coral-to-plum
+  outline, compact outlined count badges, haptics, and one anchored bar while content switches; the tab bar no
+  longer travels with a `PageView`. Products is a root catalog tab with its own add
   FAB. Estimates, purchase orders, and other create flows stay on their
   screens and under More. Last Documents/Parties tab is remembered in
   `AppStorage` only; sales and purchase records stay in separate tables. `/workspace-setup`, `/purchases`,
@@ -815,15 +818,16 @@ transfer automatically.
 
 ## Verification baseline
 
-As of 2026-08-28:
+As of 2026-09-04:
 
-- Flutter analysis: no issues on import/export files (project-wide analyze
-  still required after this slice)
-- Automated suite: import tests passing, including Unicode CSV, Indian
-  dates/money/GSTIN, duplicate skip/update, GSTIN rejection, transactional
-  rollback, and 10,000 customer rows; encrypted backup create/verify/
-  restore, legacy unencrypted ZIP restore, tablet shell, and first-launch
-  routing coverage remain from prior slices
+- App/test source analysis completes without errors using
+  `flutter analyze --no-fatal-infos lib test`; 10 existing style notices remain.
+  Plain `flutter analyze` currently also scans generated Firebase Swift Package
+  sources under `build/ios/SourcePackages` and reports third-party example/test
+  errors, so generated-source exclusion remains tooling cleanup.
+- Automated suite: all 281 tests passing, including the anchored shared tabs,
+  unified shell, inventory, imports, encrypted backup, account OTP, tablet
+  layouts, and the offline financial lifecycle.
 - Android debug APK builds successfully
 - Full release builds and physical-device end-to-end testing remain required
 
@@ -931,6 +935,23 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-04 — Anchored shared tabs with outlined selection
+
+- Rebuilt the common Sales/Purchases, Customers/Suppliers, and All/Products/
+  Services tab control with contextual icons, a transparent selected tab with a
+  coral-to-plum outline, compact outlined count badges, haptic selection, and
+  dark-mode styling.
+- Removed the duplicated tab bars travelling inside Documents and Parties
+  `PageView`s. One tab bar now stays visually anchored while an `IndexedStack`
+  preserves each list's state; horizontal swipe still changes the active tab.
+- Added design-system coverage for the shared border-only selector, icons, tap
+  behavior, and overflow safety. No route, database, storage, or financial
+  behavior changed.
+- Important files: `app_pair_tabs.dart`, `documents_screen.dart`,
+  `parties_screen.dart`, `product_list_screen.dart`, `design_system_test.dart`.
+- Verification: formatting, app/test analysis with existing style notices,
+  focused navigation/design-system tests, and all 281 automated tests.
 
 ### 2026-09-04 — Restore pill tabs, keep swipe
 

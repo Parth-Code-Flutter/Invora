@@ -24,7 +24,6 @@ class PartiesScreen extends StatefulWidget {
 
 class _PartiesScreenState extends State<PartiesScreen> {
   late int _index;
-  late final PageController _pages;
 
   @override
   void initState() {
@@ -41,27 +40,15 @@ class _PartiesScreenState extends State<PartiesScreen> {
           storage?.getString(AppStorageKeyConst.partiesTab) == 'suppliers';
     }
     _index = suppliers ? 1 : 0;
-    _pages = PageController(initialPage: _index);
     storage?.setString(
       AppStorageKeyConst.partiesTab,
       _index == 1 ? 'suppliers' : 'customers',
     );
   }
 
-  @override
-  void dispose() {
-    _pages.dispose();
-    super.dispose();
-  }
-
   void _select(int index) {
     if (index == _index) return;
     _onPageChanged(index);
-    _pages.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOutCubic,
-    );
   }
 
   void _onPageChanged(int index) {
@@ -80,6 +67,8 @@ class _PartiesScreenState extends State<PartiesScreen> {
     right: 'Suppliers',
     index: _index,
     onChanged: _select,
+    leftIcon: Icons.groups_outlined,
+    rightIcon: Icons.storefront_outlined,
   );
 
   @override
@@ -95,17 +84,27 @@ class _PartiesScreenState extends State<PartiesScreen> {
       ),
       body: SafeArea(
         bottom: false,
-        child: PageView(
-          controller: _pages,
-          onPageChanged: _onPageChanged,
-          children: [
-            AppKeepAlive(
-              child: CustomerListScreen(embedded: true, belowTitle: _pairTabs),
-            ),
-            AppKeepAlive(
-              child: SupplierListScreen(embedded: true, belowTitle: _pairTabs),
-            ),
-          ],
+        child: AppSwipeTabs(
+          index: _index,
+          length: 2,
+          onChanged: _select,
+          child: IndexedStack(
+            index: _index,
+            children: [
+              AppKeepAlive(
+                child: CustomerListScreen(
+                  embedded: true,
+                  belowTitle: _pairTabs,
+                ),
+              ),
+              AppKeepAlive(
+                child: SupplierListScreen(
+                  embedded: true,
+                  belowTitle: _pairTabs,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

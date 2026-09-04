@@ -62,6 +62,11 @@ class ProductListScreen extends GetView<ProductListController> {
             child: Obx(
               () => AppSegmentTabs(
                 labels: const ['All', 'Products', 'Services'],
+                icons: const [
+                  Icons.grid_view_rounded,
+                  Icons.inventory_2_outlined,
+                  Icons.design_services_outlined,
+                ],
                 counts: [
                   controller.countFor(null),
                   controller.countFor(ItemType.product),

@@ -26,7 +26,6 @@ class DocumentsScreen extends StatefulWidget {
 
 class _DocumentsScreenState extends State<DocumentsScreen> {
   late int _index;
-  late final PageController _pages;
 
   @override
   void initState() {
@@ -50,7 +49,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           storage?.getString(AppStorageKeyConst.documentsTab) == 'purchases';
     }
     _index = purchases ? 1 : 0;
-    _pages = PageController(initialPage: _index);
     if (invoiceFilter != null && Get.isRegistered<InvoiceListController>()) {
       Get.find<InvoiceListController>().selectFilter(invoiceFilter);
     }
@@ -63,20 +61,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    _pages.dispose();
-    super.dispose();
-  }
-
   void _select(int index) {
     if (index == _index) return;
     _onPageChanged(index);
-    _pages.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOutCubic,
-    );
   }
 
   void _onPageChanged(int index) {
@@ -95,6 +82,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     right: 'Purchases',
     index: _index,
     onChanged: _select,
+    leftIcon: Icons.receipt_long_outlined,
+    rightIcon: Icons.shopping_bag_outlined,
   );
 
   @override
@@ -110,20 +99,24 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       ),
       body: SafeArea(
         bottom: false,
-        child: PageView(
-          controller: _pages,
-          onPageChanged: _onPageChanged,
-          children: [
-            AppKeepAlive(
-              child: InvoiceListScreen(embedded: true, belowTitle: _pairTabs),
-            ),
-            AppKeepAlive(
-              child: PurchaseBillListScreen(
-                embedded: true,
-                belowTitle: _pairTabs,
+        child: AppSwipeTabs(
+          index: _index,
+          length: 2,
+          onChanged: _select,
+          child: IndexedStack(
+            index: _index,
+            children: [
+              AppKeepAlive(
+                child: InvoiceListScreen(embedded: true, belowTitle: _pairTabs),
               ),
-            ),
-          ],
+              AppKeepAlive(
+                child: PurchaseBillListScreen(
+                  embedded: true,
+                  belowTitle: _pairTabs,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

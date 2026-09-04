@@ -8,6 +8,11 @@ remain intentionally out of scope until explicitly requested.
 
 ## Automated and passing
 
+- Documents, Parties, and catalog filters use the same icon-led branded tab
+  control. Its transparent selected tab has only a gradient outline and animates
+  without moving duplicate tab bars through each other; tap and horizontal swipe
+  preserve the active list state.
+
 - Forward/proceed arrows in branded buttons appear after their text; semantic
   action icons remain before their text.
 - Business-category pickers use a searchable 75%-height sheet in setup and

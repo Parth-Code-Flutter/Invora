@@ -5,6 +5,7 @@ import 'package:creovo_invoice/app/constants/app_colors.dart';
 import 'package:creovo_invoice/app/themes/app_theme.dart';
 import 'package:creovo_invoice/app/themes/app_text_styles.dart';
 import 'package:creovo_invoice/app/widgets/app_module_banner.dart';
+import 'package:creovo_invoice/app/widgets/app_pair_tabs.dart';
 import 'package:creovo_invoice/app/widgets/app_search_app_bar.dart';
 import 'package:creovo_invoice/app/utils/app_focus.dart';
 import 'package:creovo_invoice/app/widgets/app_back_button.dart';
@@ -22,6 +23,46 @@ void main() {
       AppTheme.light.textTheme.bodyMedium?.fontFamily,
       'Plus Jakarta Sans',
     );
+  });
+
+  testWidgets('shared segment tabs use one branded selector and icons', (
+    tester,
+  ) async {
+    var selected = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, setState) => AppSegmentTabs(
+              labels: const ['Sales', 'Purchases'],
+              icons: const [
+                Icons.receipt_long_outlined,
+                Icons.shopping_bag_outlined,
+              ],
+              index: selected,
+              onChanged: (value) => setState(() => selected = value),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final indicator = tester.widget<AnimatedPositioned>(
+      find.byKey(const ValueKey('app-segment-indicator')),
+    );
+    final decoration =
+        (indicator.child as DecoratedBox).decoration as BoxDecoration;
+    expect(decoration.gradient, isA<LinearGradient>());
+    expect(decoration.color, isNull);
+    expect((indicator.child as DecoratedBox).child, isA<Padding>());
+    expect(find.byIcon(Icons.receipt_long_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.shopping_bag_outlined), findsOneWidget);
+
+    await tester.tap(find.text('Purchases'));
+    await tester.pumpAndSettle();
+    expect(selected, 1);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('primary action uses branded surface and loading semantics', (

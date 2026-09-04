@@ -14,40 +14,46 @@ class AppSegmentTabs extends StatelessWidget {
     required this.index,
     required this.onChanged,
     this.counts,
+    this.icons,
     super.key,
-  });
+  }) : assert(labels.length > 1),
+       assert(counts == null || counts.length == labels.length),
+       assert(icons == null || icons.length == labels.length);
 
   final List<String> labels;
   final int index;
   final ValueChanged<int> onChanged;
   final List<int>? counts;
+  final List<IconData>? icons;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final track = isDark
-        ? AppColors.darkSurfaceVariant
-        : AppColors.surfaceMuted;
-    final pill = isDark ? AppColors.darkSurface : Colors.white;
+    final track = isDark ? AppColors.darkSurface : const Color(0xFFFFF8F4);
     final idle = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final selected = isDark ? AppColors.primary : AppColors.secondary;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 2, 16, 10),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: track,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+          ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(3),
+          padding: const EdgeInsets.all(4),
           child: SizedBox(
-            height: 36,
+            height: 42,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final tabWidth = constraints.maxWidth / labels.length;
                 return Stack(
                   children: [
                     AnimatedPositioned(
-                      duration: const Duration(milliseconds: 240),
+                      key: const ValueKey('app-segment-indicator'),
+                      duration: const Duration(milliseconds: 260),
                       curve: Curves.easeOutCubic,
                       left: tabWidth * index,
                       top: 0,
@@ -55,15 +61,22 @@ class AppSegmentTabs extends StatelessWidget {
                       width: tabWidth,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: pill,
-                          borderRadius: BorderRadius.circular(11),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color(isDark ? 0x33000000 : 0x14321D30),
-                              blurRadius: 6,
-                              offset: const Offset(0, 1),
+                          gradient: const LinearGradient(
+                            colors: [AppColors.primary, AppColors.secondary],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.5),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: track,
+                              borderRadius: BorderRadius.circular(12.5),
                             ),
-                          ],
+                            child: const SizedBox.expand(),
+                          ),
                         ),
                       ),
                     ),
@@ -77,51 +90,92 @@ class AppSegmentTabs extends StatelessWidget {
                               label: counts != null
                                   ? '${labels[i]}, ${counts![i]}'
                                   : labels[i],
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(14),
                                 onTap: i == index
                                     ? null
                                     : () {
                                         HapticFeedback.selectionClick();
                                         onChanged(i);
                                       },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Flexible(
-                                      child: AnimatedDefaultTextStyle(
-                                        duration: const Duration(
-                                          milliseconds: 180,
+                                child: AnimatedScale(
+                                  duration: const Duration(milliseconds: 220),
+                                  curve: Curves.easeOutCubic,
+                                  scale: i == index ? 1 : .97,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (icons != null) ...[
+                                        Icon(
+                                          icons![i],
+                                          size: 17,
+                                          color: i == index ? selected : idle,
                                         ),
-                                        style: AppTextStyles.caption.copyWith(
-                                          fontSize: 13,
-                                          height: 1,
-                                          fontWeight: FontWeight.w700,
-                                          color: i == index
-                                              ? AppColors.secondary
-                                              : idle,
-                                        ),
-                                        child: Text(
-                                          labels[i],
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ),
-                                    if (counts != null && counts![i] > 0) ...[
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${counts![i]}',
-                                        style: AppTextStyles.caption.copyWith(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          color: i == index
-                                              ? AppColors.secondary
-                                              : idle,
+                                        const SizedBox(width: 6),
+                                      ],
+                                      Flexible(
+                                        child: AnimatedDefaultTextStyle(
+                                          duration: const Duration(
+                                            milliseconds: 180,
+                                          ),
+                                          style: AppTextStyles.caption.copyWith(
+                                            fontSize: 12.5,
+                                            height: 1,
+                                            fontWeight: FontWeight.w700,
+                                            color: i == index ? selected : idle,
+                                          ),
+                                          child: Text(
+                                            labels[i],
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
                                       ),
+                                      if (counts != null && counts![i] > 0) ...[
+                                        const SizedBox(width: 5),
+                                        AnimatedContainer(
+                                          duration: const Duration(
+                                            milliseconds: 180,
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 18,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 5,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.transparent,
+                                            borderRadius: BorderRadius.circular(
+                                              99,
+                                            ),
+                                            border: Border.all(
+                                              color: i == index
+                                                  ? selected.withValues(
+                                                      alpha: .45,
+                                                    )
+                                                  : (isDark
+                                                        ? AppColors.darkBorder
+                                                        : AppColors.border),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            '${counts![i]}',
+                                            textAlign: TextAlign.center,
+                                            style: AppTextStyles.caption
+                                                .copyWith(
+                                                  fontSize: 10,
+                                                  height: 1.2,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: i == index
+                                                      ? selected
+                                                      : idle,
+                                                ),
+                                          ),
+                                        ),
+                                      ],
                                     ],
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -146,6 +200,8 @@ class AppPairTabs extends StatelessWidget {
     required this.right,
     required this.index,
     required this.onChanged,
+    required this.leftIcon,
+    required this.rightIcon,
     super.key,
   });
 
@@ -153,11 +209,13 @@ class AppPairTabs extends StatelessWidget {
   final String right;
   final int index;
   final ValueChanged<int> onChanged;
+  final IconData leftIcon, rightIcon;
 
   @override
   Widget build(BuildContext context) {
     return AppSegmentTabs(
       labels: [left, right],
+      icons: [leftIcon, rightIcon],
       index: index,
       onChanged: onChanged,
     );
