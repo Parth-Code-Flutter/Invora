@@ -17,6 +17,7 @@ import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_list_motion.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_pair_tabs.dart';
 import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_shell.dart';
 import '../../../data/models/product_service_model.dart';
@@ -59,22 +60,38 @@ class ProductListScreen extends GetView<ProductListController> {
               8,
             ),
             child: Obx(
-              () => _CatalogTypeSelector(
-                selected: controller.selectedType.value,
-                allCount: controller.countFor(null),
-                productCount: controller.countFor(ItemType.product),
-                serviceCount: controller.countFor(ItemType.service),
-                onChanged: controller.selectType,
+              () => AppSegmentTabs(
+                labels: const ['All', 'Products', 'Services'],
+                counts: [
+                  controller.countFor(null),
+                  controller.countFor(ItemType.product),
+                  controller.countFor(ItemType.service),
+                ],
+                index: switch (controller.selectedType.value) {
+                  null => 0,
+                  ItemType.product => 1,
+                  ItemType.service => 2,
+                },
+                onChanged: (index) => controller.selectType(switch (index) {
+                  1 => ItemType.product,
+                  2 => ItemType.service,
+                  _ => null,
+                }),
               ),
             ),
           ),
           Expanded(
             child: Obx(() {
+              final typeIndex = switch (controller.selectedType.value) {
+                null => 0,
+                ItemType.product => 1,
+                ItemType.service => 2,
+              };
+              final Widget inner;
               if (controller.isLoading.value) {
-                return const AppListSkeleton();
-              }
-              if (controller.loadError.value != null) {
-                return AppEmptyState(
+                inner = const AppListSkeleton();
+              } else if (controller.loadError.value != null) {
+                inner = AppEmptyState(
                   icon: Icons.sync_problem_rounded,
                   title: 'Catalog unavailable',
                   message:
@@ -82,11 +99,10 @@ class ProductListScreen extends GetView<ProductListController> {
                   actionLabel: 'Try again',
                   onAction: controller.retry,
                 );
-              }
-              if (controller.items.isEmpty) {
+              } else if (controller.items.isEmpty) {
                 final searching = controller.searchQuery.value.isNotEmpty;
                 final filtered = controller.selectedType.value != null;
-                return AppEmptyState(
+                inner = AppEmptyState(
                   icon: filtered
                       ? controller.selectedType.value == ItemType.product
                             ? Icons.inventory_2_outlined
@@ -107,105 +123,127 @@ class ProductListScreen extends GetView<ProductListController> {
                       ? null
                       : () => Get.toNamed<void>(AppRoutes.productAdd),
                 );
-              }
-              final columns = ResponsiveUtils.gridColumns(context);
-              final horizontal = ResponsiveUtils.horizontalPadding(context);
-              final showType = controller.selectedType.value == null;
-              Widget tile(int index, {required AppGroupedPosition position}) =>
-                  AppListEntrance(
-                    index: index,
-                    child: _ProductCatalogTile(
-                      item: controller.items[index],
-                      currencySymbol: controller.currencySymbol.value,
-                      showType: showType,
-                      onHandScaled: controller.onHandFor(
-                        controller.items[index],
-                      ),
-                      position: position,
-                      onDelete: () =>
-                          _confirmDelete(context, controller.items[index]),
-                    ),
-                  );
-              if (columns == 1) {
-                final count = controller.items.length;
-                return ListView.builder(
-                  physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
+              } else {
+                final columns = ResponsiveUtils.gridColumns(context);
+                final horizontal = ResponsiveUtils.horizontalPadding(context);
+                final showType = controller.selectedType.value == null;
+                Widget tile(
+                  int index, {
+                  required AppGroupedPosition position,
+                }) => AppListEntrance(
+                  index: index,
+                  child: _ProductCatalogTile(
+                    item: controller.items[index],
+                    currencySymbol: controller.currencySymbol.value,
+                    showType: showType,
+                    onHandScaled: controller.onHandFor(controller.items[index]),
+                    position: position,
+                    onDelete: () =>
+                        _confirmDelete(context, controller.items[index]),
                   ),
-                  padding: EdgeInsets.fromLTRB(horizontal, 0, horizontal, 100),
-                  itemCount: count + 1,
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            Text(
-                              '$count ${count == 1 ? 'item' : 'items'}',
-                              style: AppTextStyles.caption.copyWith(
-                                color:
-                                    Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? AppColors.darkTextSecondary
-                                    : AppColors.textSecondary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              'Name · A–Z',
-                              style: AppTextStyles.caption.copyWith(
-                                color:
-                                    Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? AppColors.darkTextSecondary
-                                    : AppColors.textTertiary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                    return tile(
-                      index - 1,
-                      position: AppGroupedPositionX.resolve(index - 1, count),
-                    );
-                  },
                 );
-              }
-              return ListView(
-                physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
-                ),
-                padding: EdgeInsets.fromLTRB(horizontal, 2, horizontal, 100),
-                children: [
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      const gap = 8.0;
-                      final width =
-                          (constraints.maxWidth - gap * (columns - 1)) /
-                          columns;
-                      return Wrap(
-                        spacing: gap,
-                        runSpacing: gap,
-                        children: [
-                          for (
-                            var index = 0;
-                            index < controller.items.length;
-                            index++
-                          )
-                            SizedBox(
-                              width: width,
-                              child: tile(
-                                index,
-                                position: AppGroupedPosition.single,
+                if (columns == 1) {
+                  final count = controller.items.length;
+                  inner = ListView.builder(
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+                    padding: EdgeInsets.fromLTRB(
+                      horizontal,
+                      0,
+                      horizontal,
+                      100,
+                    ),
+                    itemCount: count + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            children: [
+                              Text(
+                                '$count ${count == 1 ? 'item' : 'items'}',
+                                style: AppTextStyles.caption.copyWith(
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.textSecondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                        ],
+                              const Spacer(),
+                              Text(
+                                'Name · A–Z',
+                                style: AppTextStyles.caption.copyWith(
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.textTertiary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return tile(
+                        index - 1,
+                        position: AppGroupedPositionX.resolve(index - 1, count),
                       );
                     },
-                  ),
-                ],
+                  );
+                } else {
+                  inner = ListView(
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+                    padding: EdgeInsets.fromLTRB(
+                      horizontal,
+                      2,
+                      horizontal,
+                      100,
+                    ),
+                    children: [
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          const gap = 8.0;
+                          final width =
+                              (constraints.maxWidth - gap * (columns - 1)) /
+                              columns;
+                          return Wrap(
+                            spacing: gap,
+                            runSpacing: gap,
+                            children: [
+                              for (
+                                var index = 0;
+                                index < controller.items.length;
+                                index++
+                              )
+                                SizedBox(
+                                  width: width,
+                                  child: tile(
+                                    index,
+                                    position: AppGroupedPosition.single,
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                }
+              }
+              return AppSwipeTabs(
+                index: typeIndex,
+                length: 3,
+                onChanged: (index) => controller.selectType(switch (index) {
+                  1 => ItemType.product,
+                  2 => ItemType.service,
+                  _ => null,
+                }),
+                child: inner,
               );
             }),
           ),
@@ -415,145 +453,6 @@ class _ProductCatalogTile extends StatelessWidget {
     } else if (action == 'delete') {
       onDelete();
     }
-  }
-}
-
-class _CatalogTypeSelector extends StatelessWidget {
-  const _CatalogTypeSelector({
-    required this.selected,
-    required this.allCount,
-    required this.productCount,
-    required this.serviceCount,
-    required this.onChanged,
-  });
-
-  final ItemType? selected;
-  final int allCount;
-  final int productCount;
-  final int serviceCount;
-  final ValueChanged<ItemType?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      height: 40,
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceVariant : AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          _CatalogTypeOption(
-            label: 'All',
-            count: allCount,
-            selected: selected == null,
-            onTap: () => onChanged(null),
-          ),
-          _CatalogTypeOption(
-            label: 'Products',
-            count: productCount,
-            selected: selected == ItemType.product,
-            onTap: () => onChanged(ItemType.product),
-          ),
-          _CatalogTypeOption(
-            label: 'Services',
-            count: serviceCount,
-            selected: selected == ItemType.service,
-            onTap: () => onChanged(ItemType.service),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CatalogTypeOption extends StatelessWidget {
-  const _CatalogTypeOption({
-    required this.label,
-    required this.count,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final int count;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selectedColor = isDark ? AppColors.darkSurface : Colors.white;
-    return Expanded(
-      child: Semantics(
-        button: true,
-        selected: selected,
-        label: '$label, $count',
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(9),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: selected ? selectedColor : Colors.transparent,
-              borderRadius: BorderRadius.circular(9),
-              boxShadow: selected
-                  ? [
-                      BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: isDark ? .28 : .08,
-                        ),
-                        blurRadius: 6,
-                        offset: const Offset(0, 1),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.small.copyWith(
-                      color: selected
-                          ? (isDark
-                                ? AppColors.darkTextPrimary
-                                : AppColors.textPrimary)
-                          : (isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.textSecondary),
-                      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                    ),
-                  ),
-                ),
-                if (count > 0) ...[
-                  const SizedBox(width: 4),
-                  Text(
-                    '$count',
-                    style: AppTextStyles.caption.copyWith(
-                      color: selected
-                          ? AppColors.secondary
-                          : (isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.textTertiary),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
 

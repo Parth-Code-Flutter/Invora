@@ -24,6 +24,7 @@ class PartiesScreen extends StatefulWidget {
 
 class _PartiesScreenState extends State<PartiesScreen> {
   late int _index;
+  late final PageController _pages;
 
   @override
   void initState() {
@@ -40,13 +41,31 @@ class _PartiesScreenState extends State<PartiesScreen> {
           storage?.getString(AppStorageKeyConst.partiesTab) == 'suppliers';
     }
     _index = suppliers ? 1 : 0;
+    _pages = PageController(initialPage: _index);
     storage?.setString(
       AppStorageKeyConst.partiesTab,
       _index == 1 ? 'suppliers' : 'customers',
     );
   }
 
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
+
   void _select(int index) {
+    if (index == _index) return;
+    _onPageChanged(index);
+    _pages.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _onPageChanged(int index) {
+    if (index == _index) return;
     setState(() => _index = index);
     if (Get.isRegistered<AppStorage>()) {
       Get.find<AppStorage>().setString(
@@ -55,6 +74,13 @@ class _PartiesScreenState extends State<PartiesScreen> {
       );
     }
   }
+
+  Widget get _pairTabs => AppPairTabs(
+    left: 'Customers',
+    right: 'Suppliers',
+    index: _index,
+    onChanged: _select,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -69,22 +95,15 @@ class _PartiesScreenState extends State<PartiesScreen> {
       ),
       body: SafeArea(
         bottom: false,
-        child: Column(
+        child: PageView(
+          controller: _pages,
+          onPageChanged: _onPageChanged,
           children: [
-            AppPairTabs(
-              left: 'Customers',
-              right: 'Suppliers',
-              index: _index,
-              onChanged: _select,
+            AppKeepAlive(
+              child: CustomerListScreen(embedded: true, belowTitle: _pairTabs),
             ),
-            Expanded(
-              child: IndexedStack(
-                index: _index,
-                children: const [
-                  CustomerListScreen(embedded: true),
-                  SupplierListScreen(embedded: true),
-                ],
-              ),
+            AppKeepAlive(
+              child: SupplierListScreen(embedded: true, belowTitle: _pairTabs),
             ),
           ],
         ),

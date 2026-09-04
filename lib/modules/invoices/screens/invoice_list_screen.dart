@@ -26,10 +26,12 @@ class InvoiceListScreen extends StatefulWidget {
   const InvoiceListScreen({
     this.quotation = false,
     this.embedded = false,
+    this.belowTitle,
     super.key,
   });
   final bool quotation;
   final bool embedded;
+  final Widget? belowTitle;
 
   @override
   State<InvoiceListScreen> createState() => _InvoiceListScreenState();
@@ -293,6 +295,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: searchBar.preferredSize.height, child: searchBar),
+          if (widget.belowTitle != null) widget.belowTitle!,
           Expanded(child: body),
         ],
       );

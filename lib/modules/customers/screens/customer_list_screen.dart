@@ -22,9 +22,10 @@ import '../controllers/customer_list_controller.dart';
 import '../widgets/customer_list_overview.dart';
 
 class CustomerListScreen extends GetView<CustomerListController> {
-  const CustomerListScreen({this.embedded = false, super.key});
+  const CustomerListScreen({this.embedded = false, this.belowTitle, super.key});
 
   final bool embedded;
+  final Widget? belowTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +116,7 @@ class CustomerListScreen extends GetView<CustomerListController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: searchBar.preferredSize.height, child: searchBar),
+          if (belowTitle != null) belowTitle!,
           Expanded(child: body),
         ],
       );

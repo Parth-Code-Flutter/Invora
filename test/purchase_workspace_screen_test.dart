@@ -46,13 +46,17 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
-    expect(find.text('Sales'), findsOneWidget);
-    expect(find.text('Purchases'), findsOneWidget);
+    expect(find.text('Sales'), findsWidgets);
+    expect(find.text('Purchases'), findsWidgets);
     expect(find.text('Invoices'), findsWidgets);
+    expect(
+      tester.getTopLeft(find.text('Invoices').first).dy,
+      lessThan(tester.getTopLeft(find.text('Sales').first).dy),
+    );
 
-    await tester.tap(find.text('Purchases'));
+    await tester.tap(find.text('Purchases').first);
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Purchase bills'), findsWidgets);
     expect(storage.getString(AppStorageKeyConst.documentsTab), 'purchases');

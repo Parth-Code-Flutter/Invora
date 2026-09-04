@@ -26,6 +26,7 @@ class DocumentsScreen extends StatefulWidget {
 
 class _DocumentsScreenState extends State<DocumentsScreen> {
   late int _index;
+  late final PageController _pages;
 
   @override
   void initState() {
@@ -49,6 +50,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           storage?.getString(AppStorageKeyConst.documentsTab) == 'purchases';
     }
     _index = purchases ? 1 : 0;
+    _pages = PageController(initialPage: _index);
     if (invoiceFilter != null && Get.isRegistered<InvoiceListController>()) {
       Get.find<InvoiceListController>().selectFilter(invoiceFilter);
     }
@@ -61,7 +63,24 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
+
   void _select(int index) {
+    if (index == _index) return;
+    _onPageChanged(index);
+    _pages.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _onPageChanged(int index) {
+    if (index == _index) return;
     setState(() => _index = index);
     if (Get.isRegistered<AppStorage>()) {
       Get.find<AppStorage>().setString(
@@ -70,6 +89,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       );
     }
   }
+
+  Widget get _pairTabs => AppPairTabs(
+    left: 'Sales',
+    right: 'Purchases',
+    index: _index,
+    onChanged: _select,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -84,21 +110,17 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       ),
       body: SafeArea(
         bottom: false,
-        child: Column(
+        child: PageView(
+          controller: _pages,
+          onPageChanged: _onPageChanged,
           children: [
-            AppPairTabs(
-              left: 'Sales',
-              right: 'Purchases',
-              index: _index,
-              onChanged: _select,
+            AppKeepAlive(
+              child: InvoiceListScreen(embedded: true, belowTitle: _pairTabs),
             ),
-            Expanded(
-              child: IndexedStack(
-                index: _index,
-                children: const [
-                  InvoiceListScreen(embedded: true),
-                  PurchaseBillListScreen(embedded: true),
-                ],
+            AppKeepAlive(
+              child: PurchaseBillListScreen(
+                embedded: true,
+                belowTitle: _pairTabs,
               ),
             ),
           ],

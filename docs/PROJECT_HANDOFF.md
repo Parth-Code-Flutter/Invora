@@ -170,10 +170,12 @@ stores.
   a sliding underline, and no chip/background behind the icon. Dock glyphs
   are Material Symbols (home, receipt, package, groups, apps). More list
   rows use the same icon set in coral, plum, teal, and amber wells. There is no center + or global create
-  sheet. Documents has Sales | Purchases tabs wrapping the existing invoice
-  list and purchase-bill list, with a FAB for invoice or purchase bill.
-  Parties has Customers | Suppliers wrapping the existing lists, with a FAB
-  for customer or supplier. Products is a root catalog tab with its own add
+  sheet. Documents shows Invoices or Purchase bills first, then Sales |
+  Purchases as a cream segmented control with a sliding white pill (swipe
+  the page to switch), wrapping the existing lists, with a FAB for invoice
+  or purchase bill. Parties and the catalog type filter use the same
+  control. Parties shows Customers or Suppliers first, then Customers |
+  Suppliers tabs with the same swipe, with a FAB for customer or supplier. Products is a root catalog tab with its own add
   FAB. Estimates, purchase orders, and other create flows stay on their
   screens and under More. Last Documents/Parties tab is remembered in
   `AppStorage` only; sales and purchase records stay in separate tables. `/workspace-setup`, `/purchases`,
@@ -929,6 +931,36 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-04 — Restore pill tabs, keep swipe
+
+- Brought back the cream segmented control with a sliding white pill.
+  Documents and Parties still swipe between pages; catalog All / Products
+  / Services still swipes on the list.
+- Important files: `app_pair_tabs.dart`, this handoff.
+- Storage: none.
+- Verification: documents host, unified shell, and catalog filter tests.
+
+### 2026-09-04 — Swipeable underline tabs
+
+- Replaced the beige iOS segmented control with coral sliding-underline
+  tabs. Documents and Parties pages swipe left/right; catalog All /
+  Products / Services uses the same control and a horizontal swipe.
+- Important files: `app_pair_tabs.dart`, `documents_screen.dart`,
+  `parties_screen.dart`, `product_list_screen.dart`, this handoff.
+- Storage: none.
+- Verification: documents host and unified shell tab tests.
+
+### 2026-09-04 — Pair tabs sit under list titles
+
+- Documents now shows Invoices / Purchase bills above Sales | Purchases.
+  Parties shows Customers / Suppliers above Customers | Suppliers.
+- Important files: `documents_screen.dart`, `parties_screen.dart`,
+  `invoice_list_screen.dart`, `purchase_screens.dart`,
+  `customer_list_screen.dart`, this handoff.
+- Storage: none.
+- Verification: documents host and unified shell tests assert title is
+  above the pair tabs.
 
 ### 2026-09-04 — Colorful More tiles and dock glyphs
 

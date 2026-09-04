@@ -84,11 +84,15 @@ void main() {
 
       await tester.tap(find.byIcon(Symbols.receipt_long_rounded));
       await tester.pumpAndSettle();
-      expect(find.text('Sales'), findsOneWidget);
-      expect(find.text('Purchases'), findsOneWidget);
+      expect(find.text('Sales'), findsWidgets);
+      expect(find.text('Purchases'), findsWidgets);
       expect(find.text('Invoices'), findsWidgets);
+      expect(
+        tester.getTopLeft(find.text('Invoices').first).dy,
+        lessThan(tester.getTopLeft(find.text('Sales').first).dy),
+      );
 
-      await tester.tap(find.text('Purchases'));
+      await tester.tap(find.text('Purchases').first);
       await tester.pumpAndSettle();
       expect(find.text('Purchase bills'), findsWidgets);
       expect(find.text('PB-100'), findsWidgets);
@@ -98,7 +102,7 @@ void main() {
       expect(find.text('Customers'), findsWidgets);
       expect(find.text('Suppliers'), findsWidgets);
 
-      await tester.tap(find.text('Suppliers'));
+      await tester.tap(find.text('Suppliers').first);
       await tester.pumpAndSettle();
       expect(find.text('Paper Vendor'), findsWidgets);
 

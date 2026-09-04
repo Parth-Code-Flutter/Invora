@@ -91,12 +91,18 @@ String _billStatusLabel(String status) => switch (status) {
 };
 
 class PurchaseBillListScreen extends StatefulWidget {
-  const PurchaseBillListScreen({this.embedded = false, super.key});
+  const PurchaseBillListScreen({
+    this.embedded = false,
+    this.belowTitle,
+    super.key,
+  });
 
   /// Applied once when Documents opens with a bill status filter.
   static String? pendingFilter;
 
   final bool embedded;
+  final Widget? belowTitle;
+
   @override
   State<PurchaseBillListScreen> createState() => _PurchaseBillListScreenState();
 }
@@ -235,6 +241,7 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: searchBar.preferredSize.height, child: searchBar),
+          if (widget.belowTitle != null) widget.belowTitle!,
           Expanded(child: body),
         ],
       );
@@ -248,8 +255,9 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
 }
 
 class SupplierListScreen extends StatefulWidget {
-  const SupplierListScreen({this.embedded = false, super.key});
+  const SupplierListScreen({this.embedded = false, this.belowTitle, super.key});
   final bool embedded;
+  final Widget? belowTitle;
   @override
   State<SupplierListScreen> createState() => _SupplierListScreenState();
 }
@@ -350,6 +358,7 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: searchBar.preferredSize.height, child: searchBar),
+          if (widget.belowTitle != null) widget.belowTitle!,
           Expanded(child: body),
         ],
       );
