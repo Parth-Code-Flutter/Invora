@@ -14,6 +14,7 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_constrained_action.dart';
+import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_form_grid.dart';
 import '../../../data/models/product_service_model.dart';
@@ -557,41 +558,16 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
     ),
   );
 
-  Widget _emptyState() => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.inventory_2_outlined,
-            size: 48,
-            color: AppColors.primary,
-          ),
-          const SizedBox(height: 14),
-          Text(
-            _search.text.isEmpty ? 'No saved items yet' : 'No matching items',
-            style: AppTextStyles.sectionTitle,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            _search.text.isEmpty
-                ? 'Create a reusable product or service to add it here.'
-                : 'Try another search or change the item type filter.',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.body.copyWith(color: AppColors.textSecondary),
-          ),
-          if (_search.text.isEmpty) ...[
-            const SizedBox(height: 18),
-            FilledButton.icon(
-              onPressed: _createItem,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Create item'),
-            ),
-          ],
-        ],
-      ),
-    ),
+  Widget _emptyState() => AppEmptyState(
+    illustration: _search.text.isEmpty
+        ? AppEmptyIllustration.package
+        : AppEmptyIllustration.search,
+    title: _search.text.isEmpty ? 'No saved items yet' : 'No matching items',
+    message: _search.text.isEmpty
+        ? 'Create a reusable product or service to add it here.'
+        : 'Try another search or change the item type filter.',
+    actionLabel: _search.text.isEmpty ? 'Create item' : null,
+    onAction: _search.text.isEmpty ? _createItem : null,
   );
 
   Future<void> _scanItems() async {

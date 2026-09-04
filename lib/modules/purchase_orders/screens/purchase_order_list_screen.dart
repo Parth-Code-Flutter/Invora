@@ -37,7 +37,7 @@ class PurchaseOrderListScreen extends GetView<PurchaseOrderListController> {
         final rows = controller.visible;
         if (controller.items.isEmpty) {
           return AppEmptyState(
-            icon: Icons.assignment_outlined,
+            illustration: AppEmptyIllustration.clipboard,
             title: 'No purchase orders yet',
             message:
                 'Order from a supplier, receive goods in one or more deliveries, then convert remaining received quantity into purchase bills. The PO does not change stock or payable.',
@@ -63,7 +63,7 @@ class PurchaseOrderListScreen extends GetView<PurchaseOrderListController> {
                 const SliverFillRemaining(
                   hasScrollBody: false,
                   child: AppEmptyState(
-                    icon: Icons.search_off_rounded,
+                    illustration: AppEmptyIllustration.search,
                     title: 'No purchase orders found',
                     message: 'Try a different number or supplier name.',
                   ),

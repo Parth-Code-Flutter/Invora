@@ -65,7 +65,7 @@ class CashBookScreen extends GetView<CashBookController> {
               ),
               if (accounts.isEmpty)
                 const AppEmptyState(
-                  icon: Icons.account_balance_wallet_outlined,
+                  illustration: AppEmptyIllustration.wallet,
                   title: 'No accounts yet',
                   message:
                       'Cash, Bank, UPI, Card and Other are created automatically. Add another if you use more than one bank.',

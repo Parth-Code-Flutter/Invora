@@ -232,7 +232,11 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                   controller.searchQuery.value.isNotEmpty ||
                   controller.selectedFilter.value != InvoiceListFilter.all;
               return AppEmptyState(
-                icon: Icons.receipt_long_outlined,
+                illustration: searching
+                    ? AppEmptyIllustration.search
+                    : quotation
+                    ? AppEmptyIllustration.clipboard
+                    : AppEmptyIllustration.invoice,
                 title: searching
                     ? (quotation ? 'No quotations found' : 'No invoices found')
                     : (quotation ? 'No quotations yet' : 'No invoices yet'),

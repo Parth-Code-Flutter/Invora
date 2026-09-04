@@ -52,7 +52,7 @@ class MoreScreen extends GetView<MoreController> {
                   if (groups.isEmpty) ...[
                     const SizedBox(height: 28),
                     AppEmptyState(
-                      icon: Icons.search_off_rounded,
+                      illustration: AppEmptyIllustration.search,
                       title: 'No matching features',
                       message:
                           'Try a different name, like GST, stock, or backup.',

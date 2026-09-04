@@ -367,22 +367,13 @@ class _DeliveryChallanFormScreenState extends State<DeliveryChallanFormScreen> {
                     borderColor: AppColors.primary.withValues(alpha: .14),
                     child: Column(
                       children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(
-                              alpha: isDark ? .22 : .12,
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.inventory_2_outlined,
-                            color: AppColors.primary,
-                            size: 26,
-                          ),
+                        const AppEmptyArt(
+                          illustration: AppEmptyIllustration.package,
+                          width: 132,
+                          height: 100,
+                          semanticLabel: 'No items yet',
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         Text(
                           'No items yet',
                           textAlign: TextAlign.center,
@@ -1009,7 +1000,7 @@ Future<void> _selectCustomer(
                 if (customers.isEmpty)
                   Expanded(
                     child: AppEmptyState(
-                      icon: Icons.person_add_alt_1_rounded,
+                      illustration: AppEmptyIllustration.people,
                       title: 'No customers yet',
                       message:
                           'Create your first customer to start this challan.',

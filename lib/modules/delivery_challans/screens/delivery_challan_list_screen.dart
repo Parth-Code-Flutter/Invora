@@ -37,7 +37,7 @@ class DeliveryChallanListScreen extends GetView<DeliveryChallanListController> {
         final rows = controller.visible;
         if (controller.items.isEmpty) {
           return AppEmptyState(
-            icon: Icons.local_shipping_outlined,
+            illustration: AppEmptyIllustration.parcel,
             title: 'No delivery challans yet',
             message:
                 'Start from items or an estimate, then convert remaining quantity later. Use an invoice only for leftover delivery of an already billed sale.',
@@ -63,7 +63,7 @@ class DeliveryChallanListScreen extends GetView<DeliveryChallanListController> {
                 const SliverFillRemaining(
                   hasScrollBody: false,
                   child: AppEmptyState(
-                    icon: Icons.search_off_rounded,
+                    illustration: AppEmptyIllustration.search,
                     title: 'No challans found',
                     message: 'Try a different number or customer name.',
                   ),

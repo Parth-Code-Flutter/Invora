@@ -11,6 +11,7 @@ import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_invoice_summary_card.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_shell.dart';
@@ -307,34 +308,11 @@ class _TabletDashboardHome extends StatelessWidget {
       return const _RecentInvoicesLoading();
     }
     if (!showFollowUp && controller.recentInvoices.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(
-                Icons.receipt_long_outlined,
-                color: AppColors.primary,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text('No invoices yet', style: AppTextStyles.listName),
-            const SizedBox(height: 4),
-            Text(
-              'Create an invoice to see activity here.',
-              textAlign: TextAlign.center,
-              style: AppTextStyles.small.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
+      return const AppEmptyState(
+        illustration: AppEmptyIllustration.invoice,
+        title: 'No invoices yet',
+        message: 'Create an invoice to see activity here.',
+        compact: true,
       );
     }
     return ListView.separated(

@@ -49,7 +49,7 @@ class ProductDetailsScreen extends GetView<ProductDetailsController> {
       final item = controller.item.value;
       if (item == null) {
         return AppEmptyState(
-          icon: Icons.inventory_2_outlined,
+          illustration: AppEmptyIllustration.error,
           title: 'Item not found',
           message: 'This catalog item may have been removed.',
           actionLabel: 'Go back',

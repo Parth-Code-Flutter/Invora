@@ -19,6 +19,7 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_notification.dart';
@@ -939,20 +940,13 @@ class _InvoiceEmptyItemsCard extends StatelessWidget {
       borderColor: AppColors.primary.withValues(alpha: .14),
       child: Column(
         children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: isDark ? .22 : .12),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.receipt_long_rounded,
-              color: AppColors.primary,
-              size: 26,
-            ),
+          const AppEmptyArt(
+            illustration: AppEmptyIllustration.package,
+            width: 132,
+            height: 100,
+            semanticLabel: 'No items yet',
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
             'No items yet',
             textAlign: TextAlign.center,

@@ -103,7 +103,7 @@ class ExpenseListScreen extends GetView<ExpenseListController> {
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: AppEmptyState(
-                    icon: Icons.payments_outlined,
+                    illustration: AppEmptyIllustration.coins,
                     title: 'No expenses yet',
                     message:
                         'Record rent, fuel, salary and other cash spends here. Supplier item bills stay in Purchases.',

@@ -46,7 +46,7 @@ class StockListScreen extends GetView<StockController> {
         }
         if (controller.movements.isEmpty) {
           return AppEmptyState(
-            icon: Icons.inventory_2_outlined,
+            illustration: AppEmptyIllustration.package,
             title: 'No stock movements yet',
             message:
                 'Opening quantities, invoices, bills, returns, and adjustments appear here.',

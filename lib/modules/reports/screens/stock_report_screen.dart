@@ -82,7 +82,7 @@ class StockReportScreen extends GetView<StockReportController> {
       }
       if (!pack.enabled) {
         return AppEmptyState(
-          icon: Icons.inventory_2_outlined,
+          illustration: AppEmptyIllustration.package,
           title: 'Stock tracking off',
           message: 'Keep stock for a product to use these reports.',
           actionLabel: 'Create product',

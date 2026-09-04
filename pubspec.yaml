@@ -54,6 +54,7 @@ dependencies:
   pro_dialog:
     path: packages/pro_dialog
   lottie: ^3.5.1
+  flutter_svg: ^2.2.3
   intl: ^0.20.2
   crypto: ^3.0.6
   cryptography: ^2.7.0
@@ -90,6 +91,7 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/animations/
+    - assets/illustrations/
 
   fonts:
     - family: Plus Jakarta Sans

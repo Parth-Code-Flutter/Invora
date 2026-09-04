@@ -304,7 +304,7 @@ class _PurchaseOrderFormScreenState extends State<PurchaseOrderFormScreen> {
                 if (controller.items.isEmpty)
                   AppCard(
                     child: AppEmptyState(
-                      icon: Icons.inventory_2_outlined,
+                      illustration: AppEmptyIllustration.package,
                       title: 'No items yet',
                       message:
                           'Add catalog items or a custom line. Receiving and billing happen after you issue this order.',
@@ -731,7 +731,9 @@ Future<void> _selectSupplier(
                             snapshot.data ?? const <SupplierModel>[];
                         if (suppliers.isEmpty) {
                           return AppEmptyState(
-                            icon: Icons.storefront_outlined,
+                            illustration: query.isEmpty
+                                ? AppEmptyIllustration.store
+                                : AppEmptyIllustration.search,
                             title: query.isEmpty
                                 ? 'No suppliers yet'
                                 : 'No matching supplier',

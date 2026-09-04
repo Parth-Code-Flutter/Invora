@@ -180,7 +180,10 @@ stores.
   outline, compact outlined count badges, haptics, and one anchored bar while content switches; the tab bar no
   longer travels with a `PageView`. Products is a root catalog tab with its own add
   FAB. Estimates, purchase orders, and other create flows stay on their
-  screens and under More. Last Documents/Parties tab is remembered in
+  screens and under More. Empty lists and search-miss states use peach
+  line illustrations (`AppEmptyIllustration`) instead of a coral icon well:
+  invoices, quotations, bills, customers, suppliers, catalog, Home recent
+  activity, item pickers, and composer first-item cards. Last Documents/Parties tab is remembered in
   `AppStorage` only; sales and purchase records stay in separate tables. `/workspace-setup`, `/purchases`,
   `/invoices`, `/customers`, `/purchases/bills`, and `/purchases/suppliers`
   redirect into this shell so old links are not stranded.
@@ -935,6 +938,22 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-04 — Peach empty-state illustrations
+
+- Replaced the coral icon wells on empty screens with a shared illustration
+  set (invoice, search, people, package, wallet, clipboard, store, parcel,
+  coins, error). True-empty vs no-match still use different art. Home recent
+  activity, invoice/purchase/challan first-item cards, and the item picker
+  use the same graphics.
+- Figma Community Manchester pack could not be exported in this session
+  (login declined); these are original Creovo SVGs in that peach/line
+  language so empty screens match the brand without copying the file.
+- Important files: `app_empty_state.dart`, `assets/illustrations/`, list and
+  form empty call sites, this handoff.
+- Storage: none.
+- Verification: design-system empty-state test plus catalog/documents
+  empty copy tests.
 
 ### 2026-09-04 — Anchored shared tabs with outlined selection
 

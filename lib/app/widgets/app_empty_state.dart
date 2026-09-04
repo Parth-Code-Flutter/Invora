@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
@@ -7,57 +8,99 @@ import '../constants/app_spacing.dart';
 import '../themes/app_text_styles.dart';
 import 'app_button.dart';
 
+enum AppEmptyIllustration {
+  invoice('assets/illustrations/empty_invoice.svg'),
+  search('assets/illustrations/empty_search.svg'),
+  people('assets/illustrations/empty_people.svg'),
+  package('assets/illustrations/empty_package.svg'),
+  wallet('assets/illustrations/empty_wallet.svg'),
+  clipboard('assets/illustrations/empty_clipboard.svg'),
+  store('assets/illustrations/empty_store.svg'),
+  parcel('assets/illustrations/empty_parcel.svg'),
+  coins('assets/illustrations/empty_coins.svg'),
+  error('assets/illustrations/empty_error.svg');
+
+  const AppEmptyIllustration(this.asset);
+  final String asset;
+}
+
+class AppEmptyArt extends StatelessWidget {
+  const AppEmptyArt({
+    required this.illustration,
+    this.width = 176,
+    this.height = 132,
+    this.semanticLabel,
+    super.key,
+  });
+
+  final AppEmptyIllustration illustration;
+  final double width;
+  final double height;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      illustration.asset,
+      width: width,
+      height: height,
+      fit: BoxFit.contain,
+      semanticsLabel: semanticLabel,
+    );
+  }
+}
+
 class AppEmptyState extends StatelessWidget {
   const AppEmptyState({
-    required this.icon,
+    required this.illustration,
     required this.title,
     required this.message,
     this.actionLabel,
     this.onAction,
+    this.compact = false,
     super.key,
   });
 
-  final IconData icon;
+  final AppEmptyIllustration illustration;
   final String title;
   final String message;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 360),
+        constraints: BoxConstraints(maxWidth: compact ? 280 : 360),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
+          padding: EdgeInsets.all(compact ? AppSpacing.md : AppSpacing.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryLight,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, size: 34, color: AppColors.primary),
+              AppEmptyArt(
+                illustration: illustration,
+                width: compact ? 128 : 176,
+                height: compact ? 96 : 132,
+                semanticLabel: title,
               ),
-              const SizedBox(height: AppSpacing.md),
+              SizedBox(height: compact ? AppSpacing.sm : AppSpacing.lg),
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: AppTextStyles.sectionTitle,
+                style: compact
+                    ? AppTextStyles.listName
+                    : AppTextStyles.sectionTitle,
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: AppTextStyles.body.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                style: (compact ? AppTextStyles.small : AppTextStyles.body)
+                    .copyWith(color: AppColors.textSecondary),
               ),
               if (actionLabel != null && onAction != null) ...[
-                const SizedBox(height: AppSpacing.xl),
+                SizedBox(height: compact ? AppSpacing.md : AppSpacing.xl),
                 AppButton(label: actionLabel!, onPressed: onAction),
               ],
             ],

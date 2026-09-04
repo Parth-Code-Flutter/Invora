@@ -99,7 +99,7 @@ class AccountStatementScreen extends GetView<AccountStatementController> {
               const SizedBox(height: 6),
               if (rows.isEmpty)
                 const AppEmptyState(
-                  icon: Icons.receipt_long_outlined,
+                  illustration: AppEmptyIllustration.coins,
                   title: 'No movements',
                   message:
                       'Receipts, payments, transfers and closings for this account appear here.',

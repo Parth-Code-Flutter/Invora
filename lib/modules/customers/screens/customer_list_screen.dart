@@ -54,7 +54,9 @@ class CustomerListScreen extends GetView<CustomerListController> {
       }
       if (controller.customers.isEmpty) {
         return AppEmptyState(
-          icon: Icons.people_outline_rounded,
+          illustration: controller.searchQuery.value.isEmpty
+              ? AppEmptyIllustration.people
+              : AppEmptyIllustration.search,
           title: controller.searchQuery.value.isEmpty
               ? 'No customers yet'
               : 'No customers found',

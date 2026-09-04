@@ -198,7 +198,9 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
                 Expanded(
                   child: visible.isEmpty
                       ? AppEmptyState(
-                          icon: Icons.receipt_long_outlined,
+                          illustration: searching
+                              ? AppEmptyIllustration.search
+                              : AppEmptyIllustration.invoice,
                           title: searching
                               ? 'No matching bills'
                               : 'No purchase bills yet',
@@ -285,7 +287,9 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
             }
             if (suppliers.isEmpty) {
               return AppEmptyState(
-                icon: Icons.storefront_outlined,
+                illustration: query.isEmpty
+                    ? AppEmptyIllustration.store
+                    : AppEmptyIllustration.search,
                 title: query.isEmpty
                     ? 'No suppliers yet'
                     : 'No matching suppliers',
@@ -509,7 +513,7 @@ class _SupplierStatementScreenState extends State<SupplierStatementScreen> {
               const SizedBox(height: 8),
               if (entries.isEmpty)
                 const AppEmptyState(
-                  icon: Icons.receipt_long_outlined,
+                  illustration: AppEmptyIllustration.coins,
                   title: 'No statement activity',
                   message: 'Bills and supplier payments will appear here.',
                 )
@@ -1682,7 +1686,9 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
               final suppliers = snapshot.data!;
               if (suppliers.isEmpty) {
                 return AppEmptyState(
-                  icon: Icons.storefront_outlined,
+                  illustration: supplierQuery.isEmpty
+                      ? AppEmptyIllustration.store
+                      : AppEmptyIllustration.search,
                   title: supplierQuery.isEmpty
                       ? 'No suppliers yet'
                       : 'No matching supplier',
@@ -1779,7 +1785,7 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
                 Expanded(
                   child: suppliers.isEmpty
                       ? AppEmptyState(
-                          icon: Icons.storefront_outlined,
+                          illustration: AppEmptyIllustration.store,
                           title: 'No suppliers yet',
                           message:
                               'Create a supplier, then continue this bill.',
@@ -3670,19 +3676,13 @@ class _PurchaseEmptyItemsCard extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(16, 22, 16, 18),
     child: Column(
       children: [
-        Container(
-          width: 56,
-          height: 56,
-          decoration: const BoxDecoration(
-            color: AppColors.primaryLight,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.add_shopping_cart_rounded,
-            color: AppColors.primary,
-          ),
+        const AppEmptyArt(
+          illustration: AppEmptyIllustration.package,
+          width: 120,
+          height: 90,
+          semanticLabel: 'No items yet',
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Text('No items yet', style: AppTextStyles.listName),
         const SizedBox(height: 4),
         Text(

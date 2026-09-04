@@ -15,6 +15,7 @@ import 'package:creovo_invoice/app/widgets/app_filter_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_search_field.dart';
 import 'package:creovo_invoice/app/widgets/app_status_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_text_field.dart';
+import 'package:creovo_invoice/app/widgets/app_empty_state.dart';
 
 void main() {
   test('design system uses the bundled Plus Jakarta Sans family', () {
@@ -23,6 +24,31 @@ void main() {
       AppTheme.light.textTheme.bodyMedium?.fontFamily,
       'Plus Jakarta Sans',
     );
+  });
+
+  testWidgets('empty state uses an illustration instead of a glyph well', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: AppEmptyState(
+            illustration: AppEmptyIllustration.invoice,
+            title: 'No invoices yet',
+            message: 'Create your first offline invoice to see it here.',
+            actionLabel: 'Create invoice',
+            onAction: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(AppEmptyArt), findsOneWidget);
+    expect(find.byIcon(Icons.receipt_long_outlined), findsNothing);
+    expect(find.text('No invoices yet'), findsOneWidget);
+    expect(find.text('Create invoice'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('shared segment tabs use one branded selector and icons', (

@@ -97,7 +97,7 @@ class ProductListScreen extends GetView<ProductListController> {
                 inner = const AppListSkeleton();
               } else if (controller.loadError.value != null) {
                 inner = AppEmptyState(
-                  icon: Icons.sync_problem_rounded,
+                  illustration: AppEmptyIllustration.error,
                   title: 'Catalog unavailable',
                   message:
                       'Your saved items are unchanged. Try loading them again.',
@@ -108,11 +108,12 @@ class ProductListScreen extends GetView<ProductListController> {
                 final searching = controller.searchQuery.value.isNotEmpty;
                 final filtered = controller.selectedType.value != null;
                 inner = AppEmptyState(
-                  icon: filtered
-                      ? controller.selectedType.value == ItemType.product
-                            ? Icons.inventory_2_outlined
-                            : Icons.design_services_outlined
-                      : Icons.inventory_2_outlined,
+                  illustration: searching
+                      ? AppEmptyIllustration.search
+                      : filtered &&
+                            controller.selectedType.value == ItemType.service
+                      ? AppEmptyIllustration.clipboard
+                      : AppEmptyIllustration.package,
                   title: searching
                       ? 'No matching items'
                       : filtered
