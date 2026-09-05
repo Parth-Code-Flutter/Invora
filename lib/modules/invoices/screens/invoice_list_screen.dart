@@ -152,7 +152,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                 const SizedBox(height: 12),
               ],
               SizedBox(
-                height: 44,
+                height: 40,
                 child: Obx(() {
                   final filters = quotation
                       ? const [
@@ -177,7 +177,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                         scrollDirection: Axis.horizontal,
                         padding: const EdgeInsets.only(right: 24),
                         itemCount: filters.length,
-                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        separatorBuilder: (_, _) => const SizedBox(width: 6),
                         itemBuilder: (context, index) {
                           final filter = filters[index];
                           if (quotation) {
@@ -185,6 +185,10 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                               label: _filterLabel(filter),
                               selected:
                                   controller.selectedFilter.value == filter,
+                              dense: true,
+                              selectedColor: appFilterSelectedColor(
+                                filter.name,
+                              ),
                               onSelected: (_) =>
                                   controller.selectFilter(filter),
                             );
@@ -193,7 +197,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                             label: _filterLabel(filter),
                             count: _invoiceFilterCount(filter, summaries),
                             selected: controller.selectedFilter.value == filter,
-                            selectedColor: const Color(0xFF1E1B1E),
+                            dense: true,
+                            selectedColor: appFilterSelectedColor(filter.name),
                             countFill: filter == InvoiceListFilter.overdue
                                 ? const Color(0xFFFFE4E6)
                                 : null,

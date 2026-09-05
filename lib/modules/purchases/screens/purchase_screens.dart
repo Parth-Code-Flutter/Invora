@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../../../app/constants/app_colors.dart';
-import '../../../app/constants/documents_icons.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/routes/shell_args.dart';
 import '../../../app/themes/app_text_styles.dart';
@@ -28,6 +26,7 @@ import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_list_motion.dart';
 import '../../../app/widgets/app_main_navigation.dart';
+import '../../../app/widgets/app_metric_overview.dart';
 import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/app_form_grid.dart';
 import '../../../app/widgets/app_constrained_action.dart';
@@ -158,31 +157,53 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
                       ResponsiveUtils.horizontalPadding(context),
                       0,
                     ),
-                    child: PurchaseOverviewCard(
-                      data: dashboard.data!,
-                      compact: true,
-                      paidCount: bills
-                          .where((bill) => bill.status == 'paid')
-                          .length,
-                      payableCount: bills
-                          .where(
-                            (bill) =>
-                                bill.status == 'unpaid' ||
-                                bill.status == 'partially_paid',
-                          )
-                          .length,
-                      overdueCount: bills
-                          .where((bill) => bill.status == 'overdue')
-                          .length,
+                    child: AppMetricOverview(
+                      currencySymbol: '₹',
+                      items: [
+                        AppMetricOverviewItem(
+                          label: 'Paid',
+                          amountMinor: dashboard.data!.paidMinor,
+                          count: bills
+                              .where((bill) => bill.status == 'paid')
+                              .length,
+                          countNoun: 'bill',
+                          color: const Color(0xFF10B981),
+                          ring: const Color(0xFFECFDF5),
+                        ),
+                        AppMetricOverviewItem(
+                          label: 'Payable',
+                          amountMinor: dashboard.data!.payableMinor,
+                          count: bills
+                              .where(
+                                (bill) =>
+                                    bill.status == 'unpaid' ||
+                                    bill.status == 'partially_paid',
+                              )
+                              .length,
+                          countNoun: 'bill',
+                          color: const Color(0xFFF59E0B),
+                          ring: const Color(0xFFFFFBEB),
+                        ),
+                        AppMetricOverviewItem(
+                          label: 'Overdue',
+                          amountMinor: dashboard.data!.overdueMinor,
+                          count: bills
+                              .where((bill) => bill.status == 'overdue')
+                              .length,
+                          countNoun: 'bill',
+                          color: const Color(0xFFF43F5E),
+                          ring: const Color(0xFFFFF1F2),
+                        ),
+                      ],
                     ),
                   ),
                 SizedBox(
-                  height: 52,
+                  height: 40,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     padding: EdgeInsets.fromLTRB(
                       ResponsiveUtils.horizontalPadding(context),
-                      10,
+                      6,
                       ResponsiveUtils.horizontalPadding(context),
                       4,
                     ),
@@ -196,17 +217,24 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
                         ('cancelled', 'Cancelled'),
                       ])
                         Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.only(right: 6),
                           child: AppFilterChip(
                             label: option.$2,
                             selected: filter == option.$1,
-                            selectedColor: const Color(0xFF5B2A4A),
+                            dense: true,
+                            selectedColor: appFilterSelectedColor(option.$1),
                             idleFill: Colors.white,
                             count: option.$1 == 'all'
                                 ? bills.length
                                 : bills
                                       .where((bill) => bill.status == option.$1)
                                       .length,
+                            countFill: option.$1 == 'overdue'
+                                ? const Color(0xFFFFE4E6)
+                                : null,
+                            countColor: option.$1 == 'overdue'
+                                ? const Color(0xFFE11D48)
+                                : null,
                             onSelected: (_) =>
                                 setState(() => filter = option.$1),
                           ),
@@ -2707,231 +2735,78 @@ class PurchaseOverviewCard extends StatelessWidget {
     required this.data,
     this.onPayableTap,
     this.onOverdueTap,
-    this.compact = false,
-    this.paidCount,
-    this.payableCount,
-    this.overdueCount,
     super.key,
   });
 
   final PurchaseDashboardSummary data;
   final VoidCallback? onPayableTap;
   final VoidCallback? onOverdueTap;
-  final bool compact;
-  final int? paidCount;
-  final int? payableCount;
-  final int? overdueCount;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (!compact) {
-      final progress = data.totalSpendMinor <= 0
-          ? 0.0
-          : (data.paidMinor / data.totalSpendMinor).clamp(0.0, 1.0);
-      return AppCard(
-        padding: EdgeInsets.zero,
-        color: isDark ? const Color(0xFF3B2038) : Colors.white,
-        borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AppSnapshotHero(
-              title: 'Payables snapshot',
-              trailing: AppSnapshotBadge(
-                label: data.overdueMinor > 0 ? 'Action needed' : 'On track',
-              ),
-              subtitle:
-                  '${data.billCount} ${data.billCount == 1 ? 'bill' : 'bills'} · ${data.supplierCount} ${data.supplierCount == 1 ? 'supplier' : 'suppliers'}',
-              amountCaption: 'Amount to pay',
-              amountMinor: data.payableMinor,
-              symbol: '₹',
-              progress: progress,
-              ringCaption: 'Paid',
-              onAmountTap: data.payableMinor > 0 ? onPayableTap : null,
+    final progress = data.totalSpendMinor <= 0
+        ? 0.0
+        : (data.paidMinor / data.totalSpendMinor).clamp(0.0, 1.0);
+    return AppCard(
+      padding: EdgeInsets.zero,
+      color: isDark ? const Color(0xFF3B2038) : Colors.white,
+      borderColor: isDark ? AppColors.darkBorder : const Color(0xFFE9DFF0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppSnapshotHero(
+            title: 'Payables snapshot',
+            trailing: AppSnapshotBadge(
+              label: data.overdueMinor > 0 ? 'Action needed' : 'On track',
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: AppMetricChip(
-                      label: 'Purchased',
-                      amountMinor: data.totalSpendMinor,
-                      symbol: '₹',
-                      color: AppColors.secondary,
-                      icon: Icons.shopping_bag_outlined,
-                    ),
+            subtitle:
+                '${data.billCount} ${data.billCount == 1 ? 'bill' : 'bills'} · ${data.supplierCount} ${data.supplierCount == 1 ? 'supplier' : 'suppliers'}',
+            amountCaption: 'Amount to pay',
+            amountMinor: data.payableMinor,
+            symbol: '₹',
+            progress: progress,
+            ringCaption: 'Paid',
+            onAmountTap: data.payableMinor > 0 ? onPayableTap : null,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppMetricChip(
+                    label: 'Purchased',
+                    amountMinor: data.totalSpendMinor,
+                    symbol: '₹',
+                    color: AppColors.secondary,
+                    icon: Icons.shopping_bag_outlined,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: AppMetricChip(
-                      label: 'Paid',
-                      amountMinor: data.paidMinor,
-                      symbol: '₹',
-                      color: AppColors.success,
-                      icon: Icons.check_circle_outline_rounded,
-                    ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: AppMetricChip(
+                    label: 'Paid',
+                    amountMinor: data.paidMinor,
+                    symbol: '₹',
+                    color: AppColors.success,
+                    icon: Icons.check_circle_outline_rounded,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: AppMetricChip(
-                      label: 'Overdue',
-                      amountMinor: data.overdueMinor,
-                      symbol: '₹',
-                      color: AppColors.error,
-                      icon: Icons.error_outline_rounded,
-                      onTap: data.overdueMinor > 0 ? onOverdueTap : null,
-                    ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: AppMetricChip(
+                    label: 'Overdue',
+                    amountMinor: data.overdueMinor,
+                    symbol: '₹',
+                    color: AppColors.error,
+                    icon: Icons.error_outline_rounded,
+                    onTap: data.overdueMinor > 0 ? onOverdueTap : null,
                   ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    final metrics = [
-      (
-        label: 'Paid',
-        amount: data.paidMinor,
-        count: paidCount,
-        iconAsset: DocumentsIcons.paid,
-        well: const Color(0xFFECFDF5),
-        color: const Color(0xFF059669),
-        onTap: null,
-      ),
-      (
-        label: 'Payable',
-        amount: data.payableMinor,
-        count: payableCount,
-        iconAsset: DocumentsIcons.payable,
-        well: const Color(0xFFFFFBEB),
-        color: const Color(0xFFD97706),
-        onTap: onPayableTap,
-      ),
-      (
-        label: 'Overdue',
-        amount: data.overdueMinor,
-        count: overdueCount,
-        iconAsset: DocumentsIcons.overdue,
-        well: const Color(0xFFFEF2F2),
-        color: const Color(0xFFEF4444),
-        onTap: onOverdueTap,
-      ),
-    ];
-    return Container(
-      padding: const EdgeInsets.all(17),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? AppColors.darkBorder : const Color(0xCCE7E5E4),
-        ),
-        boxShadow: isDark
-            ? null
-            : const [
-                BoxShadow(
-                  color: Color(0x0A000000),
-                  blurRadius: 14,
-                  offset: Offset(0, 2),
-                  spreadRadius: -3,
                 ),
               ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (var i = 0; i < metrics.length; i++) ...[
-            if (i != 0)
-              Container(
-                width: 1,
-                height: 68,
-                margin: const EdgeInsets.only(left: 4, right: 12),
-                color: isDark ? AppColors.darkBorder : const Color(0xFFF5F5F4),
-              ),
-            Expanded(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: metrics[i].onTap,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 16,
-                            height: 16,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? metrics[i].color.withValues(alpha: .18)
-                                  : metrics[i].well,
-                              shape: BoxShape.circle,
-                            ),
-                            child: SvgPicture.asset(
-                              metrics[i].iconAsset,
-                              width: 12,
-                              height: 12,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              metrics[i].label,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.caption.copyWith(
-                                color: isDark
-                                    ? AppColors.darkTextSecondary
-                                    : const Color(0xFF78716C),
-                                fontSize: 12,
-                                height: 16 / 12,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      AppAmountText(
-                        amountMinor: metrics[i].amount,
-                        symbol: '₹',
-                        color: metrics[i].color,
-                        textAlign: TextAlign.start,
-                        style: AppTextStyles.listAmount.copyWith(
-                          fontSize: 16,
-                          height: 24 / 16,
-                          letterSpacing: -0.4,
-                          color: metrics[i].color,
-                        ),
-                      ),
-                      if (metrics[i].count != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          '${metrics[i].count} ${metrics[i].count == 1 ? 'bill' : 'bills'}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.caption.copyWith(
-                            color: isDark
-                                ? AppColors.darkTextSecondary
-                                : const Color(0xFFA8A29E),
-                            fontSize: 10,
-                            height: 15 / 10,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
             ),
-          ],
+          ),
         ],
       ),
     );

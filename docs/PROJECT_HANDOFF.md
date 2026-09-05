@@ -109,13 +109,14 @@ SHA-256:
   and a support number ship. Search aliases include trial, yearly,
   billing, subscribe, and OTP.
 
-- Documents empty **Sales** and **Purchase bills** match the Figma Invoices
-  tab frames: 24px title (`Invoices (0)` / Purchase bills), 40px header
-  actions, Sales | Purchases with exported icons, RECEIVED / PENDING /
-  OVERDUE nested tiles on Sales, Paid / Payable / Overdue wells on
-  Purchases, status chips, PNG heroes, and a gradient Create CTA (plus
-  on Sales only). The list FAB hides while that empty CTA is on screen.
-  Paid and Cancelled filters stay after the Figma-visible chips.
+- Documents empty **Sales** and **Purchase bills** share the same nested
+  amount tiles (Received/Pending/Overdue on Sales, Paid/Payable/Overdue
+  on Purchases) so labels and rupee amounts scale down instead of
+  truncating. Status chips are dense, and the selected chip fill follows
+  the filter (All ink, Unpaid rust, Overdue rose, Paid green). PNG heroes
+  and gradient Create CTAs remain. The list FAB hides while that empty
+  CTA is on screen. Paid and Cancelled filters stay after the
+  Figma-visible chips.
 
 **Firestore console (operator)**
 
@@ -988,6 +989,19 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-05 — Documents metrics and status chips
+
+- Sales and Purchases lists now share the nested amount-tile chrome.
+  Labels stay title case and scale down on a 320px phone instead of
+  clipping to RECEIV…. Filter chips are denser; selected fill is ink
+  for All, rust for Unpaid, rose for Overdue, amber for Part paid, and
+  green for Paid.
+- Important files: `app_metric_overview.dart`, `invoice_list_overview.dart`,
+  `purchase_screens.dart`, `app_filter_chip.dart`, this handoff.
+- Storage: none.
+- Verification: invoice overview narrow-phone test; design-system chip
+  midline test.
 
 ### 2026-09-05 — Figma Documents empty Sales and Purchases
 

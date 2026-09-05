@@ -107,11 +107,11 @@ remain intentionally out of scope until explicitly requested.
   shows logo, name, Active/Trial pill, category, and invoice mobile.
   Plan & billing in Preferences opens Your plan. Search aliases include
   trial, yearly, billing, subscribe, and OTP.
-- Documents empty Sales shows Invoices (0), RECEIVED/PENDING/OVERDUE,
-  All/Unpaid/Overdue/Draft chips, the receipt hero, and + Create invoice
-  without a list FAB. Empty Purchases shows Purchase bills, Paid/Payable/
-  Overdue, All/Unpaid/Part paid/Overdue, the box hero, and Create purchase
-  bill. Sales | Purchases keeps exported icons and a white active pill.
+- Documents empty Sales shows Invoices (0), Received/Pending/Overdue
+  tiles without truncated labels, dense All/Unpaid/Overdue/Draft chips
+  whose selected fill matches the filter, the receipt hero, and + Create
+  invoice without a list FAB. Empty Purchases uses the same amount tiles
+  for Paid/Payable/Overdue and the same dense chip colors.
 - Add item catalog form: optional photos (up to 3), compact row with preview
   and remove; classic grouped cards; schema 22 image paths; cover shows on
   catalog list/details. Barcode scan is on the SKU / Code field, not the AppBar.

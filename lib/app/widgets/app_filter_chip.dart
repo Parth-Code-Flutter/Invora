@@ -12,12 +12,42 @@ const _chipStrut = StrutStyle(
   forceStrutHeight: true,
 );
 
+const _denseChipStrut = StrutStyle(
+  fontSize: 11,
+  height: 1,
+  leading: 0,
+  forceStrutHeight: true,
+);
+
 const _chipCountStrut = StrutStyle(
   fontSize: 10,
   height: 1,
   leading: 0,
   forceStrutHeight: true,
 );
+
+const _denseChipCountStrut = StrutStyle(
+  fontSize: 9,
+  height: 1,
+  leading: 0,
+  forceStrutHeight: true,
+);
+
+/// Selected fill for Documents status chips (All, Unpaid, Overdue, …).
+Color appFilterSelectedColor(String status) => switch (status) {
+  'all' => const Color(0xFF1E1B1E),
+  'unpaid' => const Color(0xFFC2410C),
+  'overdue' => const Color(0xFFE11D48),
+  'draft' => const Color(0xFF6B7280),
+  'paid' => const Color(0xFF059669),
+  'partially_paid' => const Color(0xFFD97706),
+  'cancelled' => const Color(0xFF78716C),
+  'sent' => const Color(0xFF2563EB),
+  'accepted' => const Color(0xFF059669),
+  'rejected' => const Color(0xFFDC2626),
+  'expired' => const Color(0xFF78716C),
+  _ => AppColors.secondary,
+};
 
 /// Consistent filter option with a clear selected state and optional icon.
 class AppFilterChip extends StatelessWidget {
@@ -31,6 +61,7 @@ class AppFilterChip extends StatelessWidget {
     this.idleFill,
     this.countFill,
     this.countColor,
+    this.dense = false,
     super.key,
   });
 
@@ -43,6 +74,7 @@ class AppFilterChip extends StatelessWidget {
   final Color? idleFill;
   final Color? countFill;
   final Color? countColor;
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -75,26 +107,33 @@ class AppFilterChip extends StatelessWidget {
           customBorder: shape,
           onTap: () => onSelected(!selected),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 10, 8),
+            padding: dense
+                ? const EdgeInsets.fromLTRB(10, 5, 8, 5)
+                : const EdgeInsets.fromLTRB(12, 8, 10, 8),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (icon != null) ...[
-                  Icon(icon, size: 16, color: selected ? Colors.white : idleFg),
-                  const SizedBox(width: 6),
+                  Icon(
+                    icon,
+                    size: dense ? 14 : 16,
+                    color: selected ? Colors.white : idleFg,
+                  ),
+                  SizedBox(width: dense ? 4 : 6),
                 ],
                 Text(
                   label,
-                  strutStyle: _chipStrut,
+                  strutStyle: dense ? _denseChipStrut : _chipStrut,
                   style: AppTextStyles.caption.copyWith(
+                    fontSize: dense ? 11 : null,
                     height: 1,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: selected ? Colors.white : idleFg,
                   ),
                 ),
                 if (count != null) ...[
-                  const SizedBox(width: 8),
+                  SizedBox(width: dense ? 6 : 8),
                   DecoratedBox(
                     decoration: BoxDecoration(
                       color: selected
@@ -106,14 +145,16 @@ class AppFilterChip extends StatelessWidget {
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: dense ? 5 : 6,
+                        vertical: dense ? 1 : 2,
                       ),
                       child: Text(
                         '$count',
                         textAlign: TextAlign.center,
-                        strutStyle: _chipCountStrut,
+                        strutStyle: dense
+                            ? _denseChipCountStrut
+                            : _chipCountStrut,
                         style: AppTextStyles.caption.copyWith(
                           color: selected
                               ? Colors.white
@@ -121,7 +162,7 @@ class AppFilterChip extends StatelessWidget {
                                     (isDark
                                         ? AppColors.darkTextSecondary
                                         : const Color(0xFF4B5563))),
-                          fontSize: 10,
+                          fontSize: dense ? 9 : 10,
                           height: 1,
                           fontWeight: FontWeight.w800,
                         ),
