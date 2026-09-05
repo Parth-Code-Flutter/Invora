@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-09-04
+Last updated: 2026-09-05
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -96,15 +96,26 @@ SHA-256:
   ₹999 when Firestore `priceInr` is 0), and Subscribe. There is no close
   or Restore chrome; Refresh plan is under the CTA. Last-day offline
   uses `creovo_warm_splash.png` and asks to turn on internet. Subscribe
-  still re-reads Firestore until store IAP ships.
-- While the shop is open, **More** shows a coral–plum plan banner (trial
-  days left or Subscribed) and Preferences → **Plan & billing** opens
-  `/plan`. That in-app page is not the expired paywall: it follows the
-  Figma Your plan frame (obsidian yearly card, validity bar, privileges
-  grid, registered mobile, Refresh Plan). Auto-renew, Transfer, and
-  WhatsApp helpdesk are visible but not connected until store IAP and a
-  support number ship. Search aliases include trial, yearly, billing,
-  subscribe, and OTP.
+  still re-reads Firestore until store IAP or the UPI proof queue ships.
+  Direct-APK payment ops (business UPI, screenshot, admin inbox, console
+  `status=paid` until then) live in
+  [LICENSING_AND_DEMO.md](LICENSING_AND_DEMO.md).
+- While the shop is open, **More** matches the Figma More frame: large
+  title, square search chrome, business card with name + Active/Trial
+  pill, category • phone, grouped destination cards with exported
+  icons, and Plan & billing in Preferences (`/plan`). There is no
+  separate coral plan banner. Auto-renew, Transfer, and WhatsApp
+  helpdesk on Your plan are visible but not connected until store IAP
+  and a support number ship. Search aliases include trial, yearly,
+  billing, subscribe, and OTP.
+
+- Documents empty **Sales** and **Purchase bills** match the Figma Invoices
+  tab frames: 24px title (`Invoices (0)` / Purchase bills), 40px header
+  actions, Sales | Purchases with exported icons, RECEIVED / PENDING /
+  OVERDUE nested tiles on Sales, Paid / Payable / Overdue wells on
+  Purchases, status chips, PNG heroes, and a gradient Create CTA (plus
+  on Sales only). The list FAB hides while that empty CTA is on screen.
+  Paid and Cancelled filters stay after the Figma-visible chips.
 
 **Firestore console (operator)**
 
@@ -873,10 +884,13 @@ As of 2026-09-04:
     `/subscription` instead of Home. On the last trial date in airplane
     mode, confirm the turn-on-internet screen and that Try again after
     reconnecting either continues or shows the ended-trial page. Confirm a
-    backup restore does not copy a plan. App Store IAP is still not wired.
-    From More, confirm the plan banner and Plan & billing open Your plan
-    (Figma management layout: days remaining, privileges, registered
-    mobile, Refresh Plan) without leaving the shop.
+    backup restore does not copy a plan. App Store IAP is still not wired;
+    until the admin proof queue exists, unlock after UPI is console
+    `status=paid` plus a future `trialEndsAt` (see LICENSING_AND_DEMO.md).
+    From More, confirm the business-card Active/Trial pill and Plan &
+    billing open Your plan (Figma management layout: days remaining,
+    privileges, registered mobile, Refresh Plan) without leaving the
+    shop.
 2. Purchase CSV export shipped 2026-08-28 with bulk import (`P0.2`):
    suppliers, purchase bills, and purchase payments from Export data, plus
    the all-CSV ZIP. Physical-device open-in-Excel checks remain.
@@ -974,6 +988,49 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-05 — Figma Documents empty Sales and Purchases
+
+- Empty Invoices tab follows the Sales (`2217:998`) and Purchase bills
+  (`2217:1168`) Figma frames: Invoices (0) / Purchase bills headers,
+  Sales | Purchases with exported SVG icons, RECEIVED/PENDING/OVERDUE
+  nested tiles, Paid/Payable/Overdue wells, status chips, PNG heroes,
+  and gradient Create invoice / Create purchase bill. Paid and Cancelled
+  filters remain after the Figma-visible chips. The list FAB hides on
+  empty so it does not duplicate the in-list CTA.
+- Important files: `invoice_list_screen.dart`, `invoice_list_overview.dart`,
+  `purchase_screens.dart`, `documents_screen.dart`, `app_empty_state.dart`,
+  `app_pair_tabs.dart`, `app_filter_chip.dart`,
+  `assets/illustrations/empty_sales_invoice.png`,
+  `assets/illustrations/empty_purchase_bills.png`,
+  `assets/icons/documents/`, this handoff.
+- Storage: none.
+- Verification: invoice overview, documents host empty-copy, design-system
+  empty illustration tests.
+
+### 2026-09-05 — Figma More tab
+
+- More now follows the Figma More frame: 24px title, 44px search
+  button, business card with name and Active/Trial/Ended pill, category
+  and invoice mobile, 24px grouped cards, and Figma SVG row icons in
+  `assets/icons/more/`. The coral plan banner is gone; Plan & billing
+  in Preferences still opens `/plan`. Stock and Stock reports stay
+  hidden until a product keeps stock.
+- Important files: `more_screen.dart`, `more_destinations.dart`,
+  `app_search_app_bar.dart`, `assets/icons/more/`, this handoff.
+- Storage: none new.
+- Verification: More search/filter widget tests.
+
+### 2026-09-05 — Direct-APK UPI proof + admin queue (design)
+
+- Agreed ops path for WhatsApp/website APKs: business UPI/QR, in-app
+  screenshot, operator inbox, Approve writes `status=paid` and +365 days.
+  Phone never marks itself paid. Play/App Store stay a later flavor with
+  IAP only. Not implemented; console remains the interim switch.
+- Important files: `docs/LICENSING_AND_DEMO.md`, `docs/START_HERE.md`,
+  this handoff.
+- Storage: none new.
+- Verification: none (docs only).
 
 ### 2026-09-05 — List FAB and tab baseline polish
 

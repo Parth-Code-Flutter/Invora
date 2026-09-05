@@ -12,18 +12,22 @@ class AppButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.icon,
+    this.leading,
     this.trailingIcon,
     this.isLoading = false,
     this.expand = true,
+    this.radius,
     super.key,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
+  final Widget? leading;
   final IconData? trailingIcon;
   final bool isLoading;
   final bool expand;
+  final double? radius;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +50,10 @@ class AppButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (icon != null) ...[
+              if (leading != null) ...[
+                SizedBox(width: 16, height: 16, child: leading),
+                const SizedBox(width: 8),
+              ] else if (icon != null) ...[
                 Icon(icon, size: 20),
                 const SizedBox(width: 8),
               ],
@@ -89,7 +96,9 @@ class AppButton extends StatelessWidget {
               : isDark
               ? AppColors.darkSurfaceVariant
               : AppColors.surfaceMuted,
-          borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
+          borderRadius: BorderRadius.circular(
+            radius ?? AppSpacing.buttonRadius,
+          ),
           boxShadow: branded
               ? [
                   BoxShadow(

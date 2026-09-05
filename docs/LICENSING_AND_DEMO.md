@@ -1,13 +1,15 @@
 # Creovo Billing — Licensing, paid unlock, and demo APK
 
-Status: **Phone OTP entitlement is in the app. Store billing is still design only.**  
-Captured: 2026-08-17; OTP path added 2026-09-03  
+Status: **Phone OTP entitlement is in the app. Store billing is still design only. Direct-APK payment is manual console `status=paid` until an admin proof queue ships.**  
+Captured: 2026-08-17; OTP path added 2026-09-03; admin proof queue agreed 2026-09-05  
 Live app status: [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md)
 
 This note records the agreed monetization design so later sessions can
 implement it without re-litigating backup, Play/App Store rules, or demo APK
-sharing. Invoice data stays on-device. No Creovo cloud ledger, login, or sync
-is required.
+sharing. **Agents: any subscription, trial, paid unlock, UPI screenshot, or
+admin-panel task starts here** (then check `PROJECT_HANDOFF.md` for what the
+app already does). Invoice data stays on-device. No Creovo cloud ledger,
+login, or sync is required.
 
 ## Why a local “is paid” flag will not work
 
@@ -55,14 +57,14 @@ One **Pro entitlement** in the app is allowed. Two official ways to pay:
 |---|---|---|
 | Google Play | Play Billing, one-time Pro | RevenueCat on top of Play Billing |
 | Apple App Store | App Store IAP, same Pro | RevenueCat (same product) |
-| APK sent by us | UPI / bank / Razorpay, then a license key | Keygen (or LicenseSpring) |
+| APK sent by us | UPI to a **business** UPI/QR (not the operator’s personal mobile), screenshot in-app, admin approve | Admin website + Firebase Admin (interim: Firestore console `status=paid`) |
 
 The app only asks: **is Pro unlocked?**  
-Yes if RevenueCat says so **or** a valid direct-license key says so.
+Yes if RevenueCat says so **or** Firestore `entitlements/{91…}.status` is paid (set only by admin / Admin SDK, never by the phone). A later Keygen path can sit beside that for signed APK keys.
 
 After first successful store check, Play/App Store cache the receipt locally,
-so daily invoicing stays offline. Direct keys verify offline with a signed
-license (private key never ships in the APK). Bind direct keys to **GSTIN**
+so daily invoicing stays offline. Direct APK unlock is the OTP mobile plus a
+server-written paid window (`trialEndsAt`). Bind later signed keys to **GSTIN**
 (or business name + mobile if unregistered) so a shared ZIP does not unlock
 another shop unless they keep that GSTIN.
 
@@ -74,7 +76,8 @@ App Store.
 1. **Restore backup** — invoices, customers, products, purchases, logo.
    Never writes paid = true.
 2. **Restore purchase** (store builds) — talks to Play/App Store.
-   Direct APK users paste the same GSTIN-bound key again.
+   Direct APK: **Refresh plan** after admin Approve (same OTP number).
+   A later signed key is optional.
 
 After backup restore, copy should say: bills are restored; unlock is tied to
 the store account or license key, not the backup file.
@@ -84,7 +87,7 @@ the store account or license key, not the backup file.
 | Flavor | Purpose |
 |---|---|
 | `demo` | Time-limited sales APK. Kill switch. Watermark. Not for sale. |
-| `direct` | Full app + Keygen / paid key. WhatsApp / website APK. |
+| `direct` | Full app + UPI proof + admin approve (console until the panel ships). WhatsApp / website APK. No personal operator number in the product. |
 | `store` | Full app + RevenueCat only. No UPI unlock in-app. Play / App Store. |
 
 Store flavor must not offer an alternative to Play/App Store billing for the
@@ -96,21 +99,127 @@ same Pro unlock.
 - Putting Pro inside the backup ZIP so “restore works.”
 - Device-ID-only lock as the only license (phone upgrade looks like theft).
 - Trial counters only in local DB (backup from day 1 resets the trial).
-- UPI checkout inside a Play/iOS build to unlock Pro.
+- UPI checkout **or** “I’ve paid, unlock me” inside a Play/iOS **store** build.
+- Unlocking from screenshot upload alone (phone must not write `status=paid`).
+- Putting payment proofs or invoices in a collection the phone can update to paid.
 - One shared license key with no GSTIN bind.
 - Designing around a cracked APK. Cracks will exist. Revenue is honest store
   and key buyers.
 
 ### Suggested implementation order (when we pick this up)
 
-1. Decide Free vs Pro features.
-2. Add an entitlement check so gated features refuse to run unless unlocked.
-3. Ship `direct` + Keygen and sell APK keys (income before stores).
-4. When publishing: `store` flavor + RevenueCat, same lifetime Pro product.
+1. Decide Free vs Pro features (today the whole shop is trial-then-yearly).
+2. Direct APK: business UPI/QR on the paywall, in-app screenshot, admin
+   queue (this doc). Console `status=paid` until that panel exists.
+3. When publishing: `store` flavor + RevenueCat / Play + App Store IAP.
+   No UPI screenshot unlock in that binary.
+4. Optional later: Keygen for signed APK keys beside the admin queue.
 5. Never put Pro in the ZIP.
 
 A 100% offline APK cannot be piracy-proof. Do not warp backup or GST workflows
 around that.
+
+## Direct APK: UPI proof + admin panel (agreed, not built)
+
+Volume is small (~10 shops / month). The pain is **not** Firestore Console
+clicks; it is sharing the operator’s **personal number** and chasing
+WhatsApp screenshots. Collect money **outside** the app. Firebase is only
+the queue and the paid switch.
+
+Razorpay / Play Billing / App Store IAP are **not** required for this path.
+Store listing later needs a separate `store` flavor (see above). This
+section is **direct APK / WhatsApp / website** only.
+
+### Who the shop is
+
+The person is the **OTP account mobile** (`entitlements/{91…}`). Invoice
+data never goes to Firebase.
+
+### Price the paywall shows
+
+`plans/default.priceInr` (number). If it is `0`, the UI still shows the
+hardcoded ₹499 offer. Set a real number (e.g. `499`) for that amount to
+appear. `title` `Default` displays as **Creovo Yearly**. Shops pick up a
+new price when **online** + Refresh plan / relaunch. Clients cannot edit
+`plans`; only console or Admin SDK.
+
+### Shop flow
+
+1. Trial ends → `/subscription` paywall. Show a **business UPI ID or QR**
+   (not a personal mobile).
+2. They pay in GPay / PhonePe.
+3. In-app **I’ve paid** → attach screenshot → Submit. Needs internet
+   **that session**. Creates a **pending** request (mobile, time, amount,
+   photo in Storage). Shop stays **locked**.
+4. App shows **Waiting for confirmation**.
+5. After admin Approve, they need internet **once** more → Refresh plan
+   (or reopen). Then GST billing is offline again until the paid window
+   ends.
+
+Subscribe today only re-reads Firestore. It does not charge and does not
+upload a proof.
+
+### Admin panel (to build)
+
+One login only the operator has (not the shop OTP). Inbox of requests:
+
+| Row | Meaning |
+|---|---|
+| Account mobile | Who they are (`+91 …` / doc id `91…`) |
+| Submitted at | When the proof arrived |
+| Amount claimed | Should match current `priceInr` |
+| Screenshot | Storage URL; operator looks at it |
+| Status | `pending` / `approved` / `rejected` |
+
+Actions:
+
+- **Approve 1 year** — server writes `entitlements/{91…}`:
+  `status=paid`, `trialEndsAt` = now + 365 days. Phone cannot do this.
+- **Reject** — short reason; shop sees it after Refresh.
+
+Until this panel exists, the same writes are done in **Firestore Console**
+on the existing entitlement document (do not create entitlements by hand;
+the app creates them after OTP).
+
+### How to treat a screenshot as fake
+
+Approve only if **all** look right:
+
+- Payee UPI / QR in the shot is **ours**
+- Amount matches current `plans/default.priceInr`
+- Time is recent (not an old receipt)
+- Payer identity is plausible
+- No duplicate pending/approved proof for this mobile for this period
+
+Otherwise **Reject**. Upload must never auto-unlock.
+
+### Offline vs online
+
+| Moment | Need internet? |
+|---|---|
+| Daily GST billing | No |
+| UPI pay + submit screenshot | Yes, that session |
+| Operator Approve / Reject | Operator on admin |
+| Unlock on their phone | Yes, once after Approve |
+
+If they never come online after Approve, they stay on the paywall.
+
+### Data shape (when we implement)
+
+- Firestore e.g. `paymentProofs/{id}`: mobile, amountInr, createdAt,
+  storagePath, status, reviewer note. Phone may **create pending** for
+  its own mobile only.
+- Storage: screenshot under that mobile; admin backend can read all.
+- Rules stay: phone **read** own entitlement; phone **cannot** set
+  `status=paid` or edit `plans`.
+- Invoice PDFs and SQLite stay on device. Proofs are not in the backup ZIP.
+
+### What not to build in this path
+
+- In-app Razorpay/UPI checkout as the store unlock
+- Chat to the operator’s personal number
+- Auto-renew, payment receipts as GST tax invoices
+- Unlock without a human Approve
 
 ## Demo APK for sending to a client (15 days)
 
@@ -176,12 +285,15 @@ converted into a Pro license.
   expired-trial page live on `/subscription`. Plan cache uses `entitlement_*`
   prefs that are not in the backup ZIP. App Store / Play Billing purchase
   is still not wired; a console `status=paid` (admin) can unlock after
-  trial until IAP ships. Operator steps and the OTP screen live in
-  [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) under Account identity.
+  trial until IAP or the admin proof queue ships. Operator steps and the
+  OTP screen live in [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) under Account
+  identity. The agreed direct-APK UPI + screenshot + admin inbox is in
+  **Direct APK: UPI proof + admin panel** above (not implemented).
 - If shops later ask for cloud bills: keep SQLite on device; do not put
   invoices in Firestore. Optional sync would be Postgres (Supabase), still
   keyed by account mobile. Firebase stays OTP + plan only.
-- No Play Billing, RevenueCat, or Keygen in the project today.
+- No Play Billing, RevenueCat, Keygen, admin website, or payment-proof
+  upload in the project today.
 - Backup: full SQLite + settings whitelist + media; restore remaps media
   paths and rebuilds database-bound GetX runtime. Firebase Auth session is
   not in the ZIP.
@@ -192,8 +304,10 @@ converted into a Pro license.
 
 ## Open decisions (do not block other app work)
 
-- Exact Free vs Pro feature list and price.
+- Exact Free vs Pro feature list and price (`priceInr` vs ₹499 fallback).
 - Lifetime only vs lifetime + yearly SKU.
-- Keygen vs LicenseSpring for the direct APK.
+- Business UPI ID / QR to show on the paywall (must not be a personal mobile).
+- Admin panel host (Firebase Hosting + Cloud Function vs a tiny private site).
+- Keygen vs LicenseSpring later, or admin-approve only for direct APK.
 - Whether Purchases stays free or is a Pro gate.
 - Per-client demo naming convention and who builds those APKs.

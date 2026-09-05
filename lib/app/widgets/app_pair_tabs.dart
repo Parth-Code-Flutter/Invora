@@ -7,13 +7,6 @@ import '../constants/app_colors.dart';
 import '../themes/app_text_styles.dart';
 import '../utils/responsive_utils.dart';
 
-const _tabLabelStrut = StrutStyle(
-  fontSize: 13,
-  height: 1,
-  leading: 0,
-  forceStrutHeight: true,
-);
-
 const _countStrut = StrutStyle(
   fontSize: 10,
   height: 1,
@@ -30,17 +23,22 @@ class AppSegmentTabs extends StatelessWidget {
     required this.onChanged,
     this.counts,
     this.icons,
+    this.leadingIcons,
+    this.inkSelected = false,
     this.padding,
     super.key,
   }) : assert(labels.length > 1),
        assert(counts == null || counts.length == labels.length),
-       assert(icons == null || icons.length == labels.length);
+       assert(icons == null || icons.length == labels.length),
+       assert(leadingIcons == null || leadingIcons.length == labels.length);
 
   final List<String> labels;
   final int index;
   final ValueChanged<int> onChanged;
   final List<int>? counts;
   final List<IconData>? icons;
+  final List<Widget>? leadingIcons;
+  final bool inkSelected;
   final EdgeInsetsGeometry? padding;
 
   @override
@@ -48,10 +46,12 @@ class AppSegmentTabs extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final track = isDark
         ? AppColors.darkSurfaceVariant
-        : AppColors.surfaceMuted;
+        : const Color(0xFFF2EDEE);
     final pill = isDark ? AppColors.darkSurface : Colors.white;
-    final idle = isDark ? AppColors.darkTextSecondary : AppColors.textTertiary;
-    final selectedColor = isDark ? AppColors.primary : AppColors.secondary;
+    final idle = isDark ? AppColors.darkTextSecondary : const Color(0xFF6B7280);
+    final selectedColor = inkSelected
+        ? (isDark ? AppColors.darkTextPrimary : const Color(0xFF111827))
+        : (isDark ? AppColors.primary : AppColors.secondary);
     final hPad = ResponsiveUtils.horizontalPadding(context);
     return Padding(
       padding: padding ?? EdgeInsets.fromLTRB(hPad, 2, hPad, 8),
@@ -67,7 +67,17 @@ class AppSegmentTabs extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final tabWidth = constraints.maxWidth / labels.length;
-                final showIcons = icons != null && tabWidth >= 108;
+                final twoTabs = labels.length == 2;
+                final labelSize = twoTabs ? 14.0 : 13.0;
+                final labelStrut = StrutStyle(
+                  fontSize: labelSize,
+                  height: 1,
+                  leading: 0,
+                  forceStrutHeight: true,
+                );
+                final showIcons =
+                    leadingIcons != null ||
+                    (icons != null && (twoTabs || tabWidth >= 108));
                 return Stack(
                   children: [
                     AnimatedPositioned(
@@ -122,24 +132,31 @@ class AppSegmentTabs extends StatelessWidget {
                                             CrossAxisAlignment.center,
                                         children: [
                                           if (showIcons) ...[
-                                            Icon(
-                                              icons![i],
-                                              size: 16,
-                                              color: i == index
-                                                  ? selectedColor
-                                                  : idle,
-                                            ),
-                                            const SizedBox(width: 6),
+                                            if (leadingIcons != null)
+                                              SizedBox(
+                                                width: 16,
+                                                height: 16,
+                                                child: leadingIcons![i],
+                                              )
+                                            else
+                                              Icon(
+                                                icons![i],
+                                                size: 16,
+                                                color: i == index
+                                                    ? selectedColor
+                                                    : idle,
+                                              ),
+                                            const SizedBox(width: 8),
                                           ],
                                           Flexible(
                                             child: Text(
                                               labels[i],
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
-                                              strutStyle: _tabLabelStrut,
+                                              strutStyle: labelStrut,
                                               style: AppTextStyles.caption
                                                   .copyWith(
-                                                    fontSize: 13,
+                                                    fontSize: labelSize,
                                                     height: 1,
                                                     fontWeight: i == index
                                                         ? FontWeight.w800
@@ -218,6 +235,8 @@ class AppPairTabs extends StatelessWidget {
     required this.onChanged,
     required this.leftIcon,
     required this.rightIcon,
+    this.leadingIcons,
+    this.inkSelected = false,
     super.key,
   });
 
@@ -226,12 +245,16 @@ class AppPairTabs extends StatelessWidget {
   final int index;
   final ValueChanged<int> onChanged;
   final IconData leftIcon, rightIcon;
+  final List<Widget>? leadingIcons;
+  final bool inkSelected;
 
   @override
   Widget build(BuildContext context) {
     return AppSegmentTabs(
       labels: [left, right],
       icons: [leftIcon, rightIcon],
+      leadingIcons: leadingIcons,
+      inkSelected: inkSelected,
       index: index,
       onChanged: onChanged,
     );

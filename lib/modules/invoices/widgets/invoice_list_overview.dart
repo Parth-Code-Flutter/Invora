@@ -60,85 +60,60 @@ class InvoiceListOverview extends StatelessWidget {
         count: active
             .where((invoice) => invoice.grandTotalMinor > invoice.balanceMinor)
             .length,
-        icon: Icons.account_balance_wallet_outlined,
-        color: AppColors.success,
+        color: const Color(0xFF10B981),
+        ring: const Color(0xFFECFDF5),
       ),
       _OverviewMetric(
         label: 'Pending',
         amountMinor: pending,
         count: pendingInvoices.length,
-        icon: Icons.schedule_rounded,
-        color: AppColors.warning,
+        color: const Color(0xFFF59E0B),
+        ring: const Color(0xFFFFFBEB),
       ),
       _OverviewMetric(
         label: 'Overdue',
         amountMinor: overdue,
         count: overdueInvoices.length,
-        icon: Icons.error_outline_rounded,
-        color: AppColors.error,
+        color: const Color(0xFFF43F5E),
+        ring: const Color(0xFFFFF1F2),
       ),
     ];
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final compact = constraints.maxWidth < 520;
         return Container(
-          padding: EdgeInsets.all(compact ? 10 : 14),
+          padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurface : AppColors.surface,
-            borderRadius: BorderRadius.circular(18),
+            color: isDark ? AppColors.darkSurface : Colors.white,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isDark ? AppColors.darkBorder : AppColors.border,
+              color: isDark ? AppColors.darkBorder : const Color(0xFFEBE7E9),
             ),
             boxShadow: isDark
                 ? null
-                : [
+                : const [
                     BoxShadow(
-                      color: AppColors.secondary.withValues(alpha: 0.06),
-                      blurRadius: 18,
-                      offset: const Offset(0, 6),
+                      color: Color(0x08000000),
+                      blurRadius: 5,
+                      offset: Offset(0, 2),
                     ),
                   ],
           ),
-          child: compact
-              ? Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (var index = 0; index < metrics.length; index++) ...[
-                      Expanded(
-                        child: _MetricView(
-                          metric: metrics[index],
-                          symbol: currencySymbol,
-                        ),
-                      ),
-                      if (index != metrics.length - 1)
-                        Container(
-                          width: 1,
-                          height: 58,
-                          margin: const EdgeInsets.symmetric(horizontal: 5),
-                          color: isDark
-                              ? AppColors.darkBorder
-                              : AppColors.border,
-                        ),
-                    ],
-                  ],
-                )
-              : Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: metrics
-                      .map(
-                        (metric) => SizedBox(
-                          width: (constraints.maxWidth - 44) / 3,
-                          child: _MetricView(
-                            metric: metric,
-                            symbol: currencySymbol,
-                          ),
-                        ),
-                      )
-                      .toList(),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var index = 0; index < metrics.length; index++) ...[
+                if (index != 0) const SizedBox(width: 8),
+                Expanded(
+                  child: _MetricView(
+                    metric: metrics[index],
+                    symbol: currencySymbol,
+                  ),
                 ),
+              ],
+            ],
+          ),
         );
       },
     );
@@ -153,63 +128,90 @@ class _MetricView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final secondary = Theme.of(context).brightness == Brightness.dark
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondary = isDark
         ? AppColors.darkTextSecondary
-        : AppColors.textSecondary;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 25,
-              height: 25,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: metric.color.withValues(alpha: 0.11),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(metric.icon, size: 15, color: metric.color),
-            ),
-            const SizedBox(width: 5),
-            Expanded(
-              child: Text(
-                metric.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.caption.copyWith(
-                  color: secondary,
-                  fontSize: 9.5,
+        : const Color(0xFF4B5563);
+    final muted = isDark
+        ? AppColors.darkTextSecondary
+        : const Color(0xFF9CA3AF);
+    return Container(
+      padding: const EdgeInsets.all(11),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurfaceVariant : const Color(0xFFFCFAFB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : const Color(0xFFF3F4F6),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: metric.color,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: metric.ring,
+                      spreadRadius: 4,
+                      blurRadius: 0,
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  metric.label.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    color: secondary,
+                    fontSize: 11,
+                    height: 16.5 / 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.55,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (metric.amountMinor != null)
+            AppAmountText(
+              amountMinor: metric.amountMinor!,
+              symbol: symbol,
+              textAlign: TextAlign.start,
+              style: AppTextStyles.listAmount.copyWith(
+                fontSize: 16,
+                height: 24 / 16,
+                letterSpacing: -0.4,
+              ),
+            )
+          else
+            Text(
+              '${metric.count}',
+              style: AppTextStyles.listAmount.copyWith(fontSize: 16),
             ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        if (metric.amountMinor != null)
-          AppAmountText(
-            amountMinor: metric.amountMinor!,
-            symbol: symbol,
-            style: AppTextStyles.listAmount.copyWith(fontSize: 13),
-          )
-        else
+          const SizedBox(height: 2),
           Text(
-            '${metric.count}',
-            style: AppTextStyles.listAmount.copyWith(fontSize: 14),
+            '${metric.count} ${metric.count == 1 ? 'invoice' : 'invoices'}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.caption.copyWith(
+              color: muted,
+              fontSize: 10,
+              height: 15 / 10,
+              fontWeight: FontWeight.w400,
+            ),
           ),
-        const SizedBox(height: 2),
-        Text(
-          '${metric.count} ${metric.count == 1 ? 'invoice' : 'invoices'}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.caption.copyWith(
-            color: secondary,
-            fontSize: 8.5,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -218,14 +220,14 @@ class _OverviewMetric {
   const _OverviewMetric({
     required this.label,
     required this.count,
-    required this.icon,
     required this.color,
+    required this.ring,
     this.amountMinor,
   });
 
   final String label;
   final int count;
   final int? amountMinor;
-  final IconData icon;
   final Color color;
+  final Color ring;
 }

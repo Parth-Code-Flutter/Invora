@@ -27,6 +27,10 @@ class AppFilterChip extends StatelessWidget {
     required this.onSelected,
     this.icon,
     this.count,
+    this.selectedColor,
+    this.idleFill,
+    this.countFill,
+    this.countColor,
     super.key,
   });
 
@@ -35,19 +39,24 @@ class AppFilterChip extends StatelessWidget {
   final ValueChanged<bool> onSelected;
   final IconData? icon;
   final int? count;
+  final Color? selectedColor;
+  final Color? idleFill;
+  final Color? countFill;
+  final Color? countColor;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedFill = selectedColor ?? AppColors.secondary;
     final idleFg = isDark ? AppColors.darkTextSecondary : AppColors.textPrimary;
     final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(999),
       side: BorderSide(
         color: selected
-            ? AppColors.secondary
+            ? selectedFill
             : isDark
             ? AppColors.darkBorder
-            : AppColors.border,
+            : const Color(0xCCE5E7EB),
       ),
     );
     return Semantics(
@@ -57,16 +66,16 @@ class AppFilterChip extends StatelessWidget {
       excludeSemantics: true,
       child: Material(
         color: selected
-            ? AppColors.secondary
+            ? selectedFill
             : isDark
             ? AppColors.darkSurfaceVariant
-            : Colors.white,
+            : (idleFill ?? const Color(0xFFF9FAFB)),
         shape: shape,
         child: InkWell(
           customBorder: shape,
           onTap: () => onSelected(!selected),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            padding: const EdgeInsets.fromLTRB(12, 8, 10, 8),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -85,18 +94,21 @@ class AppFilterChip extends StatelessWidget {
                   ),
                 ),
                 if (count != null) ...[
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   DecoratedBox(
                     decoration: BoxDecoration(
                       color: selected
                           ? Colors.white.withValues(alpha: .2)
-                          : AppColors.primaryLight,
+                          : (countFill ??
+                                (isDark
+                                    ? AppColors.darkSurface
+                                    : const Color(0xB3E5E7EB))),
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 6,
-                        vertical: 3,
+                        vertical: 2,
                       ),
                       child: Text(
                         '$count',
@@ -105,7 +117,10 @@ class AppFilterChip extends StatelessWidget {
                         style: AppTextStyles.caption.copyWith(
                           color: selected
                               ? Colors.white
-                              : AppColors.primaryDark,
+                              : (countColor ??
+                                    (isDark
+                                        ? AppColors.darkTextSecondary
+                                        : const Color(0xFF4B5563))),
                           fontSize: 10,
                           height: 1,
                           fontWeight: FontWeight.w800,

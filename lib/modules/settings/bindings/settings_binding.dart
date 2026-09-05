@@ -17,6 +17,7 @@ import '../../../data/repositories/business_repository.dart';
 import '../../../data/repositories/product_repository.dart';
 import '../../../data/services/data_export_service.dart';
 import '../../../data/services/data_import_service.dart';
+import '../../../data/services/product_settings_service.dart';
 import '../../../data/services/stock_ledger.dart';
 import '../../../data/services/unit_service.dart';
 import '../controllers/unit_settings_controller.dart';
@@ -104,6 +105,9 @@ class MoreBinding extends Bindings {
       () => MoreController(
         Get.find<BusinessRepository>(),
         Get.isRegistered<StockLedger>() ? Get.find<StockLedger>() : null,
+        Get.isRegistered<ProductSettingsService>()
+            ? Get.find<ProductSettingsService>()
+            : null,
       ),
     );
   }

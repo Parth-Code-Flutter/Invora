@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart' hide Text;
 
 import 'package:creovo_invoice/app/localization/localized_text.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_storage_key_const.dart';
+import '../../../app/constants/app_colors.dart';
+import '../../../app/constants/documents_icons.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/routes/shell_args.dart';
 import '../../../app/widgets/app_list_create_fab.dart';
@@ -87,6 +90,29 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     onChanged: _select,
     leftIcon: Icons.receipt_long_outlined,
     rightIcon: Icons.shopping_bag_outlined,
+    inkSelected: true,
+    leadingIcons: [
+      SvgPicture.asset(
+        DocumentsIcons.sales,
+        width: 16,
+        height: 16,
+        fit: BoxFit.contain,
+        colorFilter: ColorFilter.mode(
+          _index == 0 ? AppColors.primary : const Color(0xFF6B7280),
+          BlendMode.srcIn,
+        ),
+      ),
+      SvgPicture.asset(
+        DocumentsIcons.purchases,
+        width: 16,
+        height: 16,
+        fit: BoxFit.contain,
+        colorFilter: ColorFilter.mode(
+          _index == 1 ? AppColors.secondary : const Color(0xFF6B7280),
+          BlendMode.srcIn,
+        ),
+      ),
+    ],
   );
 
   @override

@@ -821,6 +821,9 @@ const Map<String, String> appHindiCoverageTranslations = {
   'RESTORE': 'रिस्टोर',
   'Your plan': 'आपका प्लान',
   'Plan & billing': 'प्लान और बिलिंग',
+  'Active': 'सक्रिय',
+  'Private by design. Your business data stays on this device.':
+      'डिज़ाइन से निजी। आपका बिज़नेस डेटा इसी डिवाइस पर रहता है।',
   'Trial, Creovo Yearly, and account mobile':
       'ट्रायल, Creovo Yearly और खाता मोबाइल',
   'Trial': 'ट्रायल',
@@ -1104,7 +1107,11 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Record your first purchase bill': 'अपना पहला खरीद बिल दर्ज करें',
   'Search bill number or supplier': 'बिल नंबर या सप्लायर खोजें',
   'No purchase bills yet': 'अभी कोई खरीद बिल नहीं',
+  'Record supplier bills and track payments in one place.':
+      'सप्लायर बिल दर्ज करें और भुगतान एक जगह ट्रैक करें।',
   'Create purchase bill': 'खरीद बिल बनाएँ',
+  'Create your first offline invoice to see it here.':
+      'अपना पहला ऑफ़लाइन चालान बनाएँ, वह यहाँ दिखेगा।',
   'Search name, mobile or GSTIN': 'नाम, मोबाइल या GSTIN खोजें',
   'No suppliers yet': 'अभी कोई सप्लायर नहीं',
   'Add supplier': 'सप्लायर जोड़ें',
@@ -2603,6 +2610,9 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'RESTORE': 'રિસ્ટોર',
   'Your plan': 'તમારો પ્લાન',
   'Plan & billing': 'પ્લાન અને બિલિંગ',
+  'Active': 'સક્રિય',
+  'Private by design. Your business data stays on this device.':
+      'ડિઝાઇનથી ખાનગી. તમારો બિઝનેસ ડેટા આ ડિવાઇસ પર રહે છે.',
   'Trial, Creovo Yearly, and account mobile':
       'ટ્રાયલ, Creovo Yearly અને ખાતા મોબાઇલ',
   'Trial': 'ટ્રાયલ',
@@ -2882,7 +2892,11 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Record your first purchase bill': 'તમારું પ્રથમ ખરીદ બિલ નોંધો',
   'Search bill number or supplier': 'બિલ નંબર અથવા સપ્લાયર શોધો',
   'No purchase bills yet': 'હજુ કોઈ ખરીદ બિલ નથી',
+  'Record supplier bills and track payments in one place.':
+      'સપ્લાયર બિલ નોંધો અને ચુકવણી એક જગ્યાએ ટ્રૅક કરો.',
   'Create purchase bill': 'ખરીદ બિલ બનાવો',
+  'Create your first offline invoice to see it here.':
+      'તમારું પહેલું ઑફલાઇન ઇન્વૉઇસ બનાવો, તે અહીં દેખાશે.',
   'Search name, mobile or GSTIN': 'નામ, મોબાઇલ અથવા GSTIN શોધો',
   'No suppliers yet': 'હજુ કોઈ સપ્લાયર નથી',
   'Add supplier': 'સપ્લાયર ઉમેરો',

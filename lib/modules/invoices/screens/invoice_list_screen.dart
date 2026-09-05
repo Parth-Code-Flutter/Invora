@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart' hide Text;
 
 import 'package:creovo_invoice/app/localization/localized_text.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/constants/documents_icons.dart';
 import '../../../app/enums/invoice_status.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
@@ -66,15 +68,19 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     final searchBar = AppSearchAppBar(
       leading: quotation ? const AppBackButton() : null,
       title: quotation ? 'Quotations' : 'Invoices',
+      largeTitle: !quotation,
+      largeSearchChrome: false,
       titleSuffix: Obx(
         () => Text(
           '(${controller.summaryInvoices.length})',
           style: AppTextStyles.caption.copyWith(
             color: Theme.of(context).brightness == Brightness.dark
                 ? AppColors.darkTextSecondary
-                : AppColors.textSecondary,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
+                : const Color(0xFF9CA3AF),
+            fontSize: 18,
+            height: 28 / 18,
+            fontWeight: FontWeight.w400,
+            letterSpacing: -0.45,
           ),
         ),
       ),
@@ -123,7 +129,6 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
             ),
           ),
         ),
-        SizedBox(width: ResponsiveUtils.horizontalPadding(context)),
       ],
     );
     final body = Column(
@@ -160,8 +165,8 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                         ]
                       : const [
                           InvoiceListFilter.all,
-                          InvoiceListFilter.overdue,
                           InvoiceListFilter.unpaid,
+                          InvoiceListFilter.overdue,
                           InvoiceListFilter.draft,
                           InvoiceListFilter.paid,
                         ];
@@ -184,11 +189,18 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                                   controller.selectFilter(filter),
                             );
                           }
-                          return _InvoiceStatusFilterChip(
-                            filter: filter,
+                          return AppFilterChip(
+                            label: _filterLabel(filter),
                             count: _invoiceFilterCount(filter, summaries),
                             selected: controller.selectedFilter.value == filter,
-                            onSelected: () => controller.selectFilter(filter),
+                            selectedColor: const Color(0xFF1E1B1E),
+                            countFill: filter == InvoiceListFilter.overdue
+                                ? const Color(0xFFFFE4E6)
+                                : null,
+                            countColor: filter == InvoiceListFilter.overdue
+                                ? const Color(0xFFE11D48)
+                                : null,
+                            onSelected: (_) => controller.selectFilter(filter),
                           );
                         },
                       ),
@@ -236,18 +248,32 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     ? AppEmptyIllustration.search
                     : quotation
                     ? AppEmptyIllustration.clipboard
-                    : AppEmptyIllustration.invoice,
+                    : AppEmptyIllustration.salesInvoice,
                 title: searching
                     ? (quotation ? 'No quotations found' : 'No invoices found')
                     : (quotation ? 'No quotations yet' : 'No invoices yet'),
                 message: searching
                     ? 'Try a different search or status filter.'
-                    : 'Create your first offline ${quotation ? 'quotation' : 'invoice'} to see it here.',
+                    : quotation
+                    ? 'Create your first offline quotation to see it here.'
+                    : 'Create your first offline invoice to see it here.',
                 actionLabel: searching
                     ? null
                     : quotation
                     ? 'Create quotation'
                     : 'Create invoice',
+                actionLeading: searching || quotation
+                    ? null
+                    : SvgPicture.asset(
+                        DocumentsIcons.plus,
+                        width: 16,
+                        height: 16,
+                        fit: BoxFit.contain,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                      ),
                 onAction: searching
                     ? null
                     : () => Get.toNamed<void>(
@@ -486,74 +512,6 @@ int _invoiceFilterCount(
       _ => false,
     };
   }).length;
-}
-
-class _InvoiceStatusFilterChip extends StatelessWidget {
-  const _InvoiceStatusFilterChip({
-    required this.filter,
-    required this.count,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final InvoiceListFilter filter;
-  final int count;
-  final bool selected;
-  final VoidCallback onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tone = switch (filter) {
-      InvoiceListFilter.overdue => AppColors.error,
-      InvoiceListFilter.unpaid => AppColors.warning,
-      InvoiceListFilter.paid => AppColors.success,
-      _ => AppColors.secondary,
-    };
-    final quietTone = switch (filter) {
-      InvoiceListFilter.overdue => AppColors.errorLight,
-      InvoiceListFilter.unpaid => AppColors.warningLight,
-      InvoiceListFilter.paid => AppColors.successLight,
-      _ => AppColors.secondaryLight,
-    };
-    final label = _filterLabel(filter);
-
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: '$label, $count ${count == 1 ? 'invoice' : 'invoices'}',
-      child: ChoiceChip(
-        selected: selected,
-        onSelected: (_) => onSelected(),
-        showCheckmark: selected,
-        checkmarkColor: Colors.white,
-        label: Text('$label  $count'),
-        labelStyle: AppTextStyles.caption.copyWith(
-          color: selected
-              ? Colors.white
-              : count == 0
-              ? (isDark ? AppColors.darkTextSecondary : AppColors.textTertiary)
-              : Theme.of(context).colorScheme.onSurface,
-          fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
-        ),
-        backgroundColor: isDark
-            ? AppColors.darkSurfaceVariant
-            : count == 0
-            ? AppColors.surfaceSoft
-            : quietTone.withValues(alpha: .55),
-        selectedColor: tone,
-        side: BorderSide(
-          color: selected
-              ? tone
-              : count == 0
-              ? (isDark ? AppColors.darkBorder : AppColors.border)
-              : tone.withValues(alpha: .25),
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      ),
-    );
-  }
 }
 
 String _sortLabel(InvoiceSort sort) => switch (sort) {

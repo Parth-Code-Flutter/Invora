@@ -10,6 +10,8 @@ import 'app_button.dart';
 
 enum AppEmptyIllustration {
   invoice('assets/illustrations/empty_invoice.svg'),
+  salesInvoice('assets/illustrations/empty_sales_invoice.png'),
+  purchaseBills('assets/illustrations/empty_purchase_bills.png'),
   search('assets/illustrations/empty_search.svg'),
   people('assets/illustrations/empty_people.svg'),
   package('assets/illustrations/empty_package.svg'),
@@ -41,6 +43,15 @@ class AppEmptyArt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (illustration.asset.endsWith('.png')) {
+      return Image.asset(
+        illustration.asset,
+        width: width,
+        height: height,
+        fit: BoxFit.contain,
+        semanticLabel: semanticLabel,
+      );
+    }
     return SvgPicture.asset(
       illustration.asset,
       width: width,
@@ -58,6 +69,7 @@ class AppEmptyState extends StatelessWidget {
     required this.message,
     this.actionLabel,
     this.onAction,
+    this.actionLeading,
     this.compact = false,
     super.key,
   });
@@ -67,10 +79,14 @@ class AppEmptyState extends StatelessWidget {
   final String message;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final Widget? actionLeading;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final salesEmpty = illustration == AppEmptyIllustration.salesInvoice;
+    final purchaseEmpty = illustration == AppEmptyIllustration.purchaseBills;
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: compact ? 280 : 360),
@@ -81,8 +97,20 @@ class AppEmptyState extends StatelessWidget {
             children: [
               AppEmptyArt(
                 illustration: illustration,
-                width: compact ? 128 : 176,
-                height: compact ? 96 : 132,
+                width: compact
+                    ? 128
+                    : purchaseEmpty
+                    ? 192
+                    : salesEmpty
+                    ? 192
+                    : 176,
+                height: compact
+                    ? 96
+                    : purchaseEmpty
+                    ? 192
+                    : salesEmpty
+                    ? 176
+                    : 132,
                 semanticLabel: title,
               ),
               SizedBox(height: compact ? AppSpacing.sm : AppSpacing.lg),
@@ -91,18 +119,50 @@ class AppEmptyState extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: compact
                     ? AppTextStyles.listName
-                    : AppTextStyles.sectionTitle,
+                    : AppTextStyles.sectionTitle.copyWith(
+                        fontSize: 20,
+                        height: purchaseEmpty ? 27.5 / 20 : 25 / 20,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: purchaseEmpty ? -0.5 : -0.4,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : const Color(0xFF111827),
+                      ),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 message,
                 textAlign: TextAlign.center,
                 style: (compact ? AppTextStyles.small : AppTextStyles.body)
-                    .copyWith(color: AppColors.textSecondary),
+                    .copyWith(
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : purchaseEmpty
+                          ? const Color(0xFF78716C)
+                          : salesEmpty
+                          ? const Color(0xFF6B7280)
+                          : AppColors.textSecondary,
+                      fontSize: compact
+                          ? null
+                          : salesEmpty
+                          ? 12
+                          : 14,
+                      height: compact
+                          ? null
+                          : salesEmpty
+                          ? 19.5 / 12
+                          : 22.75 / 14,
+                      fontWeight: FontWeight.w400,
+                    ),
               ),
               if (actionLabel != null && onAction != null) ...[
                 SizedBox(height: compact ? AppSpacing.md : AppSpacing.xl),
-                AppButton(label: actionLabel!, onPressed: onAction),
+                AppButton(
+                  label: actionLabel!,
+                  onPressed: onAction,
+                  leading: actionLeading,
+                  radius: compact ? null : 16,
+                ),
               ],
             ],
           ),

@@ -103,10 +103,15 @@ remain intentionally out of scope until explicitly requested.
   enable/unlock uses an injectable biometric gate; PIN keypad still unlocks;
   disable clears the fingerprint flag.
 - More tab feature search is an AppBar icon like Invoices; filters by
-  name/alias; empty state when nothing matches. Business identity card shows
-  logo, name, contact, and GSTIN. A plan banner (trial days or Subscribed)
-  sits under the business card; Plan & billing in Preferences opens Your
-  plan. Search aliases include trial, yearly, billing, subscribe, and OTP.
+  name/alias; empty state when nothing matches. Business identity card
+  shows logo, name, Active/Trial pill, category, and invoice mobile.
+  Plan & billing in Preferences opens Your plan. Search aliases include
+  trial, yearly, billing, subscribe, and OTP.
+- Documents empty Sales shows Invoices (0), RECEIVED/PENDING/OVERDUE,
+  All/Unpaid/Overdue/Draft chips, the receipt hero, and + Create invoice
+  without a list FAB. Empty Purchases shows Purchase bills, Paid/Payable/
+  Overdue, All/Unpaid/Part paid/Overdue, the box hero, and Create purchase
+  bill. Sales | Purchases keeps exported icons and a white active pill.
 - Add item catalog form: optional photos (up to 3), compact row with preview
   and remove; classic grouped cards; schema 22 image paths; cover shows on
   catalog list/details. Barcode scan is on the SKU / Code field, not the AppBar.
@@ -171,9 +176,10 @@ remain intentionally out of scope until explicitly requested.
   After reconnecting, either continue or show Creovo Yearly with Subscribe.
   Restore a backup and confirm
   the plan is still the Firestore/account one, not a value from the ZIP.
-  While the shop is open, More shows the plan banner; Plan & billing opens
-  Your plan (Figma layout: Creovo Yearly card, days remaining, privileges,
-  registered mobile, Refresh Plan). Expired accounts must not reach More.
+  While the shop is open, More shows the Figma business card (Active/Trial
+  pill, category • mobile) and Plan & billing opens Your plan (Figma layout:
+  Creovo Yearly card, days remaining, privileges, registered mobile,
+  Refresh Plan). Expired accounts must not reach More.
 - Pick logo and payment QR images from Android and iOS libraries. Signature
   supports draw-on-pad, gallery, or camera.
 - Add item photos: save without photos; add a cover from gallery and up to two

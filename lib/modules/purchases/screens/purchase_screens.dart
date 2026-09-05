@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../../../app/constants/app_colors.dart';
+import '../../../app/constants/documents_icons.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/routes/shell_args.dart';
 import '../../../app/themes/app_text_styles.dart';
@@ -127,6 +129,8 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
     final searchBar = AppSearchAppBar(
       title: 'Purchase bills',
       hint: 'Bill number or supplier',
+      largeTitle: true,
+      largeSearchChrome: false,
       onChanged: (value) => setState(() => query = value),
       primary: !widget.embedded,
     );
@@ -157,6 +161,19 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
                     child: PurchaseOverviewCard(
                       data: dashboard.data!,
                       compact: true,
+                      paidCount: bills
+                          .where((bill) => bill.status == 'paid')
+                          .length,
+                      payableCount: bills
+                          .where(
+                            (bill) =>
+                                bill.status == 'unpaid' ||
+                                bill.status == 'partially_paid',
+                          )
+                          .length,
+                      overdueCount: bills
+                          .where((bill) => bill.status == 'overdue')
+                          .length,
                     ),
                   ),
                 SizedBox(
@@ -183,6 +200,8 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
                           child: AppFilterChip(
                             label: option.$2,
                             selected: filter == option.$1,
+                            selectedColor: const Color(0xFF5B2A4A),
+                            idleFill: Colors.white,
                             count: option.$1 == 'all'
                                 ? bills.length
                                 : bills
@@ -200,13 +219,13 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
                       ? AppEmptyState(
                           illustration: searching
                               ? AppEmptyIllustration.search
-                              : AppEmptyIllustration.invoice,
+                              : AppEmptyIllustration.purchaseBills,
                           title: searching
                               ? 'No matching bills'
                               : 'No purchase bills yet',
                           message: searching
                               ? 'Try a different bill number, supplier or status.'
-                              : 'Record supplier bills and track what you need to pay.',
+                              : 'Record supplier bills and track payments in one place.',
                           actionLabel: searching
                               ? null
                               : 'Create purchase bill',
@@ -2689,6 +2708,9 @@ class PurchaseOverviewCard extends StatelessWidget {
     this.onPayableTap,
     this.onOverdueTap,
     this.compact = false,
+    this.paidCount,
+    this.payableCount,
+    this.overdueCount,
     super.key,
   });
 
@@ -2696,6 +2718,9 @@ class PurchaseOverviewCard extends StatelessWidget {
   final VoidCallback? onPayableTap;
   final VoidCallback? onOverdueTap;
   final bool compact;
+  final int? paidCount;
+  final int? payableCount;
+  final int? overdueCount;
 
   @override
   Widget build(BuildContext context) {
@@ -2771,120 +2796,142 @@ class PurchaseOverviewCard extends StatelessWidget {
       (
         label: 'Paid',
         amount: data.paidMinor,
-        icon: Icons.check_circle_outline_rounded,
-        color: AppColors.success,
+        count: paidCount,
+        iconAsset: DocumentsIcons.paid,
+        well: const Color(0xFFECFDF5),
+        color: const Color(0xFF059669),
         onTap: null,
       ),
       (
         label: 'Payable',
         amount: data.payableMinor,
-        icon: Icons.schedule_rounded,
-        color: AppColors.warning,
+        count: payableCount,
+        iconAsset: DocumentsIcons.payable,
+        well: const Color(0xFFFFFBEB),
+        color: const Color(0xFFD97706),
         onTap: onPayableTap,
       ),
       (
         label: 'Overdue',
         amount: data.overdueMinor,
-        icon: Icons.error_outline_rounded,
-        color: AppColors.error,
+        count: overdueCount,
+        iconAsset: DocumentsIcons.overdue,
+        well: const Color(0xFFFEF2F2),
+        color: const Color(0xFFEF4444),
         onTap: onOverdueTap,
       ),
     ];
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
+        color: isDark ? AppColors.darkSurface : Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.border,
+          color: isDark ? AppColors.darkBorder : const Color(0xCCE7E5E4),
         ),
         boxShadow: isDark
             ? null
-            : [
+            : const [
                 BoxShadow(
-                  color: AppColors.secondary.withValues(alpha: 0.06),
-                  blurRadius: 18,
-                  offset: const Offset(0, 6),
+                  color: Color(0x0A000000),
+                  blurRadius: 14,
+                  offset: Offset(0, 2),
+                  spreadRadius: -3,
                 ),
               ],
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              for (var i = 0; i < metrics.length; i++) ...[
-                Expanded(
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: metrics[i].onTap,
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 25,
-                                  height: 25,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: metrics[i].color.withValues(
-                                      alpha: 0.11,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Icon(
-                                    metrics[i].icon,
-                                    size: 15,
-                                    color: metrics[i].color,
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                Expanded(
-                                  child: Text(
-                                    metrics[i].label,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.textSecondary,
-                                      fontSize: 9.5,
-                                    ),
-                                  ),
-                                ),
-                              ],
+          for (var i = 0; i < metrics.length; i++) ...[
+            if (i != 0)
+              Container(
+                width: 1,
+                height: 68,
+                margin: const EdgeInsets.only(left: 4, right: 12),
+                color: isDark ? AppColors.darkBorder : const Color(0xFFF5F5F4),
+              ),
+            Expanded(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: metrics[i].onTap,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? metrics[i].color.withValues(alpha: .18)
+                                  : metrics[i].well,
+                              shape: BoxShape.circle,
                             ),
-                            const SizedBox(height: 6),
-                            AppAmountText(
-                              amountMinor: metrics[i].amount,
-                              symbol: '₹',
-                              color: metrics[i].color,
-                              textAlign: TextAlign.start,
-                              style: AppTextStyles.listAmount.copyWith(
-                                fontSize: 13,
-                                color: metrics[i].color,
+                            child: SvgPicture.asset(
+                              metrics[i].iconAsset,
+                              width: 12,
+                              height: 12,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              metrics[i].label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.caption.copyWith(
+                                color: isDark
+                                    ? AppColors.darkTextSecondary
+                                    : const Color(0xFF78716C),
+                                fontSize: 12,
+                                height: 16 / 12,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      AppAmountText(
+                        amountMinor: metrics[i].amount,
+                        symbol: '₹',
+                        color: metrics[i].color,
+                        textAlign: TextAlign.start,
+                        style: AppTextStyles.listAmount.copyWith(
+                          fontSize: 16,
+                          height: 24 / 16,
+                          letterSpacing: -0.4,
+                          color: metrics[i].color,
                         ),
                       ),
-                    ),
+                      if (metrics[i].count != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '${metrics[i].count} ${metrics[i].count == 1 ? 'bill' : 'bills'}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.caption.copyWith(
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : const Color(0xFFA8A29E),
+                            fontSize: 10,
+                            height: 15 / 10,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                if (i != metrics.length - 1)
-                  Container(
-                    width: 1,
-                    height: 52,
-                    margin: const EdgeInsets.symmetric(horizontal: 6),
-                    color: isDark ? AppColors.darkBorder : AppColors.border,
-                  ),
-              ],
-            ],
-          ),
+              ),
+            ),
+          ],
         ],
       ),
     );

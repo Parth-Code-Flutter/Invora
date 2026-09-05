@@ -53,6 +53,30 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('sales empty state uses the Figma invoice illustration', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: AppEmptyState(
+            illustration: AppEmptyIllustration.salesInvoice,
+            title: 'No invoices yet',
+            message: 'Create your first offline invoice to see it here.',
+            actionLabel: 'Create invoice',
+            onAction: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(AppEmptyArt), findsOneWidget);
+    expect(find.text('No invoices yet'), findsOneWidget);
+    expect(find.text('Create invoice'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('shared segment tabs use one branded selector and icons', (
     tester,
   ) async {

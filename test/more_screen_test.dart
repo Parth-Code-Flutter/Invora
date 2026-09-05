@@ -75,7 +75,7 @@ void main() {
     });
 
     testWidgets('filters destinations from the AppBar search', (tester) async {
-      tester.view.physicalSize = const Size(400, 1200);
+      tester.view.physicalSize = const Size(400, 2800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -87,10 +87,17 @@ void main() {
 
       expect(find.text('More'), findsWidgets);
       expect(find.byTooltip('Search'), findsOneWidget);
+      expect(find.text('Your business'), findsOneWidget);
       expect(find.text('Products & services'), findsOneWidget);
       expect(find.text('App settings'), findsOneWidget);
       expect(find.text('Plan & billing'), findsOneWidget);
-      expect(find.text('Creovo Yearly'), findsOneWidget);
+      expect(find.text('Creovo Yearly'), findsNothing);
+      expect(
+        find.text(
+          'Private by design. Your business data stays on this device.',
+        ),
+        findsOneWidget,
+      );
 
       await tester.tap(find.byTooltip('Search'));
       await tester.pumpAndSettle();
@@ -103,9 +110,10 @@ void main() {
       expect(find.text('Products & services'), findsNothing);
       expect(find.text('App settings'), findsNothing);
       expect(find.text('Plan & billing'), findsNothing);
-      expect(find.text('Creovo Yearly'), findsNothing);
       expect(
-        find.text('Private by design. Your data stays on this device.'),
+        find.text(
+          'Private by design. Your business data stays on this device.',
+        ),
         findsNothing,
       );
 
@@ -119,7 +127,6 @@ void main() {
       expect(find.text('Products & services'), findsOneWidget);
       expect(find.text('App settings'), findsOneWidget);
       expect(find.text('Plan & billing'), findsOneWidget);
-      expect(find.text('Creovo Yearly'), findsOneWidget);
     });
   });
 }

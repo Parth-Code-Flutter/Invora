@@ -6,15 +6,18 @@ import '../../../app/localization/app_localization.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../../../data/repositories/business_repository.dart';
+import '../../../data/services/product_settings_service.dart';
 import '../../../data/services/stock_ledger.dart';
 import '../more_destinations.dart';
 
 class MoreController extends GetxController {
-  MoreController(this._business, [this._ledger]);
+  MoreController(this._business, [this._ledger, this._productSettings]);
 
   final BusinessRepository _business;
   final StockLedger? _ledger;
+  final ProductSettingsService? _productSettings;
   final profile = Rxn<BusinessProfileModel>();
+  final categoryLabel = ''.obs;
   final isLoading = true.obs;
   final stockEnabled = false.obs;
   final searchQuery = ''.obs;
@@ -45,6 +48,7 @@ class MoreController extends GetxController {
   Future<void> loadProfile() async {
     isLoading.value = true;
     profile.value = await _business.getProfile();
+    categoryLabel.value = _productSettings?.category.label ?? '';
     isLoading.value = false;
   }
 

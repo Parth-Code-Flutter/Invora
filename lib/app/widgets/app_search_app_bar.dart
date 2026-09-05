@@ -19,6 +19,9 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.onScan,
     this.scanTooltip = 'Scan to search',
     this.primary = true,
+    this.largeTitle = false,
+    this.largeSearchChrome,
+    this.searchIcon,
     super.key,
   });
 
@@ -38,6 +41,14 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
 
   /// Nested list hosts pass false so the bar does not add status-bar padding.
   final bool primary;
+
+  /// More, Invoices, and Purchase bills use a 24px page title from Figma.
+  final bool largeTitle;
+
+  /// More uses 44px white search. Documents lists keep the 40px muted chrome.
+  /// Defaults to [largeTitle] when omitted.
+  final bool? largeSearchChrome;
+  final Widget? searchIcon;
 
   @override
   Size get preferredSize => const Size.fromHeight(64);
@@ -106,6 +117,9 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
     final iconColor = isDark
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
+    final largeTitle = widget.largeTitle && !_searching;
+    final largeSearch =
+        (widget.largeSearchChrome ?? widget.largeTitle) && !_searching;
     return AppBar(
       primary: widget.primary,
       automaticallyImplyLeading: widget.leading == null && !_searching,
@@ -120,8 +134,11 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
       titleSpacing: _searching
           ? 8
           : widget.leading == null
-          ? 16
+          ? (widget.largeTitle ? 20 : 16)
           : 12,
+      actionsPadding: largeSearch
+          ? const EdgeInsets.only(right: 16)
+          : const EdgeInsets.only(right: 8),
       title: AnimatedSwitcher(
         duration: const Duration(milliseconds: 220),
         switchInCurve: Curves.easeOutCubic,
@@ -149,6 +166,17 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
                       widget.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      style: largeTitle
+                          ? AppTextStyles.pageTitle.copyWith(
+                              fontSize: 24,
+                              height: 32 / 24,
+                              letterSpacing: -0.6,
+                              fontWeight: FontWeight.w700,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : const Color(0xFF1C1917),
+                            )
+                          : null,
                     ),
                   ),
                   if (widget.titleSuffix != null) ...[
@@ -160,11 +188,17 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
       ),
       actions: [
         if (!_searching)
-          AppBarIconButton(
-            tooltip: l10n('Search'),
-            onPressed: _openSearch,
-            icon: Icons.search_rounded,
-          ),
+          largeSearch
+              ? _LargeSearchButton(
+                  tooltip: l10n('Search'),
+                  icon: widget.searchIcon,
+                  onPressed: _openSearch,
+                )
+              : AppBarIconButton(
+                  tooltip: l10n('Search'),
+                  onPressed: _openSearch,
+                  icon: Icons.search_rounded,
+                ),
         if (!_searching && widget.onScan != null)
           AppBarIconButton(
             tooltip: l10n(widget.scanTooltip),
@@ -173,6 +207,64 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
           ),
         ...widget.actions,
       ],
+    );
+  }
+}
+
+class _LargeSearchButton extends StatelessWidget {
+  const _LargeSearchButton({
+    required this.tooltip,
+    required this.onPressed,
+    this.icon,
+  });
+
+  final String tooltip;
+  final VoidCallback onPressed;
+  final Widget? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Center(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0A161118),
+              blurRadius: 14,
+              offset: Offset(0, 2),
+              spreadRadius: -2,
+            ),
+          ],
+        ),
+        child: IconButton(
+          tooltip: tooltip,
+          onPressed: onPressed,
+          style: IconButton.styleFrom(
+            fixedSize: const Size.square(44),
+            minimumSize: const Size.square(44),
+            padding: EdgeInsets.zero,
+            backgroundColor: isDark
+                ? AppColors.darkSurfaceVariant
+                : Colors.white,
+            foregroundColor: isDark
+                ? AppColors.darkTextPrimary
+                : const Color(0xFF44403C),
+            side: BorderSide(
+              color: isDark ? AppColors.darkBorder : const Color(0xB3E7E5E4),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          icon: SizedBox(
+            width: 20,
+            height: 20,
+            child: icon ?? const Icon(Icons.search_rounded, size: 20),
+          ),
+        ),
+      ),
     );
   }
 }

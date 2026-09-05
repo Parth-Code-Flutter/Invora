@@ -90,6 +90,8 @@ flutter:
   assets:
     - assets/icons/
     - assets/icons/plan/
+    - assets/icons/more/
+    - assets/icons/documents/
     - assets/images/
     - assets/animations/
     - assets/illustrations/

@@ -8,6 +8,12 @@ Suggested prompt:
 > Read `docs/START_HERE.md` completely and follow its document order and
 > working agreement before reviewing or changing the project.
 
+If the task is **subscription, trial, paid unlock, UPI screenshot, admin
+panel, or Play/App Store billing**, read
+[`LICENSING_AND_DEMO.md`](LICENSING_AND_DEMO.md) in step 4 (section
+**Direct APK: UPI proof + admin panel**). Do not invent a second payment
+design. Current app facts still come from `PROJECT_HANDOFF.md`.
+
 ## Required reading order
 
 ### 1. `PROJECT_HANDOFF.md` — current source of truth
@@ -41,7 +47,11 @@ expansion-roadmap item, the expansion roadmap wins.
 - Purchase foundation: `PURCHASE_READINESS_ROADMAP.md`
 - Public release: `PRODUCTION_ROADMAP.md`
 - Play / App Store listing and upload: `STORE_DEPLOYMENT.md`
-- Licensing/demo: `LICENSING_AND_DEMO.md`
+- **Subscription, trial expiry, yearly price, marking paid, UPI proof,
+  admin panel, and store IAP:** `LICENSING_AND_DEMO.md` (that is the only
+  design doc for these). Current console fields and `/plan` /
+  `/subscription` behavior: `PROJECT_HANDOFF.md` section **Account
+  identity (Firebase Phone + Firestore plans)**
 - Account OTP / Firebase console / Firestore rules: `PROJECT_HANDOFF.md`
   section **Account identity (Firebase Phone + Firestore plans)**
 
@@ -83,6 +93,8 @@ user journey.
    - update Known issues / next work;
    - record important files, schema/storage changes, and verification.
 10. Update the relevant roadmap/QA document when scope or status changes.
+    Subscription / admin-panel / paid-unlock changes also update
+    `LICENSING_AND_DEMO.md` in the same commit.
 11. Run formatting, analysis, targeted tests, full tests, and applicable builds.
 12. Review the final diff and stage only intended files.
 13. Commit and push to `parth-dev` before changing computers.
