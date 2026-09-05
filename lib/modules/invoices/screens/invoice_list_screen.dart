@@ -160,7 +160,6 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                     currencySymbol: controller.currencySymbol.value,
                   ),
                 ),
-                const SizedBox(height: 12),
               ],
               SizedBox(
                 height: 40,
@@ -182,6 +181,26 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                           InvoiceListFilter.paid,
                         ];
                   final summaries = controller.summaryInvoices.toList();
+                  if (!quotation) {
+                    // Match the Purchase row: a 40px viewport with 6px/4px
+                    // vertical insets, leaving the same 30px chip height.
+                    return ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.only(top: 6, bottom: 4),
+                      itemCount: filters.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 6),
+                      itemBuilder: (context, index) {
+                        final filter = filters[index];
+                        return documentsStatusChip(
+                          label: _filterLabel(filter),
+                          status: filter.name,
+                          count: _invoiceFilterCount(filter, summaries),
+                          selected: controller.selectedFilter.value == filter,
+                          onSelected: (_) => controller.selectFilter(filter),
+                        );
+                      },
+                    );
+                  }
                   return Stack(
                     children: [
                       ListView.separated(

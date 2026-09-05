@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -21,7 +19,6 @@ class _DockItem {
     required this.filledAsset,
     required this.label,
     required this.route,
-    this.preserveFilledColors = false,
   });
 
   final MainDestination destination;
@@ -29,7 +26,6 @@ class _DockItem {
   final String filledAsset;
   final String label;
   final String route;
-  final bool preserveFilledColors;
 }
 
 const _dockItems = <_DockItem>[
@@ -53,7 +49,6 @@ const _dockItems = <_DockItem>[
     filledAsset: DockIcons.productsFilled,
     label: 'Products',
     route: AppRoutes.products,
-    preserveFilledColors: true,
   ),
   _DockItem(
     destination: MainDestination.parties,
@@ -106,33 +101,27 @@ class AppMainNavigation extends StatelessWidget {
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(999),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: isDark
-                    ? const Color(0xE62A1528)
-                    : const Color.fromRGBO(255, 255, 255, 0.92),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: isDark ? AppColors.darkBorder : _dockRing,
-                ),
+        child: RepaintBoundary(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2A1528) : const Color(0xFFFDFBFA),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: isDark ? AppColors.darkBorder : _dockRing,
               ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(13, 8, 13, 8),
-                child: SizedBox(
-                  height: _dockHeight,
-                  child: Row(
-                    children: [
-                      for (final item in _dockItems)
-                        _DockTab(
-                          item: item,
-                          selected: current == item.destination,
-                        ),
-                    ],
-                  ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(13, 8, 13, 8),
+              child: SizedBox(
+                height: _dockHeight,
+                child: Row(
+                  children: [
+                    for (final item in _dockItems)
+                      _DockTab(
+                        item: item,
+                        selected: current == item.destination,
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -209,8 +198,10 @@ class _DockGlyph extends StatelessWidget {
   final Color idleColor;
 
   @override
-  Widget build(BuildContext context) {
-    final picture = SvgPicture.asset(
+  Widget build(BuildContext context) => SizedBox(
+    width: 24,
+    height: 24,
+    child: SvgPicture.asset(
       selected ? item.filledAsset : item.outlineAsset,
       width: 24,
       height: 24,
@@ -218,26 +209,13 @@ class _DockGlyph extends StatelessWidget {
       colorFilter: selected
           ? null
           : ColorFilter.mode(idleColor, BlendMode.srcIn),
-    );
-    if (!selected || item.preserveFilledColors) {
-      return SizedBox(width: 24, height: 24, child: picture);
-    }
-    return SizedBox(
-      width: 24,
-      height: 24,
-      child: ShaderMask(
-        blendMode: BlendMode.srcIn,
-        shaderCallback: (bounds) => const LinearGradient(
-          colors: [_dockCoral, _dockPlum],
-        ).createShader(bounds),
-        child: picture,
-      ),
-    );
-  }
+    ),
+  );
 }
 
 Future<void> _openDestination(String route) async {
   await AppFocus.dismissKeyboard();
+  await DockIcons.preload();
   Get.offAllNamed<void>(route);
 }
 
@@ -268,6 +246,7 @@ class AppSalesNavigationRail extends StatelessWidget {
       onDestinationSelected: (index) async {
         if (index == selected) return;
         await AppFocus.dismissKeyboard();
+        await DockIcons.preload();
         Get.offAllNamed<void>(_dockItems[index].route);
       },
       destinations: [

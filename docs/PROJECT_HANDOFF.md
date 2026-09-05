@@ -198,13 +198,16 @@ stores.
   always open Home. There is no Sales vs Purchases workspace choice and no
   Change workspace control. Phone dock is **Home · Documents · Products ·
   Parties · More** (still five items). The dock is a floating pill capsule
-  (full-radius, 16px screen inset, 10px blur, 92% white fill, rose-tinted
+  (full-radius, 16px screen inset, opaque adaptive surface, rose-tinted
   shadow and warm ring) with icon-only tabs. Names stay on Semantics for
-  VoiceOver / TalkBack. The selected tab uses the Figma filled glyph plus a
+  VoiceOver / TalkBack. All tabs use the exported Figma SVG outline/filled pairs
+  from node `2226:198`, in fixed 24px boxes. Active icons retain their original
+  fills, including the parcel faces and nine-dot More mark. The selected tab has a
   reserved 14×3 coral-to-plum underline so the five icons share one baseline;
-  there is no scale bounce and no chip behind the icon. Dock glyphs are the
-  Figma SVGs in `assets/icons/dock/` (outline idle `#8F827E`, filled coral;
-  Products keeps its three-face fills). More list rows still use Material
+  there is no scale bounce and no chip behind the icon. The dock has no live
+  backdrop filter. Both SVG states are decoded at startup and before root
+  navigation to avoid a cold decode on tab changes; device flicker QA remains.
+  More list rows also use Material
   Symbols in coral, plum, teal, and amber wells. There is no center + or global create
   sheet. Documents shows Invoices or Purchase bills first, then Sales |
   Purchases as a cream segmented control with a sliding white pill (swipe
@@ -990,6 +993,42 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-06 — Matching Sales and Purchase status chips
+
+- Sales status filters now use the Purchase row's 40px viewport, 6px top/4px
+  bottom padding, and 6px chip gaps. Removed the extra Sales overview gap and
+  trailing fade for the Sales row. Both use the existing shared status-chip
+  component for labels, badges, selected colors, and interaction.
+- Important file: `invoice_list_screen.dart`. No storage or migration changes.
+- Verification: targeted invoice-list and Documents navigation widget tests.
+
+### 2026-09-06 — Empty-state action overflow
+
+- Shared empty states reduce illustration size and spacing when the remaining
+  viewport is short. A scrolling fallback keeps the create action reachable
+  with larger text or constrained height. This addresses the purchase-bills
+  button overflowing above the bottom dock.
+- Important files: `app_empty_state.dart`, `empty_state_layout_test.dart`.
+- Storage and migrations: none.
+- Verification: constrained-height and enlarged-text action reachability tests,
+  purchase Documents integration test, and shared design-system tests.
+
+### 2026-09-06 — Stable, consistent bottom navigation
+
+- Removed the live backdrop blur from the shared phone dock. After reviewing
+  Figma node `2226:198`, restored the actual exported outline/filled icons;
+  the temporary Material Symbols substitution was rejected. Active SVG colors
+  remain intact, including the parcel and nine-dot More icon.
+- Added decoded SVG preloading at app startup and before dock/rail navigation.
+  The selected underline, fixed glyph boxes, routes and accessibility remain.
+- Important files: `app_main_navigation.dart`, `dock_icons.dart`, `main.dart`,
+  and `main_navigation_test.dart`.
+- Storage and migrations: none.
+- Verification: narrow-phone dock and splash-to-home unified navigation tests
+  pass; targeted analysis of the four changed Dart files is clean. Full
+  repository analysis remains blocked by the existing syntax error in
+  `test/subscription_gate_test.dart:57`. Device playback verification remains.
 
 ### 2026-09-05 — Figma floating dock icons
 

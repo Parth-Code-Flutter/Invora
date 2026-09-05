@@ -87,87 +87,101 @@ class AppEmptyState extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final salesEmpty = illustration == AppEmptyIllustration.salesInvoice;
     final purchaseEmpty = illustration == AppEmptyIllustration.purchaseBills;
-    return Center(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: compact ? 280 : 360),
-        child: Padding(
-          padding: EdgeInsets.all(compact ? AppSpacing.md : AppSpacing.xl),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppEmptyArt(
-                illustration: illustration,
-                width: compact
-                    ? 128
-                    : purchaseEmpty
-                    ? 192
-                    : salesEmpty
-                    ? 192
-                    : 176,
-                height: compact
-                    ? 96
-                    : purchaseEmpty
-                    ? 192
-                    : salesEmpty
-                    ? 176
-                    : 132,
-                semanticLabel: title,
-              ),
-              SizedBox(height: compact ? AppSpacing.sm : AppSpacing.lg),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: compact
-                    ? AppTextStyles.listName
-                    : AppTextStyles.sectionTitle.copyWith(
-                        fontSize: 20,
-                        height: purchaseEmpty ? 27.5 / 20 : 25 / 20,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: purchaseEmpty ? -0.5 : -0.4,
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : const Color(0xFF111827),
-                      ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: (compact ? AppTextStyles.small : AppTextStyles.body)
-                    .copyWith(
-                      color: isDark
-                          ? AppColors.darkTextSecondary
-                          : purchaseEmpty
-                          ? const Color(0xFF78716C)
-                          : salesEmpty
-                          ? const Color(0xFF6B7280)
-                          : AppColors.textSecondary,
-                      fontSize: compact
-                          ? null
-                          : salesEmpty
-                          ? 12
-                          : 14,
-                      height: compact
-                          ? null
-                          : salesEmpty
-                          ? 19.5 / 12
-                          : 22.75 / 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-              ),
-              if (actionLabel != null && onAction != null) ...[
-                SizedBox(height: compact ? AppSpacing.md : AppSpacing.xl),
-                AppButton(
-                  label: actionLabel!,
-                  onPressed: onAction,
-                  leading: actionLeading,
-                  radius: compact ? null : 16,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final short =
+            constraints.hasBoundedHeight && constraints.maxHeight < 420;
+        final smallArt = compact || short;
+        return Center(
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: compact ? 280 : 360),
+              child: Padding(
+                padding: EdgeInsets.all(
+                  smallArt ? AppSpacing.md : AppSpacing.xl,
                 ),
-              ],
-            ],
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppEmptyArt(
+                      illustration: illustration,
+                      width: smallArt
+                          ? 128
+                          : purchaseEmpty
+                          ? 192
+                          : salesEmpty
+                          ? 192
+                          : 176,
+                      height: smallArt
+                          ? 96
+                          : purchaseEmpty
+                          ? 192
+                          : salesEmpty
+                          ? 176
+                          : 132,
+                      semanticLabel: title,
+                    ),
+                    SizedBox(height: smallArt ? AppSpacing.sm : AppSpacing.lg),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: compact
+                          ? AppTextStyles.listName
+                          : AppTextStyles.sectionTitle.copyWith(
+                              fontSize: 20,
+                              height: purchaseEmpty ? 27.5 / 20 : 25 / 20,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: purchaseEmpty ? -0.5 : -0.4,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : const Color(0xFF111827),
+                            ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      message,
+                      textAlign: TextAlign.center,
+                      style:
+                          (compact ? AppTextStyles.small : AppTextStyles.body)
+                              .copyWith(
+                                color: isDark
+                                    ? AppColors.darkTextSecondary
+                                    : purchaseEmpty
+                                    ? const Color(0xFF78716C)
+                                    : salesEmpty
+                                    ? const Color(0xFF6B7280)
+                                    : AppColors.textSecondary,
+                                fontSize: compact
+                                    ? null
+                                    : salesEmpty
+                                    ? 12
+                                    : 14,
+                                height: compact
+                                    ? null
+                                    : salesEmpty
+                                    ? 19.5 / 12
+                                    : 22.75 / 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                    ),
+                    if (actionLabel != null && onAction != null) ...[
+                      SizedBox(
+                        height: smallArt ? AppSpacing.md : AppSpacing.xl,
+                      ),
+                      AppButton(
+                        label: actionLabel!,
+                        onPressed: onAction,
+                        leading: actionLeading,
+                        radius: compact ? null : 16,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

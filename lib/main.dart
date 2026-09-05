@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import 'app/bindings/initial_binding.dart';
 import 'app/constants/app_constants.dart';
+import 'app/constants/dock_icons.dart';
 import 'app/constants/app_storage_key_const.dart';
 import 'app/localization/app_localization.dart';
 import 'app/routes/route_generator.dart';
@@ -20,6 +21,7 @@ import 'modules/settings/screens/app_lock_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DockIcons.preload();
   final appStorage = await AppStorage.create();
   final databaseService = LocalDatabaseService(AppDatabase());
   await databaseService.initialize();
