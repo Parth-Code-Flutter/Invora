@@ -92,6 +92,8 @@ flutter:
     - assets/icons/plan/
     - assets/icons/more/
     - assets/icons/documents/
+    - assets/icons/business/
+    - assets/icons/dock/
     - assets/images/
     - assets/animations/
     - assets/illustrations/

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/validation_utils.dart';
 import '../../../app/utils/app_focus.dart';
+import '../../../app/widgets/app_notification.dart';
 import '../../../app/widgets/app_signature_capture.dart';
 import '../../../data/models/business_profile_model.dart';
 import '../../../data/models/business_category_model.dart';
@@ -47,7 +49,7 @@ class BusinessSetupController extends GetxController {
 
   final isLoading = true.obs;
   final isSaving = false.obs;
-  final setupStep = 0.obs;
+  final isPickingContact = false.obs;
   final gstRegistered = false.obs;
   final currencyCode = 'INR'.obs;
   final businessCategory = BusinessCategory.generalBusiness.obs;
@@ -69,17 +71,6 @@ class BusinessSetupController extends GetxController {
     'AED': 'د.إ',
   };
 
-  void continueToDetails() {
-    FocusManager.instance.primaryFocus?.unfocus();
-    if (requiredBusinessName(businessName.text) != null) {
-      formKey.currentState?.validate();
-      return;
-    }
-    setupStep.value = 1;
-  }
-
-  void returnToIdentity() => setupStep.value = 0;
-
   @override
   void onInit() {
     super.onInit();
@@ -89,6 +80,63 @@ class BusinessSetupController extends GetxController {
   Future<void> pickLogo() => _pickImage('logo', logoPath);
   void removeLogo() => logoPath.value = null;
   Future<void> pickPaymentQr() => _pickImage('payment_qr', paymentQrPath);
+
+  Future<void> pickInvoiceContact() async {
+    if (isPickingContact.value) return;
+    isPickingContact.value = true;
+    try {
+      final permission = await FlutterContacts.permissions.request(
+        PermissionType.read,
+      );
+      if (permission != PermissionStatus.granted &&
+          permission != PermissionStatus.limited) {
+        AppNotification.warning(
+          'Contacts permission needed',
+          'Allow contact access to fill the invoice WhatsApp number.',
+        );
+        return;
+      }
+      final contact = await FlutterContacts.native.showPicker(
+        properties: const {ContactProperty.phone},
+      );
+      if (contact == null) return;
+      if (contact.phones.isEmpty) {
+        AppNotification.info(
+          'No mobile number',
+          'The selected contact does not have a phone number.',
+        );
+        return;
+      }
+      final importedMobile = _normalizeIndianMobile(
+        contact.phones.first.number,
+      );
+      if (importedMobile.isEmpty) {
+        AppNotification.warning(
+          'Unsupported number',
+          'Choose a contact with a valid 10-digit Indian mobile number.',
+        );
+        return;
+      }
+      mobile.text = importedMobile;
+    } catch (_) {
+      AppNotification.error(
+        'Could not open contacts',
+        'Check contact permission in device settings and try again.',
+      );
+    } finally {
+      isPickingContact.value = false;
+    }
+  }
+
+  static String _normalizeIndianMobile(String value) {
+    var digits = value.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 12 && digits.startsWith('91')) {
+      digits = digits.substring(2);
+    } else if (digits.length == 11 && digits.startsWith('0')) {
+      digits = digits.substring(1);
+    }
+    return RegExp(r'^[6-9]\d{9}$').hasMatch(digits) ? digits : '';
+  }
 
   Future<void> pickSignature(BuildContext context) async {
     final path = await captureBusinessSignature(

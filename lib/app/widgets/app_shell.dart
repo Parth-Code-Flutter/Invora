@@ -27,7 +27,10 @@ class AppShell extends StatelessWidget {
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: tablet || destination == null
           ? null
-          : AppMainNavigation(current: destination!),
+          : Material(
+              type: MaterialType.transparency,
+              child: AppMainNavigation(current: destination!),
+            ),
       body: tablet
           ? Row(
               children: [

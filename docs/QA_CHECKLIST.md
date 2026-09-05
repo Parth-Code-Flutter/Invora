@@ -41,13 +41,17 @@ remain intentionally out of scope until explicitly requested.
 - At narrow Android widths, Dashboard metric labels and Invoice List issue/due
   dates remain complete; Product search copy and Payment Receipt title do not
   truncate. Product and Invoice actions open mobile bottom sheets.
-- The Material Symbols navigation dock displays all destination/Create labels
-  without overlap and remains overflow-free at 320px in light and dark themes.
+- The floating dock shows the five Figma SVG glyphs (Home, Documents,
+  Products, Parties, More) without visible labels, without overlap, and
+  overflow-free at 320px in light and dark themes; VoiceOver / TalkBack
+  still speak the destination names.
 - Invoice create/edit quantity values open a direct-entry sheet, accept whole or
   three-decimal quantities, reject zero/invalid input, and update totals.
-- Existing Business Profile opens with edit-specific copy, a first-step back
-  action, Save changes, and returns to the previous screen after saving; only
-  first-time setup uses onboarding language and dashboard completion routing.
+- Existing Business Profile opens the same Figma form as first-time setup,
+  with Edit Business Profile in the header, a circular back action, Save &
+  update invoices, and a return to the previous screen after saving; only
+  first-time setup uses Business Profile (no Edit prefix) and dashboard
+  completion routing.
 - Plus Jakarta Sans is the only bundled UI/PDF font; invoice, receipt,
   statement, and report PDFs retain Unicode and Indian-rupee rendering.
 - Opening, typing in, cancelling, or saving the custom-field dialog completes
@@ -107,11 +111,10 @@ remain intentionally out of scope until explicitly requested.
   shows logo, name, Active/Trial pill, category, and invoice mobile.
   Plan & billing in Preferences opens Your plan. Search aliases include
   trial, yearly, billing, subscribe, and OTP.
-- Documents empty Sales shows Invoices (0), Received/Pending/Overdue
-  tiles without truncated labels, dense All/Unpaid/Overdue/Draft chips
-  whose selected fill matches the filter, the receipt hero, and + Create
-  invoice without a list FAB. Empty Purchases uses the same amount tiles
-  for Paid/Payable/Overdue and the same dense chip colors.
+- Documents empty Sales and Purchases keep the same hero + Create CTA on
+  All, Unpaid, Overdue, Draft, and Paid. Sales chips match Purchases
+  (dense white idle, selected fill by filter). Typed search still shows
+  no-results copy without a second FAB.
 - Add item catalog form: optional photos (up to 3), compact row with preview
   and remove; classic grouped cards; schema 22 image paths; cover shows on
   catalog list/details. Barcode scan is on the SKU / Code field, not the AppBar.
@@ -322,7 +325,7 @@ flutter test
 Run the native/manual section on both Android and iOS before any release pass.
 # Category-based product customization
 
-- [ ] First business setup can select a category and explains that presets are recommendations.
+- [ ] First business setup can select a category from Store Category. GST, UPI, and numbering stay in the optional accordion.
 - [ ] Changing category updates enabled-field and unit recommendations without deleting saved product values.
 - [ ] Every standard field can be independently enabled/disabled.
 - [ ] Text and Number custom fields can be added, filled, edited through a product, hidden, and removed from settings.

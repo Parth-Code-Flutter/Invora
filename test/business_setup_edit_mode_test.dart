@@ -5,10 +5,6 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:creovo_invoice/app/themes/app_theme.dart';
-import 'package:creovo_invoice/app/widgets/app_back_button.dart';
-import 'package:creovo_invoice/app/widgets/app_button.dart';
-import 'package:creovo_invoice/app/widgets/app_dropdown_field.dart';
-import 'package:creovo_invoice/data/models/business_category_model.dart';
 import 'package:creovo_invoice/data/models/business_profile_model.dart';
 import 'package:creovo_invoice/data/repositories/business_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
@@ -26,6 +22,11 @@ void main() {
   testWidgets('existing business opens in edit mode with a back action', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     SharedPreferences.setMockInitialValues({});
     final storage = await AppStorage.create();
     final database = AppDatabase.forTesting(NativeDatabase.memory());
@@ -54,21 +55,27 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Business profile'), findsOneWidget);
-    expect(find.text('Business identity'), findsOneWidget);
+    expect(find.text('Edit Business Profile'), findsOneWidget);
+    expect(find.text('Business Profile'), findsNothing);
+    expect(find.text('Receipt & Invoice Branding'), findsOneWidget);
+    expect(find.text('Identity & Brand'), findsOneWidget);
+    expect(find.text('Preview bill'), findsOneWidget);
     expect(find.text('Let’s make it yours'), findsNothing);
-    expect(find.byType(AppBackButton), findsOneWidget);
-    expect(
-      find.text('Preview the header customers will see on invoices.'),
-      findsOneWidget,
-    );
-    expect(find.text('Creovo MDF'), findsNWidgets(2));
-    expect(find.text('Next: invoice details'), findsOneWidget);
+    expect(find.text('Business identity'), findsNothing);
+    expect(find.byTooltip('Back'), findsOneWidget);
+    expect(find.text('Creovo MDF'), findsWidgets);
+    expect(find.text('CM'), findsWidgets);
+    expect(find.text('Save & update invoices'), findsOneWidget);
+    expect(find.text('Next: invoice details'), findsNothing);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -360));
+    await tester.pumpAndSettle();
+    expect(find.text('Contact on Invoices'), findsOneWidget);
     expect(controller.validateEmail(''), isNull);
     expect(controller.validateEmail('invalid-email'), isNotNull);
   });
 
-  testWidgets('first launch starts with the shop name, not the optional logo', (
+  testWidgets('first launch starts with the Figma business profile form', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -94,40 +101,37 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Let’s make it yours'), findsOneWidget);
+    expect(find.text('Business Profile'), findsOneWidget);
+    expect(find.text('Edit Business Profile'), findsNothing);
+    expect(find.text('Let’s make it yours'), findsNothing);
     expect(
       find.text('Type your shop name to start. Logo and extras can wait.'),
-      findsOneWidget,
+      findsNothing,
     );
-    expect(find.text('Your identity'), findsNothing);
-    expect(find.text('Add business logo'), findsNothing);
-    expect(find.text('Business name *'), findsOneWidget);
-    expect(find.text('What do you sell?'), findsNothing);
-    expect(find.text('Kirana'), findsNothing);
-    expect(find.text('Business category'), findsOneWidget);
+    expect(find.byTooltip('Back'), findsNothing);
+    expect(find.text('Business Name'), findsOneWidget);
+    expect(find.text('Store Category'), findsOneWidget);
+    expect(find.text('Store Logo'), findsOneWidget);
     expect(find.text('General Business'), findsWidgets);
-    expect(find.text('Add a business logo'), findsNothing);
-    expect(find.text('Tap mark to add a logo'), findsNothing);
-    expect(find.text('Add logo'), findsOneWidget);
     expect(find.text('Your business'), findsOneWidget);
-    expect(find.text('INVOICE'), findsNothing);
+    expect(find.text('INVOICE'), findsOneWidget);
+    expect(find.text('YB'), findsWidgets);
+    expect(find.text('Save & start invoicing'), findsOneWidget);
+    expect(find.text('Continue'), findsNothing);
     expect(
       tester.getTopLeft(find.text('Your business')).dy,
-      lessThan(tester.getTopLeft(find.text('Business name *')).dy),
+      lessThan(tester.getTopLeft(find.text('Business Name')).dy),
     );
 
-    await tester.enterText(find.byType(TextFormField), 'Creovo Studio');
+    await tester.enterText(find.byType(TextFormField).first, 'Creovo Studio');
     await tester.pump();
     expect(find.text('Creovo Studio'), findsWidgets);
+    expect(find.text('CS'), findsWidgets);
 
-    await tester.tap(find.byType(AppDropdownField<BusinessCategory>));
+    await tester.tap(find.text('General Business').last);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Grocery / Kirana').last);
     await tester.pumpAndSettle();
     expect(find.text('Grocery / Kirana'), findsWidgets);
-
-    await tester.tap(find.widgetWithText(AppButton, 'Continue'));
-    await tester.pumpAndSettle();
-    expect(find.text('How can customers reach you?'), findsOneWidget);
   });
 }

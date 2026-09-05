@@ -37,9 +37,9 @@ void main() {
     await tester.tap(find.text('Skip for now'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Let’s make it yours'), findsOneWidget);
+    expect(find.text('Business Profile'), findsOneWidget);
 
-    final context = tester.element(find.text('Let’s make it yours'));
+    final context = tester.element(find.text('Business Profile'));
     showDialog<void>(
       context: context,
       builder: (_) => const AlertDialog(title: Text('Open overlay')),

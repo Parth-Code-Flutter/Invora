@@ -49,6 +49,28 @@ Color appFilterSelectedColor(String status) => switch (status) {
   _ => AppColors.secondary,
 };
 
+/// Dense white Documents chips with a selected fill that follows the filter.
+AppFilterChip documentsStatusChip({
+  required String label,
+  required String status,
+  required bool selected,
+  required int count,
+  required ValueChanged<bool> onSelected,
+}) {
+  final overdue = status == 'overdue';
+  return AppFilterChip(
+    label: label,
+    selected: selected,
+    dense: true,
+    idleFill: Colors.white,
+    selectedColor: appFilterSelectedColor(status),
+    count: count,
+    countFill: overdue ? const Color(0xFFFFE4E6) : const Color(0xFFF5F5F4),
+    countColor: overdue ? const Color(0xFFE11D48) : const Color(0xFF78716C),
+    onSelected: onSelected,
+  );
+}
+
 /// Consistent filter option with a clear selected state and optional icon.
 class AppFilterChip extends StatelessWidget {
   const AppFilterChip({

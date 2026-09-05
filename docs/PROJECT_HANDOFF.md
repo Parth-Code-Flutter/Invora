@@ -109,14 +109,11 @@ SHA-256:
   and a support number ship. Search aliases include trial, yearly,
   billing, subscribe, and OTP.
 
-- Documents empty **Sales** and **Purchase bills** share the same nested
-  amount tiles (Received/Pending/Overdue on Sales, Paid/Payable/Overdue
-  on Purchases) so labels and rupee amounts scale down instead of
-  truncating. Status chips are dense, and the selected chip fill follows
-  the filter (All ink, Unpaid rust, Overdue rose, Paid green). PNG heroes
-  and gradient Create CTAs remain. The list FAB hides while that empty
-  CTA is on screen. Paid and Cancelled filters stay after the
-  Figma-visible chips.
+- Documents empty **Sales** and **Purchase bills** share nested amount
+  tiles, dense white status chips (selected fill follows All / Unpaid /
+  Overdue / Paid), and the same hero + Create CTA for every status
+  filter. A typed search still shows the “none found” empty. The list
+  FAB hides while that empty CTA is on screen.
 
 **Firestore console (operator)**
 
@@ -186,11 +183,12 @@ stores.
 ### Application foundation
 
 - First-launch onboarding and business setup. Splash requires the account
-  OTP gate above before onboarding or shop setup. First setup leads with a live
-  identity preview (logo placeholder, shop name, category), then the name
-  field and a searchable category dropdown. Optional logo is added from the
-  preview placeholder, which shows an Add logo camera prompt. Business profile
-  **Invoice mobile** is local letterhead only and is
+  OTP gate above before onboarding or shop setup. First setup and later
+  edits share the Figma Business Profile screen: live bill preview,
+  Identity & Brand, Contact on Invoices, and a collapsed GSTIN / UPI /
+  numbering accordion. Create keeps the title **Business Profile**; edit
+  prefixes it to **Edit Business Profile**. Optional logo is added from
+  the store-logo mark. **Invoice mobile** is local letterhead only and is
   never written to Firebase. Android uses `android/app/google-services.json`
   and iOS uses `ios/Runner/GoogleService-Info.plist` with matching entries in
   `lib/firebase_options.dart` for project `creovobilling`
@@ -199,14 +197,15 @@ stores.
 - One app after OTP and business setup: splash, onboarding, and first save
   always open Home. There is no Sales vs Purchases workspace choice and no
   Change workspace control. Phone dock is **Home · Documents · Products ·
-  Parties · More** (still five items). The dock is a floating glass capsule
-  with a 1px warm border (`AppColors.border` / `darkBorder`) and icon-only
-  tabs (names stay on Semantics for VoiceOver / TalkBack; stronger blur on
-  iOS, denser fill on Android). The selected tab uses a filled coral icon and
-  a reserved 3px underline under every icon so the five glyphs share one
-  baseline; there is no scale bounce and no chip behind the icon. Dock glyphs
-  are Material Symbols (home, receipt, package, groups, apps). More list
-  rows use the same icon set in coral, plum, teal, and amber wells. There is no center + or global create
+  Parties · More** (still five items). The dock is a floating pill capsule
+  (full-radius, 16px screen inset, 10px blur, 92% white fill, rose-tinted
+  shadow and warm ring) with icon-only tabs. Names stay on Semantics for
+  VoiceOver / TalkBack. The selected tab uses the Figma filled glyph plus a
+  reserved 14×3 coral-to-plum underline so the five icons share one baseline;
+  there is no scale bounce and no chip behind the icon. Dock glyphs are the
+  Figma SVGs in `assets/icons/dock/` (outline idle `#8F827E`, filled coral;
+  Products keeps its three-face fills). More list rows still use Material
+  Symbols in coral, plum, teal, and amber wells. There is no center + or global create
   sheet. Documents shows Invoices or Purchase bills first, then Sales |
   Purchases as a cream segmented control with a sliding white pill (swipe
   the page to switch), wrapping the existing lists, with a FAB for invoice
@@ -292,9 +291,11 @@ stores.
 - Business profile, logo, signature, payment QR, bank, and UPI information.
   Signature capture offers draw-on-pad, gallery, or camera, then stores the
   image with other business assets for invoice PDFs. Editing an existing
-  profile uses a compact two-step maintenance flow: identity changes include a
-  live invoice-header preview, explicit add/replace/remove logo actions, and a
-  category impact note, while first-run onboarding keeps its guided setup UI.
+  profile uses the Figma Business Profile screen for both first-time
+  setup and later edits (create title stays Business Profile; edit
+  prefixes Edit). The live bill preview, logo, category, owner, and
+  invoice WhatsApp sit on one page; GST, UPI, numbering, address, bank,
+  QR, and signature stay in the optional accordion.
 - Responsive phone/tablet layouts and dark mode. Phone screens keep the existing
   bottom dock and stacked forms.   Tablets use a shared `AppShell` NavigationRail
   on Home, Documents, Products, Parties, and More. Home screens are two-pane (snapshot +
@@ -989,6 +990,45 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-05 — Figma floating dock icons
+
+- Phone bottom navigation now uses the Figma Home dock glyphs
+  (`2226:197`) instead of Material Symbols: home, documents, products,
+  parties, and the 9-dot more mark. The bar is a floating pill (full
+  radius, glass fill, rose shadow, warm ring) with a reserved coral-to-plum
+  underline on the selected tab. Destinations and routes are unchanged;
+  there is still no Documents badge.
+- Important files: `app_main_navigation.dart`, `app_shell.dart`,
+  `assets/icons/dock/`, this handoff.
+- Storage: none.
+- Verification: dock widget test and splash-to-dock coverage in
+  `unified_shell_test.dart`.
+
+### 2026-09-05 — Figma Business Profile create and edit
+
+- Business setup now uses the Figma Business Profile frame (`2222:2`) for
+  both first-time create and later edits: sticky header with Preview bill,
+  live thermal preview, Identity & Brand, Contact on Invoices, and a
+  collapsed GSTIN / UPI / numbering accordion. Create keeps the Figma
+  title; edit shows **Edit Business Profile**. Address, GST, bank, QR,
+  and signature stay under the optional accordion. First save still opens
+  Home; edit still pops back. Invoice mobile remains local letterhead.
+- Important files: `business_setup_screen.dart`,
+  `business_setup_controller.dart`, `assets/icons/business/`, this handoff.
+- Storage: none.
+- Verification: business-setup create/edit widget tests.
+
+### 2026-09-05 — Documents chips and filter empty states
+
+- Sales status chips now use the same dense white Documents chip as
+  Purchases. Unpaid / Overdue / Draft / Paid with no rows still show the
+  Sales or Purchases hero and Create CTA; only a typed search switches
+  to the “none found” empty.
+- Important files: `app_filter_chip.dart`, `invoice_list_screen.dart`,
+  `purchase_screens.dart`, `documents_screen.dart`, this handoff.
+- Storage: none.
+- Verification: documents host tab test; invoice overview test.
 
 ### 2026-09-05 — Documents metrics and status chips
 

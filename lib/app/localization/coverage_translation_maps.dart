@@ -1792,6 +1792,40 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Adjustment': 'समायोजन',
   'When posted': 'दर्ज समय',
   'Save stock report': 'स्टॉक रिपोर्ट सहेजें',
+  'Edit Business Profile': 'व्यवसाय प्रोफ़ाइल संपादित करें',
+  'Business Profile': 'व्यवसाय प्रोफ़ाइल',
+  'Receipt & Invoice Branding': 'रसीद और इनवॉइस ब्रांडिंग',
+  'Preview bill': 'बिल देखें',
+  'LIVE BILL PREVIEW': 'लाइव बिल पूर्वावलोकन',
+  'Updates live': 'लाइव अपडेट',
+  'Thermal & PDF ready': 'थर्मल और PDF तैयार',
+  'Identity & Brand': 'पहचान और ब्रांड',
+  'Receipt Header': 'रसीद हेडर',
+  'Store Logo': 'स्टोर लोगो',
+  'Tap logo to upload or change • PNG, JPG up to 5MB':
+      'लोगो अपलोड या बदलने के लिए टैप करें • PNG, JPG 5MB तक',
+  'Business Name': 'व्यवसाय का नाम',
+  'Appears on top of all receipts': 'सभी रसीदों के ऊपर दिखता है',
+  'Store Category': 'स्टोर श्रेणी',
+  'Customizes bill layout': 'बिल लेआउट को अनुकूलित करता है',
+  'Contact on Invoices': 'इनवॉइस पर संपर्क',
+  'Bill Footer & Header': 'बिल फुटर और हेडर',
+  'Owner / Signatory Name': 'मालिक / हस्ताक्षरकर्ता का नाम',
+  'Invoice Mobile / WhatsApp': 'इनवॉइस मोबाइल / WhatsApp',
+  'WhatsApp Ready': 'WhatsApp तैयार',
+  'Printed on customer receipts for digital WhatsApp invoice sharing':
+      'ग्राहक रसीदों पर छपता है ताकि WhatsApp से इनवॉइस भेजा जा सके',
+  'GSTIN, UPI QR & Bill Numbering': 'GSTIN, UPI QR और बिल नंबरिंग',
+  'Optional • Configure anytime for B2B & QR payments':
+      'वैकल्पिक • B2B और QR भुगतान के लिए कभी भी सेट करें',
+  'Save & update invoices': 'सेव करें और इनवॉइस अपडेट करें',
+  'Save & start invoicing': 'सेव करें और बिलिंग शुरू करें',
+  'Encrypted & stored offline on this device':
+      'एन्क्रिप्टेड और इस डिवाइस पर ऑफ़लाइन संग्रहीत',
+  'LIVE': 'लाइव',
+  'INVOICE': 'इनवॉइस',
+  'Allow contact access to fill the invoice WhatsApp number.':
+      'इनवॉइस WhatsApp नंबर भरने के लिए संपर्क अनुमति दें।',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -3575,4 +3609,38 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Adjustment': 'ગોઠવણ',
   'When posted': 'નોંધાયેલો સમય',
   'Save stock report': 'સ્ટોક રિપોર્ટ સાચવો',
+  'Edit Business Profile': 'વ્યવસાય પ્રોફાઇલ સંપાદિત કરો',
+  'Business Profile': 'વ્યવસાય પ્રોફાઇલ',
+  'Receipt & Invoice Branding': 'રસીદ અને ઇનવોઇસ બ્રાન્ડિંગ',
+  'Preview bill': 'બિલ જુઓ',
+  'LIVE BILL PREVIEW': 'લાઇવ બિલ પૂર્વાવલોકન',
+  'Updates live': 'લાઇવ અપડેટ',
+  'Thermal & PDF ready': 'થર્મલ અને PDF તૈયાર',
+  'Identity & Brand': 'ઓળખ અને બ્રાન્ડ',
+  'Receipt Header': 'રસીદ હેડર',
+  'Store Logo': 'સ્ટોર લોગો',
+  'Tap logo to upload or change • PNG, JPG up to 5MB':
+      'લોગો અપલોડ અથવા બદલવા માટે ટૅપ કરો • PNG, JPG 5MB સુધી',
+  'Business Name': 'વ્યવસાયનું નામ',
+  'Appears on top of all receipts': 'બધી રસીદોની ટોચ પર દેખાય છે',
+  'Store Category': 'સ્ટોર શ્રેણી',
+  'Customizes bill layout': 'બિલ લેઆઉટને અનુકૂળ બનાવે છે',
+  'Contact on Invoices': 'ઇનવોઇસ પર સંપર્ક',
+  'Bill Footer & Header': 'બિલ ફુટર અને હેડર',
+  'Owner / Signatory Name': 'માલિક / હસ્તાક્ષરકર્તાનું નામ',
+  'Invoice Mobile / WhatsApp': 'ઇનવોઇસ મોબાઇલ / WhatsApp',
+  'WhatsApp Ready': 'WhatsApp તૈયાર',
+  'Printed on customer receipts for digital WhatsApp invoice sharing':
+      'ગ્રાહક રસીદો પર છપાય છે જેથી WhatsAppથી ઇનવોઇસ મોકલી શકાય',
+  'GSTIN, UPI QR & Bill Numbering': 'GSTIN, UPI QR અને બિલ નંબરિંગ',
+  'Optional • Configure anytime for B2B & QR payments':
+      'વૈકલ્પિક • B2B અને QR ચુકવણી માટે ગમે ત્યારે સેટ કરો',
+  'Save & update invoices': 'સાચવો અને ઇનવોઇસ અપડેટ કરો',
+  'Save & start invoicing': 'સાચવો અને બિલિંગ શરૂ કરો',
+  'Encrypted & stored offline on this device':
+      'એન્ક્રિપ્ટેડ અને આ ડિવાઇસ પર ઑફલાઇન સંગ્રહિત',
+  'LIVE': 'લાઇવ',
+  'INVOICE': 'ઇનવોઇસ',
+  'Allow contact access to fill the invoice WhatsApp number.':
+      'ઇનવોઇસ WhatsApp નંબર ભરવા માટે સંપર્ક પરવાનગી આપો.',
 };

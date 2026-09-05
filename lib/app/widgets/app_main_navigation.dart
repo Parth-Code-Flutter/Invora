@@ -1,13 +1,12 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart' hide Text;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:creovo_invoice/app/localization/localized_text.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 import '../constants/app_colors.dart';
+import '../constants/dock_icons.dart';
 import '../routes/app_routes.dart';
 import '../themes/app_text_styles.dart';
 import '../utils/app_focus.dart';
@@ -18,97 +17,111 @@ enum MainDestination { home, documents, products, parties, more }
 class _DockItem {
   const _DockItem({
     required this.destination,
-    required this.icon,
+    required this.outlineAsset,
+    required this.filledAsset,
     required this.label,
     required this.route,
+    this.preserveFilledColors = false,
   });
 
   final MainDestination destination;
-  final IconData icon;
+  final String outlineAsset;
+  final String filledAsset;
   final String label;
   final String route;
+  final bool preserveFilledColors;
 }
 
 const _dockItems = <_DockItem>[
   _DockItem(
     destination: MainDestination.home,
-    icon: Symbols.home_rounded,
+    outlineAsset: DockIcons.homeOutline,
+    filledAsset: DockIcons.homeFilled,
     label: 'Home',
     route: AppRoutes.dashboard,
   ),
   _DockItem(
     destination: MainDestination.documents,
-    icon: Symbols.receipt_long_rounded,
+    outlineAsset: DockIcons.documentsOutline,
+    filledAsset: DockIcons.documentsFilled,
     label: 'Documents',
     route: AppRoutes.documents,
   ),
   _DockItem(
     destination: MainDestination.products,
-    icon: Symbols.package_2_rounded,
+    outlineAsset: DockIcons.productsOutline,
+    filledAsset: DockIcons.productsFilled,
     label: 'Products',
     route: AppRoutes.products,
+    preserveFilledColors: true,
   ),
   _DockItem(
     destination: MainDestination.parties,
-    icon: Symbols.groups_rounded,
+    outlineAsset: DockIcons.partiesOutline,
+    filledAsset: DockIcons.partiesFilled,
     label: 'Parties',
     route: AppRoutes.parties,
   ),
   _DockItem(
     destination: MainDestination.more,
-    icon: Symbols.apps_rounded,
+    outlineAsset: DockIcons.moreOutline,
+    filledAsset: DockIcons.moreFilled,
     label: 'More',
     route: AppRoutes.more,
   ),
 ];
 
+const _dockIdle = Color(0xFF8F827E);
+const _dockCoral = Color(0xFFFF6F61);
+const _dockPlum = Color(0xFF843B62);
+const _dockRing = Color(0xCCEFE6E1);
 const _dockHeight = 56.0;
 
 class AppMainNavigation extends StatelessWidget {
   const AppMainNavigation({required this.current, super.key});
   final MainDestination current;
 
+  static Key tabKey(MainDestination destination) =>
+      ValueKey('dock-${destination.name}');
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final ios = Theme.of(context).platform == TargetPlatform.iOS;
-    final radius = ios ? 28.0 : 22.0;
     return SafeArea(
       top: false,
-      minimum: EdgeInsets.fromLTRB(
-        ios ? 18 : 14,
-        0,
-        ios ? 18 : 14,
-        ios ? 6 : 8,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(radius),
-            border: Border.all(
-              color: isDark ? AppColors.darkBorder : AppColors.border,
-              width: 1,
+      minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: [
+            BoxShadow(
+              color: Color(isDark ? 0x66000000 : 0x1F881337),
+              blurRadius: 40,
+              offset: const Offset(0, 20),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Color(isDark ? 0x66000000 : 0x1A321D30),
-                blurRadius: ios ? 20 : 28,
-                offset: Offset(0, ios ? 8 : 12),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(radius - 1),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: ios ? 28 : 18,
-                sigmaY: ios ? 28 : 18,
-              ),
-              child: ColoredBox(
+            BoxShadow(
+              color: Color(isDark ? 0x33000000 : 0x14F43F5E),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
                 color: isDark
-                    ? const Color(0xCC2A1528)
-                    : Color.fromRGBO(255, 255, 255, ios ? 0.72 : 0.90),
+                    ? const Color(0xE62A1528)
+                    : const Color.fromRGBO(255, 255, 255, 0.92),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: isDark ? AppColors.darkBorder : _dockRing,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(13, 8, 13, 8),
                 child: SizedBox(
                   height: _dockHeight,
                   child: Row(
@@ -137,12 +150,7 @@ class _DockTab extends StatelessWidget {
   final bool selected;
 
   void _select(BuildContext context) {
-    final ios = Theme.of(context).platform == TargetPlatform.iOS;
-    if (ios) {
-      HapticFeedback.selectionClick();
-    } else {
-      HapticFeedback.lightImpact();
-    }
+    HapticFeedback.lightImpact();
     _openDestination(item.route);
   }
 
@@ -151,8 +159,7 @@ class _DockTab extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final idleColor = isDark
         ? AppColors.darkTextSecondary.withValues(alpha: 0.72)
-        : AppColors.textTertiary;
-    const activeColor = AppColors.primary;
+        : _dockIdle;
     return Expanded(
       child: Semantics(
         button: true,
@@ -160,38 +167,70 @@ class _DockTab extends StatelessWidget {
         label: item.label,
         excludeSemantics: true,
         child: GestureDetector(
+          key: AppMainNavigation.tabKey(item.destination),
           behavior: HitTestBehavior.opaque,
           onTap: selected ? null : () => _select(context),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0, end: selected ? 1 : 0),
+              _DockGlyph(item: item, selected: selected, idleColor: idleColor),
+              const SizedBox(height: 4),
+              AnimatedOpacity(
                 duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOutCubic,
-                builder: (context, fill, _) => Icon(
-                  item.icon,
-                  size: 24,
-                  color: Color.lerp(idleColor, activeColor, fill),
-                  fill: fill,
-                  weight: 400,
-                  opticalSize: 24,
-                ),
-              ),
-              const SizedBox(height: 5),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOutCubic,
-                width: selected ? 12 : 4,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: selected ? AppColors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(99),
+                opacity: selected ? 1 : 0,
+                child: Container(
+                  width: 14,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999),
+                    gradient: const LinearGradient(
+                      colors: [_dockCoral, _dockPlum],
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _DockGlyph extends StatelessWidget {
+  const _DockGlyph({
+    required this.item,
+    required this.selected,
+    required this.idleColor,
+  });
+
+  final _DockItem item;
+  final bool selected;
+  final Color idleColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final picture = SvgPicture.asset(
+      selected ? item.filledAsset : item.outlineAsset,
+      width: 24,
+      height: 24,
+      fit: BoxFit.contain,
+      colorFilter: selected
+          ? null
+          : ColorFilter.mode(idleColor, BlendMode.srcIn),
+    );
+    if (!selected || item.preserveFilledColors) {
+      return SizedBox(width: 24, height: 24, child: picture);
+    }
+    return SizedBox(
+      width: 24,
+      height: 24,
+      child: ShaderMask(
+        blendMode: BlendMode.srcIn,
+        shaderCallback: (bounds) => const LinearGradient(
+          colors: [_dockCoral, _dockPlum],
+        ).createShader(bounds),
+        child: picture,
       ),
     );
   }
@@ -206,65 +245,42 @@ class AppSalesNavigationRail extends StatelessWidget {
   const AppSalesNavigationRail({required this.current, super.key});
   final MainDestination current;
 
-  static const _routes = [
-    AppRoutes.dashboard,
-    AppRoutes.documents,
-    AppRoutes.products,
-    AppRoutes.parties,
-    AppRoutes.more,
-  ];
-
   @override
   Widget build(BuildContext context) {
     final selected = MainDestination.values.indexOf(current);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final idle = isDark ? AppColors.darkTextSecondary : _dockIdle;
     return NavigationRail(
       selectedIndex: selected,
       extended: ResponsiveUtils.isLargeTablet(context),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       useIndicator: false,
-      selectedIconTheme: const IconThemeData(color: AppColors.primary),
-      unselectedIconTheme: const IconThemeData(color: AppColors.textTertiary),
+      selectedIconTheme: const IconThemeData(color: _dockCoral),
+      unselectedIconTheme: IconThemeData(color: idle),
       selectedLabelTextStyle: AppTextStyles.caption.copyWith(
-        color: AppColors.primary,
+        color: _dockCoral,
         fontWeight: FontWeight.w700,
       ),
-      unselectedLabelTextStyle: AppTextStyles.caption.copyWith(
-        color: AppColors.textTertiary,
-      ),
+      unselectedLabelTextStyle: AppTextStyles.caption.copyWith(color: idle),
       labelType: ResponsiveUtils.isLargeTablet(context)
           ? NavigationRailLabelType.none
           : NavigationRailLabelType.all,
       onDestinationSelected: (index) async {
         if (index == selected) return;
         await AppFocus.dismissKeyboard();
-        Get.offAllNamed<void>(_routes[index]);
+        Get.offAllNamed<void>(_dockItems[index].route);
       },
-      destinations: const [
-        NavigationRailDestination(
-          icon: Icon(Symbols.home_rounded),
-          selectedIcon: Icon(Symbols.home_rounded, fill: 1),
-          label: Text('Home'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Symbols.receipt_long_rounded),
-          selectedIcon: Icon(Symbols.receipt_long_rounded, fill: 1),
-          label: Text('Documents'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Symbols.package_2_rounded),
-          selectedIcon: Icon(Symbols.package_2_rounded, fill: 1),
-          label: Text('Products'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Symbols.groups_rounded),
-          selectedIcon: Icon(Symbols.groups_rounded, fill: 1),
-          label: Text('Parties'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Symbols.apps_rounded),
-          selectedIcon: Icon(Symbols.apps_rounded, fill: 1),
-          label: Text('More'),
-        ),
+      destinations: [
+        for (final item in _dockItems)
+          NavigationRailDestination(
+            icon: _DockGlyph(item: item, selected: false, idleColor: idle),
+            selectedIcon: _DockGlyph(
+              item: item,
+              selected: true,
+              idleColor: idle,
+            ),
+            label: Text(item.label),
+          ),
       ],
     );
   }

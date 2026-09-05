@@ -29,11 +29,13 @@ class InvoiceListScreen extends StatefulWidget {
     this.quotation = false,
     this.embedded = false,
     this.belowTitle,
+    this.onEmptyCreateVisible,
     super.key,
   });
   final bool quotation;
   final bool embedded;
   final Widget? belowTitle;
+  final ValueChanged<bool>? onEmptyCreateVisible;
 
   @override
   State<InvoiceListScreen> createState() => _InvoiceListScreenState();
@@ -44,6 +46,15 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
     tag: widget.quotation ? InvoiceListController.quotationTag : null,
   );
   bool get quotation => widget.quotation;
+  bool? _lastEmptyCreate;
+
+  void _reportEmptyCreate(bool visible) {
+    if (quotation || _lastEmptyCreate == visible) return;
+    _lastEmptyCreate = visible;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.onEmptyCreateVisible?.call(visible);
+    });
+  }
 
   @override
   void initState() {
@@ -193,18 +204,11 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                                   controller.selectFilter(filter),
                             );
                           }
-                          return AppFilterChip(
+                          return documentsStatusChip(
                             label: _filterLabel(filter),
+                            status: filter.name,
                             count: _invoiceFilterCount(filter, summaries),
                             selected: controller.selectedFilter.value == filter,
-                            dense: true,
-                            selectedColor: appFilterSelectedColor(filter.name),
-                            countFill: filter == InvoiceListFilter.overdue
-                                ? const Color(0xFFFFE4E6)
-                                : null,
-                            countColor: filter == InvoiceListFilter.overdue
-                                ? const Color(0xFFE11D48)
-                                : null,
                             onSelected: (_) => controller.selectFilter(filter),
                           );
                         },
@@ -242,12 +246,12 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
         Expanded(
           child: Obx(() {
             if (controller.isLoading.value) {
+              _reportEmptyCreate(false);
               return const AppListSkeleton();
             }
             if (controller.invoices.isEmpty) {
-              final searching =
-                  controller.searchQuery.value.isNotEmpty ||
-                  controller.selectedFilter.value != InvoiceListFilter.all;
+              final searching = controller.searchQuery.value.isNotEmpty;
+              _reportEmptyCreate(!searching && !quotation);
               return AppEmptyState(
                 illustration: searching
                     ? AppEmptyIllustration.search
@@ -288,6 +292,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                       ),
               );
             }
+            _reportEmptyCreate(false);
             final padding = ResponsiveUtils.horizontalPadding(context);
             final entries = _invoiceListEntries(
               controller.invoices.toList(),

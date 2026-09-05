@@ -6,12 +6,12 @@ import 'package:creovo_invoice/data/repositories/purchase_repository.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/local_database_service.dart';
+import 'package:creovo_invoice/app/widgets/app_main_navigation.dart';
 import 'package:creovo_invoice/main.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -82,7 +82,9 @@ void main() {
       expect(find.text('Switch workspace'), findsNothing);
       expect(find.text('Change workspace'), findsNothing);
 
-      await tester.tap(find.byIcon(Symbols.receipt_long_rounded));
+      await tester.tap(
+        find.byKey(AppMainNavigation.tabKey(MainDestination.documents)),
+      );
       await tester.pumpAndSettle();
       expect(find.text('Sales'), findsWidgets);
       expect(find.text('Purchases'), findsWidgets);
@@ -97,7 +99,9 @@ void main() {
       expect(find.text('Purchase bills'), findsWidgets);
       expect(find.text('PB-100'), findsWidgets);
 
-      await tester.tap(find.byIcon(Symbols.groups_rounded));
+      await tester.tap(
+        find.byKey(AppMainNavigation.tabKey(MainDestination.parties)),
+      );
       await tester.pumpAndSettle();
       expect(find.text('Customers'), findsWidgets);
       expect(find.text('Suppliers'), findsWidgets);
@@ -106,12 +110,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Paper Vendor'), findsWidgets);
 
-      await tester.tap(find.byIcon(Symbols.package_2_rounded));
+      await tester.tap(
+        find.byKey(AppMainNavigation.tabKey(MainDestination.products)),
+      );
       await tester.pumpAndSettle();
       expect(find.text('Products & services'), findsOneWidget);
       expect(find.text('Create new'), findsNothing);
 
-      await tester.tap(find.byIcon(Symbols.apps_rounded));
+      await tester.tap(
+        find.byKey(AppMainNavigation.tabKey(MainDestination.more)),
+      );
       await tester.pumpAndSettle();
       expect(find.text('Products & services'), findsOneWidget);
       expect(find.text('Change workspace'), findsNothing);

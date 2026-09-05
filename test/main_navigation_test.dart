@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 import 'package:creovo_invoice/app/widgets/app_main_navigation.dart';
 
@@ -37,23 +37,35 @@ void main() {
     expect(find.bySemanticsLabel('Products'), findsOneWidget);
     expect(find.bySemanticsLabel('Parties'), findsOneWidget);
     expect(find.bySemanticsLabel('More'), findsOneWidget);
-    expect(find.byIcon(Symbols.home_rounded), findsOneWidget);
-    expect(find.byIcon(Symbols.receipt_long_rounded), findsOneWidget);
-    expect(find.byIcon(Symbols.package_2_rounded), findsOneWidget);
-    expect(find.byIcon(Symbols.groups_rounded), findsOneWidget);
-    expect(find.byIcon(Symbols.apps_rounded), findsOneWidget);
+    expect(find.byType(SvgPicture), findsNWidgets(5));
     expect(
-      tester.getRect(find.byIcon(Symbols.home_rounded)).center.dy,
-      closeTo(
-        tester.getRect(find.byIcon(Symbols.receipt_long_rounded)).center.dy,
-        1,
-      ),
+      find.byKey(AppMainNavigation.tabKey(MainDestination.home)),
+      findsOneWidget,
     );
     expect(
-      tester.getRect(find.byIcon(Symbols.package_2_rounded)).center.dy,
-      closeTo(tester.getRect(find.byIcon(Symbols.groups_rounded)).center.dy, 1),
+      find.byKey(AppMainNavigation.tabKey(MainDestination.documents)),
+      findsOneWidget,
     );
-    expect(find.byIcon(Symbols.add_rounded), findsNothing);
+    expect(
+      find.byKey(AppMainNavigation.tabKey(MainDestination.products)),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(AppMainNavigation.tabKey(MainDestination.parties)),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(AppMainNavigation.tabKey(MainDestination.more)),
+      findsOneWidget,
+    );
+    expect(
+      tester.getRect(find.byType(SvgPicture).at(0)).center.dy,
+      closeTo(tester.getRect(find.byType(SvgPicture).at(1)).center.dy, 1),
+    );
+    expect(
+      tester.getRect(find.byType(SvgPicture).at(2)).center.dy,
+      closeTo(tester.getRect(find.byType(SvgPicture).at(3)).center.dy, 1),
+    );
     expect(find.text('Create'), findsNothing);
     expect(find.text('Create new'), findsNothing);
     expect(tester.takeException(), isNull);

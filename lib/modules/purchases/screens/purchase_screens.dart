@@ -95,6 +95,7 @@ class PurchaseBillListScreen extends StatefulWidget {
   const PurchaseBillListScreen({
     this.embedded = false,
     this.belowTitle,
+    this.onEmptyCreateVisible,
     super.key,
   });
 
@@ -103,6 +104,7 @@ class PurchaseBillListScreen extends StatefulWidget {
 
   final bool embedded;
   final Widget? belowTitle;
+  final ValueChanged<bool>? onEmptyCreateVisible;
 
   @override
   State<PurchaseBillListScreen> createState() => _PurchaseBillListScreenState();
@@ -111,6 +113,15 @@ class PurchaseBillListScreen extends StatefulWidget {
 class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
   String query = '';
   String filter = 'all';
+  bool? _lastEmptyCreate;
+
+  void _reportEmptyCreate(bool visible) {
+    if (_lastEmptyCreate == visible) return;
+    _lastEmptyCreate = visible;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.onEmptyCreateVisible?.call(visible);
+    });
+  }
 
   @override
   void initState() {
@@ -146,7 +157,8 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
             final visible = filter == 'all'
                 ? bills
                 : bills.where((bill) => bill.status == filter).toList();
-            final searching = query.isNotEmpty || filter != 'all';
+            final searching = query.isNotEmpty;
+            _reportEmptyCreate(visible.isEmpty && !searching);
             return Column(
               children: [
                 if (dashboard.data != null)
@@ -218,23 +230,15 @@ class _PurchaseBillListScreenState extends State<PurchaseBillListScreen> {
                       ])
                         Padding(
                           padding: const EdgeInsets.only(right: 6),
-                          child: AppFilterChip(
+                          child: documentsStatusChip(
                             label: option.$2,
+                            status: option.$1,
                             selected: filter == option.$1,
-                            dense: true,
-                            selectedColor: appFilterSelectedColor(option.$1),
-                            idleFill: Colors.white,
                             count: option.$1 == 'all'
                                 ? bills.length
                                 : bills
                                       .where((bill) => bill.status == option.$1)
                                       .length,
-                            countFill: option.$1 == 'overdue'
-                                ? const Color(0xFFFFE4E6)
-                                : null,
-                            countColor: option.$1 == 'overdue'
-                                ? const Color(0xFFE11D48)
-                                : null,
                             onSelected: (_) =>
                                 setState(() => filter = option.$1),
                           ),
