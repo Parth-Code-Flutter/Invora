@@ -42,6 +42,17 @@ void main() {
     expect(find.byIcon(Symbols.package_2_rounded), findsOneWidget);
     expect(find.byIcon(Symbols.groups_rounded), findsOneWidget);
     expect(find.byIcon(Symbols.apps_rounded), findsOneWidget);
+    expect(
+      tester.getRect(find.byIcon(Symbols.home_rounded)).center.dy,
+      closeTo(
+        tester.getRect(find.byIcon(Symbols.receipt_long_rounded)).center.dy,
+        1,
+      ),
+    );
+    expect(
+      tester.getRect(find.byIcon(Symbols.package_2_rounded)).center.dy,
+      closeTo(tester.getRect(find.byIcon(Symbols.groups_rounded)).center.dy, 1),
+    );
     expect(find.byIcon(Symbols.add_rounded), findsNothing);
     expect(find.text('Create'), findsNothing);
     expect(find.text('Create new'), findsNothing);

@@ -62,9 +62,7 @@ const _dockItems = <_DockItem>[
   ),
 ];
 
-const _dockHeight = 52.0;
-const _indicatorWidth = 14.0;
-const _indicatorHeight = 3.0;
+const _dockHeight = 56.0;
 
 class AppMainNavigation extends StatelessWidget {
   const AppMainNavigation({required this.current, super.key});
@@ -74,7 +72,6 @@ class AppMainNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final ios = Theme.of(context).platform == TargetPlatform.iOS;
-    final selectedIndex = MainDestination.values.indexOf(current);
     final radius = ios ? 28.0 : 22.0;
     return SafeArea(
       top: false,
@@ -114,48 +111,14 @@ class AppMainNavigation extends StatelessWidget {
                     : Color.fromRGBO(255, 255, 255, ios ? 0.72 : 0.90),
                 child: SizedBox(
                   height: _dockHeight,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final tabWidth = constraints.maxWidth / _dockItems.length;
-                      return Stack(
-                        children: [
-                          AnimatedPositioned(
-                            duration: const Duration(milliseconds: 420),
-                            curve: Curves.easeOutCubic,
-                            left:
-                                tabWidth * selectedIndex +
-                                (tabWidth - _indicatorWidth) / 2,
-                            bottom: 8,
-                            width: _indicatorWidth,
-                            height: _indicatorHeight,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: AppColors.primary,
-                                borderRadius: BorderRadius.circular(99),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primary.withValues(
-                                      alpha: 0.45,
-                                    ),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 1),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              for (final item in _dockItems)
-                                _DockTab(
-                                  item: item,
-                                  selected: current == item.destination,
-                                ),
-                            ],
-                          ),
-                        ],
-                      );
-                    },
+                  child: Row(
+                    children: [
+                      for (final item in _dockItems)
+                        _DockTab(
+                          item: item,
+                          selected: current == item.destination,
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -167,76 +130,24 @@ class AppMainNavigation extends StatelessWidget {
   }
 }
 
-class _DockTab extends StatefulWidget {
+class _DockTab extends StatelessWidget {
   const _DockTab({required this.item, required this.selected});
 
   final _DockItem item;
   final bool selected;
 
-  @override
-  State<_DockTab> createState() => _DockTabState();
-}
-
-class _DockTabState extends State<_DockTab>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _bounce;
-  late final Animation<double> _scale;
-
-  @override
-  void initState() {
-    super.initState();
-    _bounce = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 380),
-    );
-    _scale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 1,
-          end: 1.12,
-        ).chain(CurveTween(curve: Curves.easeOut)),
-        weight: 35,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(
-          begin: 1.12,
-          end: 1,
-        ).chain(CurveTween(curve: Curves.easeOutBack)),
-        weight: 65,
-      ),
-    ]).animate(_bounce);
-    if (widget.selected) _bounce.value = 1;
-  }
-
-  @override
-  void didUpdateWidget(_DockTab oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.selected && !oldWidget.selected) {
-      _bounce.forward(from: 0);
-    } else if (!widget.selected && oldWidget.selected) {
-      _bounce.value = 0;
-    }
-  }
-
-  @override
-  void dispose() {
-    _bounce.dispose();
-    super.dispose();
-  }
-
-  void _select() {
+  void _select(BuildContext context) {
     final ios = Theme.of(context).platform == TargetPlatform.iOS;
     if (ios) {
       HapticFeedback.selectionClick();
     } else {
       HapticFeedback.lightImpact();
     }
-    _openDestination(widget.item.route);
+    _openDestination(item.route);
   }
 
   @override
   Widget build(BuildContext context) {
-    final selected = widget.selected;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final idleColor = isDark
         ? AppColors.darkTextSecondary.withValues(alpha: 0.72)
@@ -246,29 +157,39 @@ class _DockTabState extends State<_DockTab>
       child: Semantics(
         button: true,
         selected: selected,
-        label: widget.item.label,
+        label: item.label,
         excludeSemantics: true,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: selected ? null : _select,
-          child: Center(
-            child: ScaleTransition(
-              scale: _scale,
-              child: TweenAnimationBuilder<double>(
+          onTap: selected ? null : () => _select(context),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: selected ? 1 : 0),
-                duration: const Duration(milliseconds: 240),
+                duration: const Duration(milliseconds: 200),
                 curve: Curves.easeOutCubic,
                 builder: (context, fill, _) => Icon(
-                  widget.item.icon,
-                  size: 28,
+                  item.icon,
+                  size: 24,
                   color: Color.lerp(idleColor, activeColor, fill),
                   fill: fill,
-                  weight: 400 + (300 * fill),
-                  opticalSize: 28,
-                  grade: 25 * fill,
+                  weight: 400,
+                  opticalSize: 24,
                 ),
               ),
-            ),
+              const SizedBox(height: 5),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                width: selected ? 12 : 4,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: selected ? AppColors.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
+            ],
           ),
         ),
       ),

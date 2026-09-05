@@ -6,10 +6,14 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/routes/shell_args.dart';
+import '../../../app/widgets/app_list_create_fab.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_pair_tabs.dart';
 import '../../../app/widgets/app_shell.dart';
+import '../../../data/models/purchase_models.dart';
+import '../../../data/repositories/purchase_repository.dart';
 import '../../../data/services/app_storage.dart';
+import '../../customers/controllers/customer_list_controller.dart';
 import '../../customers/screens/customer_list_screen.dart';
 import '../../purchases/screens/purchase_screens.dart';
 
@@ -73,40 +77,60 @@ class _PartiesScreenState extends State<PartiesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AppShell(
-      destination: MainDestination.parties,
-      floatingActionButton: FloatingActionButton(
-        tooltip: l10n(_index == 0 ? 'Add customer' : 'Add supplier'),
-        onPressed: () => Get.toNamed<void>(
-          _index == 0 ? AppRoutes.customerAdd : AppRoutes.supplierAdd,
-        ),
-        child: const Icon(Icons.add_rounded),
-      ),
-      body: SafeArea(
-        bottom: false,
-        child: AppSwipeTabs(
-          index: _index,
-          length: 2,
-          onChanged: _select,
-          child: IndexedStack(
-            index: _index,
-            children: [
-              AppKeepAlive(
-                child: CustomerListScreen(
-                  embedded: true,
-                  belowTitle: _pairTabs,
+    final customers = Get.isRegistered<CustomerListController>()
+        ? Get.find<CustomerListController>()
+        : null;
+    final suppliers = Get.isRegistered<PurchaseRepository>()
+        ? Get.find<PurchaseRepository>().watchSuppliers()
+        : const Stream<List<SupplierModel>>.empty();
+    return StreamBuilder<List<SupplierModel>>(
+      stream: suppliers,
+      builder: (context, snapshot) {
+        return Obx(() {
+          final hideCustomers =
+              customers == null ||
+              customers.isLoading.value ||
+              (customers.customers.isEmpty &&
+                  customers.searchQuery.value.isEmpty);
+          final hideSuppliers = (snapshot.data ?? const []).isEmpty;
+          final hide = _index == 0 ? hideCustomers : hideSuppliers;
+          return AppShell(
+            destination: MainDestination.parties,
+            floatingActionButton: appListCreateFab(
+              emptyCreateVisible: hide,
+              tooltip: l10n(_index == 0 ? 'Add customer' : 'Add supplier'),
+              onPressed: () => Get.toNamed<void>(
+                _index == 0 ? AppRoutes.customerAdd : AppRoutes.supplierAdd,
+              ),
+            ),
+            body: SafeArea(
+              bottom: false,
+              child: AppSwipeTabs(
+                index: _index,
+                length: 2,
+                onChanged: _select,
+                child: IndexedStack(
+                  index: _index,
+                  children: [
+                    AppKeepAlive(
+                      child: CustomerListScreen(
+                        embedded: true,
+                        belowTitle: _pairTabs,
+                      ),
+                    ),
+                    AppKeepAlive(
+                      child: SupplierListScreen(
+                        embedded: true,
+                        belowTitle: _pairTabs,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              AppKeepAlive(
-                child: SupplierListScreen(
-                  embedded: true,
-                  belowTitle: _pairTabs,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        });
+      },
     );
   }
 }

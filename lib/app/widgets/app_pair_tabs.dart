@@ -5,6 +5,21 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_colors.dart';
 import '../themes/app_text_styles.dart';
+import '../utils/responsive_utils.dart';
+
+const _tabLabelStrut = StrutStyle(
+  fontSize: 13,
+  height: 1,
+  leading: 0,
+  forceStrutHeight: true,
+);
+
+const _countStrut = StrutStyle(
+  fontSize: 10,
+  height: 1,
+  leading: 0,
+  forceStrutHeight: true,
+);
 
 /// Segmented tabs for Sales | Purchases, Customers | Suppliers,
 /// and catalog All | Products | Services.
@@ -15,6 +30,7 @@ class AppSegmentTabs extends StatelessWidget {
     required this.onChanged,
     this.counts,
     this.icons,
+    this.padding,
     super.key,
   }) : assert(labels.length > 1),
        assert(counts == null || counts.length == labels.length),
@@ -25,35 +41,38 @@ class AppSegmentTabs extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final List<int>? counts;
   final List<IconData>? icons;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final track = isDark ? AppColors.darkSurface : const Color(0xFFFFF8F4);
-    final idle = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
-    final selected = isDark ? AppColors.primary : AppColors.secondary;
+    final track = isDark
+        ? AppColors.darkSurfaceVariant
+        : AppColors.surfaceMuted;
+    final pill = isDark ? AppColors.darkSurface : Colors.white;
+    final idle = isDark ? AppColors.darkTextSecondary : AppColors.textTertiary;
+    final selectedColor = isDark ? AppColors.primary : AppColors.secondary;
+    final hPad = ResponsiveUtils.horizontalPadding(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 2, 16, 10),
+      padding: padding ?? EdgeInsets.fromLTRB(hPad, 2, hPad, 8),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: track,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isDark ? AppColors.darkBorder : AppColors.border,
-          ),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Padding(
           padding: const EdgeInsets.all(4),
           child: SizedBox(
-            height: 42,
+            height: 36,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final tabWidth = constraints.maxWidth / labels.length;
+                final showIcons = icons != null && tabWidth >= 108;
                 return Stack(
                   children: [
                     AnimatedPositioned(
                       key: const ValueKey('app-segment-indicator'),
-                      duration: const Duration(milliseconds: 260),
+                      duration: const Duration(milliseconds: 220),
                       curve: Curves.easeOutCubic,
                       left: tabWidth * index,
                       top: 0,
@@ -61,126 +80,123 @@ class AppSegmentTabs extends StatelessWidget {
                       width: tabWidth,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primary, AppColors.secondary],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.5),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: track,
-                              borderRadius: BorderRadius.circular(12.5),
+                          color: pill,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(isDark ? 0x40000000 : 0x14321D30),
+                              blurRadius: 6,
+                              offset: const Offset(0, 1),
                             ),
-                            child: const SizedBox.expand(),
-                          ),
+                          ],
                         ),
                       ),
                     ),
-                    Row(
-                      children: [
-                        for (var i = 0; i < labels.length; i++)
-                          Expanded(
-                            child: Semantics(
-                              button: true,
-                              selected: i == index,
-                              label: counts != null
-                                  ? '${labels[i]}, ${counts![i]}'
-                                  : labels[i],
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(14),
-                                onTap: i == index
-                                    ? null
-                                    : () {
-                                        HapticFeedback.selectionClick();
-                                        onChanged(i);
-                                      },
-                                child: AnimatedScale(
-                                  duration: const Duration(milliseconds: 220),
-                                  curve: Curves.easeOutCubic,
-                                  scale: i == index ? 1 : .97,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      if (icons != null) ...[
-                                        Icon(
-                                          icons![i],
-                                          size: 17,
-                                          color: i == index ? selected : idle,
-                                        ),
-                                        const SizedBox(width: 6),
-                                      ],
-                                      Flexible(
-                                        child: AnimatedDefaultTextStyle(
-                                          duration: const Duration(
-                                            milliseconds: 180,
-                                          ),
-                                          style: AppTextStyles.caption.copyWith(
-                                            fontSize: 12.5,
-                                            height: 1,
-                                            fontWeight: FontWeight.w700,
-                                            color: i == index ? selected : idle,
-                                          ),
-                                          child: Text(
-                                            labels[i],
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
+                    Positioned.fill(
+                      child: Row(
+                        children: [
+                          for (var i = 0; i < labels.length; i++)
+                            Expanded(
+                              child: Semantics(
+                                button: true,
+                                selected: i == index,
+                                label: counts != null
+                                    ? '${labels[i]}, ${counts![i]}'
+                                    : labels[i],
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: i == index
+                                      ? null
+                                      : () {
+                                          HapticFeedback.selectionClick();
+                                          onChanged(i);
+                                        },
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
                                       ),
-                                      if (counts != null && counts![i] > 0) ...[
-                                        const SizedBox(width: 5),
-                                        AnimatedContainer(
-                                          duration: const Duration(
-                                            milliseconds: 180,
-                                          ),
-                                          constraints: const BoxConstraints(
-                                            minWidth: 18,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 5,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.transparent,
-                                            borderRadius: BorderRadius.circular(
-                                              99,
-                                            ),
-                                            border: Border.all(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          if (showIcons) ...[
+                                            Icon(
+                                              icons![i],
+                                              size: 16,
                                               color: i == index
-                                                  ? selected.withValues(
-                                                      alpha: .45,
-                                                    )
-                                                  : (isDark
-                                                        ? AppColors.darkBorder
-                                                        : AppColors.border),
+                                                  ? selectedColor
+                                                  : idle,
+                                            ),
+                                            const SizedBox(width: 6),
+                                          ],
+                                          Flexible(
+                                            child: Text(
+                                              labels[i],
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              strutStyle: _tabLabelStrut,
+                                              style: AppTextStyles.caption
+                                                  .copyWith(
+                                                    fontSize: 13,
+                                                    height: 1,
+                                                    fontWeight: i == index
+                                                        ? FontWeight.w800
+                                                        : FontWeight.w600,
+                                                    color: i == index
+                                                        ? selectedColor
+                                                        : idle,
+                                                  ),
                                             ),
                                           ),
-                                          child: Text(
-                                            '${counts![i]}',
-                                            textAlign: TextAlign.center,
-                                            style: AppTextStyles.caption
-                                                .copyWith(
-                                                  fontSize: 10,
-                                                  height: 1.2,
-                                                  fontWeight: FontWeight.w800,
-                                                  color: i == index
-                                                      ? selected
-                                                      : idle,
+                                          if (counts != null &&
+                                              counts![i] > 0) ...[
+                                            const SizedBox(width: 6),
+                                            DecoratedBox(
+                                              decoration: BoxDecoration(
+                                                color: i == index
+                                                    ? selectedColor
+                                                    : (isDark
+                                                          ? AppColors
+                                                                .darkSurface
+                                                          : Colors.white),
+                                                borderRadius:
+                                                    BorderRadius.circular(99),
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 3,
+                                                    ),
+                                                child: Text(
+                                                  '${counts![i]}',
+                                                  textAlign: TextAlign.center,
+                                                  strutStyle: _countStrut,
+                                                  style: AppTextStyles.caption
+                                                      .copyWith(
+                                                        fontSize: 10,
+                                                        height: 1,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: i == index
+                                                            ? Colors.white
+                                                            : selectedColor,
+                                                      ),
                                                 ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 );

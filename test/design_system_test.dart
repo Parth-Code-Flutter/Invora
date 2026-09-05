@@ -17,6 +17,8 @@ import 'package:creovo_invoice/app/widgets/app_status_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_text_field.dart';
 import 'package:creovo_invoice/app/widgets/app_empty_state.dart';
 
+void _ignoreTab(int _) {}
+
 void main() {
   test('design system uses the bundled Plus Jakarta Sans family', () {
     expect(AppTextStyles.fontFamily, 'Plus Jakarta Sans');
@@ -79,15 +81,61 @@ void main() {
     );
     final decoration =
         (indicator.child as DecoratedBox).decoration as BoxDecoration;
-    expect(decoration.gradient, isA<LinearGradient>());
-    expect(decoration.color, isNull);
-    expect((indicator.child as DecoratedBox).child, isA<Padding>());
+    expect(decoration.gradient, isNull);
+    expect(decoration.color, Colors.white);
+    expect(decoration.boxShadow, isNotEmpty);
     expect(find.byIcon(Icons.receipt_long_outlined), findsOneWidget);
     expect(find.byIcon(Icons.shopping_bag_outlined), findsOneWidget);
+
+    final pillRect = tester.getRect(
+      find.byKey(const ValueKey('app-segment-indicator')),
+    );
+    expect(
+      tester.getRect(find.text('Sales')).center.dy,
+      closeTo(pillRect.center.dy, 1.5),
+    );
+    expect(
+      tester.getRect(find.byIcon(Icons.receipt_long_outlined)).center.dy,
+      closeTo(pillRect.center.dy, 2),
+    );
 
     await tester.tap(find.text('Purchases'));
     await tester.pumpAndSettle();
     expect(selected, 1);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('catalog segment tabs stay readable on a narrow phone', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: AppSegmentTabs(
+            labels: const ['All', 'Products', 'Services'],
+            icons: const [
+              Icons.grid_view_rounded,
+              Icons.inventory_2_outlined,
+              Icons.design_services_outlined,
+            ],
+            counts: const [12, 8, 4],
+            index: 0,
+            onChanged: _ignoreTab,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('All'), findsOneWidget);
+    expect(find.text('Products'), findsOneWidget);
+    expect(find.text('Services'), findsOneWidget);
+    expect(find.text('12'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -343,6 +391,30 @@ void main() {
         isSelected: true,
       ),
     );
+  });
+
+  testWidgets('filter chip label and count share a midline', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: Center(
+            child: AppFilterChip(
+              label: 'All',
+              count: 0,
+              selected: true,
+              onSelected: (_) {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.getRect(find.text('All')).center.dy,
+      closeTo(tester.getRect(find.text('0')).center.dy, 1.5),
+    );
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('AppBar search expands, updates, and clears the query', (

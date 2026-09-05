@@ -198,7 +198,7 @@ stores.
   sheet. Documents shows Invoices or Purchase bills first, then Sales |
   Purchases as a cream segmented control with a sliding white pill (swipe
   the page to switch), wrapping the existing lists, with a FAB for invoice
-  or purchase bill. Parties and the catalog type filter use the same
+  or purchase bill when the empty-state Create button is not on screen. Parties and the catalog type filter use the same
   control. Parties shows Customers or Suppliers first, then Customers |
   Suppliers tabs with the same swipe, with a FAB for customer or supplier. The
   shared tab control is a compact cream track with a sliding white pill. Icons
@@ -974,6 +974,16 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-05 — List FAB and tab baseline polish
+
+- Documents, Parties, Products, and Expenses show a create FAB only when
+  the empty-state Create/Add button is not on screen. Dock icons, pair
+  tabs, and filter chips share one visual baseline.
+- Important files: `app_list_create_fab.dart`, `app_main_navigation.dart`,
+  `app_pair_tabs.dart`, `app_filter_chip.dart`, list screens, this handoff.
+- Storage: none new.
+- Verification: design-system and main-navigation widget tests.
 
 ### 2026-09-05 — Figma Your plan management page
 

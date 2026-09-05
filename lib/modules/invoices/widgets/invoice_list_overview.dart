@@ -161,10 +161,12 @@ class _MetricView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               width: 25,
               height: 25,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: metric.color.withValues(alpha: 0.11),
                 borderRadius: BorderRadius.circular(8),

@@ -6,9 +6,12 @@ import 'package:get/get.dart';
 import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/routes/shell_args.dart';
+import '../../../app/widgets/app_list_create_fab.dart';
 import '../../../app/widgets/app_main_navigation.dart';
 import '../../../app/widgets/app_pair_tabs.dart';
 import '../../../app/widgets/app_shell.dart';
+import '../../../data/models/purchase_models.dart';
+import '../../../data/repositories/purchase_repository.dart';
 import '../../../data/services/app_storage.dart';
 import '../../../data/models/invoice_model.dart';
 import '../../invoices/controllers/invoice_list_controller.dart';
@@ -88,37 +91,65 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AppShell(
-      destination: MainDestination.documents,
-      floatingActionButton: FloatingActionButton(
-        tooltip: l10n(_index == 0 ? 'Create invoice' : 'Create purchase bill'),
-        onPressed: () => Get.toNamed<void>(
-          _index == 0 ? AppRoutes.invoiceCreate : AppRoutes.purchaseBillCreate,
-        ),
-        child: const Icon(Icons.add_rounded),
-      ),
-      body: SafeArea(
-        bottom: false,
-        child: AppSwipeTabs(
-          index: _index,
-          length: 2,
-          onChanged: _select,
-          child: IndexedStack(
-            index: _index,
-            children: [
-              AppKeepAlive(
-                child: InvoiceListScreen(embedded: true, belowTitle: _pairTabs),
+    final invoices = Get.isRegistered<InvoiceListController>()
+        ? Get.find<InvoiceListController>()
+        : null;
+    final bills = Get.isRegistered<PurchaseRepository>()
+        ? Get.find<PurchaseRepository>().watchBills()
+        : const Stream<List<PurchaseBillSummary>>.empty();
+    return StreamBuilder<List<PurchaseBillSummary>>(
+      stream: bills,
+      builder: (context, snapshot) {
+        return Obx(() {
+          final hideSales =
+              invoices == null ||
+              invoices.isLoading.value ||
+              (invoices.invoices.isEmpty &&
+                  invoices.searchQuery.value.isEmpty &&
+                  invoices.selectedFilter.value == InvoiceListFilter.all);
+          final hidePurchases = (snapshot.data ?? const []).isEmpty;
+          final hide = _index == 0 ? hideSales : hidePurchases;
+          return AppShell(
+            destination: MainDestination.documents,
+            floatingActionButton: appListCreateFab(
+              emptyCreateVisible: hide,
+              tooltip: l10n(
+                _index == 0 ? 'Create invoice' : 'Create purchase bill',
               ),
-              AppKeepAlive(
-                child: PurchaseBillListScreen(
-                  embedded: true,
-                  belowTitle: _pairTabs,
+              onPressed: () => Get.toNamed<void>(
+                _index == 0
+                    ? AppRoutes.invoiceCreate
+                    : AppRoutes.purchaseBillCreate,
+              ),
+            ),
+            body: SafeArea(
+              bottom: false,
+              child: AppSwipeTabs(
+                index: _index,
+                length: 2,
+                onChanged: _select,
+                child: IndexedStack(
+                  index: _index,
+                  children: [
+                    AppKeepAlive(
+                      child: InvoiceListScreen(
+                        embedded: true,
+                        belowTitle: _pairTabs,
+                      ),
+                    ),
+                    AppKeepAlive(
+                      child: PurchaseBillListScreen(
+                        embedded: true,
+                        belowTitle: _pairTabs,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        });
+      },
     );
   }
 }

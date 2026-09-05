@@ -52,37 +52,29 @@ class ProductListScreen extends GetView<ProductListController> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              ResponsiveUtils.horizontalPadding(context),
-              10,
-              ResponsiveUtils.horizontalPadding(context),
-              8,
-            ),
-            child: Obx(
-              () => AppSegmentTabs(
-                labels: const ['All', 'Products', 'Services'],
-                icons: const [
-                  Icons.grid_view_rounded,
-                  Icons.inventory_2_outlined,
-                  Icons.design_services_outlined,
-                ],
-                counts: [
-                  controller.countFor(null),
-                  controller.countFor(ItemType.product),
-                  controller.countFor(ItemType.service),
-                ],
-                index: switch (controller.selectedType.value) {
-                  null => 0,
-                  ItemType.product => 1,
-                  ItemType.service => 2,
-                },
-                onChanged: (index) => controller.selectType(switch (index) {
-                  1 => ItemType.product,
-                  2 => ItemType.service,
-                  _ => null,
-                }),
-              ),
+          Obx(
+            () => AppSegmentTabs(
+              labels: const ['All', 'Products', 'Services'],
+              icons: const [
+                Icons.grid_view_rounded,
+                Icons.inventory_2_outlined,
+                Icons.design_services_outlined,
+              ],
+              counts: [
+                controller.countFor(null),
+                controller.countFor(ItemType.product),
+                controller.countFor(ItemType.service),
+              ],
+              index: switch (controller.selectedType.value) {
+                null => 0,
+                ItemType.product => 1,
+                ItemType.service => 2,
+              },
+              onChanged: (index) => controller.selectType(switch (index) {
+                1 => ItemType.product,
+                2 => ItemType.service,
+                _ => null,
+              }),
             ),
           ),
           Expanded(

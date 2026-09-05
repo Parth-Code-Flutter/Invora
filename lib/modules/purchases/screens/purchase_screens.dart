@@ -2821,15 +2821,17 @@ class PurchaseOverviewCard extends StatelessWidget {
                       onTap: metrics[i].onTap,
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 6),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Container(
                                   width: 25,
                                   height: 25,
+                                  alignment: Alignment.center,
                                   decoration: BoxDecoration(
                                     color: metrics[i].color.withValues(
                                       alpha: 0.11,

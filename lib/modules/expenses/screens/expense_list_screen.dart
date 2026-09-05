@@ -17,6 +17,7 @@ import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
+import '../../../app/widgets/app_list_create_fab.dart';
 import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
@@ -28,26 +29,26 @@ class ExpenseListScreen extends GetView<ExpenseListController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const AppBackButton(),
-        title: const AppBarTitle('Expenses'),
-        actions: [
-          AppBarIconButton(
-            tooltip: l10n('Add expense'),
-            onPressed: controller.openCreate,
-            icon: Icons.add_rounded,
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: controller.openCreate,
-        child: const Icon(Icons.add_rounded),
-      ),
-      body: Obx(() {
-        final rows = controller.visible;
-        final symbol = '₹';
-        return ResponsiveContent(
+    return Obx(() {
+      final rows = controller.visible;
+      return Scaffold(
+        appBar: AppBar(
+          leading: const AppBackButton(),
+          title: const AppBarTitle('Expenses'),
+          actions: [
+            AppBarIconButton(
+              tooltip: l10n('Add expense'),
+              onPressed: controller.openCreate,
+              icon: Icons.add_rounded,
+            ),
+          ],
+        ),
+        floatingActionButton: appListCreateFab(
+          emptyCreateVisible: rows.isEmpty,
+          tooltip: l10n('Add expense'),
+          onPressed: controller.openCreate,
+        ),
+        body: ResponsiveContent(
           tabletMaxWidth: 720,
           child: CustomScrollView(
             slivers: [
@@ -82,7 +83,7 @@ class ExpenseListScreen extends GetView<ExpenseListController> {
                           ),
                           AppAmountText(
                             amountMinor: controller.monthTotalMinor,
-                            symbol: symbol,
+                            symbol: '₹',
                             textAlign: TextAlign.end,
                           ),
                         ],
@@ -123,16 +124,16 @@ class ExpenseListScreen extends GetView<ExpenseListController> {
                           rows.length,
                         ),
                         onTap: () => controller.openDetails(item),
-                        child: _ExpenseRow(item: item, symbol: symbol),
+                        child: _ExpenseRow(item: item, symbol: '₹'),
                       );
                     }, childCount: rows.length),
                   ),
                 ),
             ],
           ),
-        );
-      }),
-    );
+        ),
+      );
+    });
   }
 }
 
