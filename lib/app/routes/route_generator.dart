@@ -2,6 +2,10 @@ import 'package:get/get.dart';
 
 import '../../modules/account/bindings/account_otp_binding.dart';
 import '../../modules/account/screens/account_otp_screen.dart';
+import '../../modules/account/bindings/subscription_gate_binding.dart';
+import '../../modules/account/screens/subscription_gate_screen.dart';
+import '../../modules/account/bindings/plan_binding.dart';
+import '../../modules/account/screens/plan_screen.dart';
 import '../../modules/splash/screens/splash_screen.dart';
 import '../../modules/splash/bindings/splash_binding.dart';
 import '../../modules/onboarding/bindings/onboarding_binding.dart';
@@ -90,6 +94,12 @@ abstract final class AppRouter {
       page: AccountOtpScreen.new,
       binding: AccountOtpBinding(),
     ),
+    GetPage(
+      name: AppRoutes.subscription,
+      page: SubscriptionGateScreen.new,
+      binding: SubscriptionGateBinding(),
+    ),
+    GetPage(name: AppRoutes.plan, page: PlanScreen.new, binding: PlanBinding()),
     GetPage(
       name: AppRoutes.onboarding,
       page: OnboardingScreen.new,

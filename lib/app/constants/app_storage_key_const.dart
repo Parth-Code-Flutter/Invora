@@ -31,4 +31,25 @@ abstract final class AppStorageKeyConst {
   static const appLockPinSalt = 'app_lock_pin_salt';
   static const appLockBiometricEnabled = 'app_lock_biometric_enabled';
   static const ageingReminderEvents = 'ageing_reminder_events';
+  static const entitlementMobile = 'entitlement_mobile';
+  static const entitlementStatus = 'entitlement_status';
+  static const entitlementPlanId = 'entitlement_plan_id';
+  static const entitlementPlanTitle = 'entitlement_plan_title';
+  static const entitlementPlanPriceInr = 'entitlement_plan_price_inr';
+  static const entitlementPlanPeriod = 'entitlement_plan_period';
+  static const entitlementTrialEndsAtMs = 'entitlement_trial_ends_at_ms';
+  static const entitlementLastCheckedAtMs = 'entitlement_last_checked_at_ms';
+  static const entitlementLastSeenAtMs = 'entitlement_last_seen_at_ms';
+
+  static const entitlementCacheKeys = <String>{
+    entitlementMobile,
+    entitlementStatus,
+    entitlementPlanId,
+    entitlementPlanTitle,
+    entitlementPlanPriceInr,
+    entitlementPlanPeriod,
+    entitlementTrialEndsAtMs,
+    entitlementLastCheckedAtMs,
+    entitlementLastSeenAtMs,
+  };
 }

@@ -171,7 +171,12 @@ converted into a Pro license.
   (account mobile + trial/plan) and `plans` (price, trialDays). Invoice data
   is not stored there. Invoice mobile on the business profile is a separate
   local field. Splash blocks onboarding and shop setup until Phone Auth and
-  entitlement sync both succeed. Operator steps and the OTP screen live in
+  entitlement sync both succeed. After first sync, later launches re-read
+  `status` and `trialEndsAt` when online. The last-day-offline prompt and
+  expired-trial page live on `/subscription`. Plan cache uses `entitlement_*`
+  prefs that are not in the backup ZIP. App Store / Play Billing purchase
+  is still not wired; a console `status=paid` (admin) can unlock after
+  trial until IAP ships. Operator steps and the OTP screen live in
   [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) under Account identity.
 - If shops later ask for cloud bills: keep SQLite on device; do not put
   invoices in Firestore. Optional sync would be Postgres (Supabase), still

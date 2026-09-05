@@ -525,6 +525,9 @@ class BackupService {
         jsonDecode(utf8.decode(file.content as List<int>))
             as Map<String, dynamic>;
     for (final entry in values.entries) {
+      if (AppStorageKeyConst.entitlementCacheKeys.contains(entry.key)) {
+        continue;
+      }
       final value = entry.value;
       if (value is bool) await _storage.setBool(entry.key, value);
       if (value is int) await _storage.setInt(entry.key, value);

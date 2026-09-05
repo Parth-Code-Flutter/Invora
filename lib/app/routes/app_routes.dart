@@ -1,6 +1,7 @@
 abstract final class AppRoutes {
   static const splash = '/splash';
   static const accountOtp = '/account-otp';
+  static const subscription = '/subscription';
   static const onboarding = '/onboarding';
   static const businessSetup = '/business-setup';
   static const workspaceSetup = '/workspace-setup';
@@ -49,6 +50,7 @@ abstract final class AppRoutes {
   static const expenseDetails = '/expenses/details';
   static const settings = '/settings';
   static const about = '/settings/about';
+  static const plan = '/plan';
   static const invoiceDefaults = '/settings/invoice-defaults';
   static const dataExport = '/settings/data-export';
   static const dataImport = '/settings/data-import';

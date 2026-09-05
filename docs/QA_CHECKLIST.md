@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-09-03
+Last updated: 2026-09-05
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -8,10 +8,14 @@ remain intentionally out of scope until explicitly requested.
 
 ## Automated and passing
 
-- Documents, Parties, and catalog filters use the same icon-led branded tab
-  control. Its transparent selected tab has only a gradient outline and animates
-  without moving duplicate tab bars through each other; tap and horizontal swipe
-  preserve the active list state.
+- Documents, Parties, and catalog filters use the same cream segmented control
+  with a sliding white pill. Icon and label sit on the pill midline. Filter-chip
+  counts line up with their labels. Phone-dock icons share one baseline. Tap or
+  horizontal swipe preserves the active list state without a travelling tab bar.
+- Online splash re-reads Firestore `status` and `trialEndsAt`. An expired trial
+  opens Creovo Yearly as the selected plan with Subscribe. The last trial day
+  while offline asks to turn on internet. Entitlement prefs are not restored
+  from a backup ZIP.
 
 - Forward/proceed arrows in branded buttons appear after their text; semantic
   action icons remain before their text.
@@ -100,7 +104,9 @@ remain intentionally out of scope until explicitly requested.
   disable clears the fingerprint flag.
 - More tab feature search is an AppBar icon like Invoices; filters by
   name/alias; empty state when nothing matches. Business identity card shows
-  logo, name, contact, and GSTIN.
+  logo, name, contact, and GSTIN. A plan banner (trial days or Subscribed)
+  sits under the business card; Plan & billing in Preferences opens Your
+  plan. Search aliases include trial, yearly, billing, subscribe, and OTP.
 - Add item catalog form: optional photos (up to 3), compact row with preview
   and remove; classic grouped cards; schema 22 image paths; cover shows on
   catalog list/details. Barcode scan is on the SKU / Code field, not the AppBar.
@@ -158,6 +164,16 @@ remain intentionally out of scope until explicitly requested.
   and `plans/default`, Verify opens onboarding. Confirm Invoice mobile on
   business setup does not change the account number. Do not create
   `entitlements` in the console by hand.
+- Plan gate: with internet, an entitlement whose `trialEndsAt` is in the past
+  must open the Stitch yearly subscribe page (₹499, SAVE 50%, Refresh plan),
+  not Home. There is no close/Restore header. On the last trial date in
+  airplane mode, confirm Turn on internet and the warm splash illustration.
+  After reconnecting, either continue or show Creovo Yearly with Subscribe.
+  Restore a backup and confirm
+  the plan is still the Firestore/account one, not a value from the ZIP.
+  While the shop is open, More shows the plan banner; Plan & billing opens
+  Your plan (Figma layout: Creovo Yearly card, days remaining, privileges,
+  registered mobile, Refresh Plan). Expired accounts must not reach More.
 - Pick logo and payment QR images from Android and iOS libraries. Signature
   supports draw-on-pad, gallery, or camera.
 - Add item photos: save without photos; add a cover from gallery and up to two

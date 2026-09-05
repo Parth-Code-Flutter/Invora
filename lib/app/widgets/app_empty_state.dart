@@ -18,6 +18,7 @@ enum AppEmptyIllustration {
   store('assets/illustrations/empty_store.svg'),
   parcel('assets/illustrations/empty_parcel.svg'),
   coins('assets/illustrations/empty_coins.svg'),
+  subscribe('assets/illustrations/subscribe_plan.svg'),
   error('assets/illustrations/empty_error.svg');
 
   const AppEmptyIllustration(this.asset);

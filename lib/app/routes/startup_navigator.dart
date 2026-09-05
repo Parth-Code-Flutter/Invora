@@ -4,6 +4,7 @@ import '../../data/repositories/business_repository.dart';
 import '../../data/services/account_auth_service.dart';
 import '../../data/services/account_entitlement_service.dart';
 import '../../data/services/app_storage.dart';
+import '../../data/services/entitlement_policy.dart';
 import '../constants/app_storage_key_const.dart';
 import 'app_routes.dart';
 
@@ -20,7 +21,14 @@ abstract final class StartupNavigator {
     }
 
     try {
-      await Get.find<AccountEntitlementService>().syncAfterLogin(account);
+      final access = await Get.find<AccountEntitlementService>().resolve(
+        account,
+      );
+      if (access != EntitlementAccess.active) {
+        await delay;
+        Get.offAllNamed<void>(AppRoutes.subscription);
+        return;
+      }
     } on AccountAuthException {
       await delay;
       Get.offAllNamed<void>(AppRoutes.accountOtp);

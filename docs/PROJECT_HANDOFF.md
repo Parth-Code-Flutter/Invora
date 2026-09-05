@@ -76,11 +76,35 @@ SHA-256:
 
 **Gate**
 
-- Splash requires Phone Auth **and** a successful `syncAfterLogin`
-  (readable/create entitlement). A leftover Firebase user is not enough to
-  open onboarding or shop setup. If plan storage fails, stay on OTP; Verify
-  retries sync without a new SMS when the session already exists. Change
-  number signs out.
+- Splash requires Phone Auth **and** a successful plan check. First OTP
+  creates `entitlements/{91…}` when missing. Later launches **read that
+  document from the server** when the phone is online and honor
+  `status` + `trialEndsAt` (an existing row is no longer treated as
+  forever-valid). `paid` / `active` / `subscribed` / `pro` stay open after
+  the trial date. `trial` past `trialEndsAt` opens the subscription page.
+- Last calendar day of the trial while **offline**: blocking
+  `/subscription` screen asks to turn on internet and tap Try again.
+  Confirmed expiry (online or cached `trialEndsAt` already passed) shows
+  Creovo Yearly as the selected plan with Subscribe. Already subscribed?
+  Refresh plan re-fetches Firestore.
+- Last known plan is cached in SharedPreferences keys
+  `entitlement_*` and is **not** copied into backup ZIPs (same rule as
+  app-lock PIN). Returning to the app from background re-checks.
+  `SkipAccountAuthService` still skips this gate for widget tests.
+- The expired `/subscription` page follows the Stitch yearly offer:
+  `subscription_plan_header_img.svg` hero, Creovo Yearly at ₹499 (50% off
+  ₹999 when Firestore `priceInr` is 0), and Subscribe. There is no close
+  or Restore chrome; Refresh plan is under the CTA. Last-day offline
+  uses `creovo_warm_splash.png` and asks to turn on internet. Subscribe
+  still re-reads Firestore until store IAP ships.
+- While the shop is open, **More** shows a coral–plum plan banner (trial
+  days left or Subscribed) and Preferences → **Plan & billing** opens
+  `/plan`. That in-app page is not the expired paywall: it follows the
+  Figma Your plan frame (obsidian yearly card, validity bar, privileges
+  grid, registered mobile, Refresh Plan). Auto-renew, Transfer, and
+  WhatsApp helpdesk are visible but not connected until store IAP and a
+  support number ship. Search aliases include trial, yearly, billing,
+  subscribe, and OTP.
 
 **Firestore console (operator)**
 
@@ -166,8 +190,9 @@ stores.
   Parties · More** (still five items). The dock is a floating glass capsule
   with a 1px warm border (`AppColors.border` / `darkBorder`) and icon-only
   tabs (names stay on Semantics for VoiceOver / TalkBack; stronger blur on
-  iOS, denser fill on Android). The selected tab uses a filled coral icon,
-  a sliding underline, and no chip/background behind the icon. Dock glyphs
+  iOS, denser fill on Android). The selected tab uses a filled coral icon and
+  a reserved 3px underline under every icon so the five glyphs share one
+  baseline; there is no scale bounce and no chip behind the icon. Dock glyphs
   are Material Symbols (home, receipt, package, groups, apps). More list
   rows use the same icon set in coral, plum, teal, and amber wells. There is no center + or global create
   sheet. Documents shows Invoices or Purchase bills first, then Sales |
@@ -176,9 +201,11 @@ stores.
   or purchase bill. Parties and the catalog type filter use the same
   control. Parties shows Customers or Suppliers first, then Customers |
   Suppliers tabs with the same swipe, with a FAB for customer or supplier. The
-  shared tab control uses icons, a transparent selected tab with a coral-to-plum
-  outline, compact outlined count badges, haptics, and one anchored bar while content switches; the tab bar no
-  longer travels with a `PageView`. Products is a root catalog tab with its own add
+  shared tab control is a compact cream track with a sliding white pill. Icons
+  and labels sit on the pill midline; count badges and list filter chips share
+  that same baseline. Icons hide when a three-tab row is too narrow. Haptics
+  and one anchored bar stay while content switches; the tab bar no longer
+  travels with a `PageView`. Products is a root catalog tab with its own add
   FAB. Estimates, purchase orders, and other create flows stay on their
   screens and under More. Empty lists and search-miss states use peach
   line illustrations (`AppEmptyIllustration`) instead of a coral icon well:
@@ -841,6 +868,15 @@ As of 2026-09-04:
    Sales|Purchases and Customers|Suppliers tabs; list FABs create invoice,
    purchase bill, customer, supplier, and catalog items; Home To pay opens
    overdue bills; confirm no workspace switcher or center + remains.
+1b. Physical-device QA of plan gating (iOS first): with internet, confirm
+    splash reads `entitlements/{91…}` and an ended `trialEndsAt` opens
+    `/subscription` instead of Home. On the last trial date in airplane
+    mode, confirm the turn-on-internet screen and that Try again after
+    reconnecting either continues or shows the ended-trial page. Confirm a
+    backup restore does not copy a plan. App Store IAP is still not wired.
+    From More, confirm the plan banner and Plan & billing open Your plan
+    (Figma management layout: days remaining, privileges, registered
+    mobile, Refresh Plan) without leaving the shop.
 2. Purchase CSV export shipped 2026-08-28 with bulk import (`P0.2`):
    suppliers, purchase bills, and purchase payments from Export data, plus
    the all-CSV ZIP. Physical-device open-in-Excel checks remain.
@@ -938,6 +974,102 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-05 — Figma Your plan management page
+
+- In-app `/plan` now matches the Figma Your plan frame: custom header
+  with Help, obsidian Creovo Yearly card, validity progress, auto-renew
+  strip, 2×2 privileges, registered mobile, Refresh Plan, WhatsApp and
+  Manage Renewal. Icons are exported from that frame into
+  `assets/icons/plan/`. Auto-renew stays Off until store billing ships;
+  Transfer and WhatsApp explain that those actions are not live yet.
+  The validity box is laid out as even rows (label + license, days +
+  remaining, progress, renews + price) so those items share baselines.
+- Important files: `plan_screen.dart`, `entitlement_policy.dart`,
+  `assets/icons/plan/`, this handoff.
+- Storage: none new.
+- Verification: plan-page widget tests and license-progress unit test.
+
+### 2026-09-05 — Stitch yearly paywall
+
+- Expired trial now uses the Stitch subscribe layout: header SVG, ₹499
+  yearly card with 50% off, and a gradient Subscribe button. Close and
+  Restore chrome were removed; Refresh plan stays under the CTA. Last-day
+  offline keeps the connect prompt and uses the warm splash illustration.
+- Important files: `subscription_gate_screen.dart`,
+  `assets/images/subscription_plan_header_img.svg`,
+  `assets/images/creovo_warm_splash.png`, `entitlement_policy.dart`, this
+  handoff.
+- Storage: none new.
+- Verification: subscription-page widget tests and offer-price unit test.
+
+### 2026-09-05 — Plan status on More
+
+- Trial and yearly plan are visible before expiry: More shows a branded
+  status banner, and Preferences → Plan & billing opens Your plan (`/plan`)
+  with remaining days, Creovo Yearly, account mobile, and Refresh plan.
+  Expired users still cannot reach More; they stay on the subscribe
+  paywall.
+- Important files: `plan_screen.dart`, `more_screen.dart`,
+  `more_destinations.dart`, `entitlement_policy.dart`, this handoff.
+- Storage: none new (same `entitlement_*` cache, still excluded from ZIP).
+- Verification: More search/filter tests, plan-page widget test,
+  remaining-days subtitle unit test.
+
+### 2026-09-05 — Subscribe page shows the yearly plan
+
+- Expired trial now opens a shop-facing yearly offer instead of a
+  “Check subscription” placeholder. Firestore title `Default` displays as
+  **Creovo Yearly**. The selected plan card lists GST/offline benefits and
+  **Subscribe to Creovo Yearly**. Last-day offline still asks to connect.
+- Important files: `subscription_gate_screen.dart`, `subscribe_plan.svg`,
+  `entitlement_policy.dart`, this handoff.
+- Storage: none new.
+- Verification: subscription-page widget tests and display-title unit test.
+
+### 2026-09-05 — Enforce Firestore trial expiry
+
+- Splash and app-resume now re-read `entitlements/{91…}` when online instead
+  of treating an existing document as forever valid. `trial` past
+  `trialEndsAt` opens `/subscription`. The last local day of the trial while
+  offline asks the shopkeeper to turn on internet. `paid`/`active`/
+  `subscribed`/`pro` stay in the app after the trial date.
+- Last-known plan is stored in `entitlement_*` prefs and is skipped on
+  backup restore. App Store IAP is not in this change; a Firebase console
+  `status=paid` (admin) can unlock until store billing ships.
+- Important files: `account_entitlement_service.dart`, `entitlement_policy.dart`,
+  `subscription_gate_screen.dart`, `startup_navigator.dart`,
+  `entitlement_guard.dart`, this handoff.
+- Storage: SharedPreferences `entitlement_*` only; not in the ZIP whitelist.
+- Verification: entitlement policy tests, offline cache expiry test,
+  subscription-page widget tests, existing account OTP launch test.
+
+### 2026-09-04 — Center module tabs, chips, and dock icons
+
+- Sales | Purchases, Customers | Suppliers, and catalog tabs now fill the
+  track so icon, label, and the white pill share one midline. Filter chips
+  are a custom row (not ChoiceChip) so the count badge lines up with the
+  label. The phone dock gives every destination the same icon + underline
+  slot, so Invoices, Products, and Customers no longer sit higher or lower
+  than Home.
+- Important files: `app_pair_tabs.dart`, `app_filter_chip.dart`,
+  `app_main_navigation.dart`, invoice/purchase overview icon wells, tests,
+  this handoff.
+- Storage: none.
+- Verification: segment-tab midline test, filter-chip count test, dock
+  icon baseline test.
+
+### 2026-09-04 — Restore filled pills on module tabs
+
+- Replaced the hollow coral-to-plum outline on Sales | Purchases, Customers |
+  Suppliers, and All | Products | Services with a compact cream segmented
+  control and a sliding white pill. Selected labels use plum, counts are filled
+  badges, and icons hide on narrow three-tab rows so Products stays readable at
+  320px. Catalog no longer double-pads the same control.
+- Important files: `app_pair_tabs.dart`, `product_list_screen.dart`,
+  `design_system_test.dart`, this handoff.
+- Storage: none.
+- Verification: design-system segment-tab tests, including a 320px catalog row.
 
 ### 2026-09-04 — Peach empty-state illustrations
 

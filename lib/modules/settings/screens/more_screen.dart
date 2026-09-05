@@ -16,6 +16,8 @@ import '../../../app/widgets/app_search_app_bar.dart';
 import '../../../app/widgets/app_shell.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/business_profile_model.dart';
+import '../../../data/services/account_entitlement_service.dart';
+import '../../../data/services/entitlement_policy.dart';
 import '../controllers/more_controller.dart';
 import '../more_destinations.dart';
 
@@ -41,6 +43,14 @@ class MoreScreen extends GetView<MoreController> {
                 controller: controller,
                 profile: controller.profile.value,
               ),
+            ),
+            Obx(
+              () => controller.isSearching
+                  ? const SizedBox.shrink()
+                  : const Padding(
+                      padding: EdgeInsets.only(top: 14),
+                      child: _PlanBanner(),
+                    ),
             ),
             const SizedBox(height: 14),
             Obx(() {
@@ -317,6 +327,170 @@ class _PrivacyNote extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PlanBanner extends StatefulWidget {
+  const _PlanBanner();
+
+  @override
+  State<_PlanBanner> createState() => _PlanBannerState();
+}
+
+class _PlanBannerState extends State<_PlanBanner> {
+  EntitlementSnapshot? get _snapshot {
+    if (!Get.isRegistered<AccountEntitlementService>()) return null;
+    return Get.find<AccountEntitlementService>().lastSnapshot;
+  }
+
+  String get _title {
+    return _snapshot?.displayTitle ?? 'Creovo Yearly';
+  }
+
+  String get _subtitle {
+    final snapshot = _snapshot;
+    if (snapshot == null) {
+      return 'Trial, Creovo Yearly, and account mobile';
+    }
+    if (snapshot.isPaid || snapshot.isCancelled) {
+      return snapshot.moreSubtitle();
+    }
+    final days = snapshot.remainingDays();
+    if (days <= 0) return 'Trial ended';
+    if (days == 1) return 'Trial · 1 day left';
+    return '${l10n('Trial')} · ${l10n('$days days left')}';
+  }
+
+  String get _badge {
+    return _snapshot?.statusLabel ?? 'Trial';
+  }
+
+  Future<void> _open() async {
+    await Get.toNamed<void>(AppRoutes.plan);
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final days = _snapshot?.remainingDays() ?? 0;
+    final paid = _snapshot?.isPaid ?? false;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _open,
+        borderRadius: BorderRadius.circular(22),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColors.primary, AppColors.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.secondary.withValues(alpha: .22),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .16),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.workspace_premium_rounded,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: .16),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          _badge,
+                          style: AppTextStyles.caption.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        _title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.listName.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        _subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white.withValues(alpha: .92),
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!paid && days > 0) ...[
+                  const SizedBox(width: 8),
+                  Column(
+                    children: [
+                      Text(
+                        '$days',
+                        style: AppTextStyles.sectionTitle.copyWith(
+                          color: Colors.white,
+                          fontSize: 22,
+                        ),
+                      ),
+                      Text(
+                        days == 1 ? 'day' : 'days',
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white.withValues(alpha: .88),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.white.withValues(alpha: .9),
+                  size: 22,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

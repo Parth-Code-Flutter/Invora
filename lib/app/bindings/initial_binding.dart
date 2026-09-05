@@ -28,6 +28,7 @@ import '../../data/services/biometric_unlock.dart';
 import '../../data/services/business_workspace_service.dart';
 import '../../data/services/account_auth_service.dart';
 import '../../data/services/account_entitlement_service.dart';
+import '../../data/services/entitlement_guard.dart';
 import '../../data/repositories/business_repository.dart';
 import '../../data/repositories/customer_repository.dart';
 import '../../data/repositories/product_repository.dart';
@@ -61,9 +62,10 @@ class InitialBinding extends Bindings {
       permanent: true,
     );
     Get.put<AccountEntitlementService>(
-      AccountEntitlementService(),
+      AccountEntitlementService(storage: appStorage),
       permanent: true,
     );
+    Get.put<EntitlementGuard>(EntitlementGuard(), permanent: true);
     Get.put<BusinessWorkspaceService>(
       BusinessWorkspaceService(appStorage),
       permanent: true,

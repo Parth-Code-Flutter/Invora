@@ -35,6 +35,12 @@ void main() {
       final erase = filterMoreDestinations(query: 'erase', stockEnabled: false);
       expect(_titles(erase), ['Backup & restore']);
 
+      final plan = filterMoreDestinations(query: 'trial', stockEnabled: false);
+      expect(_titles(plan), ['Plan & billing']);
+
+      final yearly = filterMoreDestinations(query: 'plan', stockEnabled: false);
+      expect(_titles(yearly), ['Plan & billing']);
+
       final create = filterMoreDestinations(
         query: 'create & manage',
         stockEnabled: false,
@@ -83,6 +89,8 @@ void main() {
       expect(find.byTooltip('Search'), findsOneWidget);
       expect(find.text('Products & services'), findsOneWidget);
       expect(find.text('App settings'), findsOneWidget);
+      expect(find.text('Plan & billing'), findsOneWidget);
+      expect(find.text('Creovo Yearly'), findsOneWidget);
 
       await tester.tap(find.byTooltip('Search'));
       await tester.pumpAndSettle();
@@ -94,6 +102,8 @@ void main() {
       expect(find.text('GST / CA export'), findsOneWidget);
       expect(find.text('Products & services'), findsNothing);
       expect(find.text('App settings'), findsNothing);
+      expect(find.text('Plan & billing'), findsNothing);
+      expect(find.text('Creovo Yearly'), findsNothing);
       expect(
         find.text('Private by design. Your data stays on this device.'),
         findsNothing,
@@ -108,6 +118,8 @@ void main() {
 
       expect(find.text('Products & services'), findsOneWidget);
       expect(find.text('App settings'), findsOneWidget);
+      expect(find.text('Plan & billing'), findsOneWidget);
+      expect(find.text('Creovo Yearly'), findsOneWidget);
     });
   });
 }

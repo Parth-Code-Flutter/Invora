@@ -760,6 +760,135 @@ const Map<String, String> appHindiCoverageTranslations = {
       'बहुत कोशिशें हो गईं। एक मिनट बाद कोशिश करें।',
   'No internet. Connect once to verify this number.':
       'इंटरनेट नहीं है। इस नंबर को सत्यापित करने के लिए एक बार कनेक्ट करें।',
+  'Turn on internet': 'इंटरनेट चालू करें',
+  'Keep creating invoices': 'चालान बनाना जारी रखें',
+  'Today is the last day of your trial. Connect once to confirm your Creovo Yearly plan.':
+      'आज आपके ट्रायल का अंतिम दिन है। Creovo Yearly प्लान की पुष्टि के लिए एक बार कनेक्ट करें।',
+  'Your trial ended, but every bill stays on this phone. Subscribe to the yearly plan to keep GST invoicing going.':
+      'ट्रायल समाप्त हो गया, लेकिन हर बिल इस फ़ोन पर है। GST चालान जारी रखने के लिए वार्षिक प्लान लें।',
+  'Plan ends': 'प्लान समाप्त',
+  'Trial ended': 'ट्रायल समाप्त',
+  'Try again': 'फिर कोशिश करें',
+  'Turn on internet & continue': 'इंटरनेट चालू करें और आगे बढ़ें',
+  'Already subscribed? Refresh plan':
+      'पहले से सब्सक्राइब है? प्लान रिफ्रेश करें',
+  'Use a different number': 'दूसरा नंबर इस्तेमाल करें',
+  'One plan for your shop': 'आपकी दुकान के लिए एक प्लान',
+  'Selected plan': 'चयनित प्लान',
+  'Yearly': 'वार्षिक',
+  'Creovo Yearly': 'Creovo Yearly',
+  'One plan · billed each year': 'एक प्लान · हर साल बिल',
+  'One plan · billed each month': 'एक प्लान · हर महीने बिल',
+  'GST invoices, PDFs, and sharing': 'GST चालान, PDF और शेयर',
+  'Products, customers, and purchases': 'प्रोडक्ट, ग्राहक और खरीदारी',
+  'Works offline — bills stay on this phone':
+      'ऑफ़लाइन काम करता है — बिल इस फ़ोन पर रहते हैं',
+  'Subscribe to Creovo Yearly': 'Creovo Yearly लें',
+  'Keep creating GST invoices': 'GST चालान बनाते रहें',
+  'Your trial ended. Data stays on this phone.':
+      'ट्रायल समाप्त। डेटा इस फ़ोन पर है।',
+  'Your free trial ended, but your data is completely secure. Upgrade to yearly to resume billing without disruption.':
+      'मुफ़्त ट्रायल समाप्त, लेकिन आपका डेटा सुरक्षित है। बिलिंग जारी रखने के लिए वार्षिक प्लान लें।',
+  'Data 100% Safe': 'डेटा 100% सुरक्षित',
+  'SAVE 50% TODAY': 'आज 50% बचाएँ',
+  'Recommended': 'सुझाया गया',
+  'One plan for your entire business': 'पूरे व्यवसाय के लिए एक प्लान',
+  '/ year': '/ साल',
+  '50% OFF': '50% छूट',
+  'Billed annually': 'सालाना बिल',
+  'Just': 'केवल',
+  'month': 'महीना',
+  'Unlimited GST invoices & PDFs': 'असीमित GST चालान और PDF',
+  'Instant PDF download & WhatsApp 1-tap share.':
+      'तुरंत PDF डाउनलोड और WhatsApp पर एक टैप शेयर।',
+  'Products, stock, customers & khata': 'प्रोडक्ट, स्टॉक, ग्राहक और खाता',
+  'Low stock alerts and balances stay on this phone.':
+      'कम स्टॉक अलर्ट और बैलेंस इसी फ़ोन पर रहते हैं।',
+  'Works 100% offline — data stays on phone':
+      '100% ऑफ़लाइन — डेटा फ़ोन पर रहता है',
+  'Zero internet required. Safe, private, and local.':
+      'इंटरनेट की ज़रूरत नहीं। सुरक्षित, निजी और लोकल।',
+  'Payment reminders & WhatsApp share': 'पेमेंट रिमाइंडर और WhatsApp शेयर',
+  'Share a prepared reminder to collect faster.':
+      'जल्दी वसूली के लिए तैयार रिमाइंडर शेयर करें।',
+  '100% Safe UPI & Cards': 'UPI और कार्ड 100% सुरक्षित',
+  'Instant activation • No hidden charges • Cancel anytime':
+      'तुरंत सक्रिय • कोई छिपे शुल्क नहीं • कभी भी रद्द करें',
+  'Already subscribed?': 'पहले से सब्सक्राइब है?',
+  'Use a different phone number': 'दूसरा फ़ोन नंबर इस्तेमाल करें',
+  'Terms of Service  •  Privacy Policy  •  Support':
+      'सेवा की शर्तें  •  गोपनीयता नीति  •  सहायता',
+  'RESTORE': 'रिस्टोर',
+  'Your plan': 'आपका प्लान',
+  'Plan & billing': 'प्लान और बिलिंग',
+  'Trial, Creovo Yearly, and account mobile':
+      'ट्रायल, Creovo Yearly और खाता मोबाइल',
+  'Trial': 'ट्रायल',
+  'Subscribed': 'सब्सक्राइब',
+  'Ended': 'समाप्त',
+  'Plan ended': 'प्लान समाप्त',
+  'Trial · 1 day left': 'ट्रायल · 1 दिन बाकी',
+  '1 day left': '1 दिन बाकी',
+  'days left': 'दिन बाकी',
+  'day': 'दिन',
+  'You\'re on Creovo Yearly': 'आप Creovo Yearly पर हैं',
+  'Your shop is on a trial': 'आपकी दुकान ट्रायल पर है',
+  'GST invoicing stays unlocked for this account mobile.':
+      'इस खाता मोबाइल पर GST चालान खुला रहता है।',
+  'Every invoice stays on this phone. Subscribe when you\'re ready — one yearly plan.':
+      'हर चालान इस फ़ोन पर रहता है। तैयार हों तो वार्षिक प्लान लें — एक प्लान।',
+  'What you get': 'आपको क्या मिलता है',
+  'Account mobile': 'खाता मोबाइल',
+  'Verify a number to attach the plan':
+      'प्लान जोड़ने के लिए नंबर सत्यापित करें',
+  'Refresh plan': 'प्लान रिफ्रेश करें',
+  'Refresh Plan': 'प्लान रिफ्रेश करें',
+  'Subscription & Billing': 'सब्सक्रिप्शन और बिलिंग',
+  'Help': 'सहायता',
+  'All-in-one Business Suite': 'ऑल-इन-वन बिज़नेस सूट',
+  'ACTIVE': 'सक्रिय',
+  'ENDED': 'समाप्त',
+  'VALIDITY & STATUS': 'वैधता और स्थिति',
+  'Days Remaining': 'दिन बाकी',
+  'Yearly license': 'वार्षिक लाइसेंस',
+  'Active License': 'सक्रिय लाइसेंस',
+  'Trial License': 'ट्रायल लाइसेंस',
+  'Renews': 'नवीनीकरण',
+  'yearly': 'सालाना',
+  'Auto-Renewal is Off': 'ऑटो-रिन्यूअल बंद है',
+  'Play billing isn’t connected yet.': 'Play बिलिंग अभी जुड़ी नहीं है।',
+  'PLAN PRIVILEGES': 'प्लान सुविधाएँ',
+  'Included in Creovo Yearly': 'Creovo Yearly में शामिल',
+  'All Unlocked': 'सब खुला',
+  'Unlimited GST Bills': 'असीमित GST बिल',
+  'Custom bills & receipts': 'कस्टम बिल और रसीदें',
+  'Ledger & Khata': 'लेजर और खाता',
+  'Real-time balances': 'रियल-टाइम बैलेंस',
+  '100% Offline & Safe': '100% ऑफ़लाइन और सुरक्षित',
+  'Data stays on this phone': 'डेटा इस फ़ोन पर रहता है',
+  'Priority Support': 'प्राथमिक सहायता',
+  'WhatsApp helpdesk': 'WhatsApp हेल्पडेस्क',
+  'ACCOUNT & DEVICE BINDING': 'खाता और डिवाइस बाइंडिंग',
+  'Registered Mobile': 'पंजीकृत मोबाइल',
+  'This phone (Primary)': 'यह फ़ोन (प्राथमिक)',
+  'Chat on WhatsApp': 'WhatsApp पर चैट करें',
+  'Manage Renewal': 'रिन्यूअल प्रबंधित करें',
+  'All business data is encrypted & stored locally on this phone.':
+      'सभी बिज़नेस डेटा एन्क्रिप्ट है और इसी फ़ोन पर लोकल सेव है।',
+  'Priority WhatsApp support is not connected yet. Use Help for app details.':
+      'प्राथमिक WhatsApp सहायता अभी जुड़ी नहीं है। ऐप विवरण के लिए सहायता खोलें।',
+  'Yearly billing from Play Store or App Store is not connected yet. Refresh plan to re-check this number.':
+      'Play Store या App Store से वार्षिक बिलिंग अभी जुड़ी नहीं है। इस नंबर को फिर जांचने के लिए प्लान रिफ्रेश करें।',
+  'Manage renewal': 'रिन्यूअल प्रबंधित करें',
+  'The plan stays on this verified number. Moving it to another phone is not available yet.':
+      'प्लान इसी सत्यापित नंबर पर रहता है। दूसरे फ़ोन पर ले जाना अभी उपलब्ध नहीं है।',
+  'Bills stay on this phone. The plan follows your account mobile, not a backup ZIP.':
+      'बिल इस फ़ोन पर रहते हैं। प्लान खाता मोबाइल से जुड़ा है, बैकअप ZIP से नहीं।',
+  'Subscribed · One plan · billed each year':
+      'सब्सक्राइब · एक प्लान · हर साल बिल',
+  'Ends': 'समाप्त',
+  'Turn on internet to check your subscription plan for this number.':
+      'इस नंबर का सब्सक्रिप्शन प्लान जांचने के लिए इंटरनेट चालू करें।',
   'Preview a polished PDF, then share or print it in just a tap.':
       'सुंदर PDF देखें, फिर एक टैप में साझा या प्रिंट करें।',
   'The invoice remains in your records but cannot be edited.':
@@ -2413,6 +2542,134 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'ઘણા પ્રયાસ થયા. એક મિનિટ પછી ફરી પ્રયાસ કરો.',
   'No internet. Connect once to verify this number.':
       'ઇન્ટરનેટ નથી. આ નંબર ચકાસવા એક વાર કનેક્ટ કરો.',
+  'Turn on internet': 'ઇન્ટરનેટ ચાલુ કરો',
+  'Keep creating invoices': 'ઇન્વૉઇસ બનાવતા રહો',
+  'Today is the last day of your trial. Connect once to confirm your Creovo Yearly plan.':
+      'આજે તમારા ટ્રાયલનો છેલ્લો દિવસ છે. Creovo Yearly પ્લાનની પુષ્ટિ માટે એક વાર કનેક્ટ કરો.',
+  'Your trial ended, but every bill stays on this phone. Subscribe to the yearly plan to keep GST invoicing going.':
+      'ટ્રાયલ પૂરો થયો, પણ દરેક બિલ આ ફોન પર છે. GST ઇન્વૉઇસ ચાલુ રાખવા વાર્ષિક પ્લાન લો.',
+  'Plan ends': 'પ્લાન પૂરો',
+  'Trial ended': 'ટ્રાયલ પૂરો',
+  'Try again': 'ફરી પ્રયાસ કરો',
+  'Turn on internet & continue': 'ઇન્ટરનેટ ચાલુ કરો અને આગળ વધો',
+  'Already subscribed? Refresh plan':
+      'પહેલેથી સબ્સ્ક્રાઇબ છે? પ્લાન રિફ્રેશ કરો',
+  'Use a different number': 'બીજો નંબર વાપરો',
+  'One plan for your shop': 'તમારી દુકાન માટે એક પ્લાન',
+  'Selected plan': 'પસંદ કરેલો પ્લાન',
+  'Yearly': 'વાર્ષિક',
+  'Creovo Yearly': 'Creovo Yearly',
+  'One plan · billed each year': 'એક પ્લાન · દર વર્ષે બિલ',
+  'One plan · billed each month': 'એક પ્લાન · દર મહિને બિલ',
+  'GST invoices, PDFs, and sharing': 'GST ઇન્વૉઇસ, PDF અને શેર',
+  'Products, customers, and purchases': 'પ્રોડક્ટ, ગ્રાહકો અને ખરીદી',
+  'Works offline — bills stay on this phone':
+      'ઑફલાઇન કામ કરે છે — બિલ આ ફોન પર રહે છે',
+  'Subscribe to Creovo Yearly': 'Creovo Yearly લો',
+  'Keep creating GST invoices': 'GST ઇન્વૉઇસ બનાવતા રહો',
+  'Your trial ended. Data stays on this phone.':
+      'ટ્રાયલ પૂરો. ડેટા આ ફોન પર છે.',
+  'Your free trial ended, but your data is completely secure. Upgrade to yearly to resume billing without disruption.':
+      'મફત ટ્રાયલ પૂરો, પણ તમારો ડેટા સુરક્ષિત છે. બિલિંગ ચાલુ રાખવા વાર્ષિક પ્લાન લો.',
+  'Data 100% Safe': 'ડેટા 100% સુરક્ષિત',
+  'SAVE 50% TODAY': 'આજે 50% બચાવો',
+  'Recommended': 'સૂચવેલ',
+  'One plan for your entire business': 'આખા વ્યવસાય માટે એક પ્લાન',
+  '/ year': '/ વર્ષ',
+  '50% OFF': '50% છૂટ',
+  'Billed annually': 'વાર્ષિક બિલ',
+  'Just': 'માત્ર',
+  'month': 'મહિનો',
+  'Unlimited GST invoices & PDFs': 'અનલિમિટેડ GST ઇન્વૉઇસ અને PDF',
+  'Instant PDF download & WhatsApp 1-tap share.':
+      'તુરંત PDF ડાઉનલોડ અને WhatsApp પર એક ટેપ શેર.',
+  'Products, stock, customers & khata': 'પ્રોડક્ટ, સ્ટોક, ગ્રાહકો અને ખાતું',
+  'Low stock alerts and balances stay on this phone.':
+      'ઓછા સ્ટોક અલર્ટ અને બેલેન્સ આ ફોન પર રહે છે.',
+  'Works 100% offline — data stays on phone':
+      '100% ઑફલાઇન — ડેટા ફોન પર રહે છે',
+  'Zero internet required. Safe, private, and local.':
+      'ઇન્ટરનેટની જરૂર નથી. સુરક્ષિત, ખાનગી અને લોકલ.',
+  'Payment reminders & WhatsApp share': 'પેમેન્ટ રિમાઇન્ડર અને WhatsApp શેર',
+  'Share a prepared reminder to collect faster.':
+      'ઝડપી વસૂલાત માટે તૈયાર રિમાઇન્ડર શેર કરો.',
+  '100% Safe UPI & Cards': 'UPI અને કાર્ડ 100% સુરક્ષિત',
+  'Instant activation • No hidden charges • Cancel anytime':
+      'તુરંત સક્રિય • કોઈ છુપા ચાર્જ નહીં • ક્યારેય રદ કરો',
+  'Already subscribed?': 'પહેલેથી સબ્સ્ક્રાઇબ છે?',
+  'Use a different phone number': 'બીજો ફોન નંબર વાપરો',
+  'Terms of Service  •  Privacy Policy  •  Support':
+      'સેવાની શરતો  •  ગોપનીયતા નીતિ  •  સપોર્ટ',
+  'RESTORE': 'રિસ્ટોર',
+  'Your plan': 'તમારો પ્લાન',
+  'Plan & billing': 'પ્લાન અને બિલિંગ',
+  'Trial, Creovo Yearly, and account mobile':
+      'ટ્રાયલ, Creovo Yearly અને ખાતા મોબાઇલ',
+  'Trial': 'ટ્રાયલ',
+  'Subscribed': 'સબ્સ્ક્રાઇબ',
+  'Ended': 'પૂરું',
+  'Plan ended': 'પ્લાન પૂરો',
+  'Trial · 1 day left': 'ટ્રાયલ · 1 દિવસ બાકી',
+  '1 day left': '1 દિવસ બાકી',
+  'days left': 'દિવસ બાકી',
+  'day': 'દિવસ',
+  'You\'re on Creovo Yearly': 'તમે Creovo Yearly પર છો',
+  'Your shop is on a trial': 'તમારી દુકાન ટ્રાયલ પર છે',
+  'GST invoicing stays unlocked for this account mobile.':
+      'આ ખાતા મોબાઇલ પર GST ઇન્વૉઇસ ખુલ્લું રહે છે.',
+  'Every invoice stays on this phone. Subscribe when you\'re ready — one yearly plan.':
+      'દરેક ઇન્વૉઇસ આ ફોન પર રહે છે. તૈયાર થાઓ ત્યારે વાર્ષિક પ્લાન લો — એક પ્લાન.',
+  'What you get': 'તમને શું મળે છે',
+  'Account mobile': 'ખાતા મોબાઇલ',
+  'Verify a number to attach the plan': 'પ્લાન જોડવા નંબર ચકાસો',
+  'Refresh plan': 'પ્લાન રિફ્રેશ કરો',
+  'Refresh Plan': 'પ્લાન રિફ્રેશ કરો',
+  'Subscription & Billing': 'સબ્સ્ક્રિપ્શન અને બિલિંગ',
+  'Help': 'મદદ',
+  'All-in-one Business Suite': 'ઑલ-ઇન-વન બિઝનેસ સ્યૂટ',
+  'ACTIVE': 'સક્રિય',
+  'ENDED': 'પૂરું',
+  'VALIDITY & STATUS': 'માન્યતા અને સ્થિતિ',
+  'Days Remaining': 'દિવસ બાકી',
+  'Yearly license': 'વાર્ષિક લાઇસન્સ',
+  'Active License': 'સક્રિય લાઇસન્સ',
+  'Trial License': 'ટ્રાયલ લાઇસન્સ',
+  'Renews': 'નવીકરણ',
+  'yearly': 'વાર્ષિક',
+  'Auto-Renewal is Off': 'ઑટો-રિન્યુઅલ બંધ છે',
+  'Play billing isn’t connected yet.': 'Play બિલિંગ હજુ જોડાયેલ નથી.',
+  'PLAN PRIVILEGES': 'પ્લાન સુવિધાઓ',
+  'Included in Creovo Yearly': 'Creovo Yearlyમાં સામેલ',
+  'All Unlocked': 'બધું ખુલ્લું',
+  'Unlimited GST Bills': 'અમર્યાદિત GST બિલ',
+  'Custom bills & receipts': 'કસ્ટમ બિલ અને રસીદો',
+  'Ledger & Khata': 'લેજર અને ખાતા',
+  'Real-time balances': 'રિયલ-ટાઇમ બેલેન્સ',
+  '100% Offline & Safe': '100% ઑફલાઇન અને સુરક્ષિત',
+  'Data stays on this phone': 'ડેટા આ ફોન પર રહે છે',
+  'Priority Support': 'પ્રાથમિક સપોર્ટ',
+  'WhatsApp helpdesk': 'WhatsApp હેલ્પડેસ્ક',
+  'ACCOUNT & DEVICE BINDING': 'ખાતા અને ડિવાઇસ બાઇન્ડિંગ',
+  'Registered Mobile': 'નોંધાયેલ મોબાઇલ',
+  'This phone (Primary)': 'આ ફોન (પ્રાથમિક)',
+  'Chat on WhatsApp': 'WhatsApp પર ચેટ કરો',
+  'Manage Renewal': 'રિન્યુઅલ મેનેજ કરો',
+  'All business data is encrypted & stored locally on this phone.':
+      'બધો બિઝનેસ ડેટા એન્ક્રિપ્ટ છે અને આ ફોન પર લોકલ સેવ છે.',
+  'Priority WhatsApp support is not connected yet. Use Help for app details.':
+      'પ્રાથમિક WhatsApp સપોર્ટ હજુ જોડાયેલ નથી. એપ વિગતો માટે મદદ ખોલો.',
+  'Yearly billing from Play Store or App Store is not connected yet. Refresh plan to re-check this number.':
+      'Play Store અથવા App Storeથી વાર્ષિક બિલિંગ હજુ જોડાયેલ નથી. આ નંબર ફરી તપાસવા પ્લાન રિફ્રેશ કરો.',
+  'Manage renewal': 'રિન્યુઅલ મેનેજ કરો',
+  'The plan stays on this verified number. Moving it to another phone is not available yet.':
+      'પ્લાન આ ચકાસેલ નંબર પર રહે છે. બીજા ફોન પર ખસેડવું હજુ ઉપલબ્ધ નથી.',
+  'Bills stay on this phone. The plan follows your account mobile, not a backup ZIP.':
+      'બિલ આ ફોન પર રહે છે. પ્લાન ખાતા મોબાઇલ સાથે છે, બેકઅપ ZIP સાથે નહીં.',
+  'Subscribed · One plan · billed each year':
+      'સબ્સ્ક્રાઇબ · એક પ્લાન · દર વર્ષે બિલ',
+  'Ends': 'પૂરું',
+  'Turn on internet to check your subscription plan for this number.':
+      'આ નંબરનો સબ્સ્ક્રિપ્શન પ્લાન તપાસવા ઇન્ટરનેટ ચાલુ કરો.',
   'Preview a polished PDF, then share or print it in just a tap.':
       'સુંદર PDF જુઓ, પછી એક ટેપમાં શેર અથવા પ્રિન્ટ કરો.',
   'The invoice remains in your records but cannot be edited.':
