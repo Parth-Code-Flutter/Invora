@@ -1669,6 +1669,16 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Your saved items are unchanged. Try loading them again.':
       'आपकी सहेजी आइटम वैसी ही हैं। उन्हें फिर से लोड करके देखें।',
   'Your catalog is empty': 'आपका कैटलॉग खाली है',
+  'No items yet': 'अभी कोई आइटम नहीं',
+  'Add products or services to create instant bills.':
+      'बिल तुरंत बनाने के लिए उत्पाद या सेवाएँ जोड़ें।',
+  'Add inventory items and prices to create instant bills.':
+      'तुरंत बिल बनाने के लिए इन्वेंटरी आइटम और कीमतें जोड़ें।',
+  'No services yet': 'अभी कोई सेवा नहीं',
+  'Add billable services and hourly rates to charge on bills.':
+      'बिल पर लगाने के लिए बिल योग्य सेवाएँ और घंटे की दरें जोड़ें।',
+  'Add product': 'उत्पाद जोड़ें',
+  'Add service': 'सेवा जोड़ें',
   'Save products and services once, then reuse them on every invoice.':
       'उत्पाद और सेवाएँ एक बार सहेजें, फिर हर चालान पर इस्तेमाल करें।',
   'No matching items': 'कोई मेल खाती आइटम नहीं',
@@ -3486,6 +3496,16 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Your saved items are unchanged. Try loading them again.':
       'તમારી સાચવેલી આઇટમ જેવી છે તેવી રહે છે. તેમને ફરી લોડ કરીને જુઓ.',
   'Your catalog is empty': 'તમારો કેટલોગ ખાલી છે',
+  'No items yet': 'હજુ કોઈ આઇટમ નથી',
+  'Add products or services to create instant bills.':
+      'તુરંત બિલ બનાવવા ઉત્પાદ અને સેવાઓ ઉમેરો.',
+  'Add inventory items and prices to create instant bills.':
+      'તુરંત બિલ બનાવવા ઇન્વેન્ટરી આઇટમ અને કિંમતો ઉમેરો.',
+  'No services yet': 'હજુ કોઈ સેવા નથી',
+  'Add billable services and hourly rates to charge on bills.':
+      'બિલ પર લગાવવા બિલપાત્ર સેવાઓ અને કલાકની દર ઉમેરો.',
+  'Add product': 'ઉત્પાદ ઉમેરો',
+  'Add service': 'સેવા ઉમેરો',
   'Save products and services once, then reuse them on every invoice.':
       'ઉત્પાદ અને સેવાઓ એક વાર સાચવો, પછી દરેક ઇન્વૉઇસ પર વાપરો.',
   'No matching items': 'કોઈ મેળ ખાતી આઇટમ નથી',

@@ -222,11 +222,14 @@ stores.
   and one anchored bar stay while content switches; the tab bar no longer
   travels with a `PageView`. Products is a root catalog tab; its add FAB
   hides on empty All / Products / Services the same way Documents and Parties
-  hide theirs when the in-list Add item button is on screen. Estimates, purchase orders, and other create flows stay on their
+  hide theirs when the in-list Add CTA is on screen. Estimates, purchase orders, and other create flows stay on their
   screens and under More. Empty lists and search-miss states use peach
   line illustrations (`AppEmptyIllustration`) instead of a coral icon well:
-  invoices, quotations, bills, customers, suppliers, catalog, Home recent
-  activity, item pickers, and composer first-item cards. Last Documents/Parties tab is remembered in
+  invoices, quotations, bills, Home recent
+  activity, item pickers, and composer first-item cards. Catalog All /
+  Products / Services empty screens use the Figma PNGs and copy (No items /
+  products / services yet) with an in-list gradient Add CTA; search-miss
+  still uses the peach search illustration. Last Documents/Parties tab is remembered in
   `AppStorage` only; sales and purchase records stay in separate tables. `/workspace-setup`, `/purchases`,
   `/invoices`, `/customers`, `/purchases/bills`, and `/purchases/suppliers`
   redirect into this shell so old links are not stranded.
@@ -1003,6 +1006,21 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-06 — Figma Products & services empty screens
+
+- Catalog All, Products, and Services empty screens now use the exported
+  Figma illustrations and copy: No items yet / Add product or service, No
+  products yet / Add product, No services yet / Add service. The header shows
+  the catalog count and the same large search/scan chrome as Parties. Tab
+  wells use the Figma bento, parcel, and wrench icons. The list FAB stays
+  hidden while those in-list CTAs are on screen. Search-no-match is unchanged.
+- Important files: `app_catalog_empty_state.dart`, `product_list_screen.dart`,
+  `assets/illustrations/empty_catalog_*.png`, `assets/icons/catalog/`,
+  this handoff.
+- Storage: none.
+- Verification: catalog list widget tests for All/Products/Services empty
+  copy and hidden FAB; `dart format` and targeted analysis.
 
 ### 2026-09-06 — Hide catalog FAB on empty All / Products / Services
 

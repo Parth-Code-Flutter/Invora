@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-09-05
+Last updated: 2026-09-06
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -12,6 +12,9 @@ remain intentionally out of scope until explicitly requested.
   with a sliding white pill. Icon and label sit on the pill midline. Filter-chip
   counts line up with their labels. Phone-dock icons share one baseline. Tap or
   horizontal swipe preserves the active list state without a travelling tab bar.
+- Catalog All / Products / Services empty screens use the Figma illustrations
+  and copy (No items yet, No products yet, No services yet) with an in-list
+  Add CTA. The list FAB stays hidden while that CTA is on screen.
 - Online splash re-reads Firestore `status` and `trialEndsAt`. An expired trial
   opens Creovo Yearly as the selected plan with Subscribe. The last trial day
   while offline asks to turn on internet. Entitlement prefs are not restored

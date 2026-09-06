@@ -29,6 +29,11 @@ void main() {
   testWidgets('empty catalog shows create action and type filters', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     Get.put(
       ProductListController(
         ProductRepository(database),
@@ -41,19 +46,28 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Your catalog is empty'), findsOneWidget);
+    expect(find.text('No items yet'), findsOneWidget);
+    expect(
+      find.text('Add products or services to create instant bills.'),
+      findsOneWidget,
+    );
     expect(find.text('All'), findsOneWidget);
     expect(find.text('Products'), findsWidgets);
     expect(find.text('Services'), findsOneWidget);
-    expect(find.text('Add item'), findsOneWidget);
+    expect(find.text('Add product or service'), findsOneWidget);
+    expect(find.text('(0)'), findsOneWidget);
     expect(find.byType(FloatingActionButton), findsNothing);
 
     await tester.tap(find.text('Products').first);
     await tester.pumpAndSettle();
+    expect(find.text('No products yet'), findsOneWidget);
+    expect(find.text('Add product'), findsOneWidget);
     expect(find.byType(FloatingActionButton), findsNothing);
 
     await tester.tap(find.text('Services'));
     await tester.pumpAndSettle();
+    expect(find.text('No services yet'), findsOneWidget);
+    expect(find.text('Add service'), findsOneWidget);
     expect(find.byType(FloatingActionButton), findsNothing);
     expect(tester.takeException(), isNull);
   });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Text;
 
 import 'package:creovo_invoice/app/localization/localized_text.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -12,6 +13,7 @@ import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
+import '../../../app/widgets/app_catalog_empty_state.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
@@ -25,12 +27,20 @@ import '../../../data/models/product_service_model.dart';
 import '../controllers/product_list_controller.dart';
 import '../widgets/product_cover_thumb.dart';
 
+const _catalogCream = Color(0xFFFAF7F5);
+
 class ProductListScreen extends GetView<ProductListController> {
   const ProductListScreen({super.key});
+
+  void _openAdd([ItemType? type]) {
+    Get.toNamed<void>(AppRoutes.productAdd, arguments: type);
+  }
 
   @override
   Widget build(BuildContext context) {
     final canPop = Navigator.of(context).canPop();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cream = isDark ? null : _catalogCream;
     return Obx(() {
       final emptyCreateVisible =
           controller.items.isEmpty &&
@@ -41,222 +51,251 @@ class ProductListScreen extends GetView<ProductListController> {
         floatingActionButton: appListCreateFab(
           emptyCreateVisible: emptyCreateVisible,
           tooltip: l10n('Add product or service'),
-          onPressed: () => Get.toNamed<void>(AppRoutes.productAdd),
+          onPressed: _openAdd,
         ),
         appBar: AppSearchAppBar(
           leading: canPop ? const AppBackButton() : null,
           title: 'Products & services',
+          largeTitle: true,
+          backgroundColor: cream,
+          searchIcon: SvgPicture.asset(
+            'assets/icons/party_search.svg',
+            width: 20,
+            height: 20,
+          ),
+          titleSuffix: Obx(
+            () => Text(
+              '(${controller.countFor(null)})',
+              style: AppTextStyles.caption.copyWith(
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : const Color(0xFFA3A3A3),
+                fontSize: 20,
+                height: 30 / 20,
+                fontWeight: FontWeight.w500,
+                letterSpacing: -0.575,
+              ),
+            ),
+          ),
           hint: 'Search products or services',
           onChanged: controller.updateSearch,
           actions: [
-            AppBarIconButton(
+            _CatalogScanButton(
               tooltip: l10n('Scan barcode'),
               onPressed: () => Get.toNamed<void>(AppRoutes.catalogScan),
-              icon: Icons.qr_code_scanner_rounded,
             ),
           ],
         ),
-        body: Column(
-          children: [
-            Obx(
-              () => AppSegmentTabs(
-                labels: const ['All', 'Products', 'Services'],
-                icons: const [
-                  Icons.grid_view_rounded,
-                  Icons.inventory_2_outlined,
-                  Icons.design_services_outlined,
-                ],
-                counts: [
-                  controller.countFor(null),
-                  controller.countFor(ItemType.product),
-                  controller.countFor(ItemType.service),
-                ],
-                index: switch (controller.selectedType.value) {
-                  null => 0,
-                  ItemType.product => 1,
-                  ItemType.service => 2,
-                },
-                onChanged: (index) => controller.selectType(switch (index) {
-                  1 => ItemType.product,
-                  2 => ItemType.service,
-                  _ => null,
-                }),
-              ),
-            ),
-            Expanded(
-              child: Obx(() {
-                final typeIndex = switch (controller.selectedType.value) {
-                  null => 0,
-                  ItemType.product => 1,
-                  ItemType.service => 2,
-                };
-                final Widget inner;
-                if (controller.isLoading.value) {
-                  inner = const AppListSkeleton();
-                } else if (controller.loadError.value != null) {
-                  inner = AppEmptyState(
-                    illustration: AppEmptyIllustration.error,
-                    title: 'Catalog unavailable',
-                    message:
-                        'Your saved items are unchanged. Try loading them again.',
-                    actionLabel: 'Try again',
-                    onAction: controller.retry,
-                  );
-                } else if (controller.items.isEmpty) {
-                  final searching = controller.searchQuery.value.isNotEmpty;
-                  final filtered = controller.selectedType.value != null;
-                  inner = AppEmptyState(
-                    illustration: searching
-                        ? AppEmptyIllustration.search
-                        : filtered &&
-                              controller.selectedType.value == ItemType.service
-                        ? AppEmptyIllustration.clipboard
-                        : AppEmptyIllustration.package,
-                    title: searching
-                        ? 'No matching items'
-                        : filtered
-                        ? 'No ${controller.selectedType.value!.label.toLowerCase()}s yet'
-                        : 'Your catalog is empty',
-                    message: searching
-                        ? 'Try a different name, detail, HSN/SAC, or filter.'
-                        : filtered
-                        ? 'Create your first ${controller.selectedType.value!.label.toLowerCase()} to reuse it on invoices.'
-                        : 'Save products and services once, then reuse them on every invoice.',
-                    actionLabel: searching ? null : 'Add item',
-                    onAction: searching
-                        ? null
-                        : () => Get.toNamed<void>(AppRoutes.productAdd),
-                  );
-                } else {
-                  final columns = ResponsiveUtils.gridColumns(context);
-                  final horizontal = ResponsiveUtils.horizontalPadding(context);
-                  final showType = controller.selectedType.value == null;
-                  Widget tile(
-                    int index, {
-                    required AppGroupedPosition position,
-                  }) => AppListEntrance(
-                    index: index,
-                    child: _ProductCatalogTile(
-                      item: controller.items[index],
-                      currencySymbol: controller.currencySymbol.value,
-                      showType: showType,
-                      onHandScaled: controller.onHandFor(
-                        controller.items[index],
-                      ),
-                      position: position,
-                      onDelete: () =>
-                          _confirmDelete(context, controller.items[index]),
+        body: ColoredBox(
+          color: cream ?? Colors.transparent,
+          child: Column(
+            children: [
+              Obx(
+                () => AppSegmentTabs(
+                  labels: const ['All', 'Products', 'Services'],
+                  inkSelected: true,
+                  iconSize: 24,
+                  tabHeight: 42,
+                  padding: const EdgeInsets.fromLTRB(20, 2, 20, 8),
+                  leadingIcons: const [
+                    _CatalogTabIcon(
+                      asset: 'assets/icons/catalog/tab_all.svg',
+                      well: Color(0xFFFDF2F4),
                     ),
-                  );
-                  if (columns == 1) {
-                    final count = controller.items.length;
-                    inner = ListView.builder(
-                      physics: const BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
-                      ),
-                      padding: EdgeInsets.fromLTRB(
-                        horizontal,
-                        0,
-                        horizontal,
-                        100,
-                      ),
-                      itemCount: count + 1,
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              children: [
-                                Text(
-                                  '$count ${count == 1 ? 'item' : 'items'}',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color:
-                                        Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? AppColors.darkTextSecondary
-                                        : AppColors.textSecondary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  'Name · A–Z',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color:
-                                        Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? AppColors.darkTextSecondary
-                                        : AppColors.textTertiary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                        return tile(
-                          index - 1,
-                          position: AppGroupedPositionX.resolve(
-                            index - 1,
-                            count,
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    inner = ListView(
-                      physics: const BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
-                      ),
-                      padding: EdgeInsets.fromLTRB(
-                        horizontal,
-                        2,
-                        horizontal,
-                        100,
-                      ),
-                      children: [
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            const gap = 8.0;
-                            final width =
-                                (constraints.maxWidth - gap * (columns - 1)) /
-                                columns;
-                            return Wrap(
-                              spacing: gap,
-                              runSpacing: gap,
-                              children: [
-                                for (
-                                  var index = 0;
-                                  index < controller.items.length;
-                                  index++
-                                )
-                                  SizedBox(
-                                    width: width,
-                                    child: tile(
-                                      index,
-                                      position: AppGroupedPosition.single,
-                                    ),
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
-                      ],
-                    );
-                  }
-                }
-                return AppSwipeTabs(
-                  index: typeIndex,
-                  length: 3,
+                    _CatalogTabIcon(
+                      asset: 'assets/icons/catalog/tab_products.svg',
+                      well: Color(0xFFF0FDFA),
+                    ),
+                    _CatalogTabIcon(
+                      asset: 'assets/icons/catalog/tab_services.svg',
+                      well: Color(0xFFFFF1F2),
+                    ),
+                  ],
+                  counts: [
+                    controller.countFor(null),
+                    controller.countFor(ItemType.product),
+                    controller.countFor(ItemType.service),
+                  ],
+                  index: switch (controller.selectedType.value) {
+                    null => 0,
+                    ItemType.product => 1,
+                    ItemType.service => 2,
+                  },
                   onChanged: (index) => controller.selectType(switch (index) {
                     1 => ItemType.product,
                     2 => ItemType.service,
                     _ => null,
                   }),
-                  child: inner,
-                );
-              }),
-            ),
-          ],
+                ),
+              ),
+              Expanded(
+                child: Obx(() {
+                  final typeIndex = switch (controller.selectedType.value) {
+                    null => 0,
+                    ItemType.product => 1,
+                    ItemType.service => 2,
+                  };
+                  final Widget inner;
+                  if (controller.isLoading.value) {
+                    inner = const AppListSkeleton();
+                  } else if (controller.loadError.value != null) {
+                    inner = AppEmptyState(
+                      illustration: AppEmptyIllustration.error,
+                      title: 'Catalog unavailable',
+                      message:
+                          'Your saved items are unchanged. Try loading them again.',
+                      actionLabel: 'Try again',
+                      onAction: controller.retry,
+                    );
+                  } else if (controller.items.isEmpty) {
+                    final searching = controller.searchQuery.value.isNotEmpty;
+                    inner = searching
+                        ? const AppEmptyState(
+                            illustration: AppEmptyIllustration.search,
+                            title: 'No matching items',
+                            message:
+                                'Try a different name, detail, HSN/SAC, or filter.',
+                          )
+                        : AppCatalogEmptyState(
+                            kind: AppCatalogEmptyState.forType(
+                              controller.selectedType.value,
+                            ),
+                            onAdd: () =>
+                                _openAdd(controller.selectedType.value),
+                          );
+                  } else {
+                    final columns = ResponsiveUtils.gridColumns(context);
+                    final horizontal = ResponsiveUtils.horizontalPadding(
+                      context,
+                    );
+                    final showType = controller.selectedType.value == null;
+                    Widget tile(
+                      int index, {
+                      required AppGroupedPosition position,
+                    }) => AppListEntrance(
+                      index: index,
+                      child: _ProductCatalogTile(
+                        item: controller.items[index],
+                        currencySymbol: controller.currencySymbol.value,
+                        showType: showType,
+                        onHandScaled: controller.onHandFor(
+                          controller.items[index],
+                        ),
+                        position: position,
+                        onDelete: () =>
+                            _confirmDelete(context, controller.items[index]),
+                      ),
+                    );
+                    if (columns == 1) {
+                      final count = controller.items.length;
+                      inner = ListView.builder(
+                        physics: const BouncingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics(),
+                        ),
+                        padding: EdgeInsets.fromLTRB(
+                          horizontal,
+                          0,
+                          horizontal,
+                          100,
+                        ),
+                        itemCount: count + 1,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    '$count ${count == 1 ? 'item' : 'items'}',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? AppColors.darkTextSecondary
+                                          : AppColors.textSecondary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    'Name · A–Z',
+                                    style: AppTextStyles.caption.copyWith(
+                                      color:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? AppColors.darkTextSecondary
+                                          : AppColors.textTertiary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                          return tile(
+                            index - 1,
+                            position: AppGroupedPositionX.resolve(
+                              index - 1,
+                              count,
+                            ),
+                          );
+                        },
+                      );
+                    } else {
+                      inner = ListView(
+                        physics: const BouncingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics(),
+                        ),
+                        padding: EdgeInsets.fromLTRB(
+                          horizontal,
+                          2,
+                          horizontal,
+                          100,
+                        ),
+                        children: [
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              const gap = 8.0;
+                              final width =
+                                  (constraints.maxWidth - gap * (columns - 1)) /
+                                  columns;
+                              return Wrap(
+                                spacing: gap,
+                                runSpacing: gap,
+                                children: [
+                                  for (
+                                    var index = 0;
+                                    index < controller.items.length;
+                                    index++
+                                  )
+                                    SizedBox(
+                                      width: width,
+                                      child: tile(
+                                        index,
+                                        position: AppGroupedPosition.single,
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    }
+                  }
+                  return AppSwipeTabs(
+                    index: typeIndex,
+                    length: 3,
+                    onChanged: (index) => controller.selectType(switch (index) {
+                      1 => ItemType.product,
+                      2 => ItemType.service,
+                      _ => null,
+                    }),
+                    child: inner,
+                  );
+                }),
+              ),
+            ],
+          ),
         ),
       );
     });
@@ -463,6 +502,80 @@ class _ProductCatalogTile extends StatelessWidget {
     } else if (action == 'delete') {
       onDelete();
     }
+  }
+}
+
+class _CatalogTabIcon extends StatelessWidget {
+  const _CatalogTabIcon({required this.asset, required this.well});
+
+  final String asset;
+  final Color well;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: well,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: SvgPicture.asset(asset, width: 14, height: 14),
+      ),
+    );
+  }
+}
+
+class _CatalogScanButton extends StatelessWidget {
+  const _CatalogScanButton({required this.tooltip, required this.onPressed});
+
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Center(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0A161118),
+              blurRadius: 14,
+              offset: Offset(0, 2),
+              spreadRadius: -2,
+            ),
+          ],
+        ),
+        child: IconButton(
+          tooltip: tooltip,
+          onPressed: onPressed,
+          style: IconButton.styleFrom(
+            fixedSize: const Size.square(44),
+            minimumSize: const Size.square(44),
+            padding: EdgeInsets.zero,
+            backgroundColor: isDark
+                ? AppColors.darkSurfaceVariant
+                : Colors.white,
+            foregroundColor: isDark
+                ? AppColors.darkTextPrimary
+                : const Color(0xFF44403C),
+            side: BorderSide(
+              color: isDark ? AppColors.darkBorder : const Color(0xB3E7E5E4),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          icon: SvgPicture.asset(
+            'assets/icons/party_scan.svg',
+            width: 20,
+            height: 20,
+          ),
+        ),
+      ),
+    );
   }
 }
 

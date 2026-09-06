@@ -110,6 +110,11 @@ class ProductFormController extends GetxController {
       _load(arguments);
       return;
     }
+    if (arguments is ItemType) {
+      selectType(arguments);
+      _captureBaseline();
+      return;
+    }
     if (arguments is ProductFormArgs) {
       if (arguments.productId != null) {
         isEditing.value = true;
