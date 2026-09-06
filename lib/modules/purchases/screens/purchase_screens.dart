@@ -2,6 +2,8 @@ import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../../app/widgets/app_party_empty_state.dart';
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../../../app/constants/app_colors.dart';
@@ -317,11 +319,35 @@ class SupplierListScreen extends StatefulWidget {
 
 class _SupplierListScreenState extends State<SupplierListScreen> {
   String query = '';
+  late final _supplierCountStream = Get.find<PurchaseRepository>()
+      .watchSuppliers();
 
   @override
   Widget build(BuildContext context) {
     final searchBar = AppSearchAppBar(
       title: 'Suppliers',
+      largeTitle: true,
+      searchIcon: SvgPicture.asset(
+        'assets/icons/party_search.svg',
+        width: 20,
+        height: 20,
+      ),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? null
+          : const Color(0xFFFAF9F7),
+      titleSuffix: StreamBuilder<List<SupplierModel>>(
+        stream: _supplierCountStream,
+        builder: (context, snapshot) => Text(
+          '(${snapshot.data?.length ?? 0})',
+          style: AppTextStyles.caption.copyWith(
+            fontSize: 20,
+            fontWeight: FontWeight.w400,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.darkTextSecondary
+                : const Color(0xFFA8A29E),
+          ),
+        ),
+      ),
       hint: 'Name, mobile or GSTIN',
       onChanged: (value) => setState(() => query = value),
       primary: !widget.embedded,
@@ -337,6 +363,12 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (suppliers.isEmpty) {
+              if (query.isEmpty) {
+                return AppPartyEmptyState(
+                  supplier: true,
+                  onAdd: () => Get.toNamed<void>(AppRoutes.supplierAdd),
+                );
+              }
               return AppEmptyState(
                 illustration: query.isEmpty
                     ? AppEmptyIllustration.store

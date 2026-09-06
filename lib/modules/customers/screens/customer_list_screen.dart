@@ -2,6 +2,8 @@ import 'package:flutter/material.dart' hide Text;
 
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../../app/widgets/app_party_empty_state.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/routes/app_routes.dart';
@@ -31,6 +33,20 @@ class CustomerListScreen extends GetView<CustomerListController> {
   Widget build(BuildContext context) {
     final searchBar = AppSearchAppBar(
       title: 'Customers',
+      largeTitle: true,
+      searchIcon: SvgPicture.asset(
+        'assets/icons/party_search.svg',
+        width: 20,
+        height: 20,
+      ),
+      scanIcon: SvgPicture.asset(
+        'assets/icons/party_scan.svg',
+        width: 20,
+        height: 20,
+      ),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? null
+          : const Color(0xFFFAF9F7),
       titleSuffix: Obx(
         () => Text(
           '(${controller.totalCustomerCount.value})',
@@ -38,8 +54,8 @@ class CustomerListScreen extends GetView<CustomerListController> {
             color: Theme.of(context).brightness == Brightness.dark
                 ? AppColors.darkTextSecondary
                 : AppColors.textSecondary,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ),
@@ -53,6 +69,12 @@ class CustomerListScreen extends GetView<CustomerListController> {
         return const AppListSkeleton();
       }
       if (controller.customers.isEmpty) {
+        if (controller.searchQuery.value.isEmpty) {
+          return AppPartyEmptyState(
+            supplier: false,
+            onAdd: () => Get.toNamed<void>(AppRoutes.customerAdd),
+          );
+        }
         return AppEmptyState(
           illustration: controller.searchQuery.value.isEmpty
               ? AppEmptyIllustration.people
@@ -118,7 +140,7 @@ class CustomerListScreen extends GetView<CustomerListController> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: searchBar.preferredSize.height, child: searchBar),
-          if (belowTitle != null) belowTitle!,
+          ?belowTitle,
           Expanded(child: body),
         ],
       );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Text;
 
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:get/get.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
@@ -66,13 +67,31 @@ class _PartiesScreenState extends State<PartiesScreen> {
     }
   }
 
-  Widget get _pairTabs => AppPairTabs(
-    left: 'Customers',
-    right: 'Suppliers',
+  Widget get _pairTabs => AppSegmentTabs(
+    labels: const ['Customers', 'Suppliers'],
     index: _index,
     onChanged: _select,
-    leftIcon: Icons.groups_outlined,
-    rightIcon: Icons.storefront_outlined,
+    inkSelected: true,
+    iconSize: 24,
+    tabHeight: 44,
+    padding: const EdgeInsets.fromLTRB(20, 2, 20, 8),
+    leadingIcons: [
+      for (final supplier in [false, true])
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: supplier ? const Color(0xFFE5F5EF) : const Color(0xFFFFEEEB),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(5),
+            child: SvgPicture.asset(
+              'assets/icons/party_${supplier ? 'suppliers' : 'customers'}.svg',
+              width: 14,
+              height: 14,
+            ),
+          ),
+        ),
+    ],
   );
 
   @override
@@ -103,28 +122,33 @@ class _PartiesScreenState extends State<PartiesScreen> {
                 _index == 0 ? AppRoutes.customerAdd : AppRoutes.supplierAdd,
               ),
             ),
-            body: SafeArea(
-              bottom: false,
-              child: AppSwipeTabs(
-                index: _index,
-                length: 2,
-                onChanged: _select,
-                child: IndexedStack(
+            body: ColoredBox(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).scaffoldBackgroundColor
+                  : const Color(0xFFFAF9F7),
+              child: SafeArea(
+                bottom: false,
+                child: AppSwipeTabs(
                   index: _index,
-                  children: [
-                    AppKeepAlive(
-                      child: CustomerListScreen(
-                        embedded: true,
-                        belowTitle: _pairTabs,
+                  length: 2,
+                  onChanged: _select,
+                  child: IndexedStack(
+                    index: _index,
+                    children: [
+                      AppKeepAlive(
+                        child: CustomerListScreen(
+                          embedded: true,
+                          belowTitle: _pairTabs,
+                        ),
                       ),
-                    ),
-                    AppKeepAlive(
-                      child: SupplierListScreen(
-                        embedded: true,
-                        belowTitle: _pairTabs,
+                      AppKeepAlive(
+                        child: SupplierListScreen(
+                          embedded: true,
+                          belowTitle: _pairTabs,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

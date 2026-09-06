@@ -26,6 +26,8 @@ class AppSegmentTabs extends StatelessWidget {
     this.leadingIcons,
     this.inkSelected = false,
     this.padding,
+    this.iconSize = 16,
+    this.tabHeight = 36,
     super.key,
   }) : assert(labels.length > 1),
        assert(counts == null || counts.length == labels.length),
@@ -40,6 +42,8 @@ class AppSegmentTabs extends StatelessWidget {
   final List<Widget>? leadingIcons;
   final bool inkSelected;
   final EdgeInsetsGeometry? padding;
+  final double iconSize;
+  final double tabHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +67,7 @@ class AppSegmentTabs extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(4),
           child: SizedBox(
-            height: 36,
+            height: tabHeight,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final tabWidth = constraints.maxWidth / labels.length;
@@ -134,8 +138,8 @@ class AppSegmentTabs extends StatelessWidget {
                                           if (showIcons) ...[
                                             if (leadingIcons != null)
                                               SizedBox(
-                                                width: 16,
-                                                height: 16,
+                                                width: iconSize,
+                                                height: iconSize,
                                                 child: leadingIcons![i],
                                               )
                                             else

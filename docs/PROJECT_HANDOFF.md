@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-09-05
+Last updated: 2026-09-06
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -197,9 +197,10 @@ stores.
 - One app after OTP and business setup: splash, onboarding, and first save
   always open Home. There is no Sales vs Purchases workspace choice and no
   Change workspace control. Phone dock is **Home · Documents · Products ·
-  Parties · More** (still five items). The dock is a floating pill capsule
-  (full-radius, 16px screen inset, opaque adaptive surface, rose-tinted
-  shadow and warm ring) with icon-only tabs. Names stay on Semantics for
+  Parties · More** (still five items). Phone navigation is a fixed full-width
+  bottom bar with an opaque adaptive surface and subtle top border, without
+  floating margins, pill corners or shadows. The surface extends through the
+  bottom safe area while controls stay above it. Tabs remain icon-only. Names stay on Semantics for
   VoiceOver / TalkBack. All tabs use the exported Figma SVG outline/filled pairs
   from node `2226:198`, in fixed 24px boxes. Active icons retain their original
   fills, including the parcel faces and nine-dot More mark. The selected tab has a
@@ -443,6 +444,14 @@ stores.
   onboarding.
 
 ### Customers
+
+- Parties Customers/Suppliers headers and empty states follow Figma nodes
+  `2231:2` and `2231:112`: warm background, title counts, coloured SVG tab
+  wells, exact exported illustrations and a single gradient add action.
+  Shared segmented tabs retain swipe and remembered selection. Populated
+  lists, search/no-match states, customer scan and existing record actions
+  remain intact. The app-wide fixed navigation remains, intentionally not
+  restoring the floating dock pictured in these references.
 
 - Create, search, edit, view, and soft-delete customers. List search matches
   partial words across name, company, mobile, email, and GSTIN.
@@ -993,6 +1002,30 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-06 — Figma Customers and Suppliers empty screens
+
+- Updated Parties tabs and both list headers; supplier count now observes
+  the full supplier list independently of the search query. Added reusable
+  `app_party_empty_state.dart` with exact Figma PNG/SVG assets, responsive
+  illustration sizing and scrollable compact-screen content.
+- Extended shared tabs with optional icon/row sizes and search header with
+  optional scan artwork/background. Defaults preserve other screens.
+- Existing list actions and storage unchanged; no migrations. Verification:
+  24 widget tests passed (party empty states, unified shell, navigation and
+  design system); targeted analysis and diff whitespace check passed.
+  Device visual QA remains.
+
+### 2026-09-06 — Fixed phone bottom navigation
+
+- Replaced the floating dock with an edge-to-edge fixed bottom bar in
+  `lib/app/widgets/app_main_navigation.dart`. Preserved Figma icons, selected
+  underline, navigation behavior and tablet rail. Scaffold reserves the bar's
+  height; its surface covers the system bottom inset.
+- No storage changes or migrations. Added layout coverage for bar bounds,
+  safe-area placement and body separation in `test/main_navigation_test.dart`.
+- Verification: navigation widget tests passed, including full-width bounds,
+  safe-area placement and body separation. Device visual QA remains outstanding.
 
 ### 2026-09-06 — Matching Sales and Purchase status chips
 

@@ -22,6 +22,8 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.largeTitle = false,
     this.largeSearchChrome,
     this.searchIcon,
+    this.scanIcon,
+    this.backgroundColor,
     super.key,
   });
 
@@ -49,6 +51,8 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// Defaults to [largeTitle] when omitted.
   final bool? largeSearchChrome;
   final Widget? searchIcon;
+  final Widget? scanIcon;
+  final Color? backgroundColor;
 
   @override
   Size get preferredSize => const Size.fromHeight(64);
@@ -121,6 +125,7 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
     final largeSearch =
         (widget.largeSearchChrome ?? widget.largeTitle) && !_searching;
     return AppBar(
+      backgroundColor: widget.backgroundColor,
       primary: widget.primary,
       automaticallyImplyLeading: widget.leading == null && !_searching,
       leading: _searching
@@ -200,11 +205,18 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
                   icon: Icons.search_rounded,
                 ),
         if (!_searching && widget.onScan != null)
-          AppBarIconButton(
-            tooltip: l10n(widget.scanTooltip),
-            onPressed: _handleScan,
-            icon: Icons.qr_code_scanner_rounded,
-          ),
+          if (widget.scanIcon != null)
+            _LargeSearchButton(
+              tooltip: l10n(widget.scanTooltip),
+              onPressed: _handleScan,
+              icon: widget.scanIcon,
+            )
+          else
+            AppBarIconButton(
+              tooltip: l10n(widget.scanTooltip),
+              onPressed: _handleScan,
+              icon: Icons.qr_code_scanner_rounded,
+            ),
         ...widget.actions,
       ],
     );
