@@ -220,8 +220,9 @@ stores.
   and labels sit on the pill midline; count badges and list filter chips share
   that same baseline. Icons hide when a three-tab row is too narrow. Haptics
   and one anchored bar stay while content switches; the tab bar no longer
-  travels with a `PageView`. Products is a root catalog tab with its own add
-  FAB. Estimates, purchase orders, and other create flows stay on their
+  travels with a `PageView`. Products is a root catalog tab; its add FAB
+  hides on empty All / Products / Services the same way Documents and Parties
+  hide theirs when the in-list Add item button is on screen. Estimates, purchase orders, and other create flows stay on their
   screens and under More. Empty lists and search-miss states use peach
   line illustrations (`AppEmptyIllustration`) instead of a coral icon well:
   invoices, quotations, bills, customers, suppliers, catalog, Home recent
@@ -1002,6 +1003,18 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-06 — Hide catalog FAB on empty All / Products / Services
+
+- Products & services now uses the shared list FAB helper. The floating +
+  is hidden whenever All, Products, or Services is empty and the in-list
+  Add item button is showing. Search-no-match still keeps the FAB because
+  that empty state has no create action.
+- Important files: `product_list_screen.dart`, `product_list_screen_test.dart`,
+  this handoff.
+- Storage: none.
+- Verification: empty catalog has Add item and no FAB; populated list still
+  shows the FAB.
 
 ### 2026-09-06 — Figma Customers and Suppliers empty screens
 

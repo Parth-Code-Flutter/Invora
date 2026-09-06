@@ -46,6 +46,15 @@ void main() {
     expect(find.text('Products'), findsWidgets);
     expect(find.text('Services'), findsOneWidget);
     expect(find.text('Add item'), findsOneWidget);
+    expect(find.byType(FloatingActionButton), findsNothing);
+
+    await tester.tap(find.text('Products').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(FloatingActionButton), findsNothing);
+
+    await tester.tap(find.text('Services'));
+    await tester.pumpAndSettle();
+    expect(find.byType(FloatingActionButton), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -84,6 +93,7 @@ void main() {
     expect(find.text('Name · A–Z'), findsOneWidget);
     expect(find.text('1 item'), findsOneWidget);
     expect(find.textContaining('HSN 4802'), findsOneWidget);
+    expect(find.byType(FloatingActionButton), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
