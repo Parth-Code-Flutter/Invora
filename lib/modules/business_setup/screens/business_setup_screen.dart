@@ -189,10 +189,10 @@ class _ProfileAppBar extends StatelessWidget {
                         color: isDark
                             ? AppColors.darkTextPrimary
                             : _ProfileUi.ink,
-                        fontSize: 17,
-                        height: 21.25 / 17,
+                        fontSize: 20,
+                        height: 24 / 20,
                         fontWeight: FontWeight.w700,
-                        letterSpacing: -0.425,
+                        letterSpacing: -0.4,
                       ),
                     ),
                     Text(

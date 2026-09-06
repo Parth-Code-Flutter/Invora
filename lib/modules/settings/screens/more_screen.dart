@@ -61,12 +61,6 @@ class MoreScreen extends GetView<MoreController> {
           title: 'More',
           hint: 'Search features',
           largeTitle: true,
-          searchIcon: SvgPicture.asset(
-            MoreIcons.search,
-            width: 20,
-            height: 20,
-            fit: BoxFit.contain,
-          ),
           onChanged: controller.updateSearch,
         ),
         body: ResponsiveContent(

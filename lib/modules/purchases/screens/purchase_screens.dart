@@ -2,7 +2,6 @@ import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../app/widgets/app_party_empty_state.dart';
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
@@ -327,11 +326,6 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
     final searchBar = AppSearchAppBar(
       title: 'Suppliers',
       largeTitle: true,
-      searchIcon: SvgPicture.asset(
-        'assets/icons/party_search.svg',
-        width: 20,
-        height: 20,
-      ),
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? null
           : const Color(0xFFFAF9F7),

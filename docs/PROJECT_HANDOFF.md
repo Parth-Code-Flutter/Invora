@@ -384,11 +384,11 @@ stores.
 - Reusable gradient module banners give catalog, customer, invoice, and
   quotation workspaces distinct task-focused identities
 - Shared icon-led filter pills, expressive segmented options, and branded
-  AppBar chrome across Sales and Purchases: 18px titles, a hairline under the
-  bar, matching 40px plum-outlined action wells, and `AppBarTitle` captions on
+  AppBar chrome across Sales and Purchases: 20px titles, a hairline under the
+  bar, matching 36px outlined action wells, and `AppBarTitle` captions on
   document screens (Invoice, Customer, Purchase bill, Supplier). Nested back
   controls use the same well as PDF, edit, search, and workspace-switch
-  actions.
+  actions. List search uses the More tab SVG at 16px in a 36px well.
 - Expandable AppBar search on the Customers, Invoices/Quotations, and
   Products & services lists; search stays out of the content area until
   requested. The expanded field is a compact 46px contained input with an
@@ -1006,6 +1006,16 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-06 — Shared 20px AppBar titles and smaller search chrome
+
+- Every AppBar title is 20px: list headers in `AppSearchAppBar`, nested
+  `AppBarTitle` via the theme, and Business Profile. Search/scan wells are
+  36px with 16px glyphs. Search uses the More tab SVG as the default icon.
+- Important files: `app_text_styles.dart`, `app_search_app_bar.dart`,
+  `app_back_button.dart`, list headers, this handoff.
+- Storage: none.
+- Verification: design-system AppBar search tests and catalog list tests.
 
 ### 2026-09-06 — Figma Products & services empty screens
 

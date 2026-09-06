@@ -34,15 +34,10 @@ class CustomerListScreen extends GetView<CustomerListController> {
     final searchBar = AppSearchAppBar(
       title: 'Customers',
       largeTitle: true,
-      searchIcon: SvgPicture.asset(
-        'assets/icons/party_search.svg',
-        width: 20,
-        height: 20,
-      ),
       scanIcon: SvgPicture.asset(
         'assets/icons/party_scan.svg',
-        width: 20,
-        height: 20,
+        width: 16,
+        height: 16,
       ),
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? null

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
@@ -7,6 +8,19 @@ import '../constants/app_spacing.dart';
 import '../themes/app_text_styles.dart';
 import '../utils/app_focus.dart';
 import 'app_back_button.dart';
+
+const _appBarSearchIconAsset = 'assets/icons/more/search.svg';
+const _appBarChromeSize = 36.0;
+const _appBarChromeIconSize = 16.0;
+
+Widget appBarSearchIcon({double size = _appBarChromeIconSize}) {
+  return SvgPicture.asset(
+    _appBarSearchIconAsset,
+    width: size,
+    height: size,
+    fit: BoxFit.contain,
+  );
+}
 
 class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   const AppSearchAppBar({
@@ -44,10 +58,10 @@ class AppSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// Nested list hosts pass false so the bar does not add status-bar padding.
   final bool primary;
 
-  /// More, Invoices, and Purchase bills use a 24px page title from Figma.
+  /// List headers and [AppBarTitle] both use the 20px AppBar title.
   final bool largeTitle;
 
-  /// More uses 44px white search. Documents lists keep the 40px muted chrome.
+  /// More uses white search chrome. Documents lists can keep muted chrome.
   /// Defaults to [largeTitle] when omitted.
   final bool? largeSearchChrome;
   final Widget? searchIcon;
@@ -121,7 +135,6 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
     final iconColor = isDark
         ? AppColors.darkTextSecondary
         : AppColors.textSecondary;
-    final largeTitle = widget.largeTitle && !_searching;
     final largeSearch =
         (widget.largeSearchChrome ?? widget.largeTitle) && !_searching;
     return AppBar(
@@ -171,17 +184,15 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
                       widget.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: largeTitle
-                          ? AppTextStyles.pageTitle.copyWith(
-                              fontSize: 24,
-                              height: 32 / 24,
-                              letterSpacing: -0.6,
-                              fontWeight: FontWeight.w700,
-                              color: isDark
-                                  ? AppColors.darkTextPrimary
-                                  : const Color(0xFF1C1917),
-                            )
-                          : null,
+                      style: AppTextStyles.appBarTitle.copyWith(
+                        fontSize: 20,
+                        height: 28 / 20,
+                        letterSpacing: -0.4,
+                        fontWeight: FontWeight.w700,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : const Color(0xFF1C1917),
+                      ),
                     ),
                   ),
                   if (widget.titleSuffix != null) ...[
@@ -193,38 +204,27 @@ class _AppSearchAppBarState extends State<AppSearchAppBar> {
       ),
       actions: [
         if (!_searching)
-          largeSearch
-              ? _LargeSearchButton(
-                  tooltip: l10n('Search'),
-                  icon: widget.searchIcon,
-                  onPressed: _openSearch,
-                )
-              : AppBarIconButton(
-                  tooltip: l10n('Search'),
-                  onPressed: _openSearch,
-                  icon: Icons.search_rounded,
-                ),
+          _AppBarChromeButton(
+            tooltip: l10n('Search'),
+            icon: widget.searchIcon ?? appBarSearchIcon(),
+            onPressed: _openSearch,
+          ),
         if (!_searching && widget.onScan != null)
-          if (widget.scanIcon != null)
-            _LargeSearchButton(
-              tooltip: l10n(widget.scanTooltip),
-              onPressed: _handleScan,
-              icon: widget.scanIcon,
-            )
-          else
-            AppBarIconButton(
-              tooltip: l10n(widget.scanTooltip),
-              onPressed: _handleScan,
-              icon: Icons.qr_code_scanner_rounded,
-            ),
+          _AppBarChromeButton(
+            tooltip: l10n(widget.scanTooltip),
+            icon:
+                widget.scanIcon ??
+                const Icon(Icons.qr_code_scanner_rounded, size: 16),
+            onPressed: _handleScan,
+          ),
         ...widget.actions,
       ],
     );
   }
 }
 
-class _LargeSearchButton extends StatelessWidget {
-  const _LargeSearchButton({
+class _AppBarChromeButton extends StatelessWidget {
+  const _AppBarChromeButton({
     required this.tooltip,
     required this.onPressed,
     this.icon,
@@ -240,12 +240,12 @@ class _LargeSearchButton extends StatelessWidget {
     return Center(
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: const [
             BoxShadow(
               color: Color(0x0A161118),
-              blurRadius: 14,
-              offset: Offset(0, 2),
+              blurRadius: 10,
+              offset: Offset(0, 1),
               spreadRadius: -2,
             ),
           ],
@@ -254,8 +254,8 @@ class _LargeSearchButton extends StatelessWidget {
           tooltip: tooltip,
           onPressed: onPressed,
           style: IconButton.styleFrom(
-            fixedSize: const Size.square(44),
-            minimumSize: const Size.square(44),
+            fixedSize: const Size.square(_appBarChromeSize),
+            minimumSize: const Size.square(_appBarChromeSize),
             padding: EdgeInsets.zero,
             backgroundColor: isDark
                 ? AppColors.darkSurfaceVariant
@@ -267,13 +267,13 @@ class _LargeSearchButton extends StatelessWidget {
               color: isDark ? AppColors.darkBorder : const Color(0xB3E7E5E4),
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
           icon: SizedBox(
-            width: 20,
-            height: 20,
-            child: icon ?? const Icon(Icons.search_rounded, size: 20),
+            width: _appBarChromeIconSize,
+            height: _appBarChromeIconSize,
+            child: icon ?? appBarSearchIcon(),
           ),
         ),
       ),
@@ -343,7 +343,13 @@ class _SearchField extends StatelessWidget {
                 : AppColors.textTertiary,
             fontSize: 14,
           ),
-          prefixIcon: Icon(Icons.search_rounded, size: 20, color: iconColor),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.all(10),
+            child: ColorFiltered(
+              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+              child: appBarSearchIcon(),
+            ),
+          ),
           prefixIconConstraints: const BoxConstraints(
             minWidth: 40,
             minHeight: 40,

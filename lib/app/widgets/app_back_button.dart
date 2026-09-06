@@ -9,15 +9,15 @@ import '../utils/app_focus.dart';
 ButtonStyle appBarChromeButtonStyle(BuildContext context) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   return IconButton.styleFrom(
-    fixedSize: const Size.square(40),
-    minimumSize: const Size.square(40),
+    fixedSize: const Size.square(36),
+    minimumSize: const Size.square(36),
     padding: EdgeInsets.zero,
     backgroundColor: isDark
         ? AppColors.darkSurfaceVariant
         : AppColors.surfaceSoft,
     foregroundColor: isDark ? AppColors.darkTextPrimary : AppColors.secondary,
     side: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.border),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
   );
 }
 
@@ -34,7 +34,7 @@ class AppBackButton extends StatelessWidget {
         tooltip: tooltip ?? MaterialLocalizations.of(context).backButtonTooltip,
         onPressed: onPressed ?? () => AppFocus.maybePop(context),
         style: appBarChromeButtonStyle(context),
-        icon: const Icon(Icons.arrow_back_rounded, size: 20),
+        icon: const Icon(Icons.arrow_back_rounded, size: 16),
       ),
     );
   }
@@ -59,7 +59,7 @@ class AppBarIconButton extends StatelessWidget {
         tooltip: tooltip,
         onPressed: onPressed,
         style: appBarChromeButtonStyle(context),
-        icon: Icon(icon, size: 20),
+        icon: Icon(icon, size: 16),
       ),
     );
   }

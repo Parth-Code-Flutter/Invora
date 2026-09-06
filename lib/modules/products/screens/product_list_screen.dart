@@ -58,11 +58,6 @@ class ProductListScreen extends GetView<ProductListController> {
           title: 'Products & services',
           largeTitle: true,
           backgroundColor: cream,
-          searchIcon: SvgPicture.asset(
-            'assets/icons/party_search.svg',
-            width: 20,
-            height: 20,
-          ),
           titleSuffix: Obx(
             () => Text(
               '(${controller.countFor(null)})',
@@ -538,12 +533,12 @@ class _CatalogScanButton extends StatelessWidget {
     return Center(
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: const [
             BoxShadow(
               color: Color(0x0A161118),
-              blurRadius: 14,
-              offset: Offset(0, 2),
+              blurRadius: 10,
+              offset: Offset(0, 1),
               spreadRadius: -2,
             ),
           ],
@@ -552,8 +547,8 @@ class _CatalogScanButton extends StatelessWidget {
           tooltip: tooltip,
           onPressed: onPressed,
           style: IconButton.styleFrom(
-            fixedSize: const Size.square(44),
-            minimumSize: const Size.square(44),
+            fixedSize: const Size.square(36),
+            minimumSize: const Size.square(36),
             padding: EdgeInsets.zero,
             backgroundColor: isDark
                 ? AppColors.darkSurfaceVariant
@@ -565,13 +560,13 @@ class _CatalogScanButton extends StatelessWidget {
               color: isDark ? AppColors.darkBorder : const Color(0xB3E7E5E4),
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
           icon: SvgPicture.asset(
             'assets/icons/party_scan.svg',
-            width: 20,
-            height: 20,
+            width: 16,
+            height: 16,
           ),
         ),
       ),
