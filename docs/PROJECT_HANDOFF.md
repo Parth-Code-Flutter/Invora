@@ -216,7 +216,7 @@ stores.
   bottom safe area while controls stay above it. Tabs remain icon-only. Names stay on Semantics for
   VoiceOver / TalkBack. All tabs use the exported Figma SVG outline/filled pairs
   from Bottom Navigation System node `4208:2` (Home house, Documents receipt,
-  Products isometric cube, Parties people, More 9-dot grid), in fixed 24px boxes.
+  Products isometric cube, Parties people, More 9-dot grid), in fixed 26px boxes.
   Idle outlines use `#8E7E7A`; active icons keep their `#F43F5E` fills, including
   the cube facets and nine-dot More mark. There is no unread badge on Documents.
   The selected tab has a reserved 14×3 coral-to-plum underline so the five icons
@@ -1044,6 +1044,15 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-07 — Larger phone dock icons
+
+- Phone dock and tablet rail glyphs are 26px instead of 24px so the five
+  Figma icons read more clearly on Home. Bar height, underline, routes,
+  and icon-only labels are unchanged.
+- Important files: `app_main_navigation.dart`, this handoff.
+- Storage: none.
+- Verification: `test/main_navigation_test.dart`.
 
 ### 2026-09-07 — Figma Create Invoice layout
 

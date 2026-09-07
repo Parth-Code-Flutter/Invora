@@ -87,6 +87,7 @@ void main() {
     expect(find.bySemanticsLabel('Parties'), findsOneWidget);
     expect(find.bySemanticsLabel('More'), findsOneWidget);
     expect(find.byType(SvgPicture), findsNWidgets(5));
+    expect(tester.getSize(find.byType(SvgPicture).first), const Size(26, 26));
     expect(find.byType(BackdropFilter), findsNothing);
     expect(
       find.byKey(AppMainNavigation.tabKey(MainDestination.home)),

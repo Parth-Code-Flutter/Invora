@@ -71,6 +71,7 @@ const _dockCoral = Color(0xFFF43F5E);
 const _dockPlum = Color(0xFF6B1B38);
 const _dockRing = Color(0xCCEFE6E1);
 const _dockHeight = 56.0;
+const _dockIconSize = 26.0;
 
 class AppMainNavigation extends StatelessWidget {
   const AppMainNavigation({required this.current, super.key});
@@ -177,12 +178,12 @@ class _DockGlyph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 24,
-    height: 24,
+    width: _dockIconSize,
+    height: _dockIconSize,
     child: SvgPicture.asset(
       selected ? item.filledAsset : item.outlineAsset,
-      width: 24,
-      height: 24,
+      width: _dockIconSize,
+      height: _dockIconSize,
       fit: BoxFit.contain,
       colorFilter: selected
           ? null
