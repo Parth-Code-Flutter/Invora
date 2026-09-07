@@ -236,7 +236,7 @@ stores.
   that same baseline. Icons hide when a three-tab row is too narrow. Haptics
   and one anchored bar stay while content switches; the tab bar no longer
   travels with a `PageView`. Products is a root catalog tab; its add FAB
-  hides on empty All / Products / Services the same way Documents and Parties
+  hides on empty Products / Services the same way Documents and Parties
   hide theirs when the in-list Add CTA is on screen. Estimates, purchase orders, and other create flows stay on their
   screens and under More. Empty lists, search-miss, Home recent activity,
   pickers, and composer first-item cards share `AppEmptyGraphic`: 160×160
@@ -532,17 +532,17 @@ stores.
   Scan fills name, price, tax, and SKU so values can be edited
   before saving. The catalog list has a scan action to open or create an
   item. Lookup is local-only against SKU/barcode attributes.
-- Catalog list uses one segmented control for All / Products / Services, with
+- Catalog list uses one segmented control for Products / Services, with
   counts beside the labels. Items sit in one compact list with hairline
   dividers (no red stripe, no separate puffy cards). Search and scan in the
-  AppBar share the same chrome. All / Products / Services stay full-width
+  AppBar share the same chrome. Products / Services stay full-width
   without horizontal scrolling. Name, details, price, and unit stay aligned.
   Tablet layouts retain responsive multi-column containment.
   The details screen is a focused item record with one compact identity and
   price/unit/GST summary, one non-duplicative information section, an optional
   invoice description, and a persistent `Use in invoice` action. Search lives
   in the AppBar and matches
-  name, description, HSN/SAC, and attributes. Stable All / Products / Services
+  name, description, HSN/SAC, and attributes. Stable Products / Services
   counts come from the complete catalog rather than the current query, and the
   list states its A–Z order. Stream generations prevent stale search/filter
   results from replacing the latest query; load failures preserve data and
@@ -1056,6 +1056,16 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
   this handoff, `docs/QA_CHECKLIST.md`.
 - Storage: none.
 - Verification: `test/invoice_create_screen_test.dart`.
+
+### 2026-09-07 — Drop catalog All tab
+
+- Catalog is Products | Services only. The AppBar title follows the selected
+  tab. Opening the Products dock starts on Products. Add still creates the
+  matching type. Invoice item-picker “All” is unchanged.
+- Important files: `product_list_screen.dart`, `product_list_controller.dart`,
+  `app_catalog_empty_state.dart`, this handoff.
+- Storage: none.
+- Verification: `product_list_screen_test.dart`, `unified_shell_test.dart`.
 
 ### 2026-09-07 — Shared empty graphic 160 / 20 / 13
 

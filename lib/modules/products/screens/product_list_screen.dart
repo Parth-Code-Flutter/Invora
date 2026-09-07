@@ -43,11 +43,7 @@ class ProductListScreen extends GetView<ProductListController> {
     final cream = isDark ? null : _catalogCream;
     return Obx(() {
       final selectedType = controller.selectedType.value;
-      final title = switch (selectedType) {
-        null => 'All',
-        ItemType.product => 'Products',
-        ItemType.service => 'Services',
-      };
+      final title = selectedType == ItemType.service ? 'Services' : 'Products';
       final emptyCreateVisible =
           controller.items.isEmpty &&
           controller.searchQuery.value.isEmpty &&
@@ -56,8 +52,10 @@ class ProductListScreen extends GetView<ProductListController> {
         destination: MainDestination.products,
         floatingActionButton: appListCreateFab(
           emptyCreateVisible: emptyCreateVisible,
-          tooltip: l10n('Add product or service'),
-          onPressed: _openAdd,
+          tooltip: l10n(
+            selectedType == ItemType.service ? 'Add service' : 'Add product',
+          ),
+          onPressed: () => _openAdd(selectedType),
         ),
         appBar: AppSearchAppBar(
           leading: canPop ? const AppBackButton() : null,
@@ -91,16 +89,12 @@ class ProductListScreen extends GetView<ProductListController> {
             children: [
               Obx(
                 () => AppSegmentTabs(
-                  labels: const ['All', 'Products', 'Services'],
+                  labels: const ['Products', 'Services'],
                   inkSelected: true,
                   iconSize: 24,
                   tabHeight: 42,
                   padding: const EdgeInsets.fromLTRB(20, 2, 20, 8),
                   leadingIcons: const [
-                    _CatalogTabIcon(
-                      asset: 'assets/icons/catalog/tab_all.svg',
-                      well: Color(0xFFFDF2F4),
-                    ),
                     _CatalogTabIcon(
                       asset: 'assets/icons/catalog/tab_products.svg',
                       well: Color(0xFFF0FDFA),
@@ -111,29 +105,21 @@ class ProductListScreen extends GetView<ProductListController> {
                     ),
                   ],
                   counts: [
-                    controller.countFor(null),
                     controller.countFor(ItemType.product),
                     controller.countFor(ItemType.service),
                   ],
-                  index: switch (controller.selectedType.value) {
-                    null => 0,
-                    ItemType.product => 1,
-                    ItemType.service => 2,
-                  },
-                  onChanged: (index) => controller.selectType(switch (index) {
-                    1 => ItemType.product,
-                    2 => ItemType.service,
-                    _ => null,
-                  }),
+                  index: controller.selectedType.value == ItemType.service
+                      ? 1
+                      : 0,
+                  onChanged: (index) => controller.selectType(
+                    index == 1 ? ItemType.service : ItemType.product,
+                  ),
                 ),
               ),
               Expanded(
                 child: Obx(() {
-                  final typeIndex = switch (controller.selectedType.value) {
-                    null => 0,
-                    ItemType.product => 1,
-                    ItemType.service => 2,
-                  };
+                  final typeIndex =
+                      controller.selectedType.value == ItemType.service ? 1 : 0;
                   final Widget inner;
                   if (controller.isLoading.value) {
                     inner = const AppListSkeleton();
@@ -167,7 +153,6 @@ class ProductListScreen extends GetView<ProductListController> {
                     final horizontal = ResponsiveUtils.horizontalPadding(
                       context,
                     );
-                    final showType = controller.selectedType.value == null;
                     Widget tile(
                       int index, {
                       required AppGroupedPosition position,
@@ -176,7 +161,7 @@ class ProductListScreen extends GetView<ProductListController> {
                       child: _ProductCatalogTile(
                         item: controller.items[index],
                         currencySymbol: controller.currencySymbol.value,
-                        showType: showType,
+                        showType: false,
                         onHandScaled: controller.onHandFor(
                           controller.items[index],
                         ),
@@ -283,12 +268,10 @@ class ProductListScreen extends GetView<ProductListController> {
                   }
                   return AppSwipeTabs(
                     index: typeIndex,
-                    length: 3,
-                    onChanged: (index) => controller.selectType(switch (index) {
-                      1 => ItemType.product,
-                      2 => ItemType.service,
-                      _ => null,
-                    }),
+                    length: 2,
+                    onChanged: (index) => controller.selectType(
+                      index == 1 ? ItemType.service : ItemType.product,
+                    ),
                     child: inner,
                   );
                 }),

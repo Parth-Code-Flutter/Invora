@@ -24,7 +24,7 @@ class ProductListController extends GetxController {
   final isLoading = true.obs;
   final loadError = RxnString();
   final searchQuery = ''.obs;
-  final selectedType = Rxn<ItemType>();
+  final selectedType = ItemType.product.obs;
   final currencySymbol = '₹'.obs;
   final stockEnabled = false.obs;
   final onHandByProduct = <int, int>{}.obs;
@@ -54,11 +54,11 @@ class ProductListController extends GetxController {
       (_) => _bindItems(),
       time: const Duration(milliseconds: 300),
     );
-    _filterWorker = ever<ItemType?>(selectedType, (_) => _bindItems());
+    _filterWorker = ever<ItemType>(selectedType, (_) => _bindItems());
   }
 
   void updateSearch(String value) => searchQuery.value = value;
-  void selectType(ItemType? type) => selectedType.value = type;
+  void selectType(ItemType type) => selectedType.value = type;
   void retry() {
     _bindCatalogSummary();
     _bindItems();

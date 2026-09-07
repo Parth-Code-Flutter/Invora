@@ -4,9 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../enums/item_type.dart';
 import 'app_empty_state.dart';
 
-enum CatalogEmptyKind { all, products, services }
+enum CatalogEmptyKind { products, services }
 
-/// Figma empty states for catalog All / Products / Services.
+/// Figma empty states for catalog Products / Services.
 class AppCatalogEmptyState extends StatelessWidget {
   const AppCatalogEmptyState({
     required this.kind,
@@ -17,14 +17,11 @@ class AppCatalogEmptyState extends StatelessWidget {
   final CatalogEmptyKind kind;
   final VoidCallback onAdd;
 
-  static CatalogEmptyKind forType(ItemType? type) => switch (type) {
-    null => CatalogEmptyKind.all,
-    ItemType.product => CatalogEmptyKind.products,
-    ItemType.service => CatalogEmptyKind.services,
-  };
+  static CatalogEmptyKind forType(ItemType type) => type == ItemType.service
+      ? CatalogEmptyKind.services
+      : CatalogEmptyKind.products;
 
   String get _asset => switch (kind) {
-    CatalogEmptyKind.all => 'assets/illustrations/empty_catalog_all.png',
     CatalogEmptyKind.products =>
       'assets/illustrations/empty_catalog_products.png',
     CatalogEmptyKind.services =>
@@ -32,13 +29,11 @@ class AppCatalogEmptyState extends StatelessWidget {
   };
 
   String get _title => switch (kind) {
-    CatalogEmptyKind.all => 'No items yet',
     CatalogEmptyKind.products => 'No products yet',
     CatalogEmptyKind.services => 'No services yet',
   };
 
   String get _message => switch (kind) {
-    CatalogEmptyKind.all => 'Add products or services to create instant bills.',
     CatalogEmptyKind.products =>
       'Add inventory items and prices to create instant bills.',
     CatalogEmptyKind.services =>
@@ -46,7 +41,6 @@ class AppCatalogEmptyState extends StatelessWidget {
   };
 
   String get _actionLabel => switch (kind) {
-    CatalogEmptyKind.all => 'Add product or service',
     CatalogEmptyKind.products => 'Add product',
     CatalogEmptyKind.services => 'Add service',
   };
