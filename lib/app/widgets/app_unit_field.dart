@@ -4,6 +4,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../../data/services/unit_service.dart';
 import '../constants/app_colors.dart';
+import '../constants/app_spacing.dart';
 import 'app_dialog.dart';
 import '../themes/app_text_styles.dart';
 import '../utils/app_focus.dart';
@@ -38,8 +39,12 @@ class AppUnitField extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         child: InputDecorator(
           decoration: const InputDecoration(
+            isDense: true,
             floatingLabelBehavior: FloatingLabelBehavior.never,
-            prefixIcon: Icon(Icons.straighten_rounded),
+            contentPadding: AppSpacing.inputPadding,
+            prefixIconConstraints: AppSpacing.inputIconConstraints,
+            suffixIconConstraints: AppSpacing.inputIconConstraints,
+            prefixIcon: Icon(Icons.straighten_rounded, size: 18),
             suffixIcon: Icon(Icons.keyboard_arrow_down_rounded),
           ),
           child: Text(value),

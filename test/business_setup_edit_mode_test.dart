@@ -75,7 +75,17 @@ void main() {
     expect(find.text('Owner / Signatory Name'), findsOneWidget);
     expect(find.text('Sign here'), findsOneWidget);
     expect(find.text('Tap to open signature pad'), findsOneWidget);
+    expect(find.text('Sign again'), findsNothing);
     expect(find.byKey(const Key('profile-signature-pad')), findsOneWidget);
+    expect(find.byKey(const Key('profile-signature-photo')), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Clear')).dx,
+      greaterThan(tester.getTopLeft(find.text('Owner / Signatory Name')).dx),
+    );
+    expect(
+      tester.getTopLeft(find.text('Use a photo')).dy,
+      greaterThan(tester.getTopLeft(find.text('Sign here')).dy),
+    );
     expect(controller.validateEmail(''), isNull);
     expect(controller.validateEmail('invalid-email'), isNotNull);
   });
@@ -138,6 +148,10 @@ void main() {
         tester.getTopLeft(find.text('Appears on top of all receipts')).dy,
       ),
     );
+    expect(
+      tester.getSize(find.byType(TextFormField).first).height,
+      lessThanOrEqualTo(52),
+    );
 
     await tester.enterText(find.byType(TextFormField).first, 'Creovo Studio');
     await tester.pump();
@@ -155,6 +169,8 @@ void main() {
     expect(find.text('Owner / Signatory Name'), findsOneWidget);
     expect(find.text('Sign here'), findsOneWidget);
     expect(find.byKey(const Key('profile-signature-pad')), findsOneWidget);
+    expect(find.text('Sign again'), findsNothing);
+    expect(find.byKey(const Key('profile-signature-photo')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('profile-signature-pad')));
     await tester.pumpAndSettle();

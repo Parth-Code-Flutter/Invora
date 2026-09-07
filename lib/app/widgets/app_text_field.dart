@@ -82,36 +82,30 @@ class AppTextField extends StatelessWidget {
         enabled: enabled,
         autofocus: autofocus,
         autofillHints: autofillHints,
+        textAlignVertical: maxLines > 1
+            ? TextAlignVertical.top
+            : TextAlignVertical.center,
         decoration: InputDecoration(
+          isDense: true,
           hintText: AppLocalizer.text(hint),
           floatingLabelBehavior: FloatingLabelBehavior.never,
           alignLabelWithHint: maxLines > 1,
-          prefixIconConstraints: prefix == null
-              ? const BoxConstraints(minWidth: 50)
-              : const BoxConstraints(minWidth: 0, minHeight: 0),
+          contentPadding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+          prefixIconConstraints: AppSpacing.inputIconConstraints,
           prefixIcon:
               prefix ??
               (prefixIcon == null
                   ? null
                   : Padding(
-                      padding: const EdgeInsets.only(left: 9, right: 7),
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? AppColors.darkSurfaceVariant
-                              : AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          prefixIcon,
-                          color: AppColors.primary,
-                          size: 17,
-                        ),
+                      padding: const EdgeInsets.only(left: 8, right: 4),
+                      child: Icon(
+                        prefixIcon,
+                        color: AppColors.primary,
+                        size: 18,
                       ),
                     )),
           suffixIcon: suffixIcon,
+          suffixIconConstraints: AppSpacing.inputIconConstraints,
           focusedBorder: focusColor == null
               ? null
               : OutlineInputBorder(

@@ -349,6 +349,10 @@ void main() {
       tester.getTopLeft(find.text('Business name')).dy,
       lessThan(tester.getTopLeft(find.text('Enter business name')).dy),
     );
+    expect(
+      tester.getSize(find.byType(TextFormField)).height,
+      lessThanOrEqualTo(52),
+    );
     expect(find.text('Partially paid'), findsOneWidget);
     expect(
       tester.getSemantics(find.byType(AppStatusChip)),

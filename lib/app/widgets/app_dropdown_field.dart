@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide Text;
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_colors.dart';
+import '../constants/app_spacing.dart';
 import '../localization/app_localization.dart';
 import '../themes/app_text_styles.dart';
 import 'app_field_label.dart';
@@ -69,9 +70,15 @@ class AppDropdownField<T> extends StatelessWidget {
             isEmpty: false,
             isHovering: false,
             decoration: InputDecoration(
+              isDense: true,
               enabled: enabled,
               floatingLabelBehavior: FloatingLabelBehavior.never,
-              prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
+              contentPadding: AppSpacing.inputPadding,
+              prefixIconConstraints: AppSpacing.inputIconConstraints,
+              suffixIconConstraints: AppSpacing.inputIconConstraints,
+              prefixIcon: prefixIcon == null
+                  ? null
+                  : Icon(prefixIcon, size: 18),
               suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
             ),
             child: Text(

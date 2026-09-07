@@ -305,9 +305,10 @@ stores.
   adds the Purchase audit/tax/attachment fields. ZIP backup compatibility
   checks use this schema version.
 - Business profile, logo, signature, payment QR, bank, and UPI information.
-  Signature capture opens a full signature-pad dialog from Owner /
-  Signatory Name (or a gallery/camera photo), then stores the image with
-  other business assets for invoice PDFs. Editing an existing profile uses the Figma Business
+  Signature capture opens a full pad from the Owner / Signatory preview.
+  Clear is on the label; Use a photo overlays the pad. Reopening the pad
+  shows the signature already drawn. Gallery/camera photo still stores the
+  image with other business assets for invoice PDFs. Editing an existing profile uses the Figma Business
   Profile screen for both first-time setup and later edits (create title
   stays Business Profile; edit prefixes Edit Business Profile). The live
   bill preview, logo beside business name, category, signature pad, and
@@ -1023,6 +1024,29 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-07 — Compact signature actions on Business Profile
+
+- Clear sits on the right of Owner / Signatory Name. Tapping the pad opens
+  the draw dialog; an existing signature is shown there instead of a blank
+  board. Sign again is gone. Use a photo is a compact white pill with a
+  primary border and label, overlaid on the bottom of the pad.
+- Important files: `business_setup_screen.dart`,
+  `business_setup_controller.dart`, `app_signature_capture.dart`.
+- Storage: none.
+- Verification: profile layout tests (Clear on the label, no Sign again,
+  Use a photo on the pad) and pad dialog test with an existing PNG.
+
+### 2026-09-07 — Compact shared text fields
+
+- `AppTextField` no longer uses a 48px icon slot plus extra padding, which
+  made Business Name on Business Profile much taller than Store Category.
+  Shared text, dropdown, and unit fields now use dense 10px padding and a
+  36px icon cap so they match.
+- Important files: `app_text_field.dart`, `app_spacing.dart`,
+  `app_dropdown_field.dart`, `app_unit_field.dart`.
+- Storage: none.
+- Verification: business-profile and design-system field height tests.
 
 ### 2026-09-07 — Signature pad opens in a dialog
 

@@ -42,7 +42,7 @@ class AppCountryPrefix extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+        padding: const EdgeInsets.fromLTRB(10, 0, 6, 0),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -65,7 +65,7 @@ class AppCountryPrefix extends StatelessWidget {
             ),
             Container(
               width: 1,
-              height: 22,
+              height: 18,
               margin: const EdgeInsets.only(left: 6, right: 4),
               color: isDark ? AppColors.darkBorder : AppColors.border,
             ),

@@ -80,7 +80,10 @@ Future<SignatureCaptureSource?> showSignatureSourceSheet(
   );
 }
 
-Future<Uint8List?> showSignaturePadDialog(BuildContext context) {
+Future<Uint8List?> showSignaturePadDialog(
+  BuildContext context, {
+  Uint8List? existingPng,
+}) {
   final size = MediaQuery.sizeOf(context);
   final tablet = ResponsiveUtils.isTablet(context);
   final height = math.min(
@@ -98,7 +101,7 @@ Future<Uint8List?> showSignaturePadDialog(BuildContext context) {
       child: SizedBox(
         width: tablet ? 760 : size.width,
         height: height,
-        child: const _SignaturePadSheet(),
+        child: _SignaturePadSheet(existingPng: existingPng),
       ),
     ),
   );
@@ -142,6 +145,7 @@ class AppSignaturePad extends StatefulWidget {
     this.padKey,
     this.placeholder = 'Sign here',
     this.borderRadius = 14,
+    this.existingPng,
     this.onInkChanged,
     this.onInteractionChanged,
     super.key,
@@ -150,6 +154,7 @@ class AppSignaturePad extends StatefulWidget {
   final Key? padKey;
   final String placeholder;
   final double borderRadius;
+  final Uint8List? existingPng;
   final ValueChanged<bool>? onInkChanged;
   final ValueChanged<bool>? onInteractionChanged;
 
@@ -161,8 +166,21 @@ class AppSignaturePadState extends State<AppSignaturePad> {
   final _boundaryKey = GlobalKey();
   final _strokes = <List<Offset>>[];
   List<Offset>? _current;
+  Uint8List? _existing;
+
+  @override
+  void initState() {
+    super.initState();
+    _existing = widget.existingPng;
+    if (_existing != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) widget.onInkChanged?.call(true);
+      });
+    }
+  }
 
   bool get hasInk {
+    if (_existing != null) return true;
     if (_current != null && _current!.length > 1) return true;
     return _strokes.any((stroke) => stroke.length > 1);
   }
@@ -171,6 +189,7 @@ class AppSignaturePadState extends State<AppSignaturePad> {
     setState(() {
       _strokes.clear();
       _current = null;
+      _existing = null;
     });
     widget.onInkChanged?.call(false);
   }
@@ -219,20 +238,27 @@ class AppSignaturePadState extends State<AppSignaturePad> {
             key: _boundaryKey,
             child: ColoredBox(
               color: Colors.white,
-              child: GestureDetector(
-                key: widget.padKey ?? const Key('signature-pad'),
-                behavior: HitTestBehavior.opaque,
-                onPanStart: (details) => _start(details.localPosition),
-                onPanUpdate: (details) => _move(details.localPosition),
-                onPanEnd: (_) => _end(),
-                onPanCancel: _end,
-                child: CustomPaint(
-                  painter: _SignaturePainter(
-                    strokes: _strokes,
-                    current: _current,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (_existing != null)
+                    Image.memory(_existing!, fit: BoxFit.contain),
+                  GestureDetector(
+                    key: widget.padKey ?? const Key('signature-pad'),
+                    behavior: HitTestBehavior.opaque,
+                    onPanStart: (details) => _start(details.localPosition),
+                    onPanUpdate: (details) => _move(details.localPosition),
+                    onPanEnd: (_) => _end(),
+                    onPanCancel: _end,
+                    child: CustomPaint(
+                      painter: _SignaturePainter(
+                        strokes: _strokes,
+                        current: _current,
+                      ),
+                      child: const SizedBox.expand(),
+                    ),
                   ),
-                  child: const SizedBox.expand(),
-                ),
+                ],
               ),
             ),
           ),
@@ -255,7 +281,9 @@ class AppSignaturePadState extends State<AppSignaturePad> {
 }
 
 class _SignaturePadSheet extends StatefulWidget {
-  const _SignaturePadSheet();
+  const _SignaturePadSheet({this.existingPng});
+
+  final Uint8List? existingPng;
 
   @override
   State<_SignaturePadSheet> createState() => _SignaturePadSheetState();
@@ -263,7 +291,7 @@ class _SignaturePadSheet extends StatefulWidget {
 
 class _SignaturePadSheetState extends State<_SignaturePadSheet> {
   final _padKey = GlobalKey<AppSignaturePadState>();
-  var _hasInk = false;
+  late bool _hasInk = widget.existingPng != null;
   var _saving = false;
 
   Future<void> _save() async {
@@ -317,6 +345,7 @@ class _SignaturePadSheetState extends State<_SignaturePadSheet> {
               ),
               child: AppSignaturePad(
                 key: _padKey,
+                existingPng: widget.existingPng,
                 onInkChanged: (hasInk) => setState(() => _hasInk = hasInk),
               ),
             ),

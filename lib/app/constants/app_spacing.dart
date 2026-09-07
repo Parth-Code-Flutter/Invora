@@ -18,4 +18,13 @@ abstract final class AppSpacing {
   static const bottomSheetRadius = 24.0;
   static const buttonHeight = 50.0;
   static const minTouchTarget = 48.0;
+  static const inputPadding = EdgeInsets.symmetric(
+    horizontal: 12,
+    vertical: 10,
+  );
+  static const inputIconConstraints = BoxConstraints(
+    minWidth: 36,
+    minHeight: 36,
+    maxHeight: 36,
+  );
 }

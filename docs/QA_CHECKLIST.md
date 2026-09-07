@@ -29,6 +29,7 @@ remain intentionally out of scope until explicitly requested.
   offline across the screen, its dialogs/sheets, and the wider app.
 - Shared text fields and dropdowns keep the label outside and above the box
   (Address, City, State, Currency, catalog fields, and the rest of the app).
+  Input boxes stay compact (~40px) so Business Name matches Store Category.
 - Product fields are grouped into essentials, identity, specifications, and
   variant/date chips; selection remains readable without divider-heavy rows.
 - Selected field chips have clearly visible text/checkmarks in light and dark
@@ -58,8 +59,8 @@ remain intentionally out of scope until explicitly requested.
   first-time setup uses Business Profile (no Edit prefix) and dashboard
   completion routing. The header title and subtitle fit without overflow.
   Identity & Brand puts the business-name field beside the logo, not below it.
-  Owner / Signatory Name opens a full signature-pad dialog (draw, or
-  photo) rather than drawing inside the scrolling form.
+  Owner / Signatory Name has Clear on the label row; tap the pad to draw
+  (existing ink reopens), and Use a photo overlays the bottom of the pad.
 - Plus Jakarta Sans is the only bundled UI/PDF font; invoice, receipt,
   statement, and report PDFs retain Unicode and Indian-rupee rendering.
 - Opening, typing in, cancelling, or saving the custom-field dialog completes

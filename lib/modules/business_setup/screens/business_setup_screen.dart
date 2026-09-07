@@ -692,8 +692,8 @@ class _IdentityCard extends StatelessWidget {
                   label: 'Business Name',
                   requiredField: true,
                   helperText: 'Appears on top of all receipts',
-                  prefix: Padding(
-                    padding: const EdgeInsets.only(left: 12, right: 10),
+                  prefix: const Padding(
+                    padding: EdgeInsets.only(left: 8, right: 8),
                     child: _AssetIcon(BusinessIcons.store, size: 16),
                   ),
                   validator: controller.requiredBusinessName,
@@ -944,122 +944,154 @@ class _OwnerSignatureField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _FieldLabel(label: 'Owner / Signatory Name'),
-        const SizedBox(height: 6),
-        Obx(() {
-          final path = _savedPath();
-          return Material(
+    return Obx(() {
+      final path = _savedPath();
+      final hasSignature = path != null;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: _FieldLabel(label: 'Owner / Signatory Name'),
+              ),
+              TextButton(
+                onPressed: hasSignature ? controller.clearSignature : null,
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  minimumSize: Size.zero,
+                ),
+                child: const Text('Clear'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Material(
             color: isDark ? AppColors.darkSurfaceVariant : Colors.white,
             borderRadius: BorderRadius.circular(12),
             clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              key: const Key('profile-signature-pad'),
-              onTap: () => controller.drawSignature(context),
-              borderRadius: BorderRadius.circular(12),
-              child: Ink(
-                width: double.infinity,
-                height: 148,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark ? AppColors.darkBorder : _ProfileUi.line,
-                  ),
-                ),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (path != null)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 36, 10),
-                        child: Image.file(File(path), fit: BoxFit.contain),
-                      )
-                    else
-                      const Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Sign here',
-                              style: TextStyle(
-                                color: AppColors.textTertiary,
-                                fontSize: 14,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Tap to open signature pad',
-                              style: TextStyle(
-                                color: AppColors.textTertiary,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
+            child: SizedBox(
+              width: double.infinity,
+              height: 148,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  InkWell(
+                    key: const Key('profile-signature-pad'),
+                    onTap: () => controller.drawSignature(context),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : _ProfileUi.line,
                         ),
                       ),
-                    Positioned(
-                      right: 10,
-                      bottom: 10,
-                      child: Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: _ProfileUi.line),
-                        ),
-                        child: const Icon(
-                          Icons.draw_outlined,
-                          size: 15,
-                          color: AppColors.primary,
+                      child: path != null
+                          ? Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                12,
+                                12,
+                                12,
+                                52,
+                              ),
+                              child: Image.file(
+                                File(path),
+                                fit: BoxFit.contain,
+                              ),
+                            )
+                          : const Padding(
+                              padding: EdgeInsets.only(bottom: 48),
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Sign here',
+                                      style: TextStyle(
+                                        color: AppColors.textTertiary,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      'Tap to open signature pad',
+                                      style: TextStyle(
+                                        color: AppColors.textTertiary,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+                  Positioned(
+                    left: 12,
+                    right: 12,
+                    bottom: 10,
+                    child: Center(
+                      child: Material(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        child: InkWell(
+                          key: const Key('profile-signature-photo'),
+                          onTap: () => controller.pickSignaturePhoto(context),
+                          borderRadius: BorderRadius.circular(20),
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.primary),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.photo_outlined,
+                                  size: 16,
+                                  color: AppColors.primary,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Use a photo',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          );
-        }),
-        const SizedBox(height: 6),
-        Text(
-          'Drawn on invoices as your authorized signature.',
-          style: AppTextStyles.small.copyWith(
-            color: _ProfileUi.muted,
-            fontSize: 10,
-            height: 14 / 10,
-            fontWeight: FontWeight.w400,
           ),
-        ),
-        const SizedBox(height: 8),
-        Obx(() {
-          final hasSignature = _savedPath() != null;
-          return Wrap(
-            spacing: 4,
-            runSpacing: 0,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              TextButton.icon(
-                onPressed: hasSignature ? controller.clearSignature : null,
-                icon: const Icon(Icons.refresh_rounded, size: 16),
-                label: const Text('Clear'),
-              ),
-              TextButton.icon(
-                onPressed: () => controller.drawSignature(context),
-                icon: const Icon(Icons.draw_outlined, size: 16),
-                label: Text(hasSignature ? 'Sign again' : 'Sign'),
-              ),
-              TextButton(
-                onPressed: () => controller.pickSignaturePhoto(context),
-                child: const Text('Use a photo'),
-              ),
-            ],
-          );
-        }),
-      ],
-    );
+          const SizedBox(height: 6),
+          Text(
+            'Drawn on invoices as your authorized signature.',
+            style: AppTextStyles.small.copyWith(
+              color: _ProfileUi.muted,
+              fontSize: 10,
+              height: 14 / 10,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      );
+    });
   }
 }
 

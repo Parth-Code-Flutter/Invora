@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
@@ -142,7 +144,12 @@ class BusinessSetupController extends GetxController {
   Future<void> drawSignature(BuildContext context) async {
     await AppFocus.dismissKeyboard();
     if (!context.mounted) return;
-    final bytes = await showSignaturePadDialog(context);
+    final path = signaturePath.value;
+    final existing = path != null && path.isNotEmpty && File(path).existsSync()
+        ? await File(path).readAsBytes()
+        : null;
+    if (!context.mounted) return;
+    final bytes = await showSignaturePadDialog(context, existingPng: existing);
     if (bytes == null) return;
     signaturePath.value = await _imageStorage.storeBytes('signature', bytes);
   }
