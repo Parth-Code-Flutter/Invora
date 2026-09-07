@@ -47,10 +47,11 @@ remain intentionally out of scope until explicitly requested.
 - At narrow Android widths, Dashboard metric labels and Invoice List issue/due
   dates remain complete; Product search copy and Payment Receipt title do not
   truncate. Product and Invoice actions open mobile bottom sheets.
-- The floating dock shows the five Figma SVG glyphs (Home, Documents,
-  Products, Parties, More) without visible labels, without overlap, and
-  overflow-free at 320px in light and dark themes; VoiceOver / TalkBack
-  still speak the destination names.
+- The fixed phone dock shows the five Figma Bottom Navigation System glyphs
+  (Home house, Documents receipt, Products cube, Parties people, More 9-dot
+  grid) without visible labels, without overlap, and overflow-free at 320px
+  in light and dark themes; VoiceOver / TalkBack still speak the destination
+  names. Documents has no unread badge.
 - Invoice create/edit quantity values open a direct-entry sheet, accept whole or
   three-decimal quantities, reject zero/invalid input, and update totals.
 - Existing Business Profile opens the same Figma form as first-time setup,

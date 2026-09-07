@@ -66,9 +66,9 @@ const _dockItems = <_DockItem>[
   ),
 ];
 
-const _dockIdle = Color(0xFF8F827E);
-const _dockCoral = Color(0xFFFF6F61);
-const _dockPlum = Color(0xFF843B62);
+const _dockIdle = Color(0xFF8E7E7A);
+const _dockCoral = Color(0xFFF43F5E);
+const _dockPlum = Color(0xFF6B1B38);
 const _dockRing = Color(0xCCEFE6E1);
 const _dockHeight = 56.0;
 

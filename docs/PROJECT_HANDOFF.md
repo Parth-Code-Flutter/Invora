@@ -210,9 +210,12 @@ stores.
   floating margins, pill corners or shadows. The surface extends through the
   bottom safe area while controls stay above it. Tabs remain icon-only. Names stay on Semantics for
   VoiceOver / TalkBack. All tabs use the exported Figma SVG outline/filled pairs
-  from node `2226:198`, in fixed 24px boxes. Active icons retain their original
-  fills, including the parcel faces and nine-dot More mark. The selected tab has a
-  reserved 14×3 coral-to-plum underline so the five icons share one baseline;
+  from Bottom Navigation System node `4208:2` (Home house, Documents receipt,
+  Products isometric cube, Parties people, More 9-dot grid), in fixed 24px boxes.
+  Idle outlines use `#8E7E7A`; active icons keep their `#F43F5E` fills, including
+  the cube facets and nine-dot More mark. There is no unread badge on Documents.
+  The selected tab has a reserved 14×3 coral-to-plum underline so the five icons
+  share one baseline;
   there is no scale bounce and no chip behind the icon. The dock has no live
   backdrop filter. Both SVG states are decoded at startup and before root
   navigation to avoid a cold decode on tab changes; device flicker QA remains.
@@ -1024,6 +1027,21 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-07 — Figma Bottom Navigation System icons
+
+- Replaced the phone-dock and tablet-rail glyphs with the exported outline
+  and filled SVGs from Figma node `4208:2` (Home, Documents/Bills,
+  Products/Inventory, Parties, More). Destinations stay Home · Documents ·
+  Products · Parties · More on the fixed full-width bar; no floating pill
+  and no Documents notification badge.
+- Idle tint is `#8E7E7A`; selected underline uses `#F43F5E` to `#6B1B38`.
+  Filled icons keep their original colors so the cube facets stay tonal.
+- Important files: `assets/icons/dock/*.svg`, `app_main_navigation.dart`,
+  this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/main_navigation_test.dart` (five SvgPictures, no
+  labels, full-width bar). Device visual QA remains.
 
 ### 2026-09-07 — Compact signature actions on Business Profile
 

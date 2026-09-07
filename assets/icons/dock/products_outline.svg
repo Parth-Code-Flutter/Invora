@@ -1,7 +1,7 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg preserveAspectRatio="xMidYMid meet" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="SVG">
-<path id="Vector" d="M10 2.5L2.91667 6.5V13.5L10 17.5L17.0833 13.5V6.5L10 2.5V2.5" stroke="#8F827E" stroke-width="1.45833" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_2" d="M10 2.5V10.1667M10 10.1667L17.0833 6.5M10 10.1667L2.91667 6.5" stroke="#8F827E" stroke-width="1.45833" stroke-linecap="round" stroke-linejoin="round"/>
-<path id="Vector_3" d="M6.25 4.58333L13.75 8.91667" stroke="#8F827E" stroke-width="1.45833" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector" d="M12 3.2L3.5 8V16L12 20.8L20.5 16V8L12 3.2V3.2" stroke="#8E7E7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M12 3.2V12M12 12L20.5 8M12 12L3.5 8" stroke="#8E7E7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M7.75 5.6L16.25 10.4" stroke="#8E7E7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 </svg>
