@@ -326,7 +326,6 @@ class _InvoiceForm extends StatelessWidget {
                 controller,
                 type: ItemType.service,
               ),
-              onScan: () => _scanProductsForInvoice(context, controller),
             )
           else
             ...controller.items.asMap().entries.map((entry) {
@@ -745,17 +744,15 @@ Future<void> _editInvoiceItem(
   }
 }
 
-/// Empty catalog prompt from Figma Create Invoice (`4210:795`).
+/// Empty items card from Figma Create Invoice (`4210:1074`).
 class _InvoiceEmptyItemsCard extends StatelessWidget {
   const _InvoiceEmptyItemsCard({
     required this.onAddProduct,
     required this.onAddService,
-    required this.onScan,
   });
 
   final VoidCallback onAddProduct;
   final VoidCallback onAddService;
-  final VoidCallback onScan;
 
   @override
   Widget build(BuildContext context) {
@@ -764,46 +761,112 @@ class _InvoiceEmptyItemsCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 22, 16, 18),
       color: isDark ? AppColors.darkSurface : Colors.white,
       child: AppEmptyGraphic(
-        illustration: AppEmptyIllustration.package,
+        illustration: AppEmptyIllustration.invoiceItems,
         title: 'No items added yet',
         subtitle:
             'Add products from your catalog or scan a barcode to build this invoice.',
         padding: EdgeInsets.zero,
-        footer: Column(
+        footer: Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: AppButton(
-                    label: 'Add Product',
-                    icon: Icons.add_rounded,
-                    onPressed: onAddProduct,
-                  ),
+            Expanded(
+              child: AppButton(
+                label: 'Add Product',
+                leading: SvgPicture.asset(
+                  'assets/icons/catalog/add.svg',
+                  width: 20,
+                  height: 20,
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: onAddService,
-                    icon: const Icon(Icons.add_rounded, size: 18),
-                    label: const Text('Add Service'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.primary,
-                      minimumSize: const Size(0, 50),
+                onPressed: onAddProduct,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Semantics(
+                button: true,
+                label: 'Add Service',
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: onAddService,
+                    borderRadius: BorderRadius.circular(13),
+                    child: CustomPaint(
+                      painter: const _DashedRRectPainter(
+                        color: AppColors.primary,
+                        radius: 13,
+                      ),
+                      child: SizedBox(
+                        height: 50,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/catalog/add.svg',
+                              width: 18,
+                              height: 18,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.primary,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                'Add Service',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.button.copyWith(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
-            TextButton.icon(
-              onPressed: onScan,
-              icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
-              label: const Text('Scan barcode'),
+              ),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+class _DashedRRectPainter extends CustomPainter {
+  const _DashedRRectPainter({required this.color, required this.radius});
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(1, 1, size.width - 2, size.height - 2),
+      Radius.circular(radius),
+    );
+    final path = Path()..addRRect(rrect);
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.25
+      ..strokeCap = StrokeCap.round;
+    const dash = 5.0;
+    const gap = 3.5;
+    for (final metric in path.computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final next = (distance + dash).clamp(0, metric.length).toDouble();
+        canvas.drawPath(metric.extractPath(distance, next), paint);
+        distance += dash + gap;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.radius != radius;
 }
 
 Future<void> _editInvoiceNumber(
@@ -1216,26 +1279,48 @@ class _ItemsHeader extends StatelessWidget {
             ],
           ),
         ),
-        IconButton(
-          tooltip: l10n('Scan barcodes'),
-          visualDensity: VisualDensity.compact,
-          style: IconButton.styleFrom(
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            minimumSize: const Size(36, 36),
-          ),
-          onPressed: () => _scanProductsForInvoice(context, controller),
-          icon: const Icon(Icons.qr_code_scanner_rounded, size: 20),
-        ),
-        TextButton.icon(
-          onPressed: () => _showAddItemOptions(context, controller),
-          style: TextButton.styleFrom(
+        if (controller.items.isEmpty)
+          TextButton.icon(
+            onPressed: () => _scanProductsForInvoice(context, controller),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              foregroundColor: AppColors.primary,
+            ),
+            icon: SvgPicture.asset(
+              'assets/icons/party_scan.svg',
+              width: 16,
+              height: 16,
+              colorFilter: const ColorFilter.mode(
+                AppColors.primary,
+                BlendMode.srcIn,
+              ),
+            ),
+            label: const Text('Scan barcode'),
+          )
+        else ...[
+          IconButton(
+            tooltip: l10n('Scan barcodes'),
             visualDensity: VisualDensity.compact,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            style: IconButton.styleFrom(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              minimumSize: const Size(36, 36),
+            ),
+            onPressed: () => _scanProductsForInvoice(context, controller),
+            icon: const Icon(Icons.qr_code_scanner_rounded, size: 20),
           ),
-          icon: const Icon(Icons.add_rounded, size: 18),
-          label: const Text('Add Item'),
-        ),
+          TextButton.icon(
+            onPressed: () => _showAddItemOptions(context, controller),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+            ),
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: const Text('Add Item'),
+          ),
+        ],
       ],
     );
   }

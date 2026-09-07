@@ -10,6 +10,7 @@ import 'app_button.dart';
 enum AppEmptyIllustration {
   invoice('assets/illustrations/empty_invoice.svg'),
   salesInvoice('assets/illustrations/empty_sales_invoice.png'),
+  invoiceItems('assets/illustrations/empty_invoice_items.png'),
   purchaseBills('assets/illustrations/empty_purchase_bills.png'),
   search('assets/illustrations/empty_search.svg'),
   people('assets/illustrations/empty_people.svg'),

@@ -618,8 +618,11 @@ stores.
   screen instead of auto-opening a customer picker. Empty customer is **Add
   Customer**; a selected customer shows initials, phone • city, and GSTIN
   **Looks valid** (format only, never Verified). DATE / TERMS sit in two
-  tiles. Invoice Items has a count, scan, and **+ Add Item**. Empty items use
-  Add Product / Add Service / Scan barcode. Payment & tax breakdown, Mark
+  tiles. Invoice Items has a count. Empty items match Figma `4210:1074`:
+  clipboard + package + ₹ illustration, **No items added yet**, Add Product
+  (gradient) and dashed Add Service, with **Scan barcode** in the header
+  instead of Add Item. After a line exists, the header shows scan + **Add
+  Item**. Payment & tax breakdown, Mark
   invoice as (Unpaid / Part Paid / Paid Full), and notes/terms stay visible.
   The footer is **Add items to continue** until a line exists, then **Review
   invoice** (still opens preview). Caption: Saved offline on phone • Ready
@@ -652,7 +655,7 @@ stores.
   appear as credits and refunds as debits alongside invoices, payments, and
   reversals.
 - Invoice creation uses the Figma composer: customer card, date/terms tiles,
-  count-labelled line items, always-visible tax/payment breakdown, payment
+  count-labelled line items (Figma `4210:1074` empty card), always-visible tax/payment breakdown, payment
   status pills, and notes. Phone layouts avoid repeating the full totals card
   because the fixed footer already keeps Review visible; tablets retain the
   live summary side panel. Product/Service catalog picks reuse the existing
@@ -1041,6 +1044,18 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-07 — Create Invoice empty items Figma card
+
+- Empty Invoice Items now match Figma `4210:1074`: the clipboard / package /
+  rupee illustration, **No items added yet**, side-by-side Add Product and
+  dashed Add Service, and **Scan barcode** in the section header. Add Item
+  stays on the header only after a line exists.
+- Important files: `invoice_create_screen.dart`,
+  `assets/illustrations/empty_invoice_items.png`, `app_empty_state.dart`,
+  this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`.
 
 ### 2026-09-07 — Shared empty graphic 160 / 20 / 13
 

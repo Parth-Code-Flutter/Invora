@@ -94,9 +94,10 @@ remain intentionally out of scope until explicitly requested.
   Verified badge. Footer does not claim cloud sync.
 - Product/service create, filter, edit, units, GST presets, and soft delete.
 - Create Invoice follows Figma `4210:795` (circular back, coral `#INV-…`,
-  Add Customer on the page, DATE/TERMS tiles, Add Product / Add Service /
-  Scan, always-visible tax breakdown and Unpaid / Part Paid / Paid Full,
-  sticky Add items to continue then Review invoice). GSTIN is Looks valid
+  Add Customer on the page, DATE/TERMS tiles) and empty items `4210:1074`
+  (illustration, Add Product / dashed Add Service, Scan barcode in the
+  header). Always-visible tax breakdown and Unpaid / Part Paid / Paid Full,
+  sticky Add items to continue then Review invoice. GSTIN is Looks valid
   only. Review still opens preview. No WhatsApp share until the invoice is
   saved. New invoices no longer auto-open the customer picker.
 - Complete GST lifecycle: business → customer → product → invoice → partial

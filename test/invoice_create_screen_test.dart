@@ -84,6 +84,7 @@ void main() {
     expect(find.text('DATE'), findsOneWidget);
     expect(find.text('TERMS'), findsOneWidget);
     expect(find.text('Invoice Items'), findsOneWidget);
+    expect(find.text('Add Item'), findsNothing);
     expect(find.text('No items added yet'), findsOneWidget);
     expect(find.text('Add Product'), findsOneWidget);
     expect(find.text('Add Service'), findsOneWidget);
@@ -140,6 +141,8 @@ void main() {
     expect(find.text('Add items to continue'), findsNothing);
     expect(find.text('Review invoice'), findsOneWidget);
     expect(find.text('No items added yet'), findsNothing);
+    expect(find.text('Add Item'), findsOneWidget);
+    expect(find.text('Add Product'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }
