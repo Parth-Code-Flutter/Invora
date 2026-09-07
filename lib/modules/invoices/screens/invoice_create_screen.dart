@@ -4,8 +4,13 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
+
 import '../../../app/constants/app_colors.dart';
+import '../../../app/constants/business_icons.dart';
 import '../../../app/enums/discount_type.dart';
+import '../../../app/enums/item_type.dart';
 import '../../../app/enums/tax_type.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
@@ -15,7 +20,6 @@ import '../../../app/utils/quantity_utils.dart';
 import '../../../app/utils/product_attribute_utils.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/tax_utils.dart';
-import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_card.dart';
@@ -40,6 +44,17 @@ import '../scan/product_scan_screen.dart';
 import '../../../data/models/scanned_invoice_line.dart';
 import 'invoice_item_picker_screen.dart';
 
+abstract final class _ComposerUi {
+  static const page = Color(0xFFFAF9F7);
+  static const ink = Color(0xFF1C1917);
+  static const body = Color(0xFF78716C);
+  static const muted = Color(0xFFA8A29E);
+  static const line = Color(0xFFE7E5E4);
+  static const coral = Color(0xFFF43F5E);
+  static const cardRadius = 16.0;
+  static const appBarHeight = 68.0;
+}
+
 class InvoiceCreateScreen extends StatefulWidget {
   const InvoiceCreateScreen({super.key});
 
@@ -49,107 +64,59 @@ class InvoiceCreateScreen extends StatefulWidget {
 
 class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
   late final InvoiceCreateController controller = Get.find();
-  bool _customerPromptScheduled = false;
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final page = isDark ? AppColors.darkBackground : _ComposerUi.page;
     return UnsavedChangesScope(
       hasChanges: () => controller.hasUnsavedChanges,
       onSaveDraft: () => controller.save(draft: true),
       child: Scaffold(
-        appBar: AppBar(
-          leading: const AppBackButton(),
-          title: AppBarTitle(
-            controller.isQuotation ? 'New estimate' : 'New invoice',
-          ),
-          actions: [
-            Obx(
-              () => TextButton.icon(
-                onPressed: controller.isSaving.value
-                    ? null
-                    : () => controller.save(draft: true),
-                icon: const Icon(Icons.bookmark_border_rounded, size: 19),
-                label: const Text('Draft'),
-              ),
-            ),
-            const SizedBox(width: 12),
-          ],
+        backgroundColor: page,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(_ComposerUi.appBarHeight),
+          child: _InvoiceComposerAppBar(controller: controller, page: page),
         ),
         bottomNavigationBar: SafeArea(
           top: false,
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              border: const Border(top: BorderSide(color: AppColors.border)),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              ResponsiveUtils.horizontalPadding(context),
+              12,
+              ResponsiveUtils.horizontalPadding(context),
+              12,
             ),
             child: Obx(() {
               final hasItems = controller.items.isNotEmpty;
-              final actionWidth = (MediaQuery.sizeOf(context).width * .56)
-                  .clamp(210.0, 300.0)
-                  .toDouble();
               return AppConstrainedAction(
                 maxWidth: ResponsiveUtils.footerMaxWidth(context),
-                child: Row(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            !hasItems
-                                ? 'NO ITEMS YET'
-                                : controller
-                                              .calculation
-                                              .value
-                                              ?.balanceDueMinor ==
-                                          0 &&
-                                      hasItems
-                                ? 'READY TO REVIEW'
-                                : 'INVOICE TOTAL',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            hasItems
-                                ? CurrencyUtils.formatMinor(
-                                    controller
-                                            .calculation
-                                            .value
-                                            ?.grandTotalMinor ??
-                                        0,
-                                    symbol: controller.currencySymbol.value,
-                                  )
-                                : CurrencyUtils.formatMinor(
-                                    0,
-                                    symbol: controller.currencySymbol.value,
-                                  ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.sectionTitle,
-                          ),
-                        ],
-                      ),
+                    AppButton(
+                      onPressed: hasItems ? controller.preview : null,
+                      trailingIcon: hasItems
+                          ? Icons.arrow_forward_rounded
+                          : null,
+                      radius: 16,
+                      isLoading: controller.isSaving.value,
+                      label: !hasItems
+                          ? 'Add items to continue'
+                          : controller.isQuotation
+                          ? 'Review estimate'
+                          : 'Review invoice',
                     ),
-                    const SizedBox(width: 12),
-                    SizedBox(
-                      width: actionWidth,
-                      child: AppButton(
-                        onPressed: hasItems
-                            ? controller.preview
-                            : () => _showAddItemOptions(context, controller),
-                        icon: hasItems ? null : Icons.add_rounded,
-                        trailingIcon: hasItems
-                            ? Icons.arrow_forward_rounded
-                            : null,
-                        label: !hasItems
-                            ? 'Add first item'
-                            : controller.isQuotation
-                            ? 'Review estimate'
-                            : 'Review invoice',
+                    const SizedBox(height: 10),
+                    Text(
+                      'Saved offline on phone • Ready for PDF & WhatsApp share',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.small.copyWith(
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : _ComposerUi.muted,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -161,12 +128,6 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
         body: Obx(() {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
-          }
-          if (!_customerPromptScheduled && controller.shouldPromptForCustomer) {
-            _customerPromptScheduled = true;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) _selectCustomer(context, controller);
-            });
           }
           final form = _InvoiceForm(controller: controller);
           final summary = _InvoiceSummary(controller: controller);
@@ -198,6 +159,145 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
   }
 }
 
+class _InvoiceComposerAppBar extends StatelessWidget {
+  const _InvoiceComposerAppBar({required this.controller, required this.page});
+
+  final InvoiceCreateController controller;
+  final Color page;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      color: page,
+      child: SafeArea(
+        bottom: false,
+        child: Container(
+          height: _ComposerUi.appBarHeight,
+          padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: isDark ? AppColors.darkBorder : const Color(0x80E7E5E4),
+              ),
+            ),
+          ),
+          child: Obx(() {
+            final number = controller.invoiceNumber.value;
+            final business = controller.businessName.value.trim();
+            final document = controller.isQuotation
+                ? 'Estimate'
+                : controller.gstInvoice.value
+                ? 'GST Tax Invoice'
+                : 'Tax Invoice';
+            return Row(
+              children: [
+                const _ComposerBack(),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _editInvoiceNumber(context, controller),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          number.isEmpty ? 'New invoice' : '#$number',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.sectionTitle.copyWith(
+                            color: _ComposerUi.coral,
+                            fontSize: 18,
+                            height: 22 / 18,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        Text(
+                          [
+                            if (business.isNotEmpty) business,
+                            document,
+                          ].join(' • '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.small.copyWith(
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : _ComposerUi.body,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: controller.isSaving.value
+                      ? null
+                      : () => controller.save(draft: true),
+                  child: const Text('Draft'),
+                ),
+                IconButton(
+                  tooltip: l10n('Invoice defaults'),
+                  onPressed: () => Get.toNamed<void>(AppRoutes.invoiceDefaults),
+                  icon: Icon(
+                    Icons.settings_outlined,
+                    size: 20,
+                    color: isDark ? AppColors.darkTextPrimary : _ComposerUi.ink,
+                  ),
+                ),
+              ],
+            );
+          }),
+        ),
+      ),
+    );
+  }
+}
+
+class _ComposerBack extends StatelessWidget {
+  const _ComposerBack();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Semantics(
+      button: true,
+      label: MaterialLocalizations.of(context).backButtonTooltip,
+      child: Material(
+        color: isDark ? AppColors.darkSurface : Colors.white,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () => AppFocus.maybePop(context),
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isDark ? AppColors.darkBorder : const Color(0x99E7E5E4),
+              ),
+            ),
+            alignment: Alignment.center,
+            child: SizedBox(
+              width: 16,
+              height: 16,
+              child: SvgPicture.asset(
+                BusinessIcons.back,
+                width: 16,
+                height: 16,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _InvoiceForm extends StatelessWidget {
   const _InvoiceForm({required this.controller});
   final InvoiceCreateController controller;
@@ -208,178 +308,25 @@ class _InvoiceForm extends StatelessWidget {
       () => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AppCard(
-            padding: const EdgeInsets.fromLTRB(14, 13, 14, 14),
-            child: Column(
-              children: [
-                InkWell(
-                  onTap: () => _selectCustomer(context, controller),
-                  borderRadius: BorderRadius.circular(14),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 42,
-                        height: 42,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: controller.customer.value == null
-                              ? AppColors.primaryLight
-                              : AppColors.successLight,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: controller.customer.value == null
-                            ? const Icon(
-                                Icons.person_search_outlined,
-                                color: AppColors.primary,
-                              )
-                            : Text(
-                                controller.customer.value!.name.characters.first
-                                    .toUpperCase(),
-                                style: AppTextStyles.cardTitle.copyWith(
-                                  color: AppColors.success,
-                                ),
-                              ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              controller.customer.value?.name ??
-                                  'Choose a customer',
-                              style: AppTextStyles.cardTitle,
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              controller.customer.value?.companyName ??
-                                  controller.customer.value?.mobile ??
-                                  'Required to create this invoice',
-                              style: AppTextStyles.small.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            controller.customer.value == null
-                                ? 'Select'
-                                : 'Change',
-                            style: AppTextStyles.small.copyWith(
-                              color: AppColors.secondary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          const Icon(
-                            Icons.chevron_right_rounded,
-                            size: 19,
-                            color: AppColors.secondary,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceSoft,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _InvoiceMetaCell(
-                          icon: Icons.tag_rounded,
-                          label: controller.isQuotation
-                              ? 'Estimate'
-                              : 'Invoice',
-                          value: controller.invoiceNumber.value,
-                        ),
-                      ),
-                      Container(width: 1, height: 32, color: AppColors.border),
-                      Expanded(
-                        child: _InvoiceMetaCell(
-                          icon: Icons.calendar_today_outlined,
-                          label: l10n('Issued'),
-                          value: _shortDate(controller.invoiceDate.value),
-                          onTap: () => _pickDate(context, due: false),
-                        ),
-                      ),
-                      Container(width: 1, height: 32, color: AppColors.border),
-                      Expanded(
-                        child: _InvoiceMetaCell(
-                          icon: Icons.event_available_outlined,
-                          label: l10n('Due'),
-                          value: controller.dueDate.value == null
-                              ? 'Add date'
-                              : _shortDate(controller.dueDate.value!),
-                          muted: controller.dueDate.value == null,
-                          onTap: () => _pickDate(context, due: true),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Text('Line items', style: AppTextStyles.sectionTitle),
-                    if (controller.items.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(99),
-                        ),
-                        child: Text(
-                          '${controller.items.length}',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (controller.items.isNotEmpty)
-                FilledButton.tonalIcon(
-                  onPressed: () => _showAddItemOptions(context, controller),
-                  icon: const Icon(Icons.add_rounded, size: 19),
-                  label: const Text('Add'),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(0, 40),
-                    padding: const EdgeInsets.symmetric(horizontal: 13),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
+          _CustomerDetailsSection(controller: controller),
+          const SizedBox(height: 14),
+          _DateTermsRow(controller: controller),
+          const SizedBox(height: 18),
+          _ItemsHeader(controller: controller),
+          const SizedBox(height: 10),
           if (controller.items.isEmpty)
             _InvoiceEmptyItemsCard(
-              onAdd: () => _showAddItemOptions(context, controller),
+              onAddProduct: () => _selectProductForInvoice(
+                context,
+                controller,
+                type: ItemType.product,
+              ),
+              onAddService: () => _selectProductForInvoice(
+                context,
+                controller,
+                type: ItemType.service,
+              ),
+              onScan: () => _scanProductsForInvoice(context, controller),
             )
           else
             ...controller.items.asMap().entries.map((entry) {
@@ -399,15 +346,13 @@ class _InvoiceForm extends StatelessWidget {
                             height: 34,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: AppColors.primaryLight,
+                              color: const Color(0xFFE0F2FE),
                               borderRadius: BorderRadius.circular(11),
                             ),
-                            child: Text(
-                              '${entry.key + 1}',
-                              style: AppTextStyles.small.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w800,
-                              ),
+                            child: const Icon(
+                              Icons.inventory_2_outlined,
+                              size: 18,
+                              color: Color(0xFF0284C7),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -421,6 +366,22 @@ class _InvoiceForm extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextStyles.cardTitle,
                                 ),
+                                const SizedBox(height: 2),
+                                if ((item.hsnSac ?? '').trim().isNotEmpty ||
+                                    item.taxRateBasisPoints > 0)
+                                  Text(
+                                    [
+                                      if ((item.hsnSac ?? '').trim().isNotEmpty)
+                                        'HSN: ${item.hsnSac}',
+                                      if (item.taxRateBasisPoints > 0)
+                                        'Tax: ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)} GST',
+                                    ].join(' • '),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.small.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
                                 if (Get.find<ProductSettingsService>()
                                         .showAttributesOnInvoice &&
                                     item.attributes.isNotEmpty) ...[
@@ -551,6 +512,18 @@ class _InvoiceForm extends StatelessWidget {
                               fontWeight: FontWeight.w800,
                             ),
                           ),
+                          IconButton(
+                            tooltip: l10n('Remove item'),
+                            onPressed: () => _confirmRemoveItem(
+                              context,
+                              onConfirm: () => controller.removeItem(entry.key),
+                            ),
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 18,
+                              color: AppColors.error,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -558,166 +531,18 @@ class _InvoiceForm extends StatelessWidget {
                 ),
               );
             }),
-          const SizedBox(height: 8),
-          if (controller.items.isNotEmpty) ...[
-            if (!ResponsiveUtils.isTablet(context)) const SizedBox(height: 2),
-            OutlinedButton.icon(
-              onPressed: controller.toggleMoreOptions,
-              icon: Icon(
-                controller.showMoreOptions.value
-                    ? Icons.expand_less_rounded
-                    : Icons.tune_rounded,
-              ),
-              label: Text(
-                controller.showMoreOptions.value
-                    ? 'Hide more options'
-                    : 'Tax, discount & more',
-              ),
-            ),
-            if (controller.showMoreOptions.value) ...[
-              const SizedBox(height: 12),
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Taxes & adjustments',
-                      style: AppTextStyles.sectionTitle,
-                    ),
-                    const SizedBox(height: 12),
-                    AppDropdownField<TaxType>(
-                      label: l10n('Tax mode'),
-                      sheetTitle: 'Choose tax mode',
-                      prefixIcon: Icons.account_balance_outlined,
-                      value: controller.taxType.value,
-                      options: [
-                        AppDropdownOption(
-                          value: TaxType.none,
-                          label: l10n('No tax'),
-                          icon: Icons.money_off_csred_outlined,
-                        ),
-                        AppDropdownOption(
-                          value: TaxType.cgstSgst,
-                          label: l10n('CGST + SGST'),
-                          icon: Icons.call_split_rounded,
-                        ),
-                        AppDropdownOption(
-                          value: TaxType.igst,
-                          label: l10n('IGST'),
-                          icon: Icons.arrow_forward_rounded,
-                        ),
-                      ],
-                      onChanged: controller.setTaxType,
-                    ),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Invoice discount'),
-                      subtitle: Text(
-                        _discountLabel(
-                          controller.invoiceDiscount.value,
-                          controller.currencySymbol.value,
-                        ),
-                      ),
-                      trailing: const Icon(Icons.edit_outlined),
-                      onTap: () => _editDiscount(context),
-                    ),
-                    ...controller.charges.asMap().entries.map(
-                      (entry) => ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(entry.value.title),
-                        subtitle: Text(
-                          CurrencyUtils.formatMinor(
-                            entry.value.amountMinor,
-                            symbol: controller.currencySymbol.value,
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: () => controller.removeCharge(entry.key),
-                        ),
-                      ),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => _addCharge(context),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Additional charge'),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              AppCard(
-                child: Column(
-                  children: [
-                    if (!controller.isEditing && !controller.isQuotation) ...[
-                      TextField(
-                        controller: controller.paidController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: l10n('Opening payment'),
-                          hintText: l10n('0.00'),
-                          helperText: l10n(
-                            'Optional payment received when creating this invoice.',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    if (controller.hasRecordedPayments) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.warningLight,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.lock_clock_outlined,
-                              color: AppColors.warning,
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                'Payments are managed from Invoice details. Keep the revised total at or above the amount already paid.',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    TextField(
-                      controller: controller.notesController,
-                      minLines: 2,
-                      maxLines: 2,
-                      textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
-                      decoration: InputDecoration(
-                        labelText: l10n('Notes'),
-                        hintText: l10n('Delivery, packing or internal notes'),
-                        alignLabelWithHint: true,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: controller.termsController,
-                      minLines: 2,
-                      maxLines: 2,
-                      textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
-                      decoration: InputDecoration(
-                        labelText: l10n('Terms & conditions'),
-                        hintText: l10n('e.g. Payment due within 7 days'),
-                        alignLabelWithHint: true,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          const SizedBox(height: 16),
+          _PaymentBreakdownCard(
+            controller: controller,
+            onEditDiscount: () => _editDiscount(context),
+            onAddCharge: () => _addCharge(context),
+          ),
+          if (!controller.isQuotation) ...[
+            const SizedBox(height: 16),
+            _MarkInvoiceStatus(controller: controller),
           ],
+          const SizedBox(height: 16),
+          _NotesTermsCard(controller: controller),
         ],
       ),
     );
@@ -760,23 +585,6 @@ class _InvoiceForm extends StatelessWidget {
       builder: (_) => _QuantityEditorSheet(value: value, unit: unit),
     );
     if (quantity != null) controller.updateItemQuantity(index, quantity);
-  }
-
-  Future<void> _pickDate(BuildContext context, {required bool due}) async {
-    final picked = await showDatePicker(
-      context: context,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
-      initialDate: due
-          ? (controller.dueDate.value ?? controller.invoiceDate.value)
-          : controller.invoiceDate.value,
-    );
-    if (picked == null) return;
-    if (due) {
-      controller.setDueDate(picked);
-    } else {
-      controller.setInvoiceDate(picked);
-    }
   }
 
   Future<void> _editItem(
@@ -884,8 +692,9 @@ Future<void> _showAddItemOptions(
 
 Future<void> _selectProductForInvoice(
   BuildContext context,
-  InvoiceCreateController controller,
-) async {
+  InvoiceCreateController controller, {
+  ItemType? type,
+}) async {
   final selected = await Get.toNamed<dynamic>(
     AppRoutes.invoiceItemPicker,
     arguments: InvoiceItemPickerArgs(
@@ -893,6 +702,7 @@ Future<void> _selectProductForInvoice(
           .map((item) => item.productId)
           .whereType<int>()
           .toSet(),
+      initialFilter: type,
     ),
   );
   if (!context.mounted || selected is! InvoiceItemPickerResult) return;
@@ -935,52 +745,892 @@ Future<void> _editInvoiceItem(
   }
 }
 
-/// Calm first-item prompt. One action opens the existing add-item chooser.
+/// Empty catalog prompt from Figma Create Invoice (`4210:795`).
 class _InvoiceEmptyItemsCard extends StatelessWidget {
-  const _InvoiceEmptyItemsCard({required this.onAdd});
+  const _InvoiceEmptyItemsCard({
+    required this.onAddProduct,
+    required this.onAddService,
+    required this.onScan,
+  });
 
-  final VoidCallback onAdd;
+  final VoidCallback onAddProduct;
+  final VoidCallback onAddService;
+  final VoidCallback onScan;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppCard(
-      padding: const EdgeInsets.fromLTRB(20, 28, 20, 22),
-      color: isDark ? AppColors.darkSurface : const Color(0xFFFFFBFA),
-      borderColor: AppColors.primary.withValues(alpha: .14),
+      padding: const EdgeInsets.fromLTRB(16, 22, 16, 18),
+      color: isDark ? AppColors.darkSurface : Colors.white,
       child: Column(
         children: [
           const AppEmptyArt(
             illustration: AppEmptyIllustration.package,
             width: 132,
             height: 100,
-            semanticLabel: 'No items yet',
+            semanticLabel: 'No items added yet',
           ),
           const SizedBox(height: 12),
           Text(
-            'No items yet',
+            'No items added yet',
             textAlign: TextAlign.center,
             style: AppTextStyles.sectionTitle,
           ),
           const SizedBox(height: 6),
           Text(
-            'Add a saved product, scan a barcode, or enter a one-time item.',
+            'Add products from your catalog or scan a barcode to build this invoice.',
             textAlign: TextAlign.center,
             style: AppTextStyles.body.copyWith(
               color: AppColors.textSecondary,
               height: 1.45,
             ),
           ),
-          const SizedBox(height: 20),
-          AppButton(
-            label: 'Add an item',
-            icon: Icons.add_rounded,
-            onPressed: onAdd,
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  label: 'Add Product',
+                  icon: Icons.add_rounded,
+                  onPressed: onAddProduct,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onAddService,
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: const Text('Add Service'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    minimumSize: const Size(0, 50),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          TextButton.icon(
+            onPressed: onScan,
+            icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
+            label: const Text('Scan barcode'),
           ),
         ],
       ),
     );
   }
+}
+
+Future<void> _editInvoiceNumber(
+  BuildContext context,
+  InvoiceCreateController controller,
+) async {
+  final input = TextEditingController(text: controller.invoiceNumber.value);
+  final saved = await showDialog<String>(
+    context: context,
+    builder: (dialogContext) => AppDialog(
+      tone: AppDialogTone.info,
+      form: true,
+      title: Text(
+        controller.isQuotation ? 'Estimate number' : 'Invoice number',
+      ),
+      content: TextField(
+        controller: input,
+        autofocus: true,
+        textCapitalization: TextCapitalization.characters,
+        decoration: InputDecoration(
+          labelText: controller.isQuotation
+              ? 'Estimate number'
+              : 'Invoice number',
+          hintText: 'INV-0001',
+        ),
+      ),
+      actions: [
+        AppDialogButton(
+          label: l10n('Cancel'),
+          variant: AppDialogButtonVariant.outlined,
+          onPressed: () => Navigator.pop(dialogContext),
+        ),
+        AppDialogButton(
+          label: l10n('Save'),
+          onPressed: () => Navigator.pop(dialogContext, input.text),
+        ),
+      ],
+    ),
+  );
+  input.dispose();
+  if (saved != null) controller.setInvoiceNumber(saved);
+}
+
+class _SectionEyebrow extends StatelessWidget {
+  const _SectionEyebrow(this.label, {this.trailing});
+
+  final String label;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.small.copyWith(
+              color: isDark ? AppColors.darkTextSecondary : _ComposerUi.body,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.05,
+              fontSize: 11,
+            ),
+          ),
+        ),
+        if (trailing != null)
+          Flexible(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: trailing,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CustomerDetailsSection extends StatelessWidget {
+  const _CustomerDetailsSection({required this.controller});
+
+  final InvoiceCreateController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final customer = controller.customer.value;
+    if (customer == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const _SectionEyebrow('CUSTOMER DETAILS'),
+          const SizedBox(height: 8),
+          Material(
+            color: isDark ? AppColors.darkSurface : Colors.white,
+            borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
+            child: InkWell(
+              onTap: () => _selectCustomer(context, controller),
+              borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
+                  border: Border.all(
+                    color: isDark ? AppColors.darkBorder : _ComposerUi.line,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 28,
+                      height: 28,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.add_rounded,
+                        size: 18,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Add Customer',
+                      style: AppTextStyles.cardTitle.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    final gstin = customer.gstin?.trim() ?? '';
+    final location = [
+      customer.city,
+      customer.state,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(', ');
+    final contact = [
+      customer.mobile,
+      if (location.isNotEmpty) location,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' • ');
+    final initials = customer.name.characters.take(2).toString().toUpperCase();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SectionEyebrow(
+          'CUSTOMER DETAILS',
+          trailing: TextButton(
+            onPressed: () => _selectCustomer(context, controller),
+            child: const Text('Change'),
+          ),
+        ),
+        Material(
+          color: isDark ? AppColors.darkSurface : Colors.white,
+          borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
+          child: InkWell(
+            onTap: () => _selectCustomer(context, controller),
+            borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
+                border: Border.all(
+                  color: isDark ? AppColors.darkBorder : _ComposerUi.line,
+                ),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: AppColors.primaryLight,
+                    child: Text(
+                      initials,
+                      style: AppTextStyles.cardTitle.copyWith(
+                        color: AppColors.primary,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          customer.companyName?.trim().isNotEmpty == true
+                              ? customer.companyName!
+                              : customer.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.cardTitle,
+                        ),
+                        if (contact.isNotEmpty) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            contact,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.small.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                        if (gstin.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              if (_gstinLooksValid(gstin))
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.successLight,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    'Looks valid',
+                                    style: AppTextStyles.small.copyWith(
+                                      color: AppColors.success,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
+                              Text(
+                                gstin.length > 12
+                                    ? '${gstin.substring(0, 10)}...'
+                                    : gstin,
+                                style: AppTextStyles.small.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textTertiary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DateTermsRow extends StatelessWidget {
+  const _DateTermsRow({required this.controller});
+
+  final InvoiceCreateController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final due = controller.dueDate.value;
+    final days = controller.paymentTermDays;
+    return Row(
+      children: [
+        Expanded(
+          child: _MetaTile(
+            icon: Icons.calendar_today_outlined,
+            iconColor: _ComposerUi.coral,
+            label: 'DATE',
+            value: _prettyDate(controller.invoiceDate.value),
+            onTap: () => _pickComposerDate(context, controller, due: false),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _MetaTile(
+            icon: Icons.schedule_rounded,
+            iconColor: AppColors.secondary,
+            label: 'TERMS',
+            value: due == null
+                ? 'Add due date'
+                : 'Net $days (${_shortMonthDay(due)})',
+            onTap: () => _pickComposerDate(context, controller, due: true),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MetaTile extends StatelessWidget {
+  const _MetaTile({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      color: isDark ? AppColors.darkSurface : Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isDark ? AppColors.darkBorder : _ComposerUi.line,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 16, color: iconColor),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: AppTextStyles.caption.copyWith(
+                        fontSize: 10,
+                        letterSpacing: 0.6,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.small.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : _ComposerUi.ink,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ItemsHeader extends StatelessWidget {
+  const _ItemsHeader({required this.controller});
+
+  final InvoiceCreateController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  'Invoice Items',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.sectionTitle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: _isDarkSurface(context)
+                      ? AppColors.darkSurfaceVariant
+                      : const Color(0xFFF5F5F4),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Text(
+                  '${controller.items.length}',
+                  style: AppTextStyles.caption.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        IconButton(
+          tooltip: l10n('Scan barcodes'),
+          visualDensity: VisualDensity.compact,
+          style: IconButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            minimumSize: const Size(36, 36),
+          ),
+          onPressed: () => _scanProductsForInvoice(context, controller),
+          icon: const Icon(Icons.qr_code_scanner_rounded, size: 20),
+        ),
+        TextButton.icon(
+          onPressed: () => _showAddItemOptions(context, controller),
+          style: TextButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+          ),
+          icon: const Icon(Icons.add_rounded, size: 18),
+          label: const Text('Add Item'),
+        ),
+      ],
+    );
+  }
+}
+
+bool _isDarkSurface(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark;
+
+class _PaymentBreakdownCard extends StatelessWidget {
+  const _PaymentBreakdownCard({
+    required this.controller,
+    required this.onEditDiscount,
+    required this.onAddCharge,
+  });
+
+  final InvoiceCreateController controller;
+  final VoidCallback onEditDiscount;
+  final VoidCallback onAddCharge;
+
+  @override
+  Widget build(BuildContext context) {
+    final result = controller.calculation.value;
+    final symbol = controller.currencySymbol.value;
+    final taxLabel = switch (controller.taxType.value) {
+      TaxType.cgstSgst => 'Intrastate (CGST + SGST)',
+      TaxType.igst => 'Interstate (IGST)',
+      TaxType.none => 'No tax',
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SectionEyebrow(
+          'PAYMENT & TAX BREAKDOWN',
+          trailing: TextButton(
+            onPressed: () => _pickTaxMode(context, controller),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              minimumSize: Size.zero,
+            ),
+            child: Text(
+              taxLabel,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.small.copyWith(
+                color: AppColors.success,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        AppCard(
+          child: Column(
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Overall invoice discount'),
+                subtitle: Text(
+                  _discountLabel(controller.invoiceDiscount.value, symbol),
+                ),
+                trailing: const Icon(Icons.edit_outlined),
+                onTap: onEditDiscount,
+              ),
+              if (result != null) ...[
+                _amountRow('Items Subtotal', result.subtotalMinor, symbol),
+                if (result.itemDiscountTotalMinor > 0)
+                  _amountRow(
+                    'Item discounts',
+                    -result.itemDiscountTotalMinor,
+                    symbol,
+                  ),
+                if (result.invoiceDiscountMinor > 0)
+                  _amountRow('Discount', -result.invoiceDiscountMinor, symbol),
+                if (result.cgstMinor > 0)
+                  _amountRow('CGST', result.cgstMinor, symbol),
+                if (result.sgstMinor > 0)
+                  _amountRow('SGST', result.sgstMinor, symbol),
+                if (result.igstMinor > 0)
+                  _amountRow('IGST', result.igstMinor, symbol),
+                if (result.additionalChargeTotalMinor > 0)
+                  _amountRow(
+                    'Additional charges',
+                    result.additionalChargeTotalMinor,
+                    symbol,
+                  ),
+                _amountRow('Round off', result.roundOffMinor, symbol),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Total Invoice Amount',
+                        style: AppTextStyles.cardTitle,
+                      ),
+                    ),
+                    Text(
+                      CurrencyUtils.formatMinor(
+                        result.grandTotalMinor,
+                        symbol: symbol,
+                      ),
+                      style: AppTextStyles.sectionTitle.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+                if (result.cgstMinor + result.sgstMinor + result.igstMinor > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'Including ${CurrencyUtils.formatMinor(result.cgstMinor + result.sgstMinor + result.igstMinor, symbol: symbol)} GST total',
+                        style: AppTextStyles.small.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+              ...controller.charges.asMap().entries.map(
+                (entry) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(entry.value.title),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.close, size: 18),
+                    onPressed: () => controller.removeCharge(entry.key),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: onAddCharge,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Additional charge'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MarkInvoiceStatus extends StatelessWidget {
+  const _MarkInvoiceStatus({required this.controller});
+
+  final InvoiceCreateController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    if (controller.hasRecordedPayments) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.warningLight,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: const Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.lock_clock_outlined, color: AppColors.warning),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Payments are managed from Invoice details. Keep the revised total at or above the amount already paid.',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    final paid = controller.calculation.value?.paidAmountMinor ?? 0;
+    final total = controller.calculation.value?.grandTotalMinor ?? 0;
+    final full = total > 0 && paid >= total;
+    final partial = paid > 0 && !full;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _SectionEyebrow('MARK INVOICE AS'),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: _StatusPill(
+                label: 'Unpaid',
+                selected: paid == 0,
+                color: const Color(0xFF2563EB),
+                onTap: controller.markUnpaid,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _StatusPill(
+                label: 'Part Paid',
+                selected: controller.requestingPartialPayment.value || partial,
+                color: AppColors.warning,
+                onTap: controller.markPartPaid,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _StatusPill(
+                label: 'Paid Full',
+                selected: full,
+                color: AppColors.success,
+                onTap: controller.markPaidInFull,
+              ),
+            ),
+          ],
+        ),
+        if (controller.requestingPartialPayment.value ||
+            (paid > 0 && !full)) ...[
+          const SizedBox(height: 10),
+          TextField(
+            controller: controller.paidController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: l10n('Opening payment'),
+              hintText: l10n('0.00'),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({
+    required this.label,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? color.withValues(alpha: .12) : Colors.white,
+      borderRadius: BorderRadius.circular(30),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(30),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: selected ? color : _ComposerUi.line),
+          ),
+          alignment: Alignment.center,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.small.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NotesTermsCard extends StatelessWidget {
+  const _NotesTermsCard({required this.controller});
+
+  final InvoiceCreateController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _SectionEyebrow('INVOICE NOTES & TERMS'),
+        const SizedBox(height: 8),
+        AppCard(
+          child: Column(
+            children: [
+              TextField(
+                controller: controller.notesController,
+                minLines: 2,
+                maxLines: 2,
+                textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
+                decoration: InputDecoration(
+                  labelText: l10n('Notes'),
+                  hintText: l10n('Delivery, packing or internal notes'),
+                  alignLabelWithHint: true,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller.termsController,
+                minLines: 2,
+                maxLines: 2,
+                textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
+                decoration: InputDecoration(
+                  labelText: l10n('Terms & conditions'),
+                  hintText: l10n('e.g. Goods once sold will not be taken back'),
+                  alignLabelWithHint: true,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Future<void> _pickComposerDate(
+  BuildContext context,
+  InvoiceCreateController controller, {
+  required bool due,
+}) async {
+  final picked = await showDatePicker(
+    context: context,
+    firstDate: DateTime(2020),
+    lastDate: DateTime(2100),
+    initialDate: due
+        ? (controller.dueDate.value ?? controller.invoiceDate.value)
+        : controller.invoiceDate.value,
+  );
+  if (picked == null) return;
+  if (due) {
+    controller.setDueDate(picked);
+  } else {
+    controller.setInvoiceDate(picked);
+  }
+}
+
+Future<void> _pickTaxMode(
+  BuildContext context,
+  InvoiceCreateController controller,
+) async {
+  final selected = await showAppDropdownSheet<TaxType>(
+    context: context,
+    title: 'Choose tax mode',
+    value: controller.taxType.value,
+    options: [
+      AppDropdownOption(value: TaxType.none, label: l10n('No tax')),
+      AppDropdownOption(value: TaxType.cgstSgst, label: l10n('CGST + SGST')),
+      AppDropdownOption(value: TaxType.igst, label: l10n('IGST')),
+    ],
+  );
+  if (selected != null) controller.setTaxType(selected);
 }
 
 Future<void> _selectCustomer(
@@ -1173,66 +1823,6 @@ class _SummaryMetric extends StatelessWidget {
         ),
       ),
     ],
-  );
-}
-
-class _InvoiceMetaCell extends StatelessWidget {
-  const _InvoiceMetaCell({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.onTap,
-    this.muted = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final VoidCallback? onTap;
-  final bool muted;
-
-  @override
-  Widget build(BuildContext context) => Material(
-    color: Colors.transparent,
-    borderRadius: BorderRadius.circular(12),
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 13, color: AppColors.primary),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    label.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.caption.copyWith(fontSize: 9),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.small.copyWith(
-                color: muted
-                    ? AppColors.textTertiary
-                    : Theme.of(context).colorScheme.onSurface,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
   );
 }
 
@@ -2436,8 +3026,14 @@ Widget _amountRow(
   ),
 );
 
-String _shortDate(DateTime value) =>
-    '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}';
+String _prettyDate(DateTime value) => DateFormat('dd MMM yyyy').format(value);
+
+String _shortMonthDay(DateTime value) => DateFormat('dd MMM').format(value);
+
+bool _gstinLooksValid(String gstin) {
+  final trimmed = gstin.trim().toUpperCase();
+  return trimmed.length == 15 && RegExp(r'^[0-9A-Z]{15}$').hasMatch(trimmed);
+}
 
 String _discountLabel(DiscountInput discount, String symbol) =>
     switch (discount.type) {

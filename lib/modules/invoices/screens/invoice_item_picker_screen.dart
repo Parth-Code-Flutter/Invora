@@ -26,10 +26,12 @@ class InvoiceItemPickerArgs {
   const InvoiceItemPickerArgs({
     this.alreadyAddedIds = const {},
     this.alreadyAddedLabel = 'On invoice',
+    this.initialFilter,
   });
 
   final Set<int> alreadyAddedIds;
   final String alreadyAddedLabel;
+  final ItemType? initialFilter;
 }
 
 class InvoiceItemPickerResult {
@@ -73,8 +75,9 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
     _alreadyAddedLabel = args is InvoiceItemPickerArgs
         ? args.alreadyAddedLabel
         : 'On invoice';
+    _filter = args is InvoiceItemPickerArgs ? args.initialFilter : null;
     _selectedIds.addAll(_alreadyAdded);
-    _itemsStream = _repository.watchItems();
+    _itemsStream = _repository.watchItems(type: _filter);
     _loadCurrency();
   }
 

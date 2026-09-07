@@ -21,6 +21,7 @@ class AppTextField extends StatelessWidget {
     this.maxLines = 1,
     this.minLines,
     this.prefixIcon,
+    this.prefixIconWidget,
     this.prefix,
     this.suffixIcon,
     this.obscureText = false,
@@ -46,6 +47,7 @@ class AppTextField extends StatelessWidget {
   final int maxLines;
   final int? minLines;
   final IconData? prefixIcon;
+  final Widget? prefixIconWidget;
   final Widget? prefix;
   final Widget? suffixIcon;
   final bool obscureText;
@@ -68,7 +70,16 @@ class AppTextField extends StatelessWidget {
     final iconConstraints = multiline
         ? AppSpacing.multilineInputIconConstraints
         : AppSpacing.inputIconConstraints;
-    final icon = prefixIcon == null
+    final icon = prefixIconWidget != null
+        ? Padding(
+            padding: EdgeInsets.only(
+              left: 8,
+              right: 4,
+              top: multiline ? 10 : 0,
+            ),
+            child: prefixIconWidget,
+          )
+        : prefixIcon == null
         ? null
         : Padding(
             padding: EdgeInsets.only(

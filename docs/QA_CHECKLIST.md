@@ -86,10 +86,18 @@ remain intentionally out of scope until explicitly requested.
   `firestore.rules` file starting with `rules_version`.
 - Business profile persists with GST identity and invoice defaults.
 - Customer create, search, edit, validation, and soft delete. Add Customer
-  uses the shared country picker, stores E.164 mobiles, and can open a new
-  invoice after save. GSTIN is optional format-checked copy only — no
-  government portal lookup.
+  follows Figma `2241:359` (circular back, CORE DETAILS card, GSTIN
+  accordion, sticky Save Customer). Phone uses the shared country picker,
+  stores E.164 mobiles, and can open a new invoice after save. GSTIN is
+  optional format-checked copy only — no government portal lookup or
+  Verified badge. Footer does not claim cloud sync.
 - Product/service create, filter, edit, units, GST presets, and soft delete.
+- Create Invoice follows Figma `4210:795` (circular back, coral `#INV-…`,
+  Add Customer on the page, DATE/TERMS tiles, Add Product / Add Service /
+  Scan, always-visible tax breakdown and Unpaid / Part Paid / Paid Full,
+  sticky Add items to continue then Review invoice). GSTIN is Looks valid
+  only. Review still opens preview. No WhatsApp share until the invoice is
+  saved. New invoices no longer auto-open the customer picker.
 - Complete GST lifecycle: business → customer → product → invoice → partial
   payment → reversal → full payment.
 - Payment receipt numbering, INR PDF generation, and reversed-payment receipt

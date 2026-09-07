@@ -484,11 +484,12 @@ stores.
 - GSTIN, trade name, billing address, PIN, and GST state support. Email,
   city, and private notes stay in the model and are preserved on save
   even though the Figma form hides them.
-- Add Customer follows Figma node `2241:359`: cream page, CORE DETAILS,
-  expandable GSTIN & Billing Address (open by default), sticky Save
-  Customer, and an optional create-invoice checkbox. There is no GSTIN
-  portal lookup and no shipping-address table. Footer copy stays honest
-  (on-device save, not cloud sync).
+- Add Customer follows Figma node `2241:359`: cream page, circular back,
+  CORE DETAILS card with FAST BILLING, phone country picker + contacts,
+  expandable GSTIN & Billing Address (open by default), and a sticky
+  Save Customer with the create-invoice checkbox in the footer. There is
+  no GSTIN portal lookup, no Verified badge, and no shipping-address
+  table. Footer copy stays honest (on-device save, not cloud sync).
 - Create-customer action directly inside invoice customer selection; customers
   saved there are immediately returned to and selected for the invoice. The
   create-invoice checkbox is hidden in that flow.
@@ -614,8 +615,18 @@ stores.
 - Quotation-to-invoice conversion
 - Customer and valid items required before final save, preview, PDF, sharing,
   printing, or payment; incomplete work may be saved as a draft
-- New invoices start with an automatic customer picker, then show customer and
-  invoice metadata in one compact header with direct saved/custom item actions
+- New invoices match Figma Create Invoice (`4210:795`): cream page, circular
+  back, coral `#INV-…` title (tap to edit number), `{business} • GST Tax
+  Invoice` subtitle, and Draft + invoice-defaults gear. The composer stays on
+  screen instead of auto-opening a customer picker. Empty customer is **Add
+  Customer**; a selected customer shows initials, phone • city, and GSTIN
+  **Looks valid** (format only, never Verified). DATE / TERMS sit in two
+  tiles. Invoice Items has a count, scan, and **+ Add Item**. Empty items use
+  Add Product / Add Service / Scan barcode. Payment & tax breakdown, Mark
+  invoice as (Unpaid / Part Paid / Paid Full), and notes/terms stay visible.
+  The footer is **Add items to continue** until a line exists, then **Review
+  invoice** (still opens preview). Caption: Saved offline on phone • Ready
+  for PDF & WhatsApp share. No WhatsApp share from an unsaved composer.
 - Customer selection uses a focused searchable bottom sheet. Saved catalog
   selection uses a dedicated full-screen workspace designed for 100+ records,
   with debounced search, Product/Service filters, persistent checkboxes,
@@ -643,11 +654,12 @@ stores.
   sticky footer. Save and print remain in the AppBar overflow. Credit notes
   appear as credits and refunds as debits alongside invoices, payments, and
   reversals.
-- Invoice creation uses a focused composer hierarchy: compact customer/invoice
-  header, equal-width metadata controls, count-labelled line items, secondary
-  tax/discount disclosure, and a non-duplicated empty-item flow. Phone layouts
-  avoid repeating the full totals card because the fixed footer already keeps
-  total and Review visible; tablets retain the live summary side panel.
+- Invoice creation uses the Figma composer: customer card, date/terms tiles,
+  count-labelled line items, always-visible tax/payment breakdown, payment
+  status pills, and notes. Phone layouts avoid repeating the full totals card
+  because the fixed footer already keeps Review visible; tablets retain the
+  live summary side panel. Product/Service catalog picks reuse the existing
+  full-screen picker with an optional initial filter.
 - Customer and invoice lists replace blocking spinners with reusable animated
   skeleton rows and apply a subtle staggered fade/translate/scale entrance as
   rows are built during initial display and scrolling. System reduced-motion
@@ -1032,6 +1044,38 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-07 — Figma Create Invoice layout
+
+- Create Invoice now matches Figma `4210:795`: cream page, circular back,
+  coral invoice number, business • GST Tax Invoice subtitle, on-screen Add
+  Customer (no auto picker), DATE/TERMS tiles, Invoice Items with Add
+  Product / Add Service / Scan, always-visible payment & tax breakdown,
+  Unpaid / Part Paid / Paid Full, notes, and a disabled **Add items to
+  continue** footer until a line exists. Review invoice still opens preview.
+  GSTIN stays Looks valid. No WhatsApp share from an unsaved composer.
+- Important files: `invoice_create_screen.dart`,
+  `invoice_create_controller.dart`, `invoice_item_picker_screen.dart`,
+  `coverage_translation_maps.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `invoice_create_screen_test.dart`,
+  `invoice_create_controller_test.dart`, `responsive_layout_test.dart`.
+  Device visual QA remains.
+
+### 2026-09-07 — Figma Add Customer layout
+
+- Create Customer now matches Figma `2241:359` more closely: circular
+  back, cream page, CORE DETAILS in a white card, GSTIN accordion with a
+  section icon and B2B Ready pill, Figma field hints, coral checkbox, and
+  sticky Save Customer. Phone still uses the shared country picker.
+  GSTIN shows Looks valid for a 15-character format match only. Footer
+  stays “Instant offline save • Stays on this device”. Shipping-same and
+  government-portal auto-fill were not copied.
+- Important files: `customer_form_screen.dart`, `app_text_field.dart`,
+  `coverage_translation_maps.dart`, `customer_form_screen_test.dart`,
+  this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `customer_form_screen_test.dart`. Device visual QA remains.
 
 ### 2026-09-07 — Center hint text except in multiline fields
 

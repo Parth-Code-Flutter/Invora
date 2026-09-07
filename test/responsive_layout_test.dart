@@ -158,7 +158,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 900));
 
-    expect(find.text('New invoice'), findsOneWidget);
+    expect(find.text('CUSTOMER DETAILS'), findsOneWidget);
+    expect(find.text('Add Customer'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
     await tester.pumpWidget(const SizedBox.shrink());

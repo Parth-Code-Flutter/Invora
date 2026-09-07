@@ -103,6 +103,10 @@ void main() {
         'Save payment',
         'Create product',
         'Keep stock for this item',
+        'Add items to continue',
+        'CUSTOMER DETAILS',
+        'Invoice Items',
+        'PAYMENT & TAX BREAKDOWN',
       ];
       for (final language in [AppLanguage.hindi, AppLanguage.gujarati]) {
         for (final phrase in phrases) {

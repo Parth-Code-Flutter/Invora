@@ -45,7 +45,7 @@ class InvoiceCreateController extends GetxController {
   bool get isEditing => _id != null;
   bool get hasRecordedPayments =>
       isEditing && (calculation.value?.paidAmountMinor ?? 0) > 0;
-  bool get shouldPromptForCustomer => _id == null && customer.value == null;
+  bool get shouldPromptForCustomer => false;
 
   final invoiceNumber = ''.obs;
   final customer = Rxn<CustomerSnapshotModel>();
@@ -60,6 +60,9 @@ class InvoiceCreateController extends GetxController {
   final isSaving = false.obs;
   final showMoreOptions = false.obs;
   final currencySymbol = '₹'.obs;
+  final businessName = ''.obs;
+  final gstInvoice = false.obs;
+  final requestingPartialPayment = false.obs;
   final notesController = TextEditingController();
   final termsController = TextEditingController();
   final paidController = TextEditingController();
@@ -90,6 +93,10 @@ class InvoiceCreateController extends GetxController {
   Future<void> _initialize() async {
     final profile = await _business.getProfile();
     currencySymbol.value = profile?.currencySymbol ?? '₹';
+    businessName.value = profile?.businessName.trim() ?? '';
+    gstInvoice.value =
+        profile?.gstRegistered == true ||
+        (profile?.gstin?.trim().isNotEmpty ?? false);
     final arguments = Get.arguments;
     final argumentId = arguments is int
         ? arguments
@@ -346,6 +353,42 @@ class InvoiceCreateController extends GetxController {
 
   void setInvoiceDiscount(DiscountInput value) {
     invoiceDiscount.value = value;
+    recalculate();
+  }
+
+  void setInvoiceNumber(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    invoiceNumber.value = trimmed;
+  }
+
+  int get paymentTermDays {
+    final due = dueDate.value;
+    if (due == null) return 0;
+    return _calendarDayDifference(invoiceDate.value, due);
+  }
+
+  void markUnpaid() {
+    requestingPartialPayment.value = false;
+    paidController.text = '';
+    recalculate();
+  }
+
+  void markPartPaid() {
+    requestingPartialPayment.value = true;
+    final total = calculation.value?.grandTotalMinor ?? 0;
+    final paid = calculation.value?.paidAmountMinor ?? 0;
+    if (paid <= 0 || paid >= total) {
+      paidController.clear();
+    }
+    recalculate();
+  }
+
+  void markPaidInFull() {
+    requestingPartialPayment.value = false;
+    paidController.text = CurrencyUtils.toInputValue(
+      calculation.value?.grandTotalMinor ?? 0,
+    );
     recalculate();
   }
 

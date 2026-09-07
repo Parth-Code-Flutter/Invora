@@ -184,4 +184,63 @@ void main() {
       await database.close();
     },
   );
+
+  test('new invoices do not auto-prompt for a customer', () async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final controller = InvoiceCreateController(
+      InvoiceRepository(database),
+      BusinessRepository(database),
+      CustomerRepository(database),
+      ProductRepository(database),
+      const InvoiceCalculationService(),
+    );
+
+    expect(controller.shouldPromptForCustomer, isFalse);
+    controller.setInvoiceNumber('INV-0042');
+    expect(controller.invoiceNumber.value, 'INV-0042');
+    controller.setInvoiceNumber('  ');
+    expect(controller.invoiceNumber.value, 'INV-0042');
+
+    controller.onClose();
+    await database.close();
+  });
+
+  test('payment marks fill, request, or clear the opening amount', () async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final controller = InvoiceCreateController(
+      InvoiceRepository(database),
+      BusinessRepository(database),
+      CustomerRepository(database),
+      ProductRepository(database),
+      const InvoiceCalculationService(),
+    );
+    controller.addProduct(
+      ProductServiceModel(
+        id: 3,
+        name: 'Acrylic sheet',
+        type: ItemType.product,
+        unit: 'pcs',
+        salePriceMinor: 25000,
+        createdAt: DateTime(2026, 9, 7),
+        updatedAt: DateTime(2026, 9, 7),
+      ),
+    );
+
+    controller.markPaidInFull();
+    expect(controller.paidController.text, isNotEmpty);
+    expect(controller.requestingPartialPayment.value, isFalse);
+    expect(controller.calculation.value?.paidAmountMinor, 25000);
+
+    controller.markPartPaid();
+    expect(controller.requestingPartialPayment.value, isTrue);
+    expect(controller.paidController.text, isEmpty);
+
+    controller.markUnpaid();
+    expect(controller.requestingPartialPayment.value, isFalse);
+    expect(controller.paidController.text, isEmpty);
+    expect(controller.calculation.value?.paidAmountMinor, 0);
+
+    controller.onClose();
+    await database.close();
+  });
 }
