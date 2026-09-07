@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../../data/repositories/business_repository.dart';
@@ -14,6 +15,8 @@ abstract final class StartupNavigator {
         ? Future<void>.delayed(const Duration(milliseconds: 1600))
         : Future<void>.value();
     final account = Get.find<AccountAuthService>();
+    final storage = Get.find<AppStorage>();
+    await forgetAuthFromPreviousInstall(account, storage);
     if (!account.isVerified) {
       await delay;
       Get.offAllNamed<void>(AppRoutes.accountOtp);
@@ -35,7 +38,6 @@ abstract final class StartupNavigator {
       return;
     }
 
-    final storage = Get.find<AppStorage>();
     final onboardingCompleted =
         storage.getBool(AppStorageKeyConst.onboardingCompleted) ?? false;
     if (!onboardingCompleted) {
@@ -54,5 +56,37 @@ abstract final class StartupNavigator {
     }
     await delay;
     Get.offAllNamed<void>(AppRoutes.dashboard);
+  }
+
+  /// iOS Keychain can keep Firebase Phone Auth after uninstall. Shared
+  /// Preferences do not. Drop that leftover session so a reinstall asks for
+  /// the subscription mobile again. Same-install launches keep the session.
+  @visibleForTesting
+  static Future<void> forgetAuthFromPreviousInstall(
+    AccountAuthService account,
+    AppStorage storage,
+  ) async {
+    if (account is SkipAccountAuthService) return;
+    final bound =
+        storage.getBool(AppStorageKeyConst.accountSessionBoundToInstall) ??
+        false;
+    if (bound) return;
+    final existingShop =
+        (storage.getBool(AppStorageKeyConst.onboardingCompleted) ?? false) ||
+        (storage.getBool(AppStorageKeyConst.businessSetupCompleted) ?? false);
+    if (existingShop) {
+      await storage.setBool(
+        AppStorageKeyConst.accountSessionBoundToInstall,
+        true,
+      );
+      return;
+    }
+    if (account.isVerified) {
+      await account.signOut();
+    }
+    await storage.setBool(
+      AppStorageKeyConst.accountSessionBoundToInstall,
+      true,
+    );
   }
 }

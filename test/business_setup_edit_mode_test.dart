@@ -65,12 +65,17 @@ void main() {
     expect(find.byTooltip('Back'), findsOneWidget);
     expect(find.text('Creovo MDF'), findsWidgets);
     expect(find.text('CM'), findsWidgets);
+    expect(find.text('Store Logo'), findsNothing);
     expect(find.text('Save & update invoices'), findsOneWidget);
     expect(find.text('Next: invoice details'), findsNothing);
 
     await tester.drag(find.byType(ListView), const Offset(0, -360));
     await tester.pumpAndSettle();
     expect(find.text('Contact on Invoices'), findsOneWidget);
+    expect(find.text('Owner / Signatory Name'), findsOneWidget);
+    expect(find.text('Sign here'), findsOneWidget);
+    expect(find.text('Tap to open signature pad'), findsOneWidget);
+    expect(find.byKey(const Key('profile-signature-pad')), findsOneWidget);
     expect(controller.validateEmail(''), isNull);
     expect(controller.validateEmail('invalid-email'), isNotNull);
   });
@@ -111,7 +116,8 @@ void main() {
     expect(find.byTooltip('Back'), findsNothing);
     expect(find.text('Business Name'), findsOneWidget);
     expect(find.text('Store Category'), findsOneWidget);
-    expect(find.text('Store Logo'), findsOneWidget);
+    expect(find.text('Store Logo'), findsNothing);
+    expect(find.text('Appears on top of all receipts'), findsOneWidget);
     expect(find.text('General Business'), findsWidgets);
     expect(find.text('Your business'), findsOneWidget);
     expect(find.text('INVOICE'), findsOneWidget);
@@ -121,6 +127,16 @@ void main() {
     expect(
       tester.getTopLeft(find.text('Your business')).dy,
       lessThan(tester.getTopLeft(find.text('Business Name')).dy),
+    );
+    expect(
+      tester.getTopLeft(find.text('Business Name')).dx,
+      greaterThan(tester.getTopLeft(find.text('YB').last).dx),
+    );
+    expect(
+      tester.getTopLeft(find.text('Business Name')).dy,
+      lessThan(
+        tester.getTopLeft(find.text('Appears on top of all receipts')).dy,
+      ),
     );
 
     await tester.enterText(find.byType(TextFormField).first, 'Creovo Studio');
@@ -133,5 +149,21 @@ void main() {
     await tester.tap(find.text('Grocery / Kirana').last);
     await tester.pumpAndSettle();
     expect(find.text('Grocery / Kirana'), findsWidgets);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -280));
+    await tester.pumpAndSettle();
+    expect(find.text('Owner / Signatory Name'), findsOneWidget);
+    expect(find.text('Sign here'), findsOneWidget);
+    expect(find.byKey(const Key('profile-signature-pad')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('profile-signature-pad')));
+    await tester.pumpAndSettle();
+    expect(find.text('Draw signature'), findsOneWidget);
+    expect(
+      find.text('Use the full pad. This appears on your invoices.'),
+      findsOneWidget,
+    );
+    expect(find.text('Use signature'), findsOneWidget);
+    expect(find.byKey(const Key('signature-pad')), findsOneWidget);
   });
 }

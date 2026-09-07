@@ -12,6 +12,7 @@ import 'package:creovo_invoice/app/widgets/app_back_button.dart';
 import 'package:creovo_invoice/app/widgets/app_button.dart';
 import 'package:creovo_invoice/app/widgets/app_dropdown_field.dart';
 import 'package:creovo_invoice/app/widgets/app_filter_chip.dart';
+import 'package:creovo_invoice/app/widgets/app_otp_field.dart';
 import 'package:creovo_invoice/app/widgets/app_search_field.dart';
 import 'package:creovo_invoice/app/widgets/app_status_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_text_field.dart';
@@ -343,11 +344,56 @@ void main() {
     );
 
     expect(find.text('Business name'), findsOneWidget);
+    expect(find.text('Enter business name'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Business name')).dy,
+      lessThan(tester.getTopLeft(find.text('Enter business name')).dy),
+    );
     expect(find.text('Partially paid'), findsOneWidget);
     expect(
       tester.getSemantics(find.byType(AppStatusChip)),
       matchesSemantics(label: 'Status: Partially paid'),
     );
+  });
+
+  testWidgets('OTP field uses six digit boxes under an outside label', (
+    tester,
+  ) async {
+    final otp = TextEditingController();
+    addTearDown(otp.dispose);
+    var completed = '';
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: AppOtpField(
+            controller: otp,
+            onCompleted: (value) => completed = value,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Enter OTP'), findsOneWidget);
+    expect(find.text('*'), findsOneWidget);
+    expect(find.byKey(const ValueKey('app-otp-cell-0')), findsOneWidget);
+    expect(find.byKey(const ValueKey('app-otp-cell-5')), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Enter OTP')).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(const ValueKey('app-otp-cell-0'))).dy,
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('app-otp-input')),
+      '123456',
+    );
+    await tester.pump();
+    expect(otp.text, '123456');
+    expect(completed, '123456');
+    expect(find.text('1'), findsOneWidget);
+    expect(find.text('6'), findsOneWidget);
   });
 
   testWidgets('module banner stays usable on a narrow phone', (tester) async {

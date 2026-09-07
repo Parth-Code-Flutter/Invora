@@ -48,6 +48,7 @@ abstract final class _ProfileUi {
   static const requiredStar = Color(0xFFF43F5E);
   static const logoStart = Color(0xFFF43F5E);
   static const logoEnd = Color(0xFFFB7185);
+  static const appBarHeight = 70.0;
 }
 
 class BusinessSetupScreen extends GetView<BusinessSetupController> {
@@ -64,10 +65,13 @@ class BusinessSetupScreen extends GetView<BusinessSetupController> {
         child: Scaffold(
           backgroundColor: page,
           appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(66),
+            preferredSize: const Size.fromHeight(_ProfileUi.appBarHeight),
             child: Obx(() {
               if (controller.isLoading.value) {
-                return Material(color: page, child: const SizedBox(height: 66));
+                return Material(
+                  color: page,
+                  child: const SizedBox(height: _ProfileUi.appBarHeight),
+                );
               }
               return _ProfileAppBar(
                 isEditing: controller.isEditing,
@@ -162,7 +166,7 @@ class _ProfileAppBar extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 13),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
@@ -180,6 +184,7 @@ class _ProfileAppBar extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       isEditing ? 'Edit Business Profile' : 'Business Profile',
@@ -682,20 +687,22 @@ class _IdentityCard extends StatelessWidget {
                 onRemove: logoPath == null
                     ? null
                     : () => _confirmLogoRemoval(context, controller),
+                nameField: AppTextField(
+                  controller: controller.businessName,
+                  label: 'Business Name',
+                  requiredField: true,
+                  helperText: 'Appears on top of all receipts',
+                  prefix: Padding(
+                    padding: const EdgeInsets.only(left: 12, right: 10),
+                    child: _AssetIcon(BusinessIcons.store, size: 16),
+                  ),
+                  validator: controller.requiredBusinessName,
+                  textCapitalization: TextCapitalization.words,
+                  autofocus: !controller.isEditing,
+                ),
               ),
             );
           }),
-          const SizedBox(height: 16),
-          _ProfileField(
-            controller: controller.businessName,
-            label: 'Business Name',
-            requiredField: true,
-            hint: 'Appears on top of all receipts',
-            prefixAsset: BusinessIcons.store,
-            validator: controller.requiredBusinessName,
-            textCapitalization: TextCapitalization.words,
-            autofocus: !controller.isEditing,
-          ),
           const SizedBox(height: 16),
           Obx(
             () => _ProfileSelectField<BusinessCategory>(
@@ -751,31 +758,26 @@ class _StoreLogoRow extends StatelessWidget {
     required this.path,
     required this.onChange,
     required this.onRemove,
+    required this.nameField,
   });
 
   final String name;
   final String? path;
   final VoidCallback onChange;
   final VoidCallback? onRemove;
+  final Widget nameField;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasLogo = path != null && File(path!).existsSync();
     final displayName = name.isEmpty ? 'Your business' : name;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurfaceVariant : const Color(0x80FAFAF9),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? AppColors.darkBorder : const Color(0xCCE7E5E4),
-        ),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 22),
+          child: SizedBox(
             width: 64,
             height: 58,
             child: Stack(
@@ -796,9 +798,13 @@ class _StoreLogoRow extends StatelessWidget {
                         width: 52,
                         height: 52,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: isDark ? AppColors.darkSurface : Colors.white,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xE6E7E5E4)),
+                          border: Border.all(
+                            color: isDark
+                                ? AppColors.darkBorder
+                                : const Color(0xE6E7E5E4),
+                          ),
                           boxShadow: const [
                             BoxShadow(
                               color: Color(0x0D000000),
@@ -889,37 +895,10 @@ class _StoreLogoRow extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Store Logo',
-                  style: AppTextStyles.small.copyWith(
-                    color: isDark ? AppColors.darkTextPrimary : _ProfileUi.ink,
-                    fontSize: 13,
-                    height: 1,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Tap logo to upload or change • PNG, JPG up to 5MB',
-                  style: AppTextStyles.small.copyWith(
-                    color: isDark
-                        ? AppColors.darkTextSecondary
-                        : _ProfileUi.body,
-                    fontSize: 11,
-                    height: 13.75 / 11,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(child: nameField),
+      ],
     );
   }
 }
@@ -939,16 +918,147 @@ class _ContactCard extends StatelessWidget {
       trailing: 'Bill Footer & Header',
       child: Column(
         children: [
-          _ProfileField(
-            controller: controller.ownerName,
-            label: 'Owner / Signatory Name',
-            prefixAsset: BusinessIcons.owner,
-            textCapitalization: TextCapitalization.words,
+          _OwnerSignatureField(
+            key: const ValueKey('owner-signature'),
+            controller: controller,
           ),
           const SizedBox(height: 16),
           _MobileField(controller: controller),
         ],
       ),
+    );
+  }
+}
+
+class _OwnerSignatureField extends StatelessWidget {
+  const _OwnerSignatureField({required this.controller, super.key});
+
+  final BusinessSetupController controller;
+
+  String? _savedPath() {
+    final path = controller.signaturePath.value;
+    if (path == null || path.isEmpty) return null;
+    return File(path).existsSync() ? path : null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _FieldLabel(label: 'Owner / Signatory Name'),
+        const SizedBox(height: 6),
+        Obx(() {
+          final path = _savedPath();
+          return Material(
+            color: isDark ? AppColors.darkSurfaceVariant : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              key: const Key('profile-signature-pad'),
+              onTap: () => controller.drawSignature(context),
+              borderRadius: BorderRadius.circular(12),
+              child: Ink(
+                width: double.infinity,
+                height: 148,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark ? AppColors.darkBorder : _ProfileUi.line,
+                  ),
+                ),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (path != null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 36, 10),
+                        child: Image.file(File(path), fit: BoxFit.contain),
+                      )
+                    else
+                      const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Sign here',
+                              style: TextStyle(
+                                color: AppColors.textTertiary,
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Tap to open signature pad',
+                              style: TextStyle(
+                                color: AppColors.textTertiary,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    Positioned(
+                      right: 10,
+                      bottom: 10,
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: _ProfileUi.line),
+                        ),
+                        child: const Icon(
+                          Icons.draw_outlined,
+                          size: 15,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+        const SizedBox(height: 6),
+        Text(
+          'Drawn on invoices as your authorized signature.',
+          style: AppTextStyles.small.copyWith(
+            color: _ProfileUi.muted,
+            fontSize: 10,
+            height: 14 / 10,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Obx(() {
+          final hasSignature = _savedPath() != null;
+          return Wrap(
+            spacing: 4,
+            runSpacing: 0,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              TextButton.icon(
+                onPressed: hasSignature ? controller.clearSignature : null,
+                icon: const Icon(Icons.refresh_rounded, size: 16),
+                label: const Text('Clear'),
+              ),
+              TextButton.icon(
+                onPressed: () => controller.drawSignature(context),
+                icon: const Icon(Icons.draw_outlined, size: 16),
+                label: Text(hasSignature ? 'Sign again' : 'Sign'),
+              ),
+              TextButton(
+                onPressed: () => controller.pickSignaturePhoto(context),
+                child: const Text('Use a photo'),
+              ),
+            ],
+          );
+        }),
+      ],
     );
   }
 }
@@ -1344,7 +1454,7 @@ class _OptionalTaxCard extends StatelessWidget {
             const SizedBox(height: 10),
             _OptionalDetailTile(
               title: 'Payment details',
-              subtitle: 'Bank account, UPI, QR and signature',
+              subtitle: 'Bank account, UPI and QR',
               icon: Icons.account_balance_wallet_outlined,
               child: Column(
                 children: [
@@ -1393,30 +1503,13 @@ class _OptionalTaxCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Obx(
-                          () => _ImagePickerCard(
-                            label: 'Payment QR',
-                            path: controller.paymentQrPath.value,
-                            icon: Icons.qr_code_rounded,
-                            onTap: controller.pickPaymentQr,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Obx(
-                          () => _ImagePickerCard(
-                            label: 'Signature',
-                            path: controller.signaturePath.value,
-                            icon: Icons.draw_outlined,
-                            onTap: () => controller.pickSignature(context),
-                          ),
-                        ),
-                      ),
-                    ],
+                  Obx(
+                    () => _ImagePickerCard(
+                      label: 'Payment QR',
+                      path: controller.paymentQrPath.value,
+                      icon: Icons.qr_code_rounded,
+                      onTap: controller.pickPaymentQr,
+                    ),
                   ),
                 ],
               ),
@@ -1584,108 +1677,6 @@ class _ProfileCard extends StatelessWidget {
           child,
         ],
       ),
-    );
-  }
-}
-
-class _ProfileField extends StatelessWidget {
-  const _ProfileField({
-    required this.controller,
-    required this.label,
-    required this.prefixAsset,
-    this.requiredField = false,
-    this.hint,
-    this.validator,
-    this.textCapitalization = TextCapitalization.none,
-    this.autofocus = false,
-  });
-
-  final TextEditingController controller;
-  final String label;
-  final String prefixAsset;
-  final bool requiredField;
-  final String? hint;
-  final String? Function(String?)? validator;
-  final TextCapitalization textCapitalization;
-  final bool autofocus;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _FieldLabel(label: label, requiredField: requiredField),
-            ),
-            if (hint != null)
-              Flexible(
-                child: Text(
-                  hint!,
-                  textAlign: TextAlign.right,
-                  style: AppTextStyles.small.copyWith(
-                    color: _ProfileUi.muted,
-                    fontSize: 10,
-                    height: 16 / 10,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: controller,
-          validator: validator == null
-              ? null
-              : (value) {
-                  final error = validator!(value);
-                  return error == null ? null : AppLocalizer.text(error);
-                },
-          autofocus: autofocus,
-          textCapitalization: textCapitalization,
-          style: AppTextStyles.body.copyWith(
-            color: isDark ? AppColors.darkTextPrimary : _ProfileUi.ink,
-            fontSize: 13.5,
-            height: 24 / 13.5,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration: InputDecoration(
-            isDense: true,
-            filled: true,
-            fillColor: isDark
-                ? AppColors.darkSurfaceVariant
-                : _ProfileUi.fieldFill,
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 12, right: 10),
-              child: _AssetIcon(prefixAsset, size: 16),
-            ),
-            prefixIconConstraints: const BoxConstraints(
-              minWidth: 38,
-              minHeight: 16,
-            ),
-            contentPadding: const EdgeInsets.fromLTRB(0, 10, 12, 10),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: isDark ? AppColors.darkBorder : _ProfileUi.line,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: isDark ? AppColors.darkBorder : _ProfileUi.line,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.primary),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

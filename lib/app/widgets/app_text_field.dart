@@ -4,12 +4,15 @@ import 'package:flutter/services.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import '../localization/app_localization.dart';
+import 'app_field_label.dart';
 
 class AppTextField extends StatelessWidget {
   const AppTextField({
     required this.controller,
     required this.label,
     this.hint,
+    this.helperText,
+    this.requiredField = false,
     this.validator,
     this.keyboardType,
     this.textInputAction,
@@ -32,6 +35,8 @@ class AppTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final String? hint;
+  final String? helperText;
+  final bool requiredField;
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
@@ -52,67 +57,68 @@ class AppTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final focusColor = focusBorderColor;
-    return TextFormField(
-      controller: controller,
-      validator: validator == null
-          ? null
-          : (value) {
-              final error = validator!(value);
-              return error == null ? null : AppLocalizer.text(error);
-            },
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      inputFormatters: inputFormatters,
-      maxLines: obscureText ? 1 : maxLines,
-      obscureText: obscureText,
-      autocorrect: !obscureText,
-      enableSuggestions: !obscureText,
-      textCapitalization: textCapitalization,
-      onChanged: onChanged,
-      onFieldSubmitted: onFieldSubmitted,
-      enabled: enabled,
-      autofocus: autofocus,
-      autofillHints: autofillHints,
-      decoration: InputDecoration(
-        labelText: AppLocalizer.text(label),
-        hintText: AppLocalizer.text(hint),
-        alignLabelWithHint: maxLines > 1,
-        floatingLabelBehavior: FloatingLabelBehavior.auto,
-        prefixIconConstraints: prefix == null
-            ? const BoxConstraints(minWidth: 50)
-            : const BoxConstraints(minWidth: 0, minHeight: 0),
-        prefixIcon:
-            prefix ??
-            (prefixIcon == null
-                ? null
-                : Padding(
-                    padding: const EdgeInsets.only(left: 9, right: 7),
-                    child: Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? AppColors.darkSurfaceVariant
-                            : AppColors.primaryLight,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        prefixIcon,
-                        color: AppColors.primary,
-                        size: 17,
-                      ),
-                    ),
-                  )),
-        suffixIcon: suffixIcon,
-        floatingLabelStyle: focusColor == null
+    return AppLabeledField(
+      label: label,
+      requiredField: requiredField,
+      helperText: helperText,
+      child: TextFormField(
+        controller: controller,
+        validator: validator == null
             ? null
-            : TextStyle(color: focusColor, fontWeight: FontWeight.w700),
-        focusedBorder: focusColor == null
-            ? null
-            : OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
-                borderSide: BorderSide(color: focusColor, width: 2),
-              ),
+            : (value) {
+                final error = validator!(value);
+                return error == null ? null : AppLocalizer.text(error);
+              },
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        inputFormatters: inputFormatters,
+        maxLines: obscureText ? 1 : maxLines,
+        obscureText: obscureText,
+        autocorrect: !obscureText,
+        enableSuggestions: !obscureText,
+        textCapitalization: textCapitalization,
+        onChanged: onChanged,
+        onFieldSubmitted: onFieldSubmitted,
+        enabled: enabled,
+        autofocus: autofocus,
+        autofillHints: autofillHints,
+        decoration: InputDecoration(
+          hintText: AppLocalizer.text(hint),
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          alignLabelWithHint: maxLines > 1,
+          prefixIconConstraints: prefix == null
+              ? const BoxConstraints(minWidth: 50)
+              : const BoxConstraints(minWidth: 0, minHeight: 0),
+          prefixIcon:
+              prefix ??
+              (prefixIcon == null
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.only(left: 9, right: 7),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? AppColors.darkSurfaceVariant
+                              : AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          prefixIcon,
+                          color: AppColors.primary,
+                          size: 17,
+                        ),
+                      ),
+                    )),
+          suffixIcon: suffixIcon,
+          focusedBorder: focusColor == null
+              ? null
+              : OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.inputRadius),
+                  borderSide: BorderSide(color: focusColor, width: 2),
+                ),
+        ),
       ),
     );
   }

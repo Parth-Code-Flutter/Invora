@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../app/constants/app_storage_key_const.dart';
 import '../../../app/routes/app_routes.dart';
@@ -138,14 +139,30 @@ class BusinessSetupController extends GetxController {
     return RegExp(r'^[6-9]\d{9}$').hasMatch(digits) ? digits : '';
   }
 
-  Future<void> pickSignature(BuildContext context) async {
-    final path = await captureBusinessSignature(
-      context: context,
-      pickImage: (source) =>
-          _imageStorage.pickAndStore('signature', source: source),
-      storeDrawing: (bytes) => _imageStorage.storeBytes('signature', bytes),
+  Future<void> drawSignature(BuildContext context) async {
+    await AppFocus.dismissKeyboard();
+    if (!context.mounted) return;
+    final bytes = await showSignaturePadDialog(context);
+    if (bytes == null) return;
+    signaturePath.value = await _imageStorage.storeBytes('signature', bytes);
+  }
+
+  void clearSignature() {
+    signaturePath.value = null;
+  }
+
+  Future<void> pickSignaturePhoto(BuildContext context) async {
+    final source = await showSignatureSourceSheet(context, includeDraw: false);
+    if (source == null) return;
+    final path = await _imageStorage.pickAndStore(
+      'signature',
+      source: source == SignatureCaptureSource.camera
+          ? ImageSource.camera
+          : ImageSource.gallery,
     );
-    if (path != null) signaturePath.value = path;
+    if (path != null) {
+      signaturePath.value = path;
+    }
   }
 
   Future<void> _pickImage(String name, RxnString target) async {

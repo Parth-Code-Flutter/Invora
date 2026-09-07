@@ -5,6 +5,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 import '../constants/app_colors.dart';
 import '../localization/app_localization.dart';
 import '../themes/app_text_styles.dart';
+import 'app_field_label.dart';
 
 class AppDropdownOption<T> {
   const AppDropdownOption({
@@ -28,6 +29,8 @@ class AppDropdownField<T> extends StatelessWidget {
     this.prefixIcon,
     this.enabled = true,
     this.searchable = false,
+    this.searchHint,
+    this.emptyLabel,
     this.sheetHeightFactor,
     super.key,
   });
@@ -40,6 +43,8 @@ class AppDropdownField<T> extends StatelessWidget {
   final IconData? prefixIcon;
   final bool enabled;
   final bool searchable;
+  final String? searchHint;
+  final String? emptyLabel;
   final double? sheetHeightFactor;
 
   AppDropdownOption<T> get _selected => options.firstWhere(
@@ -54,24 +59,27 @@ class AppDropdownField<T> extends StatelessWidget {
       label: AppLocalizer.text(label),
       value: AppLocalizer.text(_selected.label),
       enabled: enabled,
-      child: InkWell(
-        onTap: enabled ? () => _showOptions(context) : null,
-        borderRadius: BorderRadius.circular(12),
-        child: InputDecorator(
-          isFocused: false,
-          isEmpty: false,
-          isHovering: false,
-          decoration: InputDecoration(
-            enabled: enabled,
-            labelText: AppLocalizer.text(label),
-            prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
-            suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
-          ),
-          child: Text(
-            AppLocalizer.text(_selected.label),
-            style: enabled
-                ? null
-                : AppTextStyles.body.copyWith(color: AppColors.textTertiary),
+      child: AppLabeledField(
+        label: label,
+        child: InkWell(
+          onTap: enabled ? () => _showOptions(context) : null,
+          borderRadius: BorderRadius.circular(12),
+          child: InputDecorator(
+            isFocused: false,
+            isEmpty: false,
+            isHovering: false,
+            decoration: InputDecoration(
+              enabled: enabled,
+              floatingLabelBehavior: FloatingLabelBehavior.never,
+              prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
+              suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
+            ),
+            child: Text(
+              AppLocalizer.text(_selected.label),
+              style: enabled
+                  ? null
+                  : AppTextStyles.body.copyWith(color: AppColors.textTertiary),
+            ),
           ),
         ),
       ),
@@ -87,6 +95,8 @@ class AppDropdownField<T> extends StatelessWidget {
       options: options,
       searchable: searchable,
       heightFactor: sheetHeightFactor,
+      searchHint: searchHint ?? 'Search categories',
+      emptyLabel: emptyLabel ?? 'No matching category',
     );
     if (selected != null) onChanged(selected);
   }

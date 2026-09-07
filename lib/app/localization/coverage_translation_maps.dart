@@ -730,6 +730,7 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Choose a contact with a valid mobile number.':
       'मान्य मोबाइल नंबर वाला संपर्क चुनें।',
   'Send OTP': 'OTP भेजें',
+  'Enter OTP': 'OTP डालें',
   'Enter OTP *': 'OTP डालें *',
   '6-digit code': '6 अंकों का कोड',
   'Verify & continue': 'सत्यापित करें और आगे बढ़ें',
@@ -1836,6 +1837,39 @@ const Map<String, String> appHindiCoverageTranslations = {
   'INVOICE': 'इनवॉइस',
   'Allow contact access to fill the invoice WhatsApp number.':
       'इनवॉइस WhatsApp नंबर भरने के लिए संपर्क अनुमति दें।',
+  'Add Customer': 'ग्राहक जोड़ें',
+  'CORE DETAILS': 'मुख्य विवरण',
+  'FAST BILLING': 'तेज़ बिलिंग',
+  'Customer / Shop Name *': 'ग्राहक / दुकान का नाम *',
+  'e.g. Ramesh Patel or Acme Traders': 'जैसे रमेश पटेल या Acme Traders',
+  'Phone Number *': 'फ़ोन नंबर *',
+  'GSTIN & Billing Address': 'GSTIN और बिलिंग पता',
+  'Optional for B2B tax invoicing': 'B2B टैक्स इनवॉइस के लिए वैकल्पिक',
+  'B2B Ready': 'B2B तैयार',
+  '15-character GSTIN': '15 अक्षर का GSTIN',
+  'Looks valid': 'फ़ॉर्मेट सही है',
+  'GSTIN is optional for B2B tax invoices.':
+      'GSTIN B2B टैक्स इनवॉइस के लिए वैकल्पिक है।',
+  'Trade / Legal Business Name': 'व्यापार / कानूनी व्यवसाय नाम',
+  'Billing Address': 'बिलिंग पता',
+  'Select state': 'राज्य चुनें',
+  'Search state': 'राज्य खोजें',
+  'No matching state': 'कोई मेल खाता राज्य नहीं',
+  'Save and create new invoice immediately':
+      'सहेजें और तुरंत नया इनवॉइस बनाएँ',
+  'Save Customer': 'ग्राहक सहेजें',
+  'Instant offline save • Stays on this device':
+      'तुरंत ऑफ़लाइन सेव • इसी डिवाइस पर रहता है',
+  'Drawn on invoices as your authorized signature.':
+      'इनवॉइस पर अधिकृत हस्ताक्षर के रूप में दिखता है।',
+  'Sign here': 'यहाँ हस्ताक्षर करें',
+  'Tap to open signature pad': 'हस्ताक्षर पैड खोलने के लिए टैप करें',
+  'Use the full pad. This appears on your invoices.':
+      'पूरे पैड पर हस्ताक्षर करें। यह इनवॉइस पर दिखता है।',
+  'Sign': 'हस्ताक्षर करें',
+  'Sign again': 'फिर हस्ताक्षर करें',
+  'Use a photo': 'फ़ोटो इस्तेमाल करें',
+  'Bank account, UPI and QR': 'बैंक खाता, UPI और QR',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -2564,6 +2598,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Choose a contact with a valid mobile number.':
       'માન્ય મોબાઇલ નંબરવાળો સંપર્ક પસંદ કરો.',
   'Send OTP': 'OTP મોકલો',
+  'Enter OTP': 'OTP દાખલ કરો',
   'Enter OTP *': 'OTP દાખલ કરો *',
   '6-digit code': '6 અંકનો કોડ',
   'Verify & continue': 'ચકાસો અને આગળ વધો',
@@ -3663,4 +3698,37 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'INVOICE': 'ઇનવોઇસ',
   'Allow contact access to fill the invoice WhatsApp number.':
       'ઇનવોઇસ WhatsApp નંબર ભરવા માટે સંપર્ક પરવાનગી આપો.',
+  'Add Customer': 'ગ્રાહક ઉમેરો',
+  'CORE DETAILS': 'મુખ્ય વિગતો',
+  'FAST BILLING': 'ઝડપી બિલિંગ',
+  'Customer / Shop Name *': 'ગ્રાહક / દુકાનનું નામ *',
+  'e.g. Ramesh Patel or Acme Traders': 'દા.ત. રમેશ પટેલ અથવા Acme Traders',
+  'Phone Number *': 'ફોન નંબર *',
+  'GSTIN & Billing Address': 'GSTIN અને બિલિંગ સરનામું',
+  'Optional for B2B tax invoicing': 'B2B ટેક્સ ઇનવોઇસ માટે વૈકલ્પિક',
+  'B2B Ready': 'B2B તૈયાર',
+  '15-character GSTIN': '15 અક્ષરનું GSTIN',
+  'Looks valid': 'ફોર્મેટ સાચું છે',
+  'GSTIN is optional for B2B tax invoices.':
+      'GSTIN B2B ટેક્સ ઇનવોઇસ માટે વૈકલ્પિક છે.',
+  'Trade / Legal Business Name': 'વેપાર / કાનૂની વ્યવસાયનું નામ',
+  'Billing Address': 'બિલિંગ સરનામું',
+  'Select state': 'રાજ્ય પસંદ કરો',
+  'Search state': 'રાજ્ય શોધો',
+  'No matching state': 'મેળ ખાતું રાજ્ય નથી',
+  'Save and create new invoice immediately':
+      'સાચવો અને તરત નવું ઇનવોઇસ બનાવો',
+  'Save Customer': 'ગ્રાહક સાચવો',
+  'Instant offline save • Stays on this device':
+      'તરત ઑફલાઇન સેવ • આ ડિવાઇસ પર રહે છે',
+  'Drawn on invoices as your authorized signature.':
+      'ઇનવોઇસ પર અધિકૃત સહી તરીકે દેખાય છે.',
+  'Sign here': 'અહીં સહી કરો',
+  'Tap to open signature pad': 'સહી પેડ ખોલવા ટૅપ કરો',
+  'Use the full pad. This appears on your invoices.':
+      'આખા પેડ પર સહી કરો. આ ઇનવોઇસ પર દેખાય છે.',
+  'Sign': 'સહી કરો',
+  'Sign again': 'ફરી સહી કરો',
+  'Use a photo': 'ફોટો વાપરો',
+  'Bank account, UPI and QR': 'બેંક ખાતું, UPI અને QR',
 };

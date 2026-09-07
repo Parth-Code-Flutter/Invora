@@ -120,6 +120,7 @@ class AccountOtpController extends GetxController {
   }
 
   Future<void> verifyOtp() async {
+    if (isWorking.value) return;
     errorMessage.value = '';
     if (!_auth.isVerified) {
       final code = otp.text.trim();

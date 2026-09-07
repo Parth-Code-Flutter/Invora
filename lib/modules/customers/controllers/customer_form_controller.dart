@@ -3,11 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
 
+import '../../../app/routes/app_routes.dart';
 import '../../../app/utils/validation_utils.dart';
 import '../../../app/utils/app_focus.dart';
 import '../../../app/widgets/app_notification.dart';
 import '../../../data/models/customer_model.dart';
+import '../../../data/models/invoice_model.dart';
 import '../../../data/repositories/customer_repository.dart';
+import '../../../data/services/account_phone.dart';
+import '../../../data/services/gst_indian_states.dart';
 
 class CustomerFormController extends GetxController {
   CustomerFormController(this._repository);
@@ -24,6 +28,10 @@ class CustomerFormController extends GetxController {
   final pinCode = TextEditingController();
   final gstin = TextEditingController();
   final notes = TextEditingController();
+  final country = AccountCountry.india.obs;
+  final gstState = Rxn<GstIndianState>();
+  final gstinLooksValid = false.obs;
+  final createInvoiceAfterSave = false.obs;
   final isLoading = false.obs;
   final isSaving = false.obs;
   final isImportingContact = false.obs;
@@ -48,6 +56,7 @@ class CustomerFormController extends GetxController {
     _returnToInvoice =
         arguments is CustomerFormArgs && arguments.returnToInvoice;
     _isEditing = id != null;
+    createInvoiceAfterSave.value = !_isEditing && !_returnToInvoice;
     _captureBaseline();
     if (id != null) {
       _load(id);
@@ -66,7 +75,7 @@ class CustomerFormController extends GetxController {
   }
 
   String? validateMobile(String? value) =>
-      ValidationUtils.requiredIndianMobile(value);
+      AccountPhone.validateNational(value, country: country.value);
 
   String? validateGstin(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -75,6 +84,36 @@ class CustomerFormController extends GetxController {
     return RegExp(r'^[0-9A-Z]{15}$').hasMatch(value.trim().toUpperCase())
         ? null
         : 'Enter a valid 15-character GSTIN.';
+  }
+
+  void selectCountry(AccountCountry selected) {
+    country.value = selected;
+    if (mobile.text.trim().isNotEmpty) {
+      formKey.currentState?.validate();
+    }
+  }
+
+  void selectGstState(GstIndianState? selected) {
+    gstState.value = selected;
+    state.text = selected?.name ?? '';
+  }
+
+  void selectGstStateName(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      gstState.value = null;
+      state.text = '';
+      return;
+    }
+    gstState.value = GstIndianStates.match(trimmed);
+    state.text = gstState.value?.name ?? trimmed;
+  }
+
+  void onGstinChanged(String value) {
+    _syncGstinLooksValid();
+    if (value.trim().length < 2) return;
+    final matched = GstIndianStates.match(value.trim().substring(0, 2));
+    if (matched != null) selectGstState(matched);
   }
 
   Future<void> importPhoneContact() async {
@@ -104,16 +143,19 @@ class CustomerFormController extends GetxController {
         return;
       }
       final importedName = contact.displayName?.trim() ?? '';
-      final importedMobile = normalizeIndianMobile(contact.phones.first.number);
-      if (importedMobile.isEmpty) {
+      final parsed = AccountPhone.parseImported(contact.phones.first.number);
+      if (parsed == null) {
         AppNotification.warning(
           'Unsupported number',
-          'Choose a contact with a valid 10-digit Indian mobile number.',
+          'Choose a contact with a valid mobile number.',
         );
         return;
       }
       if (importedName.isNotEmpty) name.text = importedName;
-      mobile.text = importedMobile;
+      country.value = parsed.country;
+      mobile
+        ..text = parsed.national
+        ..selection = TextSelection.collapsed(offset: parsed.national.length);
       AppNotification.success(
         'Contact imported',
         importedName.isEmpty
@@ -151,7 +193,9 @@ class CustomerFormController extends GetxController {
           id: _existing?.id,
           name: name.text.trim(),
           companyName: _optional(companyName.text),
-          mobile: _optional(mobile.text),
+          mobile: _optional(
+            AccountPhone.toE164(mobile.text, country: country.value),
+          ),
           email: _optional(email.text),
           address: _optional(address.text),
           city: _optional(city.text),
@@ -164,8 +208,19 @@ class CustomerFormController extends GetxController {
         ),
       );
       _captureBaseline();
-      // Only the invoice flow needs the saved model as a route result.
       await AppFocus.dismissKeyboard();
+      final openInvoice =
+          !isEditing &&
+          !isInvoiceFlow &&
+          createInvoiceAfterSave.value &&
+          saved.id != null;
+      if (openInvoice) {
+        await Get.offNamed<void>(
+          AppRoutes.invoiceCreate,
+          arguments: InvoiceEditorArgs(customerId: saved.id),
+        );
+        return;
+      }
       Get.back(result: isInvoiceFlow ? saved : null);
     } finally {
       isSaving.value = false;
@@ -179,31 +234,56 @@ class CustomerFormController extends GetxController {
     if (customer != null) {
       name.text = customer.name;
       companyName.text = customer.companyName ?? '';
-      mobile.text = customer.mobile ?? '';
+      _applyStoredMobile(customer.mobile);
       email.text = customer.email ?? '';
       address.text = customer.address ?? '';
       city.text = customer.city ?? '';
-      state.text = customer.state ?? '';
+      selectGstStateName(customer.state ?? '');
       pinCode.text = customer.pinCode ?? '';
       gstin.text = customer.gstin ?? '';
       notes.text = customer.notes ?? '';
+      _syncGstinLooksValid();
     }
     _captureBaseline();
     isLoading.value = false;
   }
 
+  void _applyStoredMobile(String? raw) {
+    final value = raw?.trim() ?? '';
+    if (value.isEmpty) {
+      country.value = AccountCountry.india;
+      mobile.clear();
+      return;
+    }
+    final parsed = AccountPhone.parseImported(value);
+    if (parsed != null) {
+      country.value = parsed.country;
+      mobile.text = parsed.national;
+      return;
+    }
+    country.value = AccountCountry.india;
+    mobile.text = AccountPhone.nationalNumber(value);
+  }
+
+  void _syncGstinLooksValid() {
+    final trimmed = gstin.text.trim().toUpperCase();
+    gstinLooksValid.value =
+        trimmed.length == 15 && validateGstin(trimmed) == null;
+  }
+
   String _snapshot() => [
-    name,
-    companyName,
-    mobile,
-    email,
-    address,
-    city,
-    state,
-    pinCode,
-    gstin,
-    notes,
-  ].map((controller) => controller.text).join('\u001f');
+    name.text,
+    companyName.text,
+    country.value.iso,
+    mobile.text,
+    email.text,
+    address.text,
+    city.text,
+    state.text,
+    pinCode.text,
+    gstin.text,
+    notes.text,
+  ].join('\u001f');
 
   void _captureBaseline() => _baseline = _snapshot();
 

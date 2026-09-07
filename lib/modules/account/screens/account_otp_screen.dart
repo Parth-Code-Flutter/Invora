@@ -10,7 +10,8 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_bottom_sheet.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_constrained_action.dart';
-import '../../../app/widgets/app_dropdown_field.dart';
+import '../../../app/widgets/app_country_picker.dart';
+import '../../../app/widgets/app_otp_field.dart';
 import '../../../app/widgets/app_text_field.dart';
 import '../../../data/services/account_phone.dart';
 import '../controllers/account_otp_controller.dart';
@@ -345,7 +346,7 @@ class _MobileStep extends StatelessWidget {
                 controller: controller.mobile,
                 label: 'Account mobile *',
                 hint: controller.mobileHint,
-                prefix: _CountryPrefix(
+                prefix: AppCountryPrefix(
                   country: controller.country.value,
                   onTap: () => _pickCountry(context),
                 ),
@@ -409,18 +410,9 @@ class _MobileStep extends StatelessWidget {
   }
 
   Future<void> _pickCountry(BuildContext context) async {
-    final selected = await showAppDropdownSheet<AccountCountry>(
+    final selected = await showAppCountryPicker(
       context: context,
-      title: 'Choose country',
       value: controller.country.value,
-      searchable: true,
-      heightFactor: 0.75,
-      searchHint: 'Search country',
-      emptyLabel: 'No matching country',
-      options: [
-        for (final country in AccountCountry.all)
-          AppDropdownOption(value: country, label: country.pickerLabel),
-      ],
     );
     if (selected != null) controller.selectCountry(selected);
   }
@@ -525,44 +517,6 @@ class _NumberTile extends StatelessWidget {
   }
 }
 
-class _CountryPrefix extends StatelessWidget {
-  const _CountryPrefix({required this.country, required this.onTap});
-
-  final AccountCountry country;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(country.flag, style: const TextStyle(fontSize: 18)),
-            const SizedBox(width: 6),
-            Text(
-              country.e164Prefix,
-              style: AppTextStyles.listName.copyWith(
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const Icon(Icons.expand_more_rounded, size: 20),
-            Container(
-              width: 1,
-              height: 22,
-              margin: const EdgeInsets.only(left: 6, right: 4),
-              color: AppColors.border,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _OtpStep extends StatelessWidget {
   const _OtpStep({required this.controller});
 
@@ -595,20 +549,13 @@ class _OtpStep extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            AppTextField(
-              controller: controller.otp,
-              label: 'Enter OTP *',
-              hint: '6-digit code',
-              prefixIcon: Icons.pin_outlined,
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.done,
-              autofocus: true,
-              autofillHints: const [AutofillHints.oneTimeCode],
-              onFieldSubmitted: (_) => controller.verifyOtp(),
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(6),
-              ],
+            Obx(
+              () => AppOtpField(
+                controller: controller.otp,
+                hasError: controller.errorMessage.isNotEmpty,
+                enabled: !controller.isWorking.value,
+                onCompleted: (_) => controller.verifyOtp(),
+              ),
             ),
             const SizedBox(height: 8),
             Wrap(

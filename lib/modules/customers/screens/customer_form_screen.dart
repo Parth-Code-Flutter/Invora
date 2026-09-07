@@ -10,24 +10,31 @@ import '../../../app/utils/responsive_utils.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_constrained_action.dart';
-import '../../../app/widgets/app_card.dart';
+import '../../../app/widgets/app_country_picker.dart';
+import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
+import '../../../data/services/gst_indian_states.dart';
 import '../controllers/customer_form_controller.dart';
+
+const _pageCream = Color(0xFFFAF9F7);
 
 class CustomerFormScreen extends GetView<CustomerFormController> {
   const CustomerFormScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final page = isDark ? AppColors.darkBackground : _pageCream;
     return UnsavedChangesScope(
       hasChanges: () => controller.hasUnsavedChanges,
       child: Scaffold(
+        backgroundColor: page,
         appBar: AppBar(
+          backgroundColor: page,
           leading: const AppBackButton(),
           title: AppBarTitle(
-            controller.isEditing ? 'Edit customer' : 'New customer',
-            subtitle: 'Customer',
+            controller.isEditing ? 'Edit customer' : 'Add Customer',
           ),
         ),
         body: Obx(
@@ -40,7 +47,7 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                       ResponsiveUtils.horizontalPadding(context),
                       8,
                       ResponsiveUtils.horizontalPadding(context),
-                      32,
+                      24,
                     ),
                     children: [
                       Center(
@@ -51,153 +58,25 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _FormIntro(
-                                invoiceFlow: controller.isInvoiceFlow,
-                                editing: controller.isEditing,
-                              ),
-                              const SizedBox(height: 24),
-                              const _SectionHeading(
-                                title: 'Customer essentials',
-                                badge: 'NAME REQUIRED',
+                              const _CoreDetailsHeader(),
+                              const SizedBox(height: 14),
+                              AppTextField(
+                                controller: controller.name,
+                                label: 'Customer / Shop Name *',
+                                hint: 'e.g. Ramesh Patel or Acme Traders',
+                                prefixIcon: Icons.storefront_outlined,
+                                validator: controller.validateName,
+                                textCapitalization: TextCapitalization.words,
                               ),
                               const SizedBox(height: 12),
-                              AppCard(
-                                padding: const EdgeInsets.all(16),
-                                child: _ResponsiveFields(
-                                  children: [
-                                    AppTextField(
-                                      controller: controller.name,
-                                      label: 'Customer name *',
-                                      hint: 'Who are you billing?',
-                                      prefixIcon: Icons.person_outline_rounded,
-                                      validator: controller.validateName,
-                                      textCapitalization:
-                                          TextCapitalization.words,
-                                    ),
-                                    _MobileField(controller: controller),
-                                    AppTextField(
-                                      controller: controller.email,
-                                      label: 'Email address',
-                                      prefixIcon: Icons.alternate_email_rounded,
-                                      keyboardType: TextInputType.emailAddress,
-                                      validator: controller.validateEmail,
-                                      inputFormatters: [
-                                        LengthLimitingTextInputFormatter(254),
-                                        FilteringTextInputFormatter.deny(
-                                          RegExp(r'\s'),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              const _SectionHeading(
-                                title: 'Invoice details',
-                                badge: 'OPTIONAL',
-                              ),
-                              const SizedBox(height: 10),
-                              _OptionalCustomerSection(
-                                icon: Icons.business_outlined,
-                                title: 'Business & tax',
-                                subtitle: 'Company name and GSTIN',
-                                child: _ResponsiveFields(
-                                  children: [
-                                    AppTextField(
-                                      controller: controller.companyName,
-                                      label: 'Company name',
-                                      prefixIcon: Icons.apartment_rounded,
-                                      textCapitalization:
-                                          TextCapitalization.words,
-                                    ),
-                                    AppTextField(
-                                      controller: controller.gstin,
-                                      label: 'GSTIN',
-                                      prefixIcon: Icons.receipt_long_outlined,
-                                      validator: controller.validateGstin,
-                                      inputFormatters: [
-                                        LengthLimitingTextInputFormatter(15),
-                                        FilteringTextInputFormatter.allow(
-                                          RegExp('[0-9a-zA-Z]'),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              _OptionalCustomerSection(
-                                icon: Icons.location_on_outlined,
-                                title: 'Billing address',
-                                subtitle: 'Address printed on invoices',
-                                child: Column(
-                                  children: [
-                                    AppTextField(
-                                      controller: controller.address,
-                                      label: 'Street address',
-                                      prefixIcon: Icons.home_outlined,
-                                      maxLines: 2,
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    _ResponsiveFields(
-                                      children: [
-                                        AppTextField(
-                                          controller: controller.city,
-                                          label: 'City',
-                                        ),
-                                        AppTextField(
-                                          controller: controller.state,
-                                          label: 'State',
-                                        ),
-                                        AppTextField(
-                                          controller: controller.pinCode,
-                                          label: 'PIN code',
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: [
-                                            FilteringTextInputFormatter
-                                                .digitsOnly,
-                                            LengthLimitingTextInputFormatter(6),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              _OptionalCustomerSection(
-                                icon: Icons.notes_rounded,
-                                title: 'Private notes',
-                                subtitle: 'Visible only inside Creovo Billing',
-                                child: AppTextField(
-                                  controller: controller.notes,
-                                  label: 'Notes',
-                                  prefixIcon: Icons.edit_note_rounded,
-                                  maxLines: 3,
-                                  textCapitalization:
-                                      TextCapitalization.sentences,
-                                ),
-                              ),
+                              _PhoneField(controller: controller),
                               const SizedBox(height: 18),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.lock_outline_rounded,
-                                    size: 15,
-                                    color: AppColors.accent,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Stored privately on this device',
-                                    style: AppTextStyles.small.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              _GstAddressCard(controller: controller),
+                              if (!controller.isEditing &&
+                                  !controller.isInvoiceFlow) ...[
+                                const SizedBox(height: 14),
+                                _CreateInvoiceToggle(controller: controller),
+                              ],
                             ],
                           ),
                         ),
@@ -208,32 +87,55 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
         ),
         bottomNavigationBar: SafeArea(
           top: false,
-          child: Container(
-            padding: EdgeInsets.fromLTRB(
-              ResponsiveUtils.horizontalPadding(context),
-              12,
-              ResponsiveUtils.horizontalPadding(context),
-              12,
-            ),
+          child: DecoratedBox(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              border: const Border(top: BorderSide(color: AppColors.border)),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [page.withValues(alpha: 0), page, page],
+                stops: const [0, 0.28, 1],
+              ),
             ),
-            child: Obx(
-              () => AppConstrainedAction(
-                child: AppButton(
-                  label: controller.isEditing
-                      ? 'Save changes'
-                      : controller.isInvoiceFlow
-                      ? 'Save & use customer'
-                      : 'Save customer',
-                  icon: controller.isInvoiceFlow ? null : Icons.check_rounded,
-                  trailingIcon: controller.isInvoiceFlow
-                      ? Icons.arrow_forward_rounded
-                      : null,
-                  isLoading: controller.isSaving.value,
-                  onPressed: controller.save,
-                ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                ResponsiveUtils.horizontalPadding(context),
+                20,
+                ResponsiveUtils.horizontalPadding(context),
+                12,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Obx(
+                    () => AppConstrainedAction(
+                      child: AppButton(
+                        label: controller.isEditing
+                            ? 'Save changes'
+                            : controller.isInvoiceFlow
+                            ? 'Save & use customer'
+                            : 'Save Customer',
+                        icon: controller.isInvoiceFlow
+                            ? null
+                            : Icons.person_add_alt_1_rounded,
+                        trailingIcon: controller.isInvoiceFlow
+                            ? Icons.arrow_forward_rounded
+                            : null,
+                        isLoading: controller.isSaving.value,
+                        onPressed: controller.save,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Instant offline save • Stays on this device',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.small.copyWith(
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -243,31 +145,84 @@ class CustomerFormScreen extends GetView<CustomerFormController> {
   }
 }
 
-class _MobileField extends StatelessWidget {
-  const _MobileField({required this.controller});
+class _CoreDetailsHeader extends StatelessWidget {
+  const _CoreDetailsHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      children: [
+        Container(
+          width: 7,
+          height: 7,
+          decoration: const BoxDecoration(
+            color: AppColors.primary,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            'CORE DETAILS',
+            style: AppTextStyles.small.copyWith(
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.textSecondary,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.1,
+              fontSize: 11,
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+          decoration: BoxDecoration(
+            color: AppColors.primaryLight,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Text(
+            'FAST BILLING',
+            style: AppTextStyles.small.copyWith(
+              color: AppColors.primaryDark,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PhoneField extends StatelessWidget {
+  const _PhoneField({required this.controller});
 
   final CustomerFormController controller;
 
   @override
   Widget build(BuildContext context) {
-    Widget field({Widget? suffixIcon}) => AppTextField(
-      controller: controller.mobile,
-      label: 'Mobile number *',
-      prefixIcon: Icons.phone_outlined,
-      suffixIcon: suffixIcon,
-      keyboardType: TextInputType.phone,
-      validator: controller.validateMobile,
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(10),
-      ],
-    );
+    return Obx(() {
+      Widget field({Widget? suffixIcon}) => AppTextField(
+        controller: controller.mobile,
+        label: 'Phone Number *',
+        hint: 'Mobile number',
+        prefix: AppCountryPrefix(
+          country: controller.country.value,
+          onTap: () => _pickCountry(context),
+        ),
+        suffixIcon: suffixIcon,
+        keyboardType: TextInputType.phone,
+        validator: controller.validateMobile,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(controller.country.value.maxLength),
+        ],
+      );
 
-    // Contact import is create-only. Avoid an Obx in edit mode because that
-    // branch has no observable dependency and GetX correctly rejects it.
-    if (controller.isEditing) return field();
-    return Obx(
-      () => field(
+      if (controller.isEditing) return field();
+      return field(
         suffixIcon: IconButton(
           tooltip: l10n('Import from phone contacts'),
           onPressed: controller.isImportingContact.value
@@ -280,134 +235,258 @@ class _MobileField extends StatelessWidget {
                 )
               : const Icon(Icons.contacts_rounded, color: AppColors.secondary),
         ),
+      );
+    });
+  }
+
+  Future<void> _pickCountry(BuildContext context) async {
+    final selected = await showAppCountryPicker(
+      context: context,
+      value: controller.country.value,
+    );
+    if (selected != null) controller.selectCountry(selected);
+  }
+}
+
+class _GstAddressCard extends StatelessWidget {
+  const _GstAddressCard({required this.controller});
+
+  final CustomerFormController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.border,
+        ),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: true,
+          tilePadding: const EdgeInsets.fromLTRB(16, 6, 12, 6),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'GSTIN & Billing Address',
+                  style: AppTextStyles.cardTitle.copyWith(fontSize: 15),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.successLight,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  'B2B Ready',
+                  style: AppTextStyles.small.copyWith(
+                    color: AppColors.success,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              'Optional for B2B tax invoicing',
+              style: AppTextStyles.small.copyWith(
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textSecondary,
+              ),
+            ),
+          ),
+          children: [
+            AppTextField(
+              controller: controller.gstin,
+              label: 'GSTIN',
+              hint: '15-character GSTIN',
+              prefixIcon: Icons.receipt_long_outlined,
+              validator: controller.validateGstin,
+              onChanged: controller.onGstinChanged,
+              textCapitalization: TextCapitalization.characters,
+              suffixIcon: Obx(
+                () => controller.gstinLooksValid.value
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.successLight,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Looks valid',
+                              style: AppTextStyles.small.copyWith(
+                                color: AppColors.success,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(15),
+                FilteringTextInputFormatter.allow(RegExp('[0-9a-zA-Z]')),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'GSTIN is optional for B2B tax invoices.',
+              style: AppTextStyles.small.copyWith(
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.textTertiary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            AppTextField(
+              controller: controller.companyName,
+              label: 'Trade / Legal Business Name',
+              prefixIcon: Icons.apartment_rounded,
+              textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 12),
+            AppTextField(
+              controller: controller.address,
+              label: 'Billing Address',
+              prefixIcon: Icons.home_outlined,
+              maxLines: 2,
+              textCapitalization: TextCapitalization.sentences,
+            ),
+            const SizedBox(height: 12),
+            _PinAndStateRow(controller: controller),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _FormIntro extends StatelessWidget {
-  const _FormIntro({required this.invoiceFlow, required this.editing});
-  final bool invoiceFlow;
-  final bool editing;
+class _PinAndStateRow extends StatelessWidget {
+  const _PinAndStateRow({required this.controller});
 
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        editing
-            ? 'Keep customer details accurate'
-            : invoiceFlow
-            ? 'Add them, then keep invoicing'
-            : 'Make the next invoice faster',
-        style: AppTextStyles.pageTitle.copyWith(
-          fontSize: ResponsiveUtils.fontSize(context, 27),
-          height: 1.1,
-        ),
-      ),
-      const SizedBox(height: 8),
-      Text(
-        invoiceFlow && !editing
-            ? 'Add their name and mobile number, then continue building the invoice.'
-            : 'Save billing information once and reuse it on every invoice.',
-        style: AppTextStyles.body.copyWith(
-          color: AppColors.textSecondary,
-          height: 1.45,
-        ),
-      ),
-    ],
-  );
-}
-
-class _SectionHeading extends StatelessWidget {
-  const _SectionHeading({required this.title, required this.badge});
-  final String title;
-  final String badge;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(child: Text(title, style: AppTextStyles.sectionTitle)),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-        decoration: BoxDecoration(
-          color: AppColors.primaryLight,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Text(
-          badge,
-          style: AppTextStyles.small.copyWith(
-            color: AppColors.primary,
-            fontSize: 10,
-            fontWeight: FontWeight.w800,
-            letterSpacing: .5,
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
-class _OptionalCustomerSection extends StatelessWidget {
-  const _OptionalCustomerSection({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.child,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => AppCard(
-    padding: EdgeInsets.zero,
-    child: ExpansionTile(
-      shape: const Border(),
-      collapsedShape: const Border(),
-      tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
-      childrenPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: AppColors.primaryLight,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, color: AppColors.primary, size: 20),
-      ),
-      title: Text(title, style: AppTextStyles.cardTitle.copyWith(fontSize: 15)),
-      subtitle: Text(
-        subtitle,
-        style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
-      ),
-      children: [child],
-    ),
-  );
-}
-
-class _ResponsiveFields extends StatelessWidget {
-  const _ResponsiveFields({required this.children});
-  final List<Widget> children;
+  final CustomerFormController controller;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final twoColumns = ResponsiveUtils.formColumns(context) == 2;
+        final twoColumns = constraints.maxWidth >= 360;
         final width = twoColumns
             ? (constraints.maxWidth - 12) / 2
             : constraints.maxWidth;
         return Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: children
-              .map((child) => SizedBox(width: width, child: child))
-              .toList(),
+          children: [
+            SizedBox(
+              width: width,
+              child: AppTextField(
+                controller: controller.pinCode,
+                label: 'PIN code',
+                prefixIcon: Icons.pin_drop_outlined,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(6),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: width,
+              child: Obx(() {
+                final current =
+                    controller.gstState.value?.name ??
+                    controller.state.text.trim();
+                final options = <AppDropdownOption<String>>[
+                  const AppDropdownOption(value: '', label: 'Select state'),
+                  if (current.isNotEmpty &&
+                      GstIndianStates.match(current) == null)
+                    AppDropdownOption(value: current, label: current),
+                  for (final state in GstIndianStates.all)
+                    AppDropdownOption(value: state.name, label: state.label),
+                ];
+                return AppDropdownField<String>(
+                  label: 'State',
+                  value: current,
+                  searchable: true,
+                  searchHint: 'Search state',
+                  emptyLabel: 'No matching state',
+                  sheetTitle: 'Select state',
+                  sheetHeightFactor: 0.75,
+                  prefixIcon: Icons.map_outlined,
+                  options: options,
+                  onChanged: controller.selectGstStateName,
+                );
+              }),
+            ),
+          ],
         );
       },
     );
+  }
+}
+
+class _CreateInvoiceToggle extends StatelessWidget {
+  const _CreateInvoiceToggle({required this.controller});
+
+  final CustomerFormController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Obx(() {
+      final checked = controller.createInvoiceAfterSave.value;
+      return Material(
+        color: isDark ? AppColors.darkSurface : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: controller.createInvoiceAfterSave.toggle,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(6, 6, 14, 6),
+            child: Row(
+              children: [
+                Checkbox(
+                  value: checked,
+                  onChanged: (value) =>
+                      controller.createInvoiceAfterSave.value = value ?? false,
+                  activeColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    'Save and create new invoice immediately',
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
   }
 }

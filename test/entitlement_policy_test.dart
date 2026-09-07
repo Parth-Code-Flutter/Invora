@@ -262,6 +262,10 @@ void main() {
       isEmpty,
     );
     expect(
+      exported.contains(AppStorageKeyConst.accountSessionBoundToInstall),
+      isFalse,
+    );
+    expect(
       AppStorageKeyConst.entitlementCacheKeys.contains(
         AppStorageKeyConst.appLockPinHash,
       ),

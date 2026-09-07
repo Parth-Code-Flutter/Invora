@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-09-06
+Last updated: 2026-09-07
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -27,6 +27,8 @@ remain intentionally out of scope until explicitly requested.
 - Product Settings uses its premium overview/field hierarchy without overflow
   on narrow phones; locally bundled Plus Jakarta Sans renders consistently
   offline across the screen, its dialogs/sheets, and the wider app.
+- Shared text fields and dropdowns keep the label outside and above the box
+  (Address, City, State, Currency, catalog fields, and the rest of the app).
 - Product fields are grouped into essentials, identity, specifications, and
   variant/date chips; selection remains readable without divider-heavy rows.
 - Selected field chips have clearly visible text/checkmarks in light and dark
@@ -54,7 +56,10 @@ remain intentionally out of scope until explicitly requested.
   with Edit Business Profile in the header, a circular back action, Save &
   update invoices, and a return to the previous screen after saving; only
   first-time setup uses Business Profile (no Edit prefix) and dashboard
-  completion routing.
+  completion routing. The header title and subtitle fit without overflow.
+  Identity & Brand puts the business-name field beside the logo, not below it.
+  Owner / Signatory Name opens a full signature-pad dialog (draw, or
+  photo) rather than drawing inside the scrolling form.
 - Plus Jakarta Sans is the only bundled UI/PDF font; invoice, receipt,
   statement, and report PDFs retain Unicode and Indian-rupee rendering.
 - Opening, typing in, cancelling, or saving the custom-field dialog completes
@@ -63,16 +68,22 @@ remain intentionally out of scope until explicitly requested.
 - First launch reaches account OTP, then onboarding, then business setup. OTP
   shows the hero, then number/OTP card, then benefit pills (no brand AppBar
   or Welcome title), with a country picker (India +91), plan-only helper copy,
-  and numbers saved on this phone.
+  and numbers saved on this phone. The OTP step uses six digit boxes, not a
+  single text field.
   Indian account mobiles must start with 6–9. Tap Use a number from this
   phone to pick from a sheet. Invoice mobile is local letterhead only.
   Account mobile is not printed on invoices. If Firestore is off, Verify
   shows a create-database or deploy-rules error instead of crashing.
   Shop setup must not open until Verify succeeds; a restart with a Phone
-  session but no entitlement returns to OTP. Publish the full
+  session but no entitlement returns to OTP. Uninstall and reinstall
+  must ask for the account mobile again even if iOS still had a Phone
+  session. Publish the full
   `firestore.rules` file starting with `rules_version`.
 - Business profile persists with GST identity and invoice defaults.
-- Customer create, search, edit, validation, and soft delete.
+- Customer create, search, edit, validation, and soft delete. Add Customer
+  uses the shared country picker, stores E.164 mobiles, and can open a new
+  invoice after save. GSTIN is optional format-checked copy only — no
+  government portal lookup.
 - Product/service create, filter, edit, units, GST presets, and soft delete.
 - Complete GST lifecycle: business → customer → product → invoice → partial
   payment → reversal → full payment.

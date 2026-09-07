@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:creovo_invoice/app/widgets/app_button.dart';
+import 'package:creovo_invoice/app/widgets/app_otp_field.dart';
 import 'package:creovo_invoice/data/services/account_auth_service.dart';
 import 'package:creovo_invoice/data/services/account_phone.dart';
 import 'package:creovo_invoice/data/services/app_database.dart';
@@ -109,16 +110,69 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Enter OTP *'), findsNothing);
+    expect(find.byType(AppOtpField), findsNothing);
 
     await tester.enterText(find.byType(TextFormField), '9876543210');
     await tester.tap(find.widgetWithText(AppButton, 'Send OTP'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Enter OTP *'), findsOneWidget);
-    await tester.enterText(find.byType(TextFormField).last, '123456');
-    await tester.tap(find.widgetWithText(AppButton, 'Verify & continue'));
+    expect(find.text('Enter OTP'), findsOneWidget);
+    expect(find.byType(AppOtpField), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const ValueKey('app-otp-input')),
+      '123456',
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Your invoice, ready in minutes'), findsOneWidget);
   });
+
+  testWidgets('reinstall with leftover phone session still opens account OTP', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await AppStorage.create();
+    final databaseService = LocalDatabaseService(
+      AppDatabase.forTesting(NativeDatabase.memory()),
+    );
+    await databaseService.initialize();
+    addTearDown(databaseService.database.close);
+    final leftover = _LeftoverPhoneAuth();
+
+    await tester.pumpWidget(
+      CreovoInvoiceApp(
+        appStorage: storage,
+        databaseService: databaseService,
+        accountAuth: leftover,
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 1700));
+    await tester.pumpAndSettle();
+
+    expect(leftover.isVerified, isFalse);
+    expect(find.text('Your first bill is minutes away'), findsOneWidget);
+    expect(find.text('Account mobile *'), findsOneWidget);
+    expect(find.text('Business Name'), findsNothing);
+    expect(find.text('Business Name *'), findsNothing);
+  });
+}
+
+class _LeftoverPhoneAuth implements AccountAuthService {
+  @override
+  bool isVerified = true;
+
+  @override
+  String? e164Mobile = '+919876543210';
+
+  @override
+  Future<void> sendOtp(String phone) async {}
+
+  @override
+  Future<void> verifyOtp(String smsCode) async {}
+
+  @override
+  Future<void> signOut() async {
+    isVerified = false;
+    e164Mobile = null;
+  }
 }

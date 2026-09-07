@@ -3,6 +3,11 @@ abstract final class AppStorageKeyConst {
   static const languageCode = 'language_code';
   static const onboardingCompleted = 'onboarding_completed';
   static const businessSetupCompleted = 'business_setup_completed';
+
+  /// SharedPreferences-only marker for this install. Missing after uninstall,
+  /// so a leftover iOS Keychain Phone Auth session cannot skip OTP.
+  static const accountSessionBoundToInstall =
+      'account_session_bound_to_install';
   static const defaultWorkspace = 'default_workspace';
   static const activeWorkspace = 'active_workspace';
   static const selectedInvoiceTemplate = 'selected_invoice_template';

@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-09-06
+Last updated: 2026-09-07
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -68,9 +68,10 @@ SHA-256:
 - Cream-to-lilac page, coral-to-plum hero (“Your first bill is minutes away”
   / Offline GST invoicing). No brand AppBar and no “Welcome to Creovo
   Billing” heading.
-- Account mobile or OTP field first, then pills: Works offline, Bills stay
+-   Account mobile or OTP field first, then pills: Works offline, Bills stay
   here, Ready in minutes. Country picker defaults to India +91. Device
-  numbers open in a tap-to-select sheet, not chips.
+  numbers open in a tap-to-select sheet, not chips. OTP uses the shared
+  six-box `AppOtpField` (paste and SMS autofill), not a single text box.
 - Sticky **Send OTP** / **Verify & continue**. Plan-only helper under the
   number: used for the plan, never printed on invoices.
 
@@ -90,6 +91,13 @@ SHA-256:
 - Last known plan is cached in SharedPreferences keys
   `entitlement_*` and is **not** copied into backup ZIPs (same rule as
   app-lock PIN). Returning to the app from background re-checks.
+  Uninstall/reinstall always asks for the **account mobile** again: iOS
+  can keep Firebase Phone Auth in Keychain after the app is deleted, but
+  splash drops that leftover session unless this install already bound
+  it (`account_session_bound_to_install` in SharedPreferences, which is
+  wiped with the app). Updating the IPA over an existing shop keeps the
+  session. The same number then re-reads Firestore for trial or paid
+  status. Shop data is still gone until the user restores a backup.
   `SkipAccountAuthService` still skips this gate for widget tests.
 - The expired `/subscription` page follows the Stitch yearly offer:
   `subscription_plan_header_img.svg` hero, Creovo Yearly at ₹499 (50% off
@@ -187,8 +195,8 @@ stores.
   edits share the Figma Business Profile screen: live bill preview,
   Identity & Brand, Contact on Invoices, and a collapsed GSTIN / UPI /
   numbering accordion. Create keeps the title **Business Profile**; edit
-  prefixes it to **Edit Business Profile**. Optional logo is added from
-  the store-logo mark. **Invoice mobile** is local letterhead only and is
+  prefixes it to **Edit Business Profile**. Optional logo sits beside the
+  business-name field in Identity & Brand. **Invoice mobile** is local letterhead only and is
   never written to Firebase. Android uses `android/app/google-services.json`
   and iOS uses `ios/Runner/GoogleService-Info.plist` with matching entries in
   `lib/firebase_options.dart` for project `creovobilling`
@@ -297,13 +305,14 @@ stores.
   adds the Purchase audit/tax/attachment fields. ZIP backup compatibility
   checks use this schema version.
 - Business profile, logo, signature, payment QR, bank, and UPI information.
-  Signature capture offers draw-on-pad, gallery, or camera, then stores the
-  image with other business assets for invoice PDFs. Editing an existing
-  profile uses the Figma Business Profile screen for both first-time
-  setup and later edits (create title stays Business Profile; edit
-  prefixes Edit). The live bill preview, logo, category, owner, and
+  Signature capture opens a full signature-pad dialog from Owner /
+  Signatory Name (or a gallery/camera photo), then stores the image with
+  other business assets for invoice PDFs. Editing an existing profile uses the Figma Business
+  Profile screen for both first-time setup and later edits (create title
+  stays Business Profile; edit prefixes Edit Business Profile). The live
+  bill preview, logo beside business name, category, signature pad, and
   invoice WhatsApp sit on one page; GST, UPI, numbering, address, bank,
-  QR, and signature stay in the optional accordion.
+  and payment QR stay in the optional accordion.
 - Responsive phone/tablet layouts and dark mode. Phone screens keep the existing
   bottom dock and stacked forms.   Tablets use a shared `AppShell` NavigationRail
   on Home, Documents, Products, Parties, and More. Home screens are two-pane (snapshot +
@@ -460,12 +469,20 @@ stores.
 - Create, search, edit, view, and soft-delete customers. List search matches
   partial words across name, company, mobile, email, and GSTIN.
 - Mobile length/format and email regex validation
-- Customer name and valid 10-digit Indian mobile number are required
-- GSTIN, address, company, and optional notes support
-- Essentials-first customer form keeps name/contact visible and progressively
-  discloses company/tax, billing address, and private notes
+- Customer name and a valid mobile number are required. Phone uses the
+  shared country picker (India +91 by default) and stores E.164 in the
+  existing mobile field so older 10-digit Indian rows still load.
+- GSTIN, trade name, billing address, PIN, and GST state support. Email,
+  city, and private notes stay in the model and are preserved on save
+  even though the Figma form hides them.
+- Add Customer follows Figma node `2241:359`: cream page, CORE DETAILS,
+  expandable GSTIN & Billing Address (open by default), sticky Save
+  Customer, and an optional create-invoice checkbox. There is no GSTIN
+  portal lookup and no shipping-address table. Footer copy stays honest
+  (on-device save, not cloud sync).
 - Create-customer action directly inside invoice customer selection; customers
-  saved there are immediately returned to and selected for the invoice
+  saved there are immediately returned to and selected for the invoice. The
+  create-invoice checkbox is hidden in that flow.
 - Customer list rows keep 14px names, company or mobile as caption, a soft
   initial tile, and a bounded billed-amount column, with 10px space between
   cards. Status is caption text (Due / Paid / No invoices). Names ellipsize;
@@ -1007,6 +1024,41 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
 
+### 2026-09-07 — Signature pad opens in a dialog
+
+- Owner / Signatory Name on Business Profile is a preview tile. Tap it
+  (or Sign / Sign again) to draw on a large dialog pad, then Use
+  signature. The form no longer tries to capture ink in the scrolling
+  card. Clear and Use a photo are unchanged.
+- Important files: `business_setup_screen.dart`,
+  `business_setup_controller.dart`, `app_signature_capture.dart`.
+- Storage: none; drawing still writes `business_profile.signature_path`.
+- Verification: tapping the profile signature tile opens Draw signature;
+  existing pad dialog tests still pass.
+
+### 2026-09-06 — Six-box OTP field
+
+- Account OTP entry uses the shared `AppOtpField`: six digit boxes, label
+  above the boxes, paste and SMS autofill, and auto-verify when the sixth
+  digit is entered. The old single PIN text field is gone.
+- Important files: `app_otp_field.dart`, `account_otp_screen.dart`.
+- Storage: none.
+- Verification: design-system OTP widget test and account OTP launch test.
+
+### 2026-09-06 — Reinstall asks for subscription mobile
+
+- Uninstall/reinstall no longer skips OTP when iOS Keychain still holds a
+  Firebase Phone session. Splash signs that leftover session out on a
+  fresh install, then asks for the account mobile used to check trial and
+  subscription. The same number still restores Firestore entitlement
+  after OTP. Local invoices remain gone until a backup restore. Business
+  name stays required on first setup of a new local shop.
+- Important files: `startup_navigator.dart`, `app_storage_key_const.dart`.
+- Storage: SharedPreferences `account_session_bound_to_install` (this
+  install only; not in backup ZIPs).
+- Verification: `startup_install_session_test.dart` and leftover-session
+  OTP widget test.
+
 ### 2026-09-06 — Shared 20px AppBar titles and smaller search chrome
 
 - Every AppBar title is 20px: list headers in `AppSearchAppBar`, nested
@@ -1031,6 +1083,60 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 - Storage: none.
 - Verification: catalog list widget tests for All/Products/Services empty
   copy and hidden FAB; `dart format` and targeted analysis.
+
+### 2026-09-06 — Shared outside-label text fields
+
+- `AppTextField`, `AppDropdownField`, and `AppUnitField` now use the same
+  outside label (above the box) as Invoice Mobile and Business Name. Address,
+  city, state, PIN, PAN, numbering, currency, and every other shared field
+  pick this up automatically. Optional helper copy sits under the box.
+- Important files: `app_field_label.dart`, `app_text_field.dart`,
+  `app_dropdown_field.dart`, `app_unit_field.dart`.
+- Storage: none.
+- Verification: design-system field test (label above hint) and
+  `app_text_field_validation_test.dart`.
+
+### 2026-09-06 — Business Profile signature pad
+
+- Owner / Signatory Name is a draw pad instead of a text field. Ink is
+  stored as the existing signature PNG on save. Clear, Sign again, and
+  Use a photo (gallery/camera) are available. Typed owner name is still
+  preserved if it was already saved. The duplicate signature picker was
+  removed from the optional payment accordion.
+- Important files: `business_setup_screen.dart`,
+  `business_setup_controller.dart`, `app_signature_capture.dart`.
+- Storage: none; reuses `business_profile.signature_path`.
+- Verification: business-profile create/edit tests find the pad;
+  `app_signature_capture_test.dart` still covers the draw dialog.
+
+### 2026-09-06 — Business Profile header and identity row
+
+- The Business Profile app bar is 70px with tighter padding so the title
+  and “Receipt & Invoice Branding” no longer overflow by 2px. Identity &
+  Brand places the logo beside Business Name. The name uses the same
+  outside-label + rounded field as other profile inputs, not a nested
+  label inside the logo well. Tap the logo mark to upload or remove.
+- Important files: `business_setup_screen.dart`, `business_setup_edit_mode_test.dart`.
+- Storage: none.
+- Verification: create/edit business-profile widget tests, including no
+  Store Logo copy and the name field sitting to the right of the logo.
+
+### 2026-09-06 — Figma Add Customer form
+
+- Add/Edit customer now follows Figma node `2241:359`: cream page, Add
+  Customer title, CORE DETAILS, expandable GSTIN & Billing Address, sticky
+  Save Customer, and “save then create invoice” on standalone create. Phone
+  uses the shared country picker extracted from account OTP
+  (`app_country_picker.dart`); mobiles save as E.164 without a schema
+  change. GSTIN does not call a government portal; a format-OK chip is
+  shown for a valid 15-character GSTIN. Shipping address and “auto-syncs
+  when online” were not implemented. Hidden email/city/notes values are
+  preserved on save.
+- Important files: `customer_form_screen.dart`, `customer_form_controller.dart`,
+  `app_country_picker.dart`, `gst_indian_states.dart`, `account_otp_screen.dart`.
+- Storage: none; reuses `customers.mobile` and `customers.state`.
+- Verification: `gst_indian_states_test.dart`, `validation_utils_test.dart`,
+  and `account_otp_test.dart`. Device visual QA remains.
 
 ### 2026-09-06 — Hide catalog FAB on empty All / Products / Services
 

@@ -525,7 +525,8 @@ class BackupService {
         jsonDecode(utf8.decode(file.content as List<int>))
             as Map<String, dynamic>;
     for (final entry in values.entries) {
-      if (AppStorageKeyConst.entitlementCacheKeys.contains(entry.key)) {
+      if (AppStorageKeyConst.entitlementCacheKeys.contains(entry.key) ||
+          entry.key == AppStorageKeyConst.accountSessionBoundToInstall) {
         continue;
       }
       final value = entry.value;

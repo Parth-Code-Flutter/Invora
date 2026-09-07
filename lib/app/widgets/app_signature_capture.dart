@@ -41,7 +41,10 @@ Future<String?> captureBusinessSignature({
   }
 }
 
-Future<SignatureCaptureSource?> showSignatureSourceSheet(BuildContext context) {
+Future<SignatureCaptureSource?> showSignatureSourceSheet(
+  BuildContext context, {
+  bool includeDraw = true,
+}) {
   return showAppBottomSheet<SignatureCaptureSource>(
     context: context,
     title: 'Add signature',
@@ -49,13 +52,14 @@ Future<SignatureCaptureSource?> showSignatureSourceSheet(BuildContext context) {
       builder: (sheetContext) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _SourceAction(
-            icon: Icons.draw_outlined,
-            title: 'Draw signature',
-            subtitle: 'Sign with your finger on a pad',
-            onTap: () =>
-                Navigator.pop(sheetContext, SignatureCaptureSource.draw),
-          ),
+          if (includeDraw)
+            _SourceAction(
+              icon: Icons.draw_outlined,
+              title: 'Draw signature',
+              subtitle: 'Sign with your finger on a pad',
+              onTap: () =>
+                  Navigator.pop(sheetContext, SignatureCaptureSource.draw),
+            ),
           _SourceAction(
             icon: Icons.photo_library_outlined,
             title: 'Pick from gallery',
@@ -77,22 +81,23 @@ Future<SignatureCaptureSource?> showSignatureSourceSheet(BuildContext context) {
 }
 
 Future<Uint8List?> showSignaturePadDialog(BuildContext context) {
+  final size = MediaQuery.sizeOf(context);
   final tablet = ResponsiveUtils.isTablet(context);
+  final height = math.min(
+    size.height * (tablet ? 0.86 : 0.92),
+    tablet ? 720.0 : 640.0,
+  );
   return showDialog<Uint8List>(
     context: context,
+    barrierDismissible: false,
     builder: (dialogContext) => Dialog(
       insetPadding: EdgeInsets.symmetric(
-        horizontal: tablet ? 28 : 16,
-        vertical: tablet ? 24 : 20,
+        horizontal: tablet ? 28 : 12,
+        vertical: tablet ? 24 : 12,
       ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: tablet ? 720 : 520,
-          maxHeight: math.min(
-            MediaQuery.sizeOf(dialogContext).height * 0.82,
-            tablet ? 560 : 480,
-          ),
-        ),
+      child: SizedBox(
+        width: tablet ? 760 : size.width,
+        height: height,
         child: const _SignaturePadSheet(),
       ),
     ),
@@ -132,25 +137,58 @@ class _SourceAction extends StatelessWidget {
   );
 }
 
-class _SignaturePadSheet extends StatefulWidget {
-  const _SignaturePadSheet();
+class AppSignaturePad extends StatefulWidget {
+  const AppSignaturePad({
+    this.padKey,
+    this.placeholder = 'Sign here',
+    this.borderRadius = 14,
+    this.onInkChanged,
+    this.onInteractionChanged,
+    super.key,
+  });
+
+  final Key? padKey;
+  final String placeholder;
+  final double borderRadius;
+  final ValueChanged<bool>? onInkChanged;
+  final ValueChanged<bool>? onInteractionChanged;
 
   @override
-  State<_SignaturePadSheet> createState() => _SignaturePadSheetState();
+  State<AppSignaturePad> createState() => AppSignaturePadState();
 }
 
-class _SignaturePadSheetState extends State<_SignaturePadSheet> {
+class AppSignaturePadState extends State<AppSignaturePad> {
   final _boundaryKey = GlobalKey();
   final _strokes = <List<Offset>>[];
   List<Offset>? _current;
-  var _saving = false;
 
-  bool get _hasInk {
+  bool get hasInk {
     if (_current != null && _current!.length > 1) return true;
     return _strokes.any((stroke) => stroke.length > 1);
   }
 
+  void clear() {
+    setState(() {
+      _strokes.clear();
+      _current = null;
+    });
+    widget.onInkChanged?.call(false);
+  }
+
+  Future<Uint8List?> capturePng() async {
+    if (!hasInk) return null;
+    final boundary =
+        _boundaryKey.currentContext?.findRenderObject()
+            as RenderRepaintBoundary?;
+    if (boundary == null) return null;
+    final image = await boundary.toImage(pixelRatio: 3);
+    final data = await image.toByteData(format: ui.ImageByteFormat.png);
+    image.dispose();
+    return data?.buffer.asUint8List();
+  }
+
   void _start(Offset point) {
+    widget.onInteractionChanged?.call(true);
     setState(() => _current = [point]);
   }
 
@@ -167,28 +205,74 @@ class _SignaturePadSheetState extends State<_SignaturePadSheet> {
       if (stroke.length > 1) _strokes.add(List<Offset>.from(stroke));
       _current = null;
     });
+    widget.onInkChanged?.call(hasInk);
+    widget.onInteractionChanged?.call(false);
   }
 
-  void _clear() {
-    setState(() {
-      _strokes.clear();
-      _current = null;
-    });
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(widget.borderRadius),
+      child: Stack(
+        children: [
+          RepaintBoundary(
+            key: _boundaryKey,
+            child: ColoredBox(
+              color: Colors.white,
+              child: GestureDetector(
+                key: widget.padKey ?? const Key('signature-pad'),
+                behavior: HitTestBehavior.opaque,
+                onPanStart: (details) => _start(details.localPosition),
+                onPanUpdate: (details) => _move(details.localPosition),
+                onPanEnd: (_) => _end(),
+                onPanCancel: _end,
+                child: CustomPaint(
+                  painter: _SignaturePainter(
+                    strokes: _strokes,
+                    current: _current,
+                  ),
+                  child: const SizedBox.expand(),
+                ),
+              ),
+            ),
+          ),
+          if (!hasInk)
+            IgnorePointer(
+              child: Center(
+                child: Text(
+                  widget.placeholder,
+                  style: const TextStyle(
+                    color: AppColors.textTertiary,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
+}
+
+class _SignaturePadSheet extends StatefulWidget {
+  const _SignaturePadSheet();
+
+  @override
+  State<_SignaturePadSheet> createState() => _SignaturePadSheetState();
+}
+
+class _SignaturePadSheetState extends State<_SignaturePadSheet> {
+  final _padKey = GlobalKey<AppSignaturePadState>();
+  var _hasInk = false;
+  var _saving = false;
 
   Future<void> _save() async {
     if (!_hasInk || _saving) return;
     setState(() => _saving = true);
     try {
-      final boundary =
-          _boundaryKey.currentContext?.findRenderObject()
-              as RenderRepaintBoundary?;
-      if (boundary == null) return;
-      final image = await boundary.toImage(pixelRatio: 3);
-      final data = await image.toByteData(format: ui.ImageByteFormat.png);
-      image.dispose();
-      if (!mounted || data == null) return;
-      Navigator.of(context).pop(data.buffer.asUint8List());
+      final bytes = await _padKey.currentState?.capturePng();
+      if (!mounted || bytes == null) return;
+      Navigator.of(context).pop(bytes);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -196,14 +280,9 @@ class _SignaturePadSheetState extends State<_SignaturePadSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final height = math.min(
-      ResponsiveUtils.isTablet(context) ? 300.0 : 220.0,
-      MediaQuery.sizeOf(context).height * 0.38,
-    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
@@ -223,60 +302,22 @@ class _SignaturePadSheetState extends State<_SignaturePadSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Sign inside the box. This appears on your invoices.',
+            'Use the full pad. This appears on your invoices.',
             style: AppTextStyles.caption.copyWith(
               color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            height: height,
+          Expanded(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppColors.border),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(13),
-                child: Stack(
-                  children: [
-                    RepaintBoundary(
-                      key: _boundaryKey,
-                      child: ColoredBox(
-                        color: Colors.white,
-                        child: GestureDetector(
-                          key: const Key('signature-pad'),
-                          behavior: HitTestBehavior.opaque,
-                          onPanStart: (details) =>
-                              _start(details.localPosition),
-                          onPanUpdate: (details) =>
-                              _move(details.localPosition),
-                          onPanEnd: (_) => _end(),
-                          child: CustomPaint(
-                            painter: _SignaturePainter(
-                              strokes: _strokes,
-                              current: _current,
-                            ),
-                            child: const SizedBox.expand(),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (!_hasInk)
-                      const IgnorePointer(
-                        child: Center(
-                          child: Text(
-                            'Sign here',
-                            style: TextStyle(
-                              color: AppColors.textTertiary,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+              child: AppSignaturePad(
+                key: _padKey,
+                onInkChanged: (hasInk) => setState(() => _hasInk = hasInk),
               ),
             ),
           ),
@@ -287,7 +328,9 @@ class _SignaturePadSheetState extends State<_SignaturePadSheet> {
                 child: AppOutlinedButton(
                   label: 'Clear',
                   icon: Icons.refresh_rounded,
-                  onPressed: _hasInk ? _clear : null,
+                  onPressed: _hasInk
+                      ? () => _padKey.currentState?.clear()
+                      : null,
                 ),
               ),
               const SizedBox(width: 10),
@@ -317,7 +360,7 @@ class _SignaturePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = AppColors.textPrimary
-      ..strokeWidth = 2.6
+      ..strokeWidth = 3.2
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
       ..style = PaintingStyle.stroke;

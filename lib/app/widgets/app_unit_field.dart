@@ -7,6 +7,7 @@ import '../constants/app_colors.dart';
 import 'app_dialog.dart';
 import '../themes/app_text_styles.dart';
 import '../utils/app_focus.dart';
+import 'app_field_label.dart';
 import 'app_notification.dart';
 
 class AppUnitField extends StatelessWidget {
@@ -30,16 +31,19 @@ class AppUnitField extends StatelessWidget {
     button: true,
     label: label,
     value: value,
-    child: InkWell(
-      onTap: () => _pick(context),
-      borderRadius: BorderRadius.circular(12),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: const Icon(Icons.straighten_rounded),
-          suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded),
+    child: AppLabeledField(
+      label: label,
+      child: InkWell(
+        onTap: () => _pick(context),
+        borderRadius: BorderRadius.circular(12),
+        child: InputDecorator(
+          decoration: const InputDecoration(
+            floatingLabelBehavior: FloatingLabelBehavior.never,
+            prefixIcon: Icon(Icons.straighten_rounded),
+            suffixIcon: Icon(Icons.keyboard_arrow_down_rounded),
+          ),
+          child: Text(value),
         ),
-        child: Text(value),
       ),
     ),
   );
