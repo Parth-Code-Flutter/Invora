@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../constants/app_colors.dart';
+
 abstract final class AppTextStyles {
   static const fontFamily = 'Plus Jakarta Sans';
 
@@ -62,6 +64,26 @@ abstract final class AppTextStyles {
     fontSize: 12,
     fontWeight: FontWeight.w500,
   );
+  static const hint = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    height: 16 / 12,
+  );
+
+  static TextStyle hintFor(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return hint.copyWith(
+      color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
+    );
+  }
+
+  static TextAlignVertical inputAlign({int maxLines = 1, int? minLines}) {
+    return (maxLines > 1 || (minLines ?? 1) > 1)
+        ? TextAlignVertical.top
+        : TextAlignVertical.center;
+  }
+
   static const button = TextStyle(
     fontFamily: fontFamily,
     fontSize: 15,

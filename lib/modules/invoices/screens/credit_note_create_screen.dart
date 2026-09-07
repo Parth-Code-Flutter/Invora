@@ -202,6 +202,7 @@ class CreditNoteCreateScreen extends GetView<CreditNoteCreateController> {
                       AppTextField(
                         controller: controller.adjustmentController,
                         label: 'Credit amount',
+                        hint: '0.00',
                         prefixIcon: Icons.currency_rupee_rounded,
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
@@ -278,6 +279,7 @@ class CreditNoteCreateScreen extends GetView<CreditNoteCreateController> {
                       AppTextField(
                         controller: controller.reasonController,
                         label: 'Describe the reason',
+                        hint: 'e.g. Damaged goods, wrong item…',
                         maxLines: 3,
                         textCapitalization: TextCapitalization.sentences,
                       ),
@@ -604,6 +606,7 @@ class _ReturnQuantitySheetState extends State<_ReturnQuantitySheet> {
           AppTextField(
             controller: _input,
             label: 'Quantity',
+            hint: 'e.g. 1',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (_) {
               if (_error != null) setState(() => _error = null);

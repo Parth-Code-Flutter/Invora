@@ -191,8 +191,10 @@ class _DropdownSheetState<T> extends State<_DropdownSheet<T>> {
             TextField(
               autofocus: false,
               onChanged: (value) => setState(() => query = value.trim()),
+              textAlignVertical: TextAlignVertical.center,
               decoration: InputDecoration(
                 hintText: AppLocalizer.text(widget.searchHint),
+                hintStyle: AppTextStyles.hintFor(context),
                 prefixIcon: const Icon(Icons.search_rounded),
               ),
             ),

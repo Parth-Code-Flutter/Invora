@@ -30,6 +30,9 @@ remain intentionally out of scope until explicitly requested.
 - Shared text fields and dropdowns keep the label outside and above the box
   (Address, City, State, Currency, catalog fields, and the rest of the app).
   Input boxes stay compact (~40px) so Business Name matches Store Category.
+  Empty fields show relevant 12px grey hint text (examples or expected format).
+  Single-line hints stay vertically centered; multi-line areas keep the hint
+  at the top.
 - Product fields are grouped into essentials, identity, specifications, and
   variant/date chips; selection remains readable without divider-heavy rows.
 - Selected field chips have clearly visible text/checkmarks in light and dark

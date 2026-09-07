@@ -228,8 +228,10 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
               TextField(
                 controller: input,
                 autofocus: true,
+                textAlignVertical: TextAlignVertical.center,
                 decoration: InputDecoration(
                   labelText: l10n('Field name *'),
+                  hintText: l10n('e.g. Finish or Batch no.'),
                   errorText: error,
                 ),
               ),

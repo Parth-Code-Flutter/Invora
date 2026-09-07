@@ -153,6 +153,7 @@ class CashBookScreen extends GetView<CashBookController> {
                     textCapitalization: TextCapitalization.words,
                     decoration: const InputDecoration(
                       labelText: 'Account name',
+                      hintText: 'e.g. Shop cash or HDFC current',
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -180,6 +181,7 @@ class CashBookScreen extends GetView<CashBookController> {
                       ),
                       decoration: const InputDecoration(
                         labelText: 'Opening balance (optional)',
+                        hintText: '0.00',
                       ),
                     ),
                   ],
@@ -297,13 +299,17 @@ class CashBookScreen extends GetView<CashBookController> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    decoration: const InputDecoration(labelText: 'Amount'),
+                    decoration: const InputDecoration(
+                      labelText: 'Amount',
+                      hintText: '0.00',
+                    ),
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: note,
                     decoration: const InputDecoration(
                       labelText: 'Note (optional)',
+                      hintText: 'e.g. Moved cash to bank',
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -376,12 +382,18 @@ class CashBookScreen extends GetView<CashBookController> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(labelText: 'Counted cash'),
+                decoration: const InputDecoration(
+                  labelText: 'Counted cash',
+                  hintText: '0.00',
+                ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: note,
-                decoration: const InputDecoration(labelText: 'Note (optional)'),
+                decoration: const InputDecoration(
+                  labelText: 'Note (optional)',
+                  hintText: 'e.g. Short by ₹50',
+                ),
               ),
               const SizedBox(height: 16),
               AppButton(

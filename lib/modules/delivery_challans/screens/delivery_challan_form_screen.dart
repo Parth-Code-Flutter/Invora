@@ -309,6 +309,7 @@ class _DeliveryChallanFormScreenState extends State<DeliveryChallanFormScreen> {
                         AppTextField(
                           controller: controller.movementReasonNote,
                           label: 'Reason note',
+                          hint: 'e.g. Job work, exhibition stock…',
                         ),
                       ],
                     ],
@@ -482,6 +483,7 @@ class _DeliveryChallanFormScreenState extends State<DeliveryChallanFormScreen> {
                         AppTextField(
                           controller: controller.deliveryAddress,
                           label: 'Address',
+                          hint: 'Street, area, landmark',
                           prefixIcon: Icons.home_outlined,
                           maxLines: 2,
                         ),
@@ -491,14 +493,17 @@ class _DeliveryChallanFormScreenState extends State<DeliveryChallanFormScreen> {
                             AppTextField(
                               controller: controller.deliveryCity,
                               label: 'City',
+                              hint: 'e.g. Ahmedabad',
                             ),
                             AppTextField(
                               controller: controller.deliveryState,
                               label: 'State',
+                              hint: 'e.g. Gujarat',
                             ),
                             AppTextField(
                               controller: controller.deliveryPinCode,
                               label: 'PIN code',
+                              hint: '6-digit PIN code',
                               keyboardType: TextInputType.number,
                             ),
                           ],
@@ -521,6 +526,7 @@ class _DeliveryChallanFormScreenState extends State<DeliveryChallanFormScreen> {
                         AppTextField(
                           controller: controller.dispatchAddress,
                           label: 'Address',
+                          hint: 'Warehouse or shop address',
                           prefixIcon: Icons.warehouse_outlined,
                           maxLines: 2,
                         ),
@@ -530,14 +536,17 @@ class _DeliveryChallanFormScreenState extends State<DeliveryChallanFormScreen> {
                             AppTextField(
                               controller: controller.dispatchCity,
                               label: 'City',
+                              hint: 'e.g. Ahmedabad',
                             ),
                             AppTextField(
                               controller: controller.dispatchState,
                               label: 'State',
+                              hint: 'e.g. Gujarat',
                             ),
                             AppTextField(
                               controller: controller.dispatchPinCode,
                               label: 'PIN code',
+                              hint: '6-digit PIN code',
                               keyboardType: TextInputType.number,
                             ),
                           ],
@@ -608,6 +617,7 @@ class _DeliveryChallanFormScreenState extends State<DeliveryChallanFormScreen> {
                         AppTextField(
                           controller: controller.transporterName,
                           label: 'Transporter',
+                          hint: 'e.g. Patel Transport',
                           prefixIcon: Icons.badge_outlined,
                         ),
                         const SizedBox(height: 12),
@@ -616,23 +626,27 @@ class _DeliveryChallanFormScreenState extends State<DeliveryChallanFormScreen> {
                             AppTextField(
                               controller: controller.vehicleNumber,
                               label: 'Vehicle number',
+                              hint: 'e.g. GJ01AB1234',
                               prefixIcon: Icons.directions_car_outlined,
                               textCapitalization: TextCapitalization.characters,
                             ),
                             AppTextField(
                               controller: controller.transporterId,
                               label: 'Transporter GSTIN',
+                              hint: '15-character GSTIN',
                               prefixIcon: Icons.qr_code_2_rounded,
                               textCapitalization: TextCapitalization.characters,
                             ),
                             AppTextField(
                               controller: controller.transportDocumentNumber,
                               label: 'Transport document',
+                              hint: 'LR / consignment number',
                               prefixIcon: Icons.description_outlined,
                             ),
                             AppTextField(
                               controller: controller.distanceKm,
                               label: 'Distance (km)',
+                              hint: 'e.g. 120',
                               prefixIcon: Icons.straighten_outlined,
                               keyboardType: TextInputType.number,
                               inputFormatters: [
@@ -684,6 +698,7 @@ class _DeliveryChallanFormScreenState extends State<DeliveryChallanFormScreen> {
                         AppTextField(
                           controller: controller.notes,
                           label: 'Notes',
+                          hint: 'Delivery, packing or internal notes',
                           maxLines: 3,
                         ),
                       ],
@@ -939,6 +954,7 @@ Future<void> _editQuantity(
       content: AppTextField(
         controller: input,
         label: 'Quantity',
+        hint: 'e.g. 1',
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
       ),
       actions: [
@@ -1123,19 +1139,29 @@ Future<void> _addItem(
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppTextField(controller: name, label: 'Item name'),
+          AppTextField(
+            controller: name,
+            label: 'Item name',
+            hint: 'e.g. 10 Inch MDF',
+          ),
           const SizedBox(height: 12),
           AppTextField(
             controller: quantity,
             label: 'Quantity',
+            hint: 'e.g. 1',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           const SizedBox(height: 12),
-          AppTextField(controller: unit, label: 'Unit'),
+          AppTextField(
+            controller: unit,
+            label: 'Unit',
+            hint: 'e.g. pcs',
+          ),
           const SizedBox(height: 12),
           AppTextField(
             controller: rate,
             label: 'Rate',
+            hint: '0.00',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
         ],

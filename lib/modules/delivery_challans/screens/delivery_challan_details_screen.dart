@@ -259,6 +259,7 @@ class DeliveryChallanDetailsScreen
                 AppTextField(
                   controller: delivered[item.id!]!,
                   label: 'Delivered',
+                  hint: 'Qty received',
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -267,6 +268,7 @@ class DeliveryChallanDetailsScreen
                 AppTextField(
                   controller: returned[item.id!]!,
                   label: 'Returned',
+                  hint: 'Qty sent back',
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -426,6 +428,7 @@ class DeliveryChallanConvertScreen
                           AppTextField(
                             controller: controller.quantityInputs[item.id!]!,
                             label: 'Quantity to invoice',
+                            hint: 'Qty to bill now',
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),

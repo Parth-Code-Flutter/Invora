@@ -809,15 +809,21 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
                   _field(
                     name,
                     'Supplier name *',
+                    hint: 'e.g. Sharma Distributors',
                     validator: (v) => v == null || v.trim().isEmpty
                         ? 'Supplier name is required'
                         : null,
                   ),
-                  _field(company, 'Business / company name'),
+                  _field(
+                    company,
+                    'Business / company name',
+                    hint: 'e.g. Sharma Traders Pvt Ltd',
+                  ),
                   const _SupplierFormDivider(label: 'Contact (optional)'),
                   _field(
                     mobile,
                     'Mobile number',
+                    hint: '10-digit mobile number',
                     keyboard: TextInputType.phone,
                     validator: ValidationUtils.optionalIndianMobile,
                     inputFormatters: [
@@ -847,6 +853,7 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
                   _field(
                     email,
                     'Email address',
+                    hint: 'e.g. accounts@supplier.com',
                     keyboard: TextInputType.emailAddress,
                     validator: ValidationUtils.optionalEmail,
                     inputFormatters: [
@@ -912,6 +919,7 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
                             child: _field(
                               gstin,
                               'GSTIN *',
+                              hint: '15-character GSTIN',
                               validator: _validateGstin,
                               inputFormatters: [
                                 LengthLimitingTextInputFormatter(15),
@@ -922,7 +930,12 @@ class _SupplierFormScreenState extends State<SupplierFormScreen> {
                             ),
                           ),
                   ),
-                  _field(address, 'Billing address', lines: 3),
+                  _field(
+                    address,
+                    'Billing address',
+                    hint: 'Street, area, landmark',
+                    lines: 3,
+                  ),
                 ],
               ),
             ),
@@ -1394,6 +1407,7 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
                                 _field(
                                   number,
                                   'Supplier bill number *',
+                                  hint: 'e.g. SB-1042',
                                   validator: (v) =>
                                       v == null || v.trim().isEmpty
                                       ? 'Bill number is required'
@@ -1732,6 +1746,7 @@ class _PurchaseBillFormScreenState extends State<PurchaseBillFormScreen> {
         const SizedBox(height: 14),
         TextField(
           onChanged: (value) => setState(() => supplierQuery = value),
+          textAlignVertical: TextAlignVertical.center,
           decoration: const InputDecoration(
             hintText: 'Search supplier, mobile or GSTIN',
             prefixIcon: Icon(Icons.search_rounded),
@@ -3767,6 +3782,7 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
                   _field(
                     name,
                     'Item name *',
+                    hint: 'e.g. 10 Inch MDF',
                     validator: (value) => value == null || value.trim().isEmpty
                         ? 'Item name is required.'
                         : null,
@@ -3778,6 +3794,7 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
                         child: _field(
                           qty,
                           'Quantity *',
+                          hint: 'e.g. 10',
                           keyboard: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
@@ -3802,6 +3819,7 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
                   _field(
                     rate,
                     'Purchase price (₹) *',
+                    hint: '0.00',
                     keyboard: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -3815,6 +3833,7 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
                   _field(
                     tax,
                     'GST %',
+                    hint: 'e.g. 18',
                     keyboard: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -3828,6 +3847,7 @@ class _PurchaseItemSheetState extends State<_PurchaseItemSheet> {
                   _field(
                     hsnSac,
                     'HSN / SAC',
+                    hint: 'e.g. 998314',
                     keyboard: TextInputType.text,
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(8),
@@ -3907,8 +3927,10 @@ class _PurchaseNotesCard extends StatelessWidget {
           controller: controller,
           minLines: 2,
           maxLines: 4,
+          textAlignVertical: AppTextStyles.inputAlign(maxLines: 4, minLines: 2),
           decoration: const InputDecoration(
             hintText: 'Add delivery, reference or internal notes',
+            alignLabelWithHint: true,
           ),
         ),
       ],
@@ -4078,6 +4100,7 @@ class _PurchaseTaxEvidenceCard extends StatelessWidget {
           controller: placeOfSupply,
           decoration: const InputDecoration(
             labelText: 'Place of supply',
+            hintText: 'e.g. Gujarat',
             prefixIcon: Icon(Icons.location_on_outlined),
           ),
         ),
@@ -4121,6 +4144,7 @@ class _PurchaseTaxEvidenceCard extends StatelessWidget {
                 ],
                 decoration: const InputDecoration(
                   labelText: 'Bill discount',
+                  hintText: '0.00',
                   prefixText: '₹ ',
                 ),
               ),
@@ -4138,6 +4162,7 @@ class _PurchaseTaxEvidenceCard extends StatelessWidget {
                 ],
                 decoration: const InputDecoration(
                   labelText: 'Other charges',
+                  hintText: '0.00',
                   prefixText: '₹ ',
                 ),
               ),
@@ -4248,6 +4273,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: const InputDecoration(
             labelText: 'Amount paid *',
+            hintText: '0.00',
             prefixIcon: Icon(Icons.currency_rupee_rounded),
           ),
         ),
@@ -4324,6 +4350,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           controller: reference,
           decoration: const InputDecoration(
             labelText: 'Reference / transaction ID',
+            hintText: 'UPI ref, cheque no. or UTR',
             prefixIcon: Icon(Icons.tag_rounded),
           ),
         ),
@@ -4346,8 +4373,14 @@ class _PaymentSheetState extends State<_PaymentSheet> {
         ),
         TextField(
           controller: note,
+          minLines: 2,
           maxLines: 2,
-          decoration: const InputDecoration(labelText: 'Payment note'),
+          textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
+          decoration: const InputDecoration(
+            labelText: 'Payment note',
+            hintText: 'e.g. Paid at the counter',
+            alignLabelWithHint: true,
+          ),
         ),
         const SizedBox(height: 16),
         AppButton(
@@ -4680,6 +4713,7 @@ class _PurchaseQuantitySheetState extends State<_PurchaseQuantitySheet> {
           ],
           decoration: InputDecoration(
             labelText: l10n('Quantity *'),
+            hintText: l10n('e.g. 1'),
             suffixText: widget.unit,
             errorText: error,
             prefixIcon: const Icon(Icons.numbers_rounded),
@@ -4983,6 +5017,7 @@ class _SupplierSwipeBackground extends StatelessWidget {
 Widget _field(
   TextEditingController controller,
   String label, {
+  String? hint,
   String? Function(String?)? validator,
   TextInputType? keyboard,
   int lines = 1,
@@ -4994,9 +5029,16 @@ Widget _field(
     controller: controller,
     validator: validator,
     keyboardType: keyboard,
+    minLines: lines > 1 ? lines : 1,
     maxLines: lines,
+    textAlignVertical: AppTextStyles.inputAlign(maxLines: lines),
     inputFormatters: inputFormatters,
-    decoration: InputDecoration(labelText: label, suffixIcon: suffixIcon),
+    decoration: InputDecoration(
+      labelText: label,
+      hintText: hint,
+      alignLabelWithHint: lines > 1,
+      suffixIcon: suffixIcon,
+    ),
   ),
 );
 String? _null(String value) => value.trim().isEmpty ? null : value.trim();
@@ -5017,11 +5059,22 @@ Future<String?> _askReason(
         TextField(
           controller: controller,
           autofocus: true,
+          minLines: 3,
           maxLines: 3,
           maxLength: 240,
+          textAlignVertical: AppTextStyles.inputAlign(maxLines: 3),
           decoration: InputDecoration(
             labelText: hint,
-            prefixIcon: const Icon(Icons.edit_note_rounded),
+            hintText: 'Short reason for the audit trail',
+            alignLabelWithHint: true,
+            prefixIcon: const Padding(
+              padding: EdgeInsets.only(top: 12),
+              child: Icon(Icons.edit_note_rounded),
+            ),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 48,
+              minHeight: 0,
+            ),
           ),
         ),
         const SizedBox(height: 12),

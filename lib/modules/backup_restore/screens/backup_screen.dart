@@ -441,6 +441,7 @@ class _EraseConfirmationFormState extends State<_EraseConfirmationForm> {
             AppTextField(
               controller: _phrase,
               label: 'Type ERASE',
+              hint: 'ERASE',
               prefixIcon: Icons.warning_amber_rounded,
               textCapitalization: TextCapitalization.characters,
               textInputAction: TextInputAction.done,
@@ -510,6 +511,7 @@ class _BackupPasswordFormState extends State<_BackupPasswordForm> {
             AppTextField(
               controller: _password,
               label: 'Backup password',
+              hint: 'At least 8 characters',
               prefixIcon: Icons.lock_outline_rounded,
               obscureText: _hidePassword,
               textInputAction: widget.confirmPassword
@@ -536,6 +538,7 @@ class _BackupPasswordFormState extends State<_BackupPasswordForm> {
               AppTextField(
                 controller: _confirm,
                 label: 'Confirm password',
+                hint: 'Re-enter the same password',
                 prefixIcon: Icons.lock_reset_rounded,
                 obscureText: _hideConfirm,
                 textInputAction: TextInputAction.done,

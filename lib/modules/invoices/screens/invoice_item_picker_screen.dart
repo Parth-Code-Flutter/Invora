@@ -171,6 +171,7 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                         setState(() {});
                       },
                       textInputAction: TextInputAction.search,
+                      textAlignVertical: TextAlignVertical.center,
                       decoration: InputDecoration(
                         hintText: l10n('Search saved items'),
                         prefixIcon: const Icon(Icons.search_rounded),

@@ -52,6 +52,7 @@ class PurchaseOrderListScreen extends GetView<PurchaseOrderListController> {
               SliverToBoxAdapter(
                 child: TextField(
                   onChanged: controller.search,
+                  textAlignVertical: TextAlignVertical.center,
                   decoration: const InputDecoration(
                     hintText: 'Search number or supplier',
                     prefixIcon: Icon(Icons.search_rounded),

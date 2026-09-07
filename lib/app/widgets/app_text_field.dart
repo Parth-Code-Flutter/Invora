@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import '../localization/app_localization.dart';
+import '../themes/app_text_styles.dart';
 import 'app_field_label.dart';
 
 class AppTextField extends StatelessWidget {
@@ -18,6 +19,7 @@ class AppTextField extends StatelessWidget {
     this.textInputAction,
     this.inputFormatters,
     this.maxLines = 1,
+    this.minLines,
     this.prefixIcon,
     this.prefix,
     this.suffixIcon,
@@ -42,6 +44,7 @@ class AppTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
   final int maxLines;
+  final int? minLines;
   final IconData? prefixIcon;
   final Widget? prefix;
   final Widget? suffixIcon;
@@ -57,6 +60,24 @@ class AppTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final focusColor = focusBorderColor;
+    final resolvedMaxLines = obscureText ? 1 : maxLines;
+    final resolvedMinLines = obscureText
+        ? 1
+        : (minLines ?? (resolvedMaxLines > 1 ? resolvedMaxLines : 1));
+    final multiline = resolvedMinLines > 1 || resolvedMaxLines > 1;
+    final iconConstraints = multiline
+        ? AppSpacing.multilineInputIconConstraints
+        : AppSpacing.inputIconConstraints;
+    final icon = prefixIcon == null
+        ? null
+        : Padding(
+            padding: EdgeInsets.only(
+              left: 8,
+              right: 4,
+              top: multiline ? 10 : 0,
+            ),
+            child: Icon(prefixIcon, color: AppColors.primary, size: 18),
+          );
     return AppLabeledField(
       label: label,
       requiredField: requiredField,
@@ -72,7 +93,8 @@ class AppTextField extends StatelessWidget {
         keyboardType: keyboardType,
         textInputAction: textInputAction,
         inputFormatters: inputFormatters,
-        maxLines: obscureText ? 1 : maxLines,
+        minLines: resolvedMinLines,
+        maxLines: resolvedMaxLines,
         obscureText: obscureText,
         autocorrect: !obscureText,
         enableSuggestions: !obscureText,
@@ -82,30 +104,23 @@ class AppTextField extends StatelessWidget {
         enabled: enabled,
         autofocus: autofocus,
         autofillHints: autofillHints,
-        textAlignVertical: maxLines > 1
-            ? TextAlignVertical.top
-            : TextAlignVertical.center,
+        textAlignVertical: AppTextStyles.inputAlign(
+          maxLines: resolvedMaxLines,
+          minLines: resolvedMinLines,
+        ),
         decoration: InputDecoration(
           isDense: true,
-          hintText: AppLocalizer.text(hint),
+          hintText: hint == null || hint!.trim().isEmpty
+              ? null
+              : AppLocalizer.text(hint),
+          hintStyle: AppTextStyles.hintFor(context),
           floatingLabelBehavior: FloatingLabelBehavior.never,
-          alignLabelWithHint: maxLines > 1,
+          alignLabelWithHint: multiline,
           contentPadding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-          prefixIconConstraints: AppSpacing.inputIconConstraints,
-          prefixIcon:
-              prefix ??
-              (prefixIcon == null
-                  ? null
-                  : Padding(
-                      padding: const EdgeInsets.only(left: 8, right: 4),
-                      child: Icon(
-                        prefixIcon,
-                        color: AppColors.primary,
-                        size: 18,
-                      ),
-                    )),
+          prefixIconConstraints: iconConstraints,
+          prefixIcon: prefix ?? icon,
           suffixIcon: suffixIcon,
-          suffixIconConstraints: AppSpacing.inputIconConstraints,
+          suffixIconConstraints: iconConstraints,
           focusedBorder: focusColor == null
               ? null
               : OutlineInputBorder(

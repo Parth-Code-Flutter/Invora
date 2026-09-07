@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../localization/app_localization.dart';
+import '../themes/app_text_styles.dart';
 
 class AppSearchField extends StatelessWidget {
   const AppSearchField({
@@ -25,8 +26,10 @@ class AppSearchField extends StatelessWidget {
         controller: controller,
         onChanged: onChanged,
         textInputAction: TextInputAction.search,
+        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           hintText: AppLocalizer.text(hint),
+          hintStyle: AppTextStyles.hintFor(context),
           prefixIcon: const Icon(Icons.search_rounded),
           suffixIcon: onClear == null
               ? null

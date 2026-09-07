@@ -199,6 +199,7 @@ class DebitNoteCreateScreen extends GetView<DebitNoteCreateController> {
                       AppTextField(
                         controller: controller.adjustmentController,
                         label: 'Debit amount',
+                        hint: '0.00',
                         prefixIcon: Icons.currency_rupee_rounded,
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
@@ -275,6 +276,7 @@ class DebitNoteCreateScreen extends GetView<DebitNoteCreateController> {
                       AppTextField(
                         controller: controller.reasonController,
                         label: 'Describe the reason',
+                        hint: 'e.g. Damaged goods, short supply…',
                         maxLines: 3,
                         textCapitalization: TextCapitalization.sentences,
                       ),
@@ -601,6 +603,7 @@ class _ReturnQuantitySheetState extends State<_ReturnQuantitySheet> {
           AppTextField(
             controller: _input,
             label: 'Quantity',
+            hint: 'e.g. 1',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (_) {
               if (_error != null) setState(() => _error = null);

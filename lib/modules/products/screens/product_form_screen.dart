@@ -39,7 +39,7 @@ String? _attributeHint(String key) => switch (key) {
   'dimensions' => 'e.g. 10 × 6 × 6 inch',
   'weight' => 'e.g. 500 g',
   'sku' => 'Scan or type the barcode',
-  _ => null,
+  _ => 'Optional detail',
 };
 
 List<ProductFieldDefinition> _detailFields(ProductFormController controller) {
@@ -211,6 +211,7 @@ class ProductFormScreen extends GetView<ProductFormController> {
                                         AppTextField(
                                           controller: controller.hsnSac,
                                           label: 'HSN/SAC',
+                                          hint: 'e.g. 998314',
                                         ),
                                       if (controller.fieldEnabled('tax') &&
                                           controller.gstEnabled.value) ...[

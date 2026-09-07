@@ -249,6 +249,7 @@ class PurchaseOrderDetailsScreen
                   AppTextField(
                     controller: received[item.id!]!,
                     label: 'Received',
+                    hint: 'Qty received',
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -257,6 +258,7 @@ class PurchaseOrderDetailsScreen
                   AppTextField(
                     controller: returned[item.id!]!,
                     label: 'Returned',
+                    hint: 'Qty sent back',
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -304,6 +306,7 @@ class PurchaseOrderDetailsScreen
         content: AppTextField(
           controller: reason,
           label: 'Cancellation reason',
+          hint: 'e.g. Ordered by mistake',
           maxLines: 3,
         ),
         actions: [
@@ -368,6 +371,7 @@ class PurchaseOrderConvertScreen
               AppTextField(
                 controller: controller.billNumber,
                 label: 'Supplier bill number',
+                hint: 'e.g. SB-1042',
               ),
               const SizedBox(height: 16),
               Text(
@@ -392,6 +396,7 @@ class PurchaseOrderConvertScreen
                           AppTextField(
                             controller: controller.quantityInputs[item.id!]!,
                             label: 'Quantity to bill',
+                            hint: 'Qty to bill now',
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),

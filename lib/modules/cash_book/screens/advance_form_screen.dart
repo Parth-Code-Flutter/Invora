@@ -219,6 +219,7 @@ class AdvanceFormScreen extends GetView<AdvanceFormController> {
                             ),
                             decoration: const InputDecoration(
                               labelText: 'Amount',
+                              hintText: '0.00',
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -226,6 +227,7 @@ class AdvanceFormScreen extends GetView<AdvanceFormController> {
                             controller: controller.note,
                             decoration: const InputDecoration(
                               labelText: 'Note (optional)',
+                              hintText: 'e.g. Advance against next bill',
                             ),
                           ),
                           const SizedBox(height: 16),

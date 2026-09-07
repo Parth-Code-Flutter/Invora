@@ -172,10 +172,15 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
                   controller: controller.notes,
                   minLines: 2,
                   maxLines: 3,
+                  textAlignVertical: AppTextStyles.inputAlign(
+                    maxLines: 3,
+                    minLines: 2,
+                  ),
                   textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                     labelText: l10n('Default notes'),
                     hintText: l10n('e.g. Thank you for your business.'),
+                    alignLabelWithHint: true,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -183,12 +188,17 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
                   controller: controller.terms,
                   minLines: 2,
                   maxLines: 4,
+                  textAlignVertical: AppTextStyles.inputAlign(
+                    maxLines: 4,
+                    minLines: 2,
+                  ),
                   textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(
                     labelText: l10n('Default terms & conditions'),
                     hintText: l10n(
                       'e.g. Payment is due within the selected period.',
                     ),
+                    alignLabelWithHint: true,
                   ),
                 ),
               ],

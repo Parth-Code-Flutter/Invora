@@ -690,6 +690,7 @@ class _IdentityCard extends StatelessWidget {
                 nameField: AppTextField(
                   controller: controller.businessName,
                   label: 'Business Name',
+                  hint: 'e.g. Creovo Traders',
                   requiredField: true,
                   helperText: 'Appears on top of all receipts',
                   prefix: const Padding(
@@ -1180,6 +1181,7 @@ class _MobileField extends StatelessWidget {
               Expanded(
                 child: TextFormField(
                   controller: controller.mobile,
+                  textAlignVertical: TextAlignVertical.center,
                   validator: (value) {
                     final error = controller.validateMobile(value);
                     return error == null ? null : AppLocalizer.text(error);
@@ -1195,14 +1197,15 @@ class _MobileField extends StatelessWidget {
                     height: 24 / 13.5,
                     fontWeight: FontWeight.w600,
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     isDense: true,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
                     filled: false,
-                    contentPadding: EdgeInsets.fromLTRB(10, 10, 8, 10),
+                    contentPadding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
                     hintText: '98765 43210',
+                    hintStyle: AppTextStyles.hintFor(context),
                   ),
                 ),
               ),
@@ -1367,20 +1370,27 @@ class _OptionalTaxCard extends StatelessWidget {
                   AppTextField(
                     controller: controller.address,
                     label: 'Address',
+                    hint: 'Street, area, landmark',
                     maxLines: 2,
                     textCapitalization: TextCapitalization.sentences,
                   ),
                   const SizedBox(height: 12),
                   _ResponsiveFields(
                     children: [
-                      AppTextField(controller: controller.city, label: 'City'),
+                      AppTextField(
+                        controller: controller.city,
+                        label: 'City',
+                        hint: 'e.g. Ahmedabad',
+                      ),
                       AppTextField(
                         controller: controller.state,
                         label: 'State',
+                        hint: 'e.g. Gujarat',
                       ),
                       AppTextField(
                         controller: controller.pinCode,
                         label: 'PIN code',
+                        hint: '6-digit PIN code',
                         keyboardType: TextInputType.number,
                         validator: controller.validatePinCode,
                         inputFormatters: [
@@ -1417,6 +1427,7 @@ class _OptionalTaxCard extends StatelessWidget {
                           AppTextField(
                             controller: controller.gstin,
                             label: 'GSTIN *',
+                            hint: '15-character GSTIN',
                             validator: controller.validateGstin,
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(15),
@@ -1428,6 +1439,7 @@ class _OptionalTaxCard extends StatelessWidget {
                         AppTextField(
                           controller: controller.pan,
                           label: 'PAN',
+                          hint: '10-character PAN',
                           validator: controller.validatePan,
                           textCapitalization: TextCapitalization.characters,
                           inputFormatters: [
@@ -1495,14 +1507,17 @@ class _OptionalTaxCard extends StatelessWidget {
                       AppTextField(
                         controller: controller.bankName,
                         label: 'Bank name',
+                        hint: 'e.g. HDFC Bank',
                       ),
                       AppTextField(
                         controller: controller.accountHolderName,
                         label: 'Account holder',
+                        hint: 'Name on the bank account',
                       ),
                       AppTextField(
                         controller: controller.accountNumber,
                         label: 'Account number',
+                        hint: 'Bank account number',
                         keyboardType: TextInputType.number,
                         validator: controller.validateAccountNumber,
                         inputFormatters: [
@@ -1513,6 +1528,7 @@ class _OptionalTaxCard extends StatelessWidget {
                       AppTextField(
                         controller: controller.ifsc,
                         label: 'IFSC',
+                        hint: 'e.g. HDFC0001234',
                         validator: controller.validateIfsc,
                         textCapitalization: TextCapitalization.characters,
                         inputFormatters: [
@@ -1525,6 +1541,7 @@ class _OptionalTaxCard extends StatelessWidget {
                       AppTextField(
                         controller: controller.upiId,
                         label: 'UPI ID',
+                        hint: 'e.g. shop@okaxis',
                         keyboardType: TextInputType.emailAddress,
                         validator: controller.validateUpiId,
                         inputFormatters: [

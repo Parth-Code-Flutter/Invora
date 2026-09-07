@@ -692,15 +692,25 @@ class _InvoiceForm extends StatelessWidget {
                     ],
                     TextField(
                       controller: controller.notesController,
+                      minLines: 2,
                       maxLines: 2,
-                      decoration: InputDecoration(labelText: l10n('Notes')),
+                      textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
+                      decoration: InputDecoration(
+                        labelText: l10n('Notes'),
+                        hintText: l10n('Delivery, packing or internal notes'),
+                        alignLabelWithHint: true,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: controller.termsController,
+                      minLines: 2,
                       maxLines: 2,
+                      textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
                       decoration: InputDecoration(
                         labelText: l10n('Terms & conditions'),
+                        hintText: l10n('e.g. Payment due within 7 days'),
+                        alignLabelWithHint: true,
                       ),
                     ),
                   ],
@@ -1366,6 +1376,7 @@ class _QuantityEditorSheetState extends State<_QuantityEditorSheet> {
           ],
           decoration: InputDecoration(
             labelText: l10n('Quantity *'),
+            hintText: l10n('e.g. 1'),
             suffixText: widget.unit,
             errorText: error,
             prefixIcon: const Icon(Icons.numbers_rounded),
@@ -1527,6 +1538,7 @@ class _SelectionSheetState<T> extends State<_SelectionSheet<T>> {
                   TextField(
                     controller: search,
                     onChanged: (value) => setState(() => query = value),
+                    textAlignVertical: TextAlignVertical.center,
                     decoration: InputDecoration(
                       hintText: l10n('Search ${widget.itemLabel}'),
                       prefixIcon: const Icon(Icons.search_rounded),
@@ -2026,7 +2038,10 @@ class _ItemSheetState extends State<_ItemSheet> {
                 Expanded(
                   child: TextField(
                     controller: hsn,
-                    decoration: InputDecoration(labelText: l10n('HSN/SAC')),
+                    decoration: InputDecoration(
+                      labelText: l10n('HSN/SAC'),
+                      hintText: l10n('e.g. 998314'),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -2301,6 +2316,7 @@ class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
           onSubmitted: (_) => _submit(),
           decoration: InputDecoration(
             labelText: l10n('Amount'),
+            hintText: l10n('0.00'),
             errorText: error,
           ),
         ),
@@ -2371,6 +2387,7 @@ class _DiscountDialogState extends State<_DiscountDialog> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: type == DiscountType.fixed ? 'Amount' : 'Percentage',
+              hintText: type == DiscountType.fixed ? '0.00' : 'e.g. 10',
             ),
           ),
         ],

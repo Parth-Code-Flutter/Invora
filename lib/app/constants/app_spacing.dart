@@ -27,4 +27,8 @@ abstract final class AppSpacing {
     minHeight: 36,
     maxHeight: 36,
   );
+  static const multilineInputIconConstraints = BoxConstraints(
+    minWidth: 36,
+    minHeight: 0,
+  );
 }

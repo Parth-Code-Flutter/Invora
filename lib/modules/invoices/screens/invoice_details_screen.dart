@@ -1442,11 +1442,14 @@ class _PaymentReversalDialogState extends State<_PaymentReversalDialog> {
         TextField(
           controller: reason,
           autofocus: true,
+          minLines: 2,
           maxLines: 2,
+          textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
             labelText: l10n('Reversal reason *'),
             hintText: l10n('e.g. Payment entered twice'),
+            alignLabelWithHint: true,
             errorText: error,
           ),
         ),
@@ -1569,6 +1572,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
                 labelText: l10n('Amount received now'),
+                hintText: l10n('0.00'),
                 prefixText: '$symbol ',
                 helperText: l10n(
                   'Remaining: ${CurrencyUtils.formatMinor(invoice.calculation.balanceDueMinor, symbol: symbol)}',
@@ -1653,6 +1657,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: l10n('Reference number (optional)'),
+                hintText: l10n('UPI ref, cheque no. or UTR'),
                 prefixIcon: Icon(Icons.tag_rounded),
               ),
             ),
@@ -1663,6 +1668,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
                 labelText: l10n('Note (optional)'),
+                hintText: l10n('e.g. Paid at the counter'),
                 prefixIcon: Icon(Icons.notes_rounded),
               ),
               onSubmitted: (_) => _save(),

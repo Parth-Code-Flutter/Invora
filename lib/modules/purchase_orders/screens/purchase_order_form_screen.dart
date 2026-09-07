@@ -337,6 +337,7 @@ class _PurchaseOrderFormScreenState extends State<PurchaseOrderFormScreen> {
                   child: AppTextField(
                     controller: controller.terms,
                     label: 'Terms',
+                    hint: 'e.g. Delivery within 7 days',
                     maxLines: 3,
                   ),
                 ),
@@ -352,6 +353,7 @@ class _PurchaseOrderFormScreenState extends State<PurchaseOrderFormScreen> {
                   child: AppTextField(
                     controller: controller.notes,
                     label: 'Notes',
+                    hint: 'Delivery, packing or internal notes',
                     maxLines: 3,
                   ),
                 ),
@@ -656,6 +658,7 @@ Future<void> _editQuantity(
       content: AppTextField(
         controller: input,
         label: 'Quantity',
+        hint: 'e.g. 1',
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
@@ -715,6 +718,7 @@ Future<void> _selectSupplier(
                         const SizedBox(height: 12),
                         TextField(
                           onChanged: (value) => setState(() => query = value),
+                          textAlignVertical: TextAlignVertical.center,
                           decoration: const InputDecoration(
                             hintText: 'Search supplier, mobile or GSTIN',
                             prefixIcon: Icon(Icons.search_rounded),
@@ -850,19 +854,29 @@ Future<void> _addItem(
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppTextField(controller: name, label: 'Item name'),
+          AppTextField(
+            controller: name,
+            label: 'Item name',
+            hint: 'e.g. 10 Inch MDF',
+          ),
           const SizedBox(height: 12),
           AppTextField(
             controller: quantity,
             label: 'Quantity',
+            hint: 'e.g. 1',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           const SizedBox(height: 12),
-          AppTextField(controller: unit, label: 'Unit'),
+          AppTextField(
+            controller: unit,
+            label: 'Unit',
+            hint: 'e.g. pcs',
+          ),
           const SizedBox(height: 12),
           AppTextField(
             controller: rate,
             label: 'Rate',
+            hint: '0.00',
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
         ],

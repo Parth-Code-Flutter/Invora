@@ -207,7 +207,7 @@ abstract final class AppTheme {
           color: AppColors.primary,
           fontWeight: FontWeight.w700,
         ),
-        hintStyle: TextStyle(
+        hintStyle: AppTextStyles.hint.copyWith(
           color: isDark ? AppColors.darkTextSecondary : AppColors.textTertiary,
         ),
       ),

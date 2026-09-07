@@ -250,6 +250,7 @@ class _UnitEditorDialogState extends State<_UnitEditorDialog> {
       controller: input,
       autofocus: true,
       enabled: !saving,
+      textAlignVertical: TextAlignVertical.center,
       textCapitalization: TextCapitalization.none,
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(

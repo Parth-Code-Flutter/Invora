@@ -202,6 +202,11 @@ stores.
   `lib/firebase_options.dart` for project `creovobilling`
   (`com.creovo.billing`). iOS still needs an APNs auth key in the Firebase
   console for reliable Phone OTP on a device.
+- Empty text fields show relevant 12px grey hint copy (examples or expected
+  format) via `AppTextStyles.hint`. Shared `AppTextField`s, search bars, and
+  remaining invoice/purchase/cash-book `TextField`s all pick this up.
+  Single-line hints sit on the field midline; multi-line areas keep the hint
+  at the top.
 - One app after OTP and business setup: splash, onboarding, and first save
   always open Home. There is no Sales vs Purchases workspace choice and no
   Change workspace control. Phone dock is **Home · Documents · Products ·
@@ -1027,6 +1032,32 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-07 — Center hint text except in multiline fields
+
+- Single-line fields keep hint copy on the vertical midline. Address, notes,
+  terms, and other multi-line areas keep a taller box with the hint at the
+  top, including prefix icons.
+- Important files: `app_text_field.dart`, `app_text_styles.dart`,
+  `app_spacing.dart`, invoice/purchase/settings text areas, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: design-system test (single-line midline vs multiline top).
+
+### 2026-09-07 — Small relevant hint text on every field
+
+- Empty inputs now show field-specific hint copy (examples or expected
+  format) in 12px grey via `AppTextStyles.hint`. Shared `AppTextField`,
+  search bars, and remaining invoice, purchase, cash-book, and settings
+  `TextField`s all use it. OTP digit boxes and the app-lock PIN pad stay
+  blank.
+- Important files: `app_text_field.dart`, `app_text_styles.dart`,
+  `app_theme.dart`, form screens across customers, business setup, invoices,
+  purchases, products, cash book, and settings; this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: design-system field test (hint at 12px, label above hint).
+  Device visual QA remains.
 
 ### 2026-09-07 — Figma Bottom Navigation System icons
 

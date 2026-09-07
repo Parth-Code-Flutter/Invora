@@ -58,6 +58,7 @@ class ExpenseListScreen extends GetView<ExpenseListController> {
                   children: [
                     TextField(
                       onChanged: controller.search,
+                      textAlignVertical: TextAlignVertical.center,
                       decoration: const InputDecoration(
                         hintText: 'Search payee, category or number',
                         prefixIcon: Icon(Icons.search_rounded),
@@ -267,6 +268,7 @@ class ExpenseFormScreen extends GetView<ExpenseFormController> {
                       AppTextField(
                         controller: controller.amount,
                         label: 'Amount paid',
+                        hint: '0.00',
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
@@ -317,6 +319,7 @@ class ExpenseFormScreen extends GetView<ExpenseFormController> {
                       AppTextField(
                         controller: controller.notes,
                         label: 'Note',
+                        hint: 'Optional details for your records',
                         maxLines: 3,
                       ),
                     ],

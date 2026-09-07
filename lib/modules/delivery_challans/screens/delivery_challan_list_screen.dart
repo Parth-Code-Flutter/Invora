@@ -52,6 +52,7 @@ class DeliveryChallanListScreen extends GetView<DeliveryChallanListController> {
               SliverToBoxAdapter(
                 child: TextField(
                   onChanged: controller.search,
+                  textAlignVertical: TextAlignVertical.center,
                   decoration: const InputDecoration(
                     hintText: 'Search number or customer',
                     prefixIcon: Icon(Icons.search_rounded),

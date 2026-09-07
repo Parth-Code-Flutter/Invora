@@ -329,6 +329,7 @@ class _SearchField extends StatelessWidget {
         onTapOutside: (_) => focusNode.unfocus(),
         textInputAction: TextInputAction.search,
         keyboardType: TextInputType.text,
+        textAlignVertical: TextAlignVertical.center,
         style: AppTextStyles.body.copyWith(
           color: isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
           fontSize: 14,
@@ -337,12 +338,7 @@ class _SearchField extends StatelessWidget {
         decoration: InputDecoration(
           isDense: true,
           hintText: l10n(hint),
-          hintStyle: AppTextStyles.body.copyWith(
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.textTertiary,
-            fontSize: 14,
-          ),
+          hintStyle: AppTextStyles.hintFor(context),
           prefixIcon: Padding(
             padding: const EdgeInsets.all(10),
             child: ColorFiltered(

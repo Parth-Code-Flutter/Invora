@@ -360,6 +360,7 @@ class _GstAddressCard extends StatelessWidget {
             AppTextField(
               controller: controller.companyName,
               label: 'Trade / Legal Business Name',
+              hint: 'e.g. Acme Traders Pvt Ltd',
               prefixIcon: Icons.apartment_rounded,
               textCapitalization: TextCapitalization.words,
             ),
@@ -367,6 +368,7 @@ class _GstAddressCard extends StatelessWidget {
             AppTextField(
               controller: controller.address,
               label: 'Billing Address',
+              hint: 'Street, area, landmark',
               prefixIcon: Icons.home_outlined,
               maxLines: 2,
               textCapitalization: TextCapitalization.sentences,
@@ -402,6 +404,7 @@ class _PinAndStateRow extends StatelessWidget {
               child: AppTextField(
                 controller: controller.pinCode,
                 label: 'PIN code',
+                hint: '6-digit PIN code',
                 prefixIcon: Icons.pin_drop_outlined,
                 keyboardType: TextInputType.number,
                 inputFormatters: [

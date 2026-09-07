@@ -198,7 +198,10 @@ class AccountStatementScreen extends GetView<AccountStatementController> {
               const SizedBox(height: 12),
               TextField(
                 controller: reason,
-                decoration: const InputDecoration(labelText: 'Reason'),
+                decoration: const InputDecoration(
+                  labelText: 'Reason',
+                  hintText: 'e.g. Cheque returned by bank',
+                ),
               ),
               const SizedBox(height: 16),
               AppButton(

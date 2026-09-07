@@ -242,6 +242,7 @@ class _CreateUnitDialogState extends State<_CreateUnitDialog> {
       controller: controller,
       autofocus: true,
       maxLength: 20,
+      textAlignVertical: TextAlignVertical.center,
       textCapitalization: TextCapitalization.none,
       textInputAction: TextInputAction.done,
       decoration: InputDecoration(
