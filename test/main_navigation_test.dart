@@ -8,7 +8,7 @@ import 'package:creovo_invoice/app/widgets/app_main_navigation.dart';
 void main() {
   tearDown(Get.reset);
 
-  testWidgets('fixed bar spans screen and keeps controls above bottom inset', (
+  testWidgets('floating dock sits above the inset with pill chrome', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -23,37 +23,32 @@ void main() {
         ),
       ),
     );
-    final bar = tester.getRect(find.byType(AppMainNavigation));
-    expect(bar.left, 0);
-    expect(bar.right, 390);
-    expect(bar.bottom, 844);
-    expect(
-      tester.getRect(find.byKey(const ValueKey('content'))).bottom,
-      bar.top,
+    final home = tester.getRect(
+      find.byKey(AppMainNavigation.tabKey(MainDestination.home)),
     );
-    final surface =
-        tester
-                .widget<DecoratedBox>(
-                  find
-                      .descendant(
-                        of: find.byType(AppMainNavigation),
-                        matching: find.byType(DecoratedBox),
-                      )
-                      .first,
-                )
-                .decoration
-            as BoxDecoration;
-    expect(surface.borderRadius, isNull);
-    expect(surface.boxShadow, isNull);
-    expect(surface.color, isNotNull);
-    for (final destination in MainDestination.values) {
-      expect(
-        tester
-            .getRect(find.byKey(AppMainNavigation.tabKey(destination)))
-            .bottom,
-        lessThanOrEqualTo(810),
-      );
-    }
+    final more = tester.getRect(
+      find.byKey(AppMainNavigation.tabKey(MainDestination.more)),
+    );
+    expect(home.left, greaterThan(16));
+    expect(more.right, lessThan(390 - 16));
+    expect(home.bottom, lessThanOrEqualTo(810));
+    final surfaces = tester
+        .widgetList<DecoratedBox>(
+          find.descendant(
+            of: find.byType(AppMainNavigation),
+            matching: find.byType(DecoratedBox),
+          ),
+        )
+        .map((box) => box.decoration)
+        .whereType<BoxDecoration>()
+        .toList();
+    expect(
+      surfaces.any(
+        (decoration) => decoration.borderRadius == BorderRadius.circular(999),
+      ),
+      isTrue,
+    );
+    expect(surfaces.any((decoration) => decoration.boxShadow != null), isTrue);
     expect(tester.takeException(), isNull);
   });
 

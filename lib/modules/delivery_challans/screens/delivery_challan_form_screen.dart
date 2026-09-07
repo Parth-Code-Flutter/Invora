@@ -366,36 +366,14 @@ class _DeliveryChallanFormScreenState extends State<DeliveryChallanFormScreen> {
                         ? AppColors.darkSurface
                         : const Color(0xFFFFFBFA),
                     borderColor: AppColors.primary.withValues(alpha: .14),
-                    child: Column(
-                      children: [
-                        const AppEmptyArt(
-                          illustration: AppEmptyIllustration.package,
-                          width: 132,
-                          height: 100,
-                          semanticLabel: 'No items yet',
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'No items yet',
-                          textAlign: TextAlign.center,
-                          style: AppTextStyles.sectionTitle,
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
+                    child: AppEmptyGraphic(
+                      illustration: AppEmptyIllustration.package,
+                      title: 'No items yet',
+                      subtitle:
                           'Add at least one item with a dispatched quantity.',
-                          textAlign: TextAlign.center,
-                          style: AppTextStyles.body.copyWith(
-                            color: AppColors.textSecondary,
-                            height: 1.45,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        AppButton(
-                          icon: Icons.add_rounded,
-                          label: 'Add an item',
-                          onPressed: () => _addItem(context, controller),
-                        ),
-                      ],
+                      padding: EdgeInsets.zero,
+                      actionLabel: 'Add an item',
+                      onAction: () => _addItem(context, controller),
                     ),
                   )
                 else
@@ -1152,11 +1130,7 @@ Future<void> _addItem(
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           const SizedBox(height: 12),
-          AppTextField(
-            controller: unit,
-            label: 'Unit',
-            hint: 'e.g. pcs',
-          ),
+          AppTextField(controller: unit, label: 'Unit', hint: 'e.g. pcs'),
           const SizedBox(height: 12),
           AppTextField(
             controller: rate,

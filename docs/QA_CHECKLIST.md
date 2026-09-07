@@ -14,7 +14,8 @@ remain intentionally out of scope until explicitly requested.
   horizontal swipe preserves the active list state without a travelling tab bar.
 - Catalog All / Products / Services empty screens use the Figma illustrations
   and copy (No items yet, No products yet, No services yet) with an in-list
-  Add CTA. The list FAB stays hidden while that CTA is on screen.
+  Add CTA inside the shared 160×160 / 20px / 13px empty graphic. The list FAB
+  stays hidden while that CTA is on screen.
 - Online splash re-reads Firestore `status` and `trialEndsAt`. An expired trial
   opens Creovo Yearly as the selected plan with Subscribe. The last trial day
   while offline asks to turn on internet. Entitlement prefs are not restored
@@ -50,7 +51,7 @@ remain intentionally out of scope until explicitly requested.
 - At narrow Android widths, Dashboard metric labels and Invoice List issue/due
   dates remain complete; Product search copy and Payment Receipt title do not
   truncate. Product and Invoice actions open mobile bottom sheets.
-- The fixed phone dock shows the five Figma Bottom Navigation System glyphs
+- The floating phone dock shows the five Figma Bottom Navigation System glyphs
   (Home house, Documents receipt, Products cube, Parties people, More 9-dot
   grid) without visible labels, without overlap, and overflow-free at 320px
   in light and dark themes; VoiceOver / TalkBack still speak the destination

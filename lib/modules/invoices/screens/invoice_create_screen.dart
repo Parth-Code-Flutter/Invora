@@ -763,59 +763,44 @@ class _InvoiceEmptyItemsCard extends StatelessWidget {
     return AppCard(
       padding: const EdgeInsets.fromLTRB(16, 22, 16, 18),
       color: isDark ? AppColors.darkSurface : Colors.white,
-      child: Column(
-        children: [
-          const AppEmptyArt(
-            illustration: AppEmptyIllustration.package,
-            width: 132,
-            height: 100,
-            semanticLabel: 'No items added yet',
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'No items added yet',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.sectionTitle,
-          ),
-          const SizedBox(height: 6),
-          Text(
+      child: AppEmptyGraphic(
+        illustration: AppEmptyIllustration.package,
+        title: 'No items added yet',
+        subtitle:
             'Add products from your catalog or scan a barcode to build this invoice.',
-            textAlign: TextAlign.center,
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: AppButton(
-                  label: 'Add Product',
-                  icon: Icons.add_rounded,
-                  onPressed: onAddProduct,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: onAddService,
-                  icon: const Icon(Icons.add_rounded, size: 18),
-                  label: const Text('Add Service'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    minimumSize: const Size(0, 50),
+        padding: EdgeInsets.zero,
+        footer: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: AppButton(
+                    label: 'Add Product',
+                    icon: Icons.add_rounded,
+                    onPressed: onAddProduct,
                   ),
                 ),
-              ),
-            ],
-          ),
-          TextButton.icon(
-            onPressed: onScan,
-            icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
-            label: const Text('Scan barcode'),
-          ),
-        ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: onAddService,
+                    icon: const Icon(Icons.add_rounded, size: 18),
+                    label: const Text('Add Service'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      minimumSize: const Size(0, 50),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            TextButton.icon(
+              onPressed: onScan,
+              icon: const Icon(Icons.qr_code_scanner_rounded, size: 18),
+              label: const Text('Scan barcode'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -888,10 +873,7 @@ class _SectionEyebrow extends StatelessWidget {
         ),
         if (trailing != null)
           Flexible(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: trailing,
-            ),
+            child: Align(alignment: Alignment.centerRight, child: trailing),
           ),
       ],
     );

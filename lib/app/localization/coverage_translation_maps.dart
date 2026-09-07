@@ -632,6 +632,7 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Recommended product fields will be updated. Your existing product information will not be deleted.':
       'सुझाए गए उत्पाद फ़ील्ड अपडेट होंगे। मौजूदा उत्पाद जानकारी नहीं हटेगी।',
   'Products': 'उत्पाद',
+  'All': 'सभी',
   'Services': 'सेवाएँ',
   'Create product': 'उत्पाद बनाएँ',
   'Save product': 'उत्पाद सहेजें',
@@ -2535,6 +2536,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Recommended product fields will be updated. Your existing product information will not be deleted.':
       'સૂચિત ઉત્પાદન ફીલ્ડ અપડેટ થશે. હાલની ઉત્પાદન માહિતી દૂર નહીં થાય.',
   'Products': 'ઉત્પાદનો',
+  'All': 'બધા',
   'Services': 'સેવાઓ',
   'Create product': 'ઉત્પાદન બનાવો',
   'Save product': 'ઉત્પાદન સાચવો',

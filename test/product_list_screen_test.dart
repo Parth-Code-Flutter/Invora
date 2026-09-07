@@ -48,10 +48,14 @@ void main() {
 
     expect(find.text('No items yet'), findsOneWidget);
     expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('All')),
+      findsOneWidget,
+    );
+    expect(
       find.text('Add products or services to create instant bills.'),
       findsOneWidget,
     );
-    expect(find.text('All'), findsOneWidget);
+    expect(find.text('All'), findsWidgets);
     expect(find.text('Products'), findsWidgets);
     expect(find.text('Services'), findsOneWidget);
     expect(find.text('Add product or service'), findsOneWidget);
@@ -60,12 +64,20 @@ void main() {
 
     await tester.tap(find.text('Products').first);
     await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('Products')),
+      findsOneWidget,
+    );
     expect(find.text('No products yet'), findsOneWidget);
     expect(find.text('Add product'), findsOneWidget);
     expect(find.byType(FloatingActionButton), findsNothing);
 
     await tester.tap(find.text('Services'));
     await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('Services')),
+      findsOneWidget,
+    );
     expect(find.text('No services yet'), findsOneWidget);
     expect(find.text('Add service'), findsOneWidget);
     expect(find.byType(FloatingActionButton), findsNothing);

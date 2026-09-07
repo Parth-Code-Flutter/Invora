@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_colors.dart';
-import '../constants/app_spacing.dart';
 import '../themes/app_text_styles.dart';
 import 'app_button.dart';
 
@@ -27,11 +26,12 @@ enum AppEmptyIllustration {
   final String asset;
 }
 
+/// Shared empty-screen art at the app-wide 160px size.
 class AppEmptyArt extends StatelessWidget {
   const AppEmptyArt({
     required this.illustration,
-    this.width = 176,
-    this.height = 132,
+    this.width = AppEmptyGraphic.graphicSize,
+    this.height = AppEmptyGraphic.graphicSize,
     this.semanticLabel,
     super.key,
   });
@@ -43,21 +43,132 @@ class AppEmptyArt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (illustration.asset.endsWith('.png')) {
-      return Image.asset(
-        illustration.asset,
-        width: width,
-        height: height,
-        fit: BoxFit.contain,
-        semanticLabel: semanticLabel,
-      );
-    }
-    return SvgPicture.asset(
-      illustration.asset,
-      width: width,
-      height: height,
-      fit: BoxFit.contain,
-      semanticsLabel: semanticLabel,
+    final child = illustration.asset.endsWith('.png')
+        ? Image.asset(
+            illustration.asset,
+            width: width,
+            height: height,
+            fit: BoxFit.contain,
+            semanticLabel: semanticLabel,
+          )
+        : SvgPicture.asset(
+            illustration.asset,
+            width: width,
+            height: height,
+            fit: BoxFit.contain,
+            semanticsLabel: semanticLabel,
+          );
+    return SizedBox(width: width, height: height, child: child);
+  }
+}
+
+/// Common empty graphic: 160×160 art, 20px title, 13px subtitle, optional CTA.
+class AppEmptyGraphic extends StatelessWidget {
+  const AppEmptyGraphic({
+    required this.title,
+    required this.subtitle,
+    this.illustration,
+    this.asset,
+    this.actionLabel,
+    this.onAction,
+    this.actionLeading,
+    this.footer,
+    this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+    this.semanticLabel,
+    super.key,
+  }) : assert(illustration != null || asset != null);
+
+  static const graphicSize = 160.0;
+  static const titleSize = 20.0;
+  static const subtitleSize = 13.0;
+
+  final String title;
+  final String subtitle;
+  final AppEmptyIllustration? illustration;
+  final String? asset;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final Widget? actionLeading;
+  final Widget? footer;
+  final EdgeInsetsGeometry padding;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final graphic = illustration != null
+        ? AppEmptyArt(
+            illustration: illustration!,
+            semanticLabel: semanticLabel ?? title,
+          )
+        : SizedBox(
+            width: graphicSize,
+            height: graphicSize,
+            child: Image.asset(
+              asset!,
+              width: graphicSize,
+              height: graphicSize,
+              fit: BoxFit.contain,
+              excludeFromSemantics: true,
+            ),
+          );
+    final content = ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 390),
+      child: Padding(
+        padding: padding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            graphic,
+            const SizedBox(height: 20),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.sectionTitle.copyWith(
+                fontSize: titleSize,
+                height: 28 / titleSize,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.4,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : const Color(0xFF1C1917),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.body.copyWith(
+                fontSize: subtitleSize,
+                height: 20 / subtitleSize,
+                fontWeight: FontWeight.w400,
+                letterSpacing: -0.2,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : const Color(0xFF78716C),
+              ),
+            ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: 24),
+              AppButton(
+                label: actionLabel!,
+                onPressed: onAction,
+                leading: actionLeading,
+                radius: 16,
+              ),
+            ],
+            if (footer != null) ...[const SizedBox(height: 20), footer!],
+          ],
+        ),
+      ),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (!constraints.hasBoundedHeight) {
+          return Center(child: content);
+        }
+        return Center(child: SingleChildScrollView(child: content));
+      },
     );
   }
 }
@@ -71,6 +182,7 @@ class AppEmptyState extends StatelessWidget {
     this.onAction,
     this.actionLeading,
     this.compact = false,
+    this.footer,
     super.key,
   });
 
@@ -81,107 +193,22 @@ class AppEmptyState extends StatelessWidget {
   final VoidCallback? onAction;
   final Widget? actionLeading;
   final bool compact;
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final salesEmpty = illustration == AppEmptyIllustration.salesInvoice;
-    final purchaseEmpty = illustration == AppEmptyIllustration.purchaseBills;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final short =
-            constraints.hasBoundedHeight && constraints.maxHeight < 420;
-        final smallArt = compact || short;
-        return Center(
-          child: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: compact ? 280 : 360),
-              child: Padding(
-                padding: EdgeInsets.all(
-                  smallArt ? AppSpacing.md : AppSpacing.xl,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppEmptyArt(
-                      illustration: illustration,
-                      width: smallArt
-                          ? 128
-                          : purchaseEmpty
-                          ? 192
-                          : salesEmpty
-                          ? 192
-                          : 176,
-                      height: smallArt
-                          ? 96
-                          : purchaseEmpty
-                          ? 192
-                          : salesEmpty
-                          ? 176
-                          : 132,
-                      semanticLabel: title,
-                    ),
-                    SizedBox(height: smallArt ? AppSpacing.sm : AppSpacing.lg),
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: compact
-                          ? AppTextStyles.listName
-                          : AppTextStyles.sectionTitle.copyWith(
-                              fontSize: 20,
-                              height: purchaseEmpty ? 27.5 / 20 : 25 / 20,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: purchaseEmpty ? -0.5 : -0.4,
-                              color: isDark
-                                  ? AppColors.darkTextPrimary
-                                  : const Color(0xFF111827),
-                            ),
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      message,
-                      textAlign: TextAlign.center,
-                      style:
-                          (compact ? AppTextStyles.small : AppTextStyles.body)
-                              .copyWith(
-                                color: isDark
-                                    ? AppColors.darkTextSecondary
-                                    : purchaseEmpty
-                                    ? const Color(0xFF78716C)
-                                    : salesEmpty
-                                    ? const Color(0xFF6B7280)
-                                    : AppColors.textSecondary,
-                                fontSize: compact
-                                    ? null
-                                    : salesEmpty
-                                    ? 12
-                                    : 14,
-                                height: compact
-                                    ? null
-                                    : salesEmpty
-                                    ? 19.5 / 12
-                                    : 22.75 / 14,
-                                fontWeight: FontWeight.w400,
-                              ),
-                    ),
-                    if (actionLabel != null && onAction != null) ...[
-                      SizedBox(
-                        height: smallArt ? AppSpacing.md : AppSpacing.xl,
-                      ),
-                      AppButton(
-                        label: actionLabel!,
-                        onPressed: onAction,
-                        leading: actionLeading,
-                        radius: compact ? null : 16,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
+    return AppEmptyGraphic(
+      illustration: illustration,
+      title: title,
+      subtitle: message,
+      actionLabel: actionLabel,
+      onAction: onAction,
+      actionLeading: actionLeading,
+      footer: footer,
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 16 : 24,
+        vertical: compact ? 12 : 24,
+      ),
     );
   }
 }

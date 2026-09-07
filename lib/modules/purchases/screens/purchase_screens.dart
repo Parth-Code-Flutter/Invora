@@ -3643,29 +3643,14 @@ class _PurchaseEmptyItemsCard extends StatelessWidget {
   Widget build(BuildContext context) => AppCard(
     onTap: onAdd,
     padding: const EdgeInsets.fromLTRB(16, 22, 16, 18),
-    child: Column(
-      children: [
-        const AppEmptyArt(
-          illustration: AppEmptyIllustration.package,
-          width: 120,
-          height: 90,
-          semanticLabel: 'No items yet',
-        ),
-        const SizedBox(height: 8),
-        Text('No items yet', style: AppTextStyles.listName),
-        const SizedBox(height: 4),
-        Text(
+    child: AppEmptyGraphic(
+      illustration: AppEmptyIllustration.package,
+      title: 'No items yet',
+      subtitle:
           'Add a saved product, scan a barcode, or enter a one-time item.',
-          textAlign: TextAlign.center,
-          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
-        ),
-        const SizedBox(height: 14),
-        AppButton(
-          label: 'Add an item',
-          icon: Icons.add_rounded,
-          onPressed: onAdd,
-        ),
-      ],
+      padding: EdgeInsets.zero,
+      actionLabel: 'Add an item',
+      onAction: onAdd,
     ),
   );
 }

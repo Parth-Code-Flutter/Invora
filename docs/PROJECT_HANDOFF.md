@@ -210,10 +210,9 @@ stores.
 - One app after OTP and business setup: splash, onboarding, and first save
   always open Home. There is no Sales vs Purchases workspace choice and no
   Change workspace control. Phone dock is **Home · Documents · Products ·
-  Parties · More** (still five items). Phone navigation is a fixed full-width
-  bottom bar with an opaque adaptive surface and subtle top border, without
-  floating margins, pill corners or shadows. The surface extends through the
-  bottom safe area while controls stay above it. Tabs remain icon-only. Names stay on Semantics for
+  Parties · More** (still five items). Phone navigation is a floating pill
+  dock with 16px screen inset, full-radius corners, warm ring, and rose
+  shadow. Tabs remain icon-only. Names stay on Semantics for
   VoiceOver / TalkBack. All tabs use the exported Figma SVG outline/filled pairs
   from Bottom Navigation System node `4208:2` (Home house, Documents receipt,
   Products isometric cube, Parties people, More 9-dot grid), in fixed 26px boxes.
@@ -239,13 +238,11 @@ stores.
   travels with a `PageView`. Products is a root catalog tab; its add FAB
   hides on empty All / Products / Services the same way Documents and Parties
   hide theirs when the in-list Add CTA is on screen. Estimates, purchase orders, and other create flows stay on their
-  screens and under More. Empty lists and search-miss states use peach
-  line illustrations (`AppEmptyIllustration`) instead of a coral icon well:
-  invoices, quotations, bills, Home recent
-  activity, item pickers, and composer first-item cards. Catalog All /
-  Products / Services empty screens use the Figma PNGs and copy (No items /
-  products / services yet) with an in-list gradient Add CTA; search-miss
-  still uses the peach search illustration. Last Documents/Parties tab is remembered in
+  screens and under More. Empty lists, search-miss, Home recent activity,
+  pickers, and composer first-item cards share `AppEmptyGraphic`: 160×160
+  art, 20px title, 13px subtitle, optional CTA. Catalog, Parties, Sales,
+  and Purchases keep their own illustrations and copy; only the frame is
+  shared. Last Documents/Parties tab is remembered in
   `AppStorage` only; sales and purchase records stay in separate tables. `/workspace-setup`, `/purchases`,
   `/invoices`, `/customers`, `/purchases/bills`, and `/purchases/suppliers`
   redirect into this shell so old links are not stranded.
@@ -472,8 +469,8 @@ stores.
   wells, exact exported illustrations and a single gradient add action.
   Shared segmented tabs retain swipe and remembered selection. Populated
   lists, search/no-match states, customer scan and existing record actions
-  remain intact. The app-wide fixed navigation remains, intentionally not
-  restoring the floating dock pictured in these references.
+  remain intact. The app-wide dock is a floating pill again, matching the
+  Figma Home references.
 
 - Create, search, edit, view, and soft-delete customers. List search matches
   partial words across name, company, mobile, email, and GSTIN.
@@ -1044,6 +1041,37 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-07 — Shared empty graphic 160 / 20 / 13
+
+- Every empty screen now uses `AppEmptyGraphic`: 160×160 illustration,
+  20px title, 13px subtitle, optional gradient CTA. Catalog, Parties, and
+  list/composer empties keep their existing copy, assets, and actions.
+- Important files: `app_empty_state.dart`, `app_catalog_empty_state.dart`,
+  `app_party_empty_state.dart`, invoice/purchase/challan composers, this
+  handoff.
+- Storage: none.
+- Verification: design-system empty size test, empty-state reachability,
+  catalog/party empty tests.
+
+### 2026-09-07 — Catalog AppBar follows All / Products / Services
+
+- Products tab header is All, Products, or Services to match the selected
+  catalog filter, plus that tab’s count. The old “Products & services”
+  title no longer truncates on a narrow phone.
+- Important files: `product_list_screen.dart`, this handoff.
+- Storage: none.
+- Verification: `product_list_screen_test.dart`, `unified_shell_test.dart`.
+
+### 2026-09-07 — Restore floating phone dock
+
+- Phone bottom navigation is a floating pill again: 16px inset, full-radius
+  corners, warm ring, and rose shadow. Icons stay 26px Figma SVGs with the
+  coral-to-plum underline. No live backdrop blur.
+- Important files: `app_main_navigation.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/main_navigation_test.dart`.
 
 ### 2026-09-07 — Larger phone dock icons
 

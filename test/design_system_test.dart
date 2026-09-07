@@ -48,6 +48,21 @@ void main() {
     );
 
     expect(find.byType(AppEmptyArt), findsOneWidget);
+    expect(find.byType(AppEmptyGraphic), findsOneWidget);
+    expect(tester.getSize(find.byType(AppEmptyArt)), const Size(160, 160));
+    expect(
+      tester.widget<Text>(find.text('No invoices yet')).style?.fontSize,
+      20,
+    );
+    expect(
+      tester
+          .widget<Text>(
+            find.text('Create your first offline invoice to see it here.'),
+          )
+          .style
+          ?.fontSize,
+      13,
+    );
     expect(find.byIcon(Icons.receipt_long_outlined), findsNothing);
     expect(find.text('No invoices yet'), findsOneWidget);
     expect(find.text('Create invoice'), findsOneWidget);
@@ -373,68 +388,75 @@ void main() {
     );
   });
 
-  testWidgets('single-line hints sit on the midline and multiline hints stay top', (
-    tester,
-  ) async {
-    final name = TextEditingController();
-    final address = TextEditingController();
-    addTearDown(name.dispose);
-    addTearDown(address.dispose);
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.light,
-        home: Scaffold(
-          body: Column(
-            children: [
-              AppTextField(
-                controller: name,
-                label: 'Shop name',
-                hint: 'e.g. Acme Traders',
-                prefixIcon: Icons.storefront_outlined,
-              ),
-              AppTextField(
-                controller: address,
-                label: 'Billing Address',
-                hint: 'Street, area, landmark',
-                prefixIcon: Icons.home_outlined,
-                maxLines: 2,
-              ),
-            ],
+  testWidgets(
+    'single-line hints sit on the midline and multiline hints stay top',
+    (tester) async {
+      final name = TextEditingController();
+      final address = TextEditingController();
+      addTearDown(name.dispose);
+      addTearDown(address.dispose);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(
+            body: Column(
+              children: [
+                AppTextField(
+                  controller: name,
+                  label: 'Shop name',
+                  hint: 'e.g. Acme Traders',
+                  prefixIcon: Icons.storefront_outlined,
+                ),
+                AppTextField(
+                  controller: address,
+                  label: 'Billing Address',
+                  hint: 'Street, area, landmark',
+                  prefixIcon: Icons.home_outlined,
+                  maxLines: 2,
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    final fields = find.byType(AppTextField);
-    final singleField = tester.getRect(
-      find.descendant(of: fields.at(0), matching: find.byType(TextField)),
-    );
-    final singleHint = tester.getRect(find.text('e.g. Acme Traders'));
-    expect(singleHint.center.dy, closeTo(singleField.center.dy, 3));
-    expect(
-      tester
-          .widget<TextField>(
-            find.descendant(of: fields.at(0), matching: find.byType(TextField)),
-          )
-          .textAlignVertical,
-      TextAlignVertical.center,
-    );
+      final fields = find.byType(AppTextField);
+      final singleField = tester.getRect(
+        find.descendant(of: fields.at(0), matching: find.byType(TextField)),
+      );
+      final singleHint = tester.getRect(find.text('e.g. Acme Traders'));
+      expect(singleHint.center.dy, closeTo(singleField.center.dy, 3));
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: fields.at(0),
+                matching: find.byType(TextField),
+              ),
+            )
+            .textAlignVertical,
+        TextAlignVertical.center,
+      );
 
-    final multiField = tester.getRect(
-      find.descendant(of: fields.at(1), matching: find.byType(TextField)),
-    );
-    final multiHint = tester.getRect(find.text('Street, area, landmark'));
-    expect(multiField.height, greaterThan(singleField.height + 8));
-    expect(multiHint.center.dy, lessThan(multiField.center.dy - 4));
-    expect(
-      tester
-          .widget<TextField>(
-            find.descendant(of: fields.at(1), matching: find.byType(TextField)),
-          )
-          .textAlignVertical,
-      TextAlignVertical.top,
-    );
-  });
+      final multiField = tester.getRect(
+        find.descendant(of: fields.at(1), matching: find.byType(TextField)),
+      );
+      final multiHint = tester.getRect(find.text('Street, area, landmark'));
+      expect(multiField.height, greaterThan(singleField.height + 8));
+      expect(multiHint.center.dy, lessThan(multiField.center.dy - 4));
+      expect(
+        tester
+            .widget<TextField>(
+              find.descendant(
+                of: fields.at(1),
+                matching: find.byType(TextField),
+              ),
+            )
+            .textAlignVertical,
+        TextAlignVertical.top,
+      );
+    },
+  );
 
   testWidgets('OTP field uses six digit boxes under an outside label', (
     tester,

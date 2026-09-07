@@ -114,7 +114,7 @@ void main() {
         find.byKey(AppMainNavigation.tabKey(MainDestination.products)),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Products & services'), findsOneWidget);
+      expect(find.text('All'), findsWidgets);
       expect(find.text('Create new'), findsNothing);
 
       await tester.tap(

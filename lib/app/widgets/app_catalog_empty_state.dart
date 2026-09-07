@@ -1,15 +1,12 @@
-import 'package:flutter/material.dart' hide Text;
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../localization/localized_text.dart';
-import '../constants/app_colors.dart';
 import '../enums/item_type.dart';
-import '../themes/app_text_styles.dart';
-import 'app_button.dart';
+import 'app_empty_state.dart';
 
 enum CatalogEmptyKind { all, products, services }
 
-/// Figma empty states for Products & services · All / Products / Services.
+/// Figma empty states for catalog All / Products / Services.
 class AppCatalogEmptyState extends StatelessWidget {
   const AppCatalogEmptyState({
     required this.kind,
@@ -56,70 +53,17 @@ class AppCatalogEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxHeight < 500;
-        return Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 390),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset(
-                    _asset,
-                    width: compact ? 170 : 256,
-                    height: compact ? 170 : 256,
-                    fit: BoxFit.contain,
-                    excludeFromSemantics: true,
-                  ),
-                  SizedBox(height: compact ? 16 : 24),
-                  Text(
-                    _title,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.sectionTitle.copyWith(
-                      fontSize: 22,
-                      height: 33 / 22,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.55,
-                      color: dark
-                          ? AppColors.darkTextPrimary
-                          : const Color(0xFF1F2937),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _message,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.body.copyWith(
-                      fontSize: 13,
-                      height: 19.5 / 13,
-                      letterSpacing: -0.325,
-                      fontWeight: FontWeight.w400,
-                      color: dark
-                          ? AppColors.darkTextSecondary
-                          : const Color(0xFF715E58),
-                    ),
-                  ),
-                  SizedBox(height: compact ? 24 : 32),
-                  AppButton(
-                    label: _actionLabel,
-                    onPressed: onAdd,
-                    radius: 16,
-                    leading: SvgPicture.asset(
-                      'assets/icons/catalog/add.svg',
-                      width: 20,
-                      height: 20,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+    return AppEmptyGraphic(
+      asset: _asset,
+      title: _title,
+      subtitle: _message,
+      actionLabel: _actionLabel,
+      onAction: onAdd,
+      actionLeading: SvgPicture.asset(
+        'assets/icons/catalog/add.svg',
+        width: 20,
+        height: 20,
+      ),
     );
   }
 }

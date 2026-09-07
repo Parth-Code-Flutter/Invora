@@ -42,6 +42,12 @@ class ProductListScreen extends GetView<ProductListController> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cream = isDark ? null : _catalogCream;
     return Obx(() {
+      final selectedType = controller.selectedType.value;
+      final title = switch (selectedType) {
+        null => 'All',
+        ItemType.product => 'Products',
+        ItemType.service => 'Services',
+      };
       final emptyCreateVisible =
           controller.items.isEmpty &&
           controller.searchQuery.value.isEmpty &&
@@ -55,21 +61,19 @@ class ProductListScreen extends GetView<ProductListController> {
         ),
         appBar: AppSearchAppBar(
           leading: canPop ? const AppBackButton() : null,
-          title: 'Products & services',
+          title: title,
           largeTitle: true,
           backgroundColor: cream,
-          titleSuffix: Obx(
-            () => Text(
-              '(${controller.countFor(null)})',
-              style: AppTextStyles.caption.copyWith(
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : const Color(0xFFA3A3A3),
-                fontSize: 20,
-                height: 30 / 20,
-                fontWeight: FontWeight.w500,
-                letterSpacing: -0.575,
-              ),
+          titleSuffix: Text(
+            '(${controller.countFor(selectedType)})',
+            style: AppTextStyles.caption.copyWith(
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : const Color(0xFFA3A3A3),
+              fontSize: 20,
+              height: 30 / 20,
+              fontWeight: FontWeight.w500,
+              letterSpacing: -0.575,
             ),
           ),
           hint: 'Search products or services',

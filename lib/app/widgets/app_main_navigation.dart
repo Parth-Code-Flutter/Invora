@@ -83,25 +83,47 @@ class AppMainNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return RepaintBoundary(
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2A1528) : const Color(0xFFFDFBFA),
-          border: Border(
-            top: BorderSide(color: isDark ? AppColors.darkBorder : _dockRing),
-          ),
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: [
+            BoxShadow(
+              color: Color(isDark ? 0x66000000 : 0x1F881337),
+              blurRadius: 40,
+              offset: const Offset(0, 20),
+            ),
+            BoxShadow(
+              color: Color(isDark ? 0x33000000 : 0x14F43F5E),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: SizedBox(
-              height: _dockHeight,
-              child: Row(
-                children: [
-                  for (final item in _dockItems)
-                    _DockTab(item: item, selected: current == item.destination),
-                ],
+        child: RepaintBoundary(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2A1528) : const Color(0xFFFDFBFA),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: isDark ? AppColors.darkBorder : _dockRing,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+              child: SizedBox(
+                height: _dockHeight,
+                child: Row(
+                  children: [
+                    for (final item in _dockItems)
+                      _DockTab(
+                        item: item,
+                        selected: current == item.destination,
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
