@@ -98,14 +98,6 @@ class SubscriptionGateController extends GetxController
     return price != null && price.trim().isNotEmpty;
   }
 
-  String get displayedYearlyPrice {
-    final store = storePrice.value?.trim();
-    if (store != null && store.isNotEmpty) {
-      return store.contains('/') ? store : '$store / year';
-    }
-    return '₹${snapshot?.offerPriceInr ?? 499} / year';
-  }
-
   Future<void> subscribe(BuildContext context, {bool restoring = false}) async {
     if (working.value) return;
     working.value = true;

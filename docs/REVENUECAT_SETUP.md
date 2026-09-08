@@ -9,10 +9,10 @@ offering's annual package and opens native store checkout. Restore purchases,
 pending confirmation, success, cancellation, errors and offline notices are
 wired. Returning to the pending screen from background rechecks status; Check
 status never charges again. Continue verifies access before opening the app.
-Manage renewal opens the store management URL when one exists. Until public
-SDK keys and the current annual offering are present, the paywall shows
-`₹499 / year` and “Price available from the store at checkout”; that copy is
-not a live Play/App Store price.
+Manage renewal opens the store management URL when one exists. Until the SDK
+returns a localized annual price, the paywall shows “Price available from the
+store”; that copy is not a live Play/App Store price. Subscribe, restore and
+paid access still go through RevenueCat.
 
 No account, product, key, offering or agreement has been created on your behalf.
 No live/sandbox store transaction has been tested yet. A bundle ID alone is not

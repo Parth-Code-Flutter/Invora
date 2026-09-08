@@ -70,10 +70,7 @@ class SubscriptionGateScreen extends GetView<SubscriptionGateController> {
               _YearlyPlanCard(
                 snapshot: snapshot,
                 showOfferBadge: false,
-                yearlyPrice: controller.displayedYearlyPrice,
-                storeCaption: controller.hasLiveStorePrice
-                    ? 'Auto-renews yearly. Cancel in your store account settings.'
-                    : 'Price available from the store at checkout. Auto-renews yearly.',
+                storePrice: controller.storePrice.value,
                 subscribeAction: connect
                     ? null
                     : AppButton(
@@ -199,20 +196,24 @@ class _YearlyPlanCard extends StatelessWidget {
   const _YearlyPlanCard({
     required this.showOfferBadge,
     this.snapshot,
-    this.yearlyPrice,
-    this.storeCaption,
+    this.storePrice,
     this.subscribeAction,
   });
   final Widget? subscribeAction;
 
   final EntitlementSnapshot? snapshot;
-  final String? yearlyPrice;
-  final String? storeCaption;
+  final String? storePrice;
   final bool showOfferBadge;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final price = storePrice?.trim();
+    final priceLabel = price == null || price.isEmpty
+        ? 'Price available from the store'
+        : price.contains('/')
+        ? price
+        : '$price / year';
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -311,15 +312,13 @@ class _YearlyPlanCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      yearlyPrice ??
-                          '₹${snapshot?.offerPriceInr ?? 499} / year',
+                      priceLabel,
                       style: AppTextStyles.displayAmount.copyWith(fontSize: 24),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      storeCaption ??
-                          'Auto-renews yearly. Cancel in your store account settings.',
-                      style: const TextStyle(fontSize: 12, height: 1.4),
+                    const Text(
+                      'Auto-renews yearly. Cancel in your store account settings.',
+                      style: TextStyle(fontSize: 12, height: 1.4),
                     ),
                   ],
                 ),

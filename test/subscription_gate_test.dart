@@ -60,13 +60,8 @@ void main() {
     expect(find.text('Keep creating GST invoices'), findsOneWidget);
     expect(find.text('Creovo Yearly'), findsOneWidget);
     expect(find.text('SAVE 50% TODAY'), findsNothing);
-    expect(find.text('₹499 / year'), findsOneWidget);
-    expect(
-      find.text(
-        'Price available from the store at checkout. Auto-renews yearly.',
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('₹499'), findsNothing);
+    expect(find.text('Price available from the store'), findsOneWidget);
     expect(find.text('Subscribe'), findsOneWidget);
     expect(find.text('Payment reminders & WhatsApp share'), findsNothing);
     expect(find.text('Products, stock & customers'), findsOneWidget);

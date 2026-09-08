@@ -45,10 +45,9 @@ data offline and keeps entitlement out of backups.
   trials; RevenueCat entitlement `creovo_pro` handles paid access, identified
   by Firebase Auth UID. No new paid flags or business-data uploads are added.
 - Subscribe uses the current offering's annual package and localized store
-  price; fake ₹999 comparison and 50% discount are removed from checkout.
-  When RevenueCat keys or the annual offering are missing, the card shows
-  `₹499 / year` (from `plans/default` or the offer fallback) plus
-  “Price available from the store at checkout.” Subscribe still opens native
+  price from RevenueCat (`priceString`); fake ₹499/₹999 comparison and 50%
+  discount are not used on the paywall. Until the SDK returns a quote the
+  card shows “Price available from the store.” Subscribe still opens native
   checkout once the store quote loads; it does not stop after the first tap.
   Missing keys/products fail safely. Restore, cancel, error, pending and success
   are explicit states; pending checks on resume or Check status, never by
@@ -1107,6 +1106,15 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-08 — Paywall price comes only from RevenueCat
+
+- Removed the ₹499 paywall fallback so the card shows the RevenueCat
+  `priceString` or “Price available from the store.” Subscribe, restore,
+  pending/success, and `creovo_pro` access are unchanged.
+- Files: subscription gate screen/controller, gate test, handoff, QA,
+  REVENUECAT_SETUP. No billing or Firebase schema changes.
+- Verification: targeted subscription gate tests.
 
 ### 2026-09-08 — Store price fallback and configured billing gate
 
