@@ -45,14 +45,26 @@ import '../../../data/models/scanned_invoice_line.dart';
 import 'invoice_item_picker_screen.dart';
 
 abstract final class _ComposerUi {
-  static const page = Color(0xFFFAF9F7);
-  static const ink = Color(0xFF1C1917);
+  static const page = Color(0xFFFFF8F5);
+  static const ink = Color(0xFF1F1A24);
   static const body = Color(0xFF78716C);
+  static const mutedBody = Color(0xFF7A6E75);
   static const muted = Color(0xFFA8A29E);
   static const line = Color(0xFFE7E5E4);
+  static const cardLine = Color(0xFFF1E5DF);
+  static const innerLine = Color(0xFFF3DFD6);
+  static const emptyFill = Color(0xFFFAF6F3);
+  static const customerFill = Color(0xFFFFFBF9);
   static const coral = Color(0xFFF43F5E);
+  static const plum = Color(0xFF843B62);
+  static const productStart = Color(0xFFFF6F61);
+  static const serviceDash = Color(0xFFFECDD3);
+  static const pillFill = Color(0xFFFFE4E6);
+  static const disabledCta = Color(0xFFE7E5E4);
+  static const whatsappFill = Color(0xFFECFDF5);
+  static const whatsappLine = Color(0xFFA7F3D0);
   static const cardRadius = 16.0;
-  static const appBarHeight = 68.0;
+  static const appBarHeight = 64.0;
 }
 
 class InvoiceCreateScreen extends StatefulWidget {
@@ -64,6 +76,7 @@ class InvoiceCreateScreen extends StatefulWidget {
 
 class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
   late final InvoiceCreateController controller = Get.find();
+  bool _customerPromptScheduled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -80,54 +93,65 @@ class _InvoiceCreateScreenState extends State<InvoiceCreateScreen> {
         ),
         bottomNavigationBar: SafeArea(
           top: false,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              ResponsiveUtils.horizontalPadding(context),
-              12,
-              ResponsiveUtils.horizontalPadding(context),
-              12,
-            ),
-            child: Obx(() {
-              final hasItems = controller.items.isNotEmpty;
-              return AppConstrainedAction(
+          child: Obx(() {
+            final hasItems = controller.items.isNotEmpty;
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            return Container(
+              padding: EdgeInsets.fromLTRB(
+                ResponsiveUtils.horizontalPadding(context),
+                16,
+                ResponsiveUtils.horizontalPadding(context),
+                16,
+              ),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.darkSurface.withValues(alpha: 0.95)
+                    : const Color(0xF2FFFFFF),
+                border: Border(
+                  top: BorderSide(
+                    color: isDark ? AppColors.darkBorder : _ComposerUi.cardLine,
+                  ),
+                ),
+              ),
+              child: AppConstrainedAction(
                 maxWidth: ResponsiveUtils.footerMaxWidth(context),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                child: Row(
                   children: [
-                    AppButton(
-                      onPressed: hasItems ? controller.preview : null,
-                      trailingIcon: hasItems
-                          ? Icons.arrow_forward_rounded
-                          : null,
-                      radius: 16,
-                      isLoading: controller.isSaving.value,
-                      label: !hasItems
-                          ? 'Add items to continue'
-                          : controller.isQuotation
-                          ? 'Review estimate'
-                          : 'Review invoice',
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Saved offline on phone • Ready for PDF & WhatsApp share',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.small.copyWith(
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : _ComposerUi.muted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
+                    _WhatsAppShareButton(
+                      onTap: () => AppNotification.info(
+                        'Save to share',
+                        'WhatsApp and PDF share open after this invoice is saved.',
                       ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: hasItems
+                          ? AppButton(
+                              onPressed: controller.preview,
+                              trailingIcon: Icons.arrow_forward_rounded,
+                              radius: 16,
+                              isLoading: controller.isSaving.value,
+                              label: controller.isQuotation
+                                  ? 'Review estimate'
+                                  : 'Review invoice',
+                            )
+                          : const _DisabledContinueButton(),
                     ),
                   ],
                 ),
-              );
-            }),
-          ),
+              ),
+            );
+          }),
         ),
         body: Obx(() {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
+          }
+          if (!_customerPromptScheduled && controller.shouldPromptForCustomer) {
+            _customerPromptScheduled = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _selectCustomer(context, controller);
+            });
           }
           final form = _InvoiceForm(controller: controller);
           final summary = _InvoiceSummary(controller: controller);
@@ -185,6 +209,7 @@ class _InvoiceComposerAppBar extends StatelessWidget {
           child: Obx(() {
             final number = controller.invoiceNumber.value;
             final business = controller.businessName.value.trim();
+            final hasItems = controller.items.isNotEmpty;
             final document = controller.isQuotation
                 ? 'Estimate'
                 : controller.gstInvoice.value
@@ -193,7 +218,7 @@ class _InvoiceComposerAppBar extends StatelessWidget {
             return Row(
               children: [
                 const _ComposerBack(),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Expanded(
                   child: InkWell(
                     onTap: () => _editInvoiceNumber(context, controller),
@@ -202,18 +227,32 @@ class _InvoiceComposerAppBar extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          number.isEmpty ? 'New invoice' : '#$number',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.sectionTitle.copyWith(
-                            color: _ComposerUi.coral,
-                            fontSize: 18,
-                            height: 22 / 18,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.3,
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? AppColors.darkSurfaceVariant
+                                  : _ComposerUi.pillFill,
+                              borderRadius: BorderRadius.circular(99),
+                            ),
+                            child: Text(
+                              number.isEmpty ? 'New invoice' : '#$number',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.caption.copyWith(
+                                color: _ComposerUi.coral,
+                                fontWeight: FontWeight.w700,
+                                height: 16 / 12,
+                              ),
+                            ),
                           ),
                         ),
+                        const SizedBox(height: 2),
                         Text(
                           [
                             if (business.isNotEmpty) business,
@@ -221,33 +260,38 @@ class _InvoiceComposerAppBar extends StatelessWidget {
                           ].join(' • '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.small.copyWith(
+                          style: AppTextStyles.caption.copyWith(
                             color: isDark
                                 ? AppColors.darkTextSecondary
-                                : _ComposerUi.body,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
+                                : _ComposerUi.mutedBody,
+                            fontWeight: FontWeight.w400,
+                            height: 18 / 12,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                TextButton(
-                  onPressed: controller.isSaving.value
-                      ? null
-                      : () => controller.save(draft: true),
-                  child: const Text('Draft'),
-                ),
-                IconButton(
-                  tooltip: l10n('Invoice defaults'),
-                  onPressed: () => Get.toNamed<void>(AppRoutes.invoiceDefaults),
-                  icon: Icon(
-                    Icons.settings_outlined,
-                    size: 20,
-                    color: isDark ? AppColors.darkTextPrimary : _ComposerUi.ink,
+                if (hasItems) ...[
+                  TextButton(
+                    onPressed: controller.isSaving.value
+                        ? null
+                        : () => controller.save(draft: true),
+                    child: const Text('Draft'),
                   ),
-                ),
+                  IconButton(
+                    tooltip: l10n('Invoice defaults'),
+                    onPressed: () =>
+                        Get.toNamed<void>(AppRoutes.invoiceDefaults),
+                    icon: Icon(
+                      Icons.settings_outlined,
+                      size: 20,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : _ComposerUi.ink,
+                    ),
+                  ),
+                ],
               ],
             );
           }),
@@ -273,22 +317,29 @@ class _ComposerBack extends StatelessWidget {
           customBorder: const CircleBorder(),
           onTap: () => AppFocus.maybePop(context),
           child: Container(
-            width: 36,
-            height: 36,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isDark ? AppColors.darkBorder : const Color(0x99E7E5E4),
+                color: isDark ? AppColors.darkBorder : _ComposerUi.cardLine,
               ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x0D000000),
+                  blurRadius: 1,
+                  offset: Offset(0, 1),
+                ),
+              ],
             ),
             alignment: Alignment.center,
             child: SizedBox(
-              width: 16,
-              height: 16,
+              width: 20,
+              height: 20,
               child: SvgPicture.asset(
                 BusinessIcons.back,
-                width: 16,
-                height: 16,
+                width: 20,
+                height: 20,
               ),
             ),
           ),
@@ -309,13 +360,14 @@ class _InvoiceForm extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _CustomerDetailsSection(controller: controller),
-          const SizedBox(height: 14),
-          _DateTermsRow(controller: controller),
-          const SizedBox(height: 18),
-          _ItemsHeader(controller: controller),
-          const SizedBox(height: 10),
-          if (controller.items.isEmpty)
+          if (controller.items.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            _DateTermsRow(controller: controller),
+          ],
+          const SizedBox(height: 16),
+          if (controller.items.isEmpty) ...[
             _InvoiceEmptyItemsCard(
+              controller: controller,
               onAddProduct: () => _selectProductForInvoice(
                 context,
                 controller,
@@ -326,8 +378,14 @@ class _InvoiceForm extends StatelessWidget {
                 controller,
                 type: ItemType.service,
               ),
-            )
-          else
+            ),
+            const SizedBox(height: 16),
+            _NotesTermsRow(controller: controller),
+            const SizedBox(height: 16),
+            const _OfflineGuarantee(),
+          ] else ...[
+            _ItemsHeader(controller: controller),
+            const SizedBox(height: 10),
             ...controller.items.asMap().entries.map((entry) {
               final item = entry.value;
               final result = controller.calculation.value?.items[entry.key];
@@ -530,18 +588,19 @@ class _InvoiceForm extends StatelessWidget {
                 ),
               );
             }),
-          const SizedBox(height: 16),
-          _PaymentBreakdownCard(
-            controller: controller,
-            onEditDiscount: () => _editDiscount(context),
-            onAddCharge: () => _addCharge(context),
-          ),
-          if (!controller.isQuotation) ...[
             const SizedBox(height: 16),
-            _MarkInvoiceStatus(controller: controller),
+            _PaymentBreakdownCard(
+              controller: controller,
+              onEditDiscount: () => _editDiscount(context),
+              onAddCharge: () => _addCharge(context),
+            ),
+            if (!controller.isQuotation) ...[
+              const SizedBox(height: 16),
+              _MarkInvoiceStatus(controller: controller),
+            ],
+            const SizedBox(height: 16),
+            _NotesTermsCard(controller: controller),
           ],
-          const SizedBox(height: 16),
-          _NotesTermsCard(controller: controller),
         ],
       ),
     );
@@ -744,13 +803,15 @@ Future<void> _editInvoiceItem(
   }
 }
 
-/// Empty items card from Figma Create Invoice (`4210:1074`).
+/// Empty items card from Figma Create Invoice (`4210:1075`).
 class _InvoiceEmptyItemsCard extends StatelessWidget {
   const _InvoiceEmptyItemsCard({
+    required this.controller,
     required this.onAddProduct,
     required this.onAddService,
   });
 
+  final InvoiceCreateController controller;
   final VoidCallback onAddProduct;
   final VoidCallback onAddService;
 
@@ -758,76 +819,243 @@ class _InvoiceEmptyItemsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppCard(
-      padding: const EdgeInsets.fromLTRB(16, 22, 16, 18),
+      padding: const EdgeInsets.all(17),
       color: isDark ? AppColors.darkSurface : Colors.white,
-      child: AppEmptyGraphic(
-        illustration: AppEmptyIllustration.invoiceItems,
-        title: 'No items added yet',
-        subtitle:
-            'Add products from your catalog or scan a barcode to build this invoice.',
-        padding: EdgeInsets.zero,
-        footer: Row(
-          children: [
-            Expanded(
-              child: AppButton(
-                label: 'Add Product',
-                leading: SvgPicture.asset(
-                  'assets/icons/catalog/add.svg',
-                  width: 20,
-                  height: 20,
-                ),
-                onPressed: onAddProduct,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Semantics(
-                button: true,
-                label: 'Add Service',
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: onAddService,
-                    borderRadius: BorderRadius.circular(13),
-                    child: CustomPaint(
-                      painter: const _DashedRRectPainter(
-                        color: AppColors.primary,
-                        radius: 13,
-                      ),
-                      child: SizedBox(
-                        height: 50,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/catalog/add.svg',
-                              width: 18,
-                              height: 18,
-                              colorFilter: const ColorFilter.mode(
-                                AppColors.primary,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                'Add Service',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyles.button.copyWith(
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                          ],
+      borderColor: isDark ? AppColors.darkBorder : _ComposerUi.cardLine,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'Invoice Items',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.listName.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : _ComposerUi.ink,
                         ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppColors.darkSurfaceVariant
+                            : const Color(0xFFF5F5F4),
+                        borderRadius: BorderRadius.circular(99),
+                      ),
+                      child: Text(
+                        '0',
+                        style: AppTextStyles.caption.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : _ComposerUi.body,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              TextButton.icon(
+                onPressed: () => _scanProductsForInvoice(context, controller),
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  foregroundColor: _ComposerUi.coral,
+                  textStyle: AppTextStyles.caption.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                  ),
+                ),
+                icon: SvgPicture.asset(
+                  'assets/icons/party_scan.svg',
+                  width: 14,
+                  height: 14,
+                  colorFilter: const ColorFilter.mode(
+                    _ComposerUi.coral,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                label: const Text('Scan barcode'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(13, 25, 13, 25),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.darkSurfaceVariant
+                  : _ComposerUi.emptyFill,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isDark ? AppColors.darkBorder : _ComposerUi.cardLine,
+              ),
             ),
-          ],
+            child: Column(
+              children: [
+                Image.asset(
+                  AppEmptyIllustration.invoiceItems.asset,
+                  width: 196,
+                  height: 116,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.high,
+                  semanticLabel: 'No items added yet',
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'No items added yet',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.listName.copyWith(
+                    fontWeight: FontWeight.w800,
+                    height: 20 / 14,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : _ComposerUi.ink,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Add products from your catalog or scan a barcode\nto build this invoice.',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.caption.copyWith(
+                    fontWeight: FontWeight.w400,
+                    height: 16 / 12,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : _ComposerUi.mutedBody,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _EmptyCatalogChip(
+                        label: 'Add Product',
+                        iconAsset: 'assets/icons/catalog/add.svg',
+                        filled: true,
+                        onTap: onAddProduct,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _EmptyCatalogChip(
+                        label: 'Add Service',
+                        iconAsset: 'assets/icons/catalog/tab_services.svg',
+                        filled: false,
+                        onTap: onAddService,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyCatalogChip extends StatelessWidget {
+  const _EmptyCatalogChip({
+    required this.label,
+    required this.iconAsset,
+    required this.filled,
+    required this.onTap,
+  });
+
+  final String label;
+  final String iconAsset;
+  final bool filled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = filled ? Colors.white : _ComposerUi.plum;
+    final child = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SvgPicture.asset(
+          iconAsset,
+          width: 16,
+          height: 16,
+          colorFilter: ColorFilter.mode(foreground, BlendMode.srcIn),
+        ),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.caption.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 12,
+              height: 16 / 12,
+              color: foreground,
+            ),
+          ),
+        ),
+      ],
+    );
+    return Semantics(
+      button: true,
+      label: label,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: filled
+              ? Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment(-0.7, -1),
+                      end: Alignment(0.9, 1),
+                      colors: [_ComposerUi.productStart, _ComposerUi.plum],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x0D000000),
+                        blurRadius: 1,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 12,
+                  ),
+                  child: child,
+                )
+              : CustomPaint(
+                  painter: const _DashedRRectPainter(
+                    color: _ComposerUi.serviceDash,
+                    radius: 12,
+                    strokeWidth: 1.75,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 12,
+                    ),
+                    child: child,
+                  ),
+                ),
         ),
       ),
     );
@@ -835,22 +1063,33 @@ class _InvoiceEmptyItemsCard extends StatelessWidget {
 }
 
 class _DashedRRectPainter extends CustomPainter {
-  const _DashedRRectPainter({required this.color, required this.radius});
+  const _DashedRRectPainter({
+    required this.color,
+    required this.radius,
+    this.strokeWidth = 1.25,
+  });
 
   final Color color;
   final double radius;
+  final double strokeWidth;
 
   @override
   void paint(Canvas canvas, Size size) {
+    final inset = strokeWidth / 2;
     final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(1, 1, size.width - 2, size.height - 2),
+      Rect.fromLTWH(
+        inset,
+        inset,
+        size.width - strokeWidth,
+        size.height - strokeWidth,
+      ),
       Radius.circular(radius),
     );
     final path = Path()..addRRect(rrect);
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.25
+      ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
     const dash = 5.0;
     const gap = 3.5;
@@ -866,7 +1105,9 @@ class _DashedRRectPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.radius != radius;
+      oldDelegate.color != color ||
+      oldDelegate.radius != radius ||
+      oldDelegate.strokeWidth != strokeWidth;
 }
 
 Future<void> _editInvoiceNumber(
@@ -952,61 +1193,132 @@ class _CustomerDetailsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final customer = controller.customer.value;
-    if (customer == null) {
-      return Column(
+    return AppCard(
+      padding: const EdgeInsets.all(17),
+      color: isDark ? AppColors.darkSurface : Colors.white,
+      borderColor: isDark ? AppColors.darkBorder : _ComposerUi.cardLine,
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const _SectionEyebrow('CUSTOMER DETAILS'),
-          const SizedBox(height: 8),
-          Material(
-            color: isDark ? AppColors.darkSurface : Colors.white,
-            borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
-            child: InkWell(
-              onTap: () => _selectCustomer(context, controller),
-              borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
-                  border: Border.all(
-                    color: isDark ? AppColors.darkBorder : _ComposerUi.line,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'CUSTOMER DETAILS',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.6,
+                    height: 16 / 12,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : _ComposerUi.mutedBody,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 28,
-                      height: 28,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.add_rounded,
-                        size: 18,
-                        color: AppColors.primary,
-                      ),
+              ),
+              if (customer != null)
+                TextButton(
+                  onPressed: () => _selectCustomer(context, controller),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    padding: EdgeInsets.zero,
+                    foregroundColor: _ComposerUi.productStart,
+                    textStyle: AppTextStyles.caption.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Add Customer',
-                      style: AppTextStyles.cardTitle.copyWith(
-                        color: AppColors.primary,
-                      ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Change'),
+                      SizedBox(width: 2),
+                      Icon(Icons.swap_vert_rounded, size: 14),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (customer == null)
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _selectCustomer(context, controller),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.darkSurfaceVariant
+                        : _ComposerUi.customerFill,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : _ComposerUi.innerLine,
                     ),
-                  ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryLight,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.add_rounded,
+                          size: 18,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Text(
+                          'Add Customer',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.cardTitle.copyWith(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            )
+          else
+            _SelectedCustomerCard(controller: controller, customer: customer),
         ],
-      );
-    }
+      ),
+    );
+  }
+}
+
+class _SelectedCustomerCard extends StatelessWidget {
+  const _SelectedCustomerCard({
+    required this.controller,
+    required this.customer,
+  });
+
+  final InvoiceCreateController controller;
+  final CustomerSnapshotModel customer;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final gstin = customer.gstin?.trim() ?? '';
+    final displayName = customer.companyName?.trim().isNotEmpty == true
+        ? customer.companyName!
+        : customer.name;
     final location = [
       customer.city,
       customer.state,
@@ -1015,41 +1327,52 @@ class _CustomerDetailsSection extends StatelessWidget {
       customer.mobile,
       if (location.isNotEmpty) location,
     ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' • ');
-    final initials = customer.name.characters.take(2).toString().toUpperCase();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _SectionEyebrow(
-          'CUSTOMER DETAILS',
-          trailing: TextButton(
-            onPressed: () => _selectCustomer(context, controller),
-            child: const Text('Change'),
+    final balance = controller.customerBalanceMinor.value;
+    final symbol = controller.currencySymbol.value;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _selectCustomer(context, controller),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: isDark
+                ? AppColors.darkSurfaceVariant
+                : _ComposerUi.customerFill,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? AppColors.darkBorder : _ComposerUi.innerLine,
+            ),
           ),
-        ),
-        Material(
-          color: isDark ? AppColors.darkSurface : Colors.white,
-          borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
-          child: InkWell(
-            onTap: () => _selectCustomer(context, controller),
-            borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(14, 14, 12, 14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
-                border: Border.all(
-                  color: isDark ? AppColors.darkBorder : _ComposerUi.line,
-                ),
-              ),
-              child: Row(
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircleAvatar(
-                    radius: 22,
-                    backgroundColor: AppColors.primaryLight,
+                  Container(
+                    width: 44,
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : _ComposerUi.cardLine,
+                      ),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0x1AF43F5E), Color(0x1A843B62)],
+                      ),
+                    ),
                     child: Text(
-                      initials,
+                      _partyInitials(displayName),
                       style: AppTextStyles.cardTitle.copyWith(
-                        color: AppColors.primary,
-                        fontSize: 14,
+                        color: _ComposerUi.plum,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
@@ -1059,59 +1382,27 @@ class _CustomerDetailsSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          customer.companyName?.trim().isNotEmpty == true
-                              ? customer.companyName!
-                              : customer.name,
+                          displayName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.cardTitle,
+                          style: AppTextStyles.listName.copyWith(
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : const Color(0xFF0F172A),
+                          ),
                         ),
                         if (contact.isNotEmpty) ...[
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 2),
                           Text(
                             contact,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.small.copyWith(
-                              color: AppColors.textSecondary,
+                            style: AppTextStyles.caption.copyWith(
+                              fontWeight: FontWeight.w400,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : _ComposerUi.mutedBody,
                             ),
-                          ),
-                        ],
-                        if (gstin.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              if (_gstinLooksValid(gstin))
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 3,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.successLight,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    'Looks valid',
-                                    style: AppTextStyles.small.copyWith(
-                                      color: AppColors.success,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                              Text(
-                                gstin.length > 12
-                                    ? '${gstin.substring(0, 10)}...'
-                                    : gstin,
-                                style: AppTextStyles.small.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
                           ),
                         ],
                       ],
@@ -1119,16 +1410,137 @@ class _CustomerDetailsSection extends StatelessWidget {
                   ),
                   const Icon(
                     Icons.chevron_right_rounded,
+                    size: 16,
                     color: AppColors.textTertiary,
                   ),
                 ],
               ),
-            ),
+              if (gstin.isNotEmpty || balance >= 0) ...[
+                const SizedBox(height: 12),
+                Divider(
+                  height: 1,
+                  color: isDark ? AppColors.darkBorder : const Color(0xFFF5F5F4),
+                ),
+                const SizedBox(height: 11),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (gstin.isNotEmpty)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_gstinLooksValid(gstin))
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFECFDF5),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: const Color(0xFFA7F3D0),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Looks valid',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: const Color(0xFF047857),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    height: 16 / 10,
+                                  ),
+                                ),
+                              ),
+                            if (_gstinLooksValid(gstin))
+                              const SizedBox(height: 6),
+                            Text(
+                              gstin,
+                              style: AppTextStyles.caption.copyWith(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 11,
+                                height: 16 / 11,
+                                color: isDark
+                                    ? AppColors.darkTextSecondary
+                                    : const Color(0xFF57534E),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      const Spacer(),
+                    Row(
+                      children: [
+                        Text(
+                          'Balance:',
+                          style: AppTextStyles.caption.copyWith(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 11,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : _ComposerUi.muted,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: balance > 0
+                                ? AppColors.warningLight
+                                : const Color(0xFFECFDF5),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: balance > 0
+                                  ? AppColors.warning.withValues(alpha: 0.4)
+                                  : const Color(0x99A7F3D0),
+                            ),
+                          ),
+                          child: Text(
+                            balance > 0
+                                ? CurrencyUtils.formatMinor(
+                                    balance,
+                                    symbol: symbol,
+                                  )
+                                : '$symbol 0 (${l10n('Clear')})',
+                            style: AppTextStyles.caption.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 11,
+                              height: 16 / 11,
+                              color: balance > 0
+                                  ? AppColors.warning
+                                  : const Color(0xFF059669),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
+}
+
+String _partyInitials(String name) {
+  final parts = name
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((part) => part.isNotEmpty)
+      .take(2);
+  final letters = parts
+      .map((part) => part.characters.first)
+      .join()
+      .toUpperCase();
+  return letters.isEmpty ? '?' : letters;
 }
 
 class _DateTermsRow extends StatelessWidget {
@@ -1660,6 +2072,228 @@ class _NotesTermsCard extends StatelessWidget {
       ],
     );
   }
+}
+
+class _NotesTermsRow extends StatelessWidget {
+  const _NotesTermsRow({required this.controller});
+
+  final InvoiceCreateController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final terms = controller.termsController.text.trim();
+    final preview = terms.isEmpty
+        ? '"Goods once sold will not be taken back..."'
+        : '"$terms"';
+    return Material(
+      color: isDark ? AppColors.darkSurface : Colors.white,
+      borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
+      child: InkWell(
+        onTap: () => _editNotesTerms(context, controller),
+        borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
+        child: Container(
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(_ComposerUi.cardRadius),
+            border: Border.all(
+              color: isDark ? AppColors.darkBorder : _ComposerUi.cardLine,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.darkSurfaceVariant
+                      : const Color(0xFFF5F5F4),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.edit_note_rounded,
+                  size: 16,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : _ComposerUi.ink,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Invoice Notes & Terms',
+                      style: AppTextStyles.caption.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : _ComposerUi.ink,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      preview,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : _ComposerUi.muted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 16,
+                color: AppColors.textTertiary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OfflineGuarantee extends StatelessWidget {
+  const _OfflineGuarantee();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SvgPicture.asset(
+          'assets/icons/plan/offline_shield.svg',
+          width: 14,
+          height: 14,
+          colorFilter: ColorFilter.mode(
+            isDark ? AppColors.darkTextSecondary : _ComposerUi.muted,
+            BlendMode.srcIn,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            'Saved offline on phone • Ready for PDF & WhatsApp share',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.caption.copyWith(
+              fontWeight: FontWeight.w500,
+              fontSize: 11,
+              height: 16.5 / 11,
+              color: isDark ? AppColors.darkTextSecondary : _ComposerUi.muted,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _WhatsAppShareButton extends StatelessWidget {
+  const _WhatsAppShareButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'WhatsApp share',
+      child: Material(
+        color: _ComposerUi.whatsappFill,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: _ComposerUi.whatsappLine),
+            ),
+            alignment: Alignment.center,
+            child: SvgPicture.asset(
+              'assets/icons/plan/whatsapp.svg',
+              width: 24,
+              height: 24,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DisabledContinueButton extends StatelessWidget {
+  const _DisabledContinueButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: _ComposerUi.disabledCta,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                'Add items to continue',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.listName.copyWith(
+                  color: _ComposerUi.muted,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.arrow_forward_rounded,
+              size: 16,
+              color: _ComposerUi.muted,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> _editNotesTerms(
+  BuildContext context,
+  InvoiceCreateController controller,
+) async {
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    showDragHandle: true,
+    builder: (sheetContext) => Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: MediaQuery.viewInsetsOf(sheetContext).bottom + 16,
+      ),
+      child: _NotesTermsCard(controller: controller),
+    ),
+  );
 }
 
 Future<void> _pickComposerDate(

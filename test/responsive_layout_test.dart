@@ -157,6 +157,11 @@ void main() {
     Get.toNamed<void>(AppRoutes.invoiceCreate);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 900));
+    await tester.pump();
+    if (find.text('Who is this invoice for?').evaluate().isNotEmpty) {
+      Get.back<void>();
+      await tester.pump();
+    }
 
     expect(find.text('CUSTOMER DETAILS'), findsOneWidget);
     expect(find.text('Add Customer'), findsOneWidget);

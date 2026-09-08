@@ -1916,6 +1916,14 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Part Paid': 'आंशिक भुगतान',
   'Paid Full': 'पूरा भुगतान',
   'INVOICE NOTES & TERMS': 'इनवॉइस नोट्स और शर्तें',
+  'Invoice Notes & Terms': 'इनवॉइस नोट्स और शर्तें',
+  'Balance:': 'बकाया:',
+  'Save to share': 'शेयर करने के लिए सहेजें',
+  'WhatsApp and PDF share open after this invoice is saved.':
+      'WhatsApp और PDF शेयर इस इनवॉइस के सहेजने के बाद खुलते हैं.',
+  'WhatsApp share': 'WhatsApp शेयर',
+  '"Goods once sold will not be taken back..."':
+      '"एक बार बिके माल वापस नहीं लिए जाएँगे..."',
 };
 
 const Map<String, String> appGujaratiCoverageTranslations = {
@@ -3823,4 +3831,12 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Part Paid': 'આંશિક ચુકવણી',
   'Paid Full': 'પૂરી ચુકવણી',
   'INVOICE NOTES & TERMS': 'ઇનવોઇસ નોંધ અને શરતો',
+  'Invoice Notes & Terms': 'ઇનવોઇસ નોંધ અને શરતો',
+  'Balance:': 'બાકી:',
+  'Save to share': 'શેર કરવા સાચવો',
+  'WhatsApp and PDF share open after this invoice is saved.':
+      'WhatsApp અને PDF શેર આ ઇનવોઇસ સાચવ્યા પછી ખુલે છે.',
+  'WhatsApp share': 'WhatsApp શેર',
+  '"Goods once sold will not be taken back..."':
+      '"એકવાર વેચાયેલ માલ પાછો લેવાશે નહીં..."',
 };

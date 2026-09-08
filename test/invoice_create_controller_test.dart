@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:creovo_invoice/app/enums/item_type.dart';
+import 'package:creovo_invoice/data/models/customer_model.dart';
 import 'package:creovo_invoice/data/models/product_service_model.dart';
 import 'package:creovo_invoice/data/repositories/business_repository.dart';
 import 'package:creovo_invoice/data/repositories/customer_repository.dart';
@@ -185,7 +186,7 @@ void main() {
     },
   );
 
-  test('new invoices do not auto-prompt for a customer', () async {
+  test('new invoices auto-prompt for a customer until one is selected', () async {
     final database = AppDatabase.forTesting(NativeDatabase.memory());
     final controller = InvoiceCreateController(
       InvoiceRepository(database),
@@ -195,6 +196,14 @@ void main() {
       const InvoiceCalculationService(),
     );
 
+    expect(controller.shouldPromptForCustomer, isTrue);
+    controller.selectCustomer(
+      CustomerModel(
+        name: 'Rahul Sharma',
+        createdAt: DateTime(2026, 9, 7),
+        updatedAt: DateTime(2026, 9, 7),
+      ),
+    );
     expect(controller.shouldPromptForCustomer, isFalse);
     controller.setInvoiceNumber('INV-0042');
     expect(controller.invoiceNumber.value, 'INV-0042');

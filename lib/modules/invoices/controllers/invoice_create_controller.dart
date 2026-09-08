@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -45,7 +46,7 @@ class InvoiceCreateController extends GetxController {
   bool get isEditing => _id != null;
   bool get hasRecordedPayments =>
       isEditing && (calculation.value?.paidAmountMinor ?? 0) > 0;
-  bool get shouldPromptForCustomer => false;
+  bool get shouldPromptForCustomer => _id == null && customer.value == null;
 
   final invoiceNumber = ''.obs;
   final customer = Rxn<CustomerSnapshotModel>();
@@ -63,6 +64,7 @@ class InvoiceCreateController extends GetxController {
   final businessName = ''.obs;
   final gstInvoice = false.obs;
   final requestingPartialPayment = false.obs;
+  final customerBalanceMinor = 0.obs;
   final notesController = TextEditingController();
   final termsController = TextEditingController();
   final paidController = TextEditingController();
@@ -170,6 +172,7 @@ class InvoiceCreateController extends GetxController {
 
   void selectCustomer(CustomerModel value) {
     customer.value = CustomerSnapshotModel.fromCustomer(value);
+    unawaited(_refreshCustomerBalance());
   }
 
   void addProduct(ProductServiceModel product) {
@@ -543,6 +546,22 @@ class InvoiceCreateController extends GetxController {
       model.calculation.paidAmountMinor,
     );
     recalculate();
+    unawaited(_refreshCustomerBalance());
+  }
+
+  Future<void> _refreshCustomerBalance() async {
+    final id = customer.value?.customerId;
+    if (id == null) {
+      customerBalanceMinor.value = 0;
+      return;
+    }
+    final invoices = await _invoices.watchCustomerInvoices(id).first;
+    var due = 0;
+    for (final invoice in invoices) {
+      if (_id != null && invoice.id == _id) continue;
+      due += invoice.balanceMinor;
+    }
+    customerBalanceMinor.value = due;
   }
 
   String? _optional(String value) => value.trim().isEmpty ? null : value.trim();

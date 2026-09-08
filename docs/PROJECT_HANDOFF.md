@@ -651,21 +651,22 @@ stores.
 - Quotation-to-invoice conversion
 - Customer and valid items required before final save, preview, PDF, sharing,
   printing, or payment; incomplete work may be saved as a draft
-- New invoices match Figma Create Invoice (`4210:795`): cream page, circular
-  back, coral `#INV-…` title (tap to edit number), `{business} • GST Tax
-  Invoice` subtitle, and Draft + invoice-defaults gear. The composer stays on
-  screen instead of auto-opening a customer picker. Empty customer is **Add
-  Customer**; a selected customer shows initials, phone • city, and GSTIN
-  **Looks valid** (format only, never Verified). DATE / TERMS sit in two
-  tiles. Invoice Items has a count. Empty items match Figma `4210:1074`:
-  clipboard + package + ₹ illustration, **No items added yet**, Add Product
-  (gradient) and dashed Add Service, with **Scan barcode** in the header
-  instead of Add Item. After a line exists, the header shows scan + **Add
-  Item**. Payment & tax breakdown, Mark
-  invoice as (Unpaid / Part Paid / Paid Full), and notes/terms stay visible.
-  The footer is **Add items to continue** until a line exists, then **Review
-  invoice** (still opens preview). Caption: Saved offline on phone • Ready
-  for PDF & WhatsApp share. No WhatsApp share from an unsaved composer.
+- New invoices match Figma Create Invoice empty (`4210:1075`): cream
+  `#FFF8F5` page, circular back, pink `#INV-…` pill (tap to edit number),
+  `{business} • GST Tax Invoice` subtitle. New invoices still open the
+  customer picker first, then land on the composer. Empty customer is **Add
+  Customer** inside the customer card; a selected customer shows a rounded
+  square initial, phone • city, GSTIN **Looks valid** (format only, never
+  Verified), and an on-device **Balance** chip. DATE / TERMS stay off the
+  empty composer and appear after the first line. Empty items keep Invoice
+  Items + count + **Scan barcode** in one card, with a cream inner panel,
+  144px illustration, **No items added yet**, compact gradient Add Product,
+  and white dashed Add Service. A compact **Invoice Notes & Terms** row
+  sits under the empty card. The footer is a WhatsApp button (save-first
+  notice, no share from an unsaved composer) plus disabled **Add items to
+  continue**; after a line exists it becomes **Review invoice** (still
+  opens preview) and Draft + defaults return in the header. Caption: Saved
+  offline on phone • Ready for PDF & WhatsApp share.
 - Customer selection uses a focused searchable bottom sheet. Saved catalog
   selection uses a dedicated full-screen workspace designed for 100+ records,
   with debounced search, Product/Service filters, persistent checkboxes,
@@ -693,9 +694,10 @@ stores.
   sticky footer. Save and print remain in the AppBar overflow. Credit notes
   appear as credits and refunds as debits alongside invoices, payments, and
   reversals.
-- Invoice creation uses the Figma composer: customer card, date/terms tiles,
-  count-labelled line items (Figma `4210:1074` empty card), always-visible tax/payment breakdown, payment
-  status pills, and notes. Phone layouts avoid repeating the full totals card
+- Invoice creation uses the Figma composer: customer picker first, then
+  customer card, date/terms tiles after the first line, count-labelled line
+  items (Figma `4210:1075` empty card with cream inner panel), then tax/payment
+  breakdown, payment status pills, and notes after the first line. Phone layouts avoid repeating the full totals card
   because the fixed footer already keeps Review visible; tablets retain the
   live summary side panel. Product/Service catalog picks reuse the existing
   full-screen picker with an optional initial filter.
@@ -1106,6 +1108,46 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-08 — Empty invoice items art sits on the cream card
+
+- The empty-items PNG was a white 512×512 plate with a second cream card
+  baked in, so the clipboard / package / ₹ graphic looked like a boxed
+  thumbnail. The plate is now transparent and cropped to the artwork, and
+  the empty composer shows it at Figma visual size on the cream panel.
+- Important files: `assets/illustrations/empty_invoice_items.png`,
+  `invoice_create_screen.dart`, this handoff.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`.
+
+### 2026-09-08 — Create Invoice empty screen matches Figma 4210:1075
+
+- Empty Create Invoice now follows the Figma frame, not only the items
+  card: pink `#INV-` pill, nested customer card with Change, Looks valid +
+  on-device balance, no DATE/TERMS until a line exists, compact notes row,
+  offline caption, and a footer WhatsApp control that explains share waits
+  until save. GSTIN is never Verified.
+- Important files: `invoice_create_screen.dart`,
+  `invoice_create_controller.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`,
+  `test/invoice_create_controller_test.dart`.
+
+### 2026-09-08 — Create Invoice empty items match Figma 4210:1075
+
+- Restored customer-first Create Invoice: a new invoice opens **Who is this
+  invoice for?** so the empty items card is reached after a party is chosen,
+  matching Figma `4210:1075`. Dismissing the sheet still leaves **Add
+  Customer** on the composer.
+- Empty items now use one card: Invoice Items + 0 + Scan barcode on top, a
+  cream inner panel, 144px illustration, 14px title, compact gradient Add
+  Product, and white dashed Add Service. Tax, mark-as-paid, and notes stay
+  off until a line exists.
+- Important files: `invoice_create_screen.dart`,
+  `invoice_create_controller.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`,
+  `test/invoice_create_controller_test.dart`.
 
 ### 2026-09-08 — Restore iOS 15 deployment target for Firebase SPM
 
