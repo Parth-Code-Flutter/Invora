@@ -1,6 +1,16 @@
 # Creovo Billing — Licensing, paid unlock, and demo APK
 
-Status: **Phone OTP entitlement is in the app. Store billing is still design only. Direct-APK payment is manual console `status=paid` until an admin proof queue ships.**  
+Status (2026-09-08): **Store distribution is the chosen path. RevenueCat client integration is implemented; console configuration and native sandbox validation are pending.**
+
+The current yearly subscription implementation and operator steps are in
+[REVENUECAT_SETUP.md](REVENUECAT_SETUP.md). This supersedes the historical
+one-time/direct-APK alternatives below: no UPI screenshot approval is planned
+for store builds. Firebase trials remain; RevenueCat is the paid authority.
+The production-bound service does not accept legacy Firestore paid flags
+once RevenueCat public keys are present in the build.
+No store accounts, products, offerings or credentials have been provisioned.
+
+## Historical alternatives (not the current implementation plan)
 Captured: 2026-08-17; OTP path added 2026-09-03; admin proof queue agreed 2026-09-05  
 Live app status: [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md)
 

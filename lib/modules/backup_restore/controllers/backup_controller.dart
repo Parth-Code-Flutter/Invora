@@ -7,6 +7,7 @@ import '../../../app/controllers/app_controller.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../app/widgets/app_notification.dart';
 import '../../../data/services/account_auth_service.dart';
+import '../../../data/services/account_entitlement_service.dart';
 import '../../../data/services/app_lock_service.dart';
 import '../../../data/services/app_storage.dart';
 import '../../../data/services/backup_service.dart';
@@ -72,6 +73,9 @@ class BackupController extends GetxController {
     isWorking.value = true;
     try {
       await _service.eraseAllLocalData();
+      if (Get.isRegistered<AccountEntitlementService>()) {
+        await Get.find<AccountEntitlementService>().resetStoreIdentity();
+      }
       if (Get.isRegistered<AccountAuthService>()) {
         await Get.find<AccountAuthService>().signOut();
       }

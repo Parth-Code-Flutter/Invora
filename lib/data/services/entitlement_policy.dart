@@ -9,6 +9,7 @@ class EntitlementSnapshot {
     this.planTitle = 'Creovo Billing',
     this.priceInr = 0,
     this.period = 'yearly',
+    this.isSandbox = false,
   });
 
   final String mobile;
@@ -18,6 +19,7 @@ class EntitlementSnapshot {
   final String planTitle;
   final int priceInr;
   final String period;
+  final bool isSandbox;
 
   String get displayTitle {
     final title = planTitle.trim();

@@ -861,6 +861,15 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Renews': 'नवीनीकरण',
   'yearly': 'सालाना',
   'Auto-Renewal is Off': 'ऑटो-रिन्यूअल बंद है',
+  'Subscription management': 'सब्सक्रिप्शन प्रबंधन',
+  'Price available from the store at checkout. Auto-renews yearly.':
+      'कीमत चेकआउट पर स्टोर से मिलेगी। हर साल ऑटो-रिन्यू।',
+  'Auto-renews yearly. Cancel in your store account settings.':
+      'हर साल ऑटो-रिन्यू। स्टोर खाता सेटिंग में रद्द करें।',
+  'Subscriptions are not available yet': 'सब्सक्रिप्शन अभी उपलब्ध नहीं है',
+  'Store billing has not been configured for this build. Please try again after the app is updated.':
+      'इस बिल्ड में स्टोर बिलिंग सेट नहीं है। ऐप अपडेट के बाद फिर कोशिश करें।',
+  'Connect to the internet': 'इंटरनेट से कनेक्ट करें',
   'Play billing isn’t connected yet.': 'Play बिलिंग अभी जुड़ी नहीं है।',
   'PLAN PRIVILEGES': 'प्लान सुविधाएँ',
   'Included in Creovo Yearly': 'Creovo Yearly में शामिल',
@@ -2764,6 +2773,15 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Renews': 'નવીકરણ',
   'yearly': 'વાર્ષિક',
   'Auto-Renewal is Off': 'ઑટો-રિન્યુઅલ બંધ છે',
+  'Subscription management': 'સબ્સ્ક્રિપ્શન મેનેજમેન્ટ',
+  'Price available from the store at checkout. Auto-renews yearly.':
+      'કિંમત ચેકઆઉટ પર સ્ટોરથી મળશે. દર વર્ષે ઑટો-રિન્યુ.',
+  'Auto-renews yearly. Cancel in your store account settings.':
+      'દર વર્ષે ઑટો-રિન્યુ. સ્ટોર ખાતા સેટિંગમાં રદ કરો.',
+  'Subscriptions are not available yet': 'સબ્સ્ક્રિપ્શન હજુ ઉપલબ્ધ નથી',
+  'Store billing has not been configured for this build. Please try again after the app is updated.':
+      'આ બિલ્ડમાં સ્ટોર બિલિંગ સેટ નથી. ઍપ અપડેટ પછી ફરી પ્રયાસ કરો.',
+  'Connect to the internet': 'ઇન્ટરનેટ સાથે કનેક્ટ કરો',
   'Play billing isn’t connected yet.': 'Play બિલિંગ હજુ જોડાયેલ નથી.',
   'PLAN PRIVILEGES': 'પ્લાન સુવિધાઓ',
   'Included in Creovo Yearly': 'Creovo Yearlyમાં સામેલ',

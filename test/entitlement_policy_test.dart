@@ -8,6 +8,7 @@ import 'package:creovo_invoice/data/services/account_phone.dart';
 import 'package:creovo_invoice/data/services/app_storage.dart';
 import 'package:creovo_invoice/data/services/entitlement_policy.dart';
 import 'package:creovo_invoice/data/services/network_status.dart';
+import 'package:creovo_invoice/data/services/store_billing_service.dart';
 
 class _VerifiedAuth implements AccountAuthService {
   @override
@@ -27,6 +28,36 @@ class _VerifiedAuth implements AccountAuthService {
     isVerified = false;
     e164Mobile = null;
   }
+}
+
+class _StoreBillingStub implements StoreBilling {
+  _StoreBillingStub({this.configured = false, this.active = false});
+
+  @override
+  final bool configured;
+  final bool active;
+
+  @override
+  String? get priceLabel => configured ? '₹599' : null;
+
+  @override
+  Future<void> loadOffer() async {}
+
+  @override
+  Future<BillingAccess> access({bool refresh = false}) async =>
+      BillingAccess(active: active);
+
+  @override
+  Future<BillingResult> purchase() async => BillingResult.cancelled;
+
+  @override
+  Future<BillingResult> restore() async => BillingResult.notActive;
+
+  @override
+  Future<void> manage() async {}
+
+  @override
+  Future<void> resetIdentity() async {}
 }
 
 void main() {
@@ -249,6 +280,54 @@ void main() {
 
   test('account phone doc id matches the Firestore entitlement id', () {
     expect(AccountPhone.toDocId('+917048321663'), '917048321663');
+  });
+
+  test('unconfigured store still honors a cached paid flag', () async {
+    SharedPreferences.setMockInitialValues({
+      AppStorageKeyConst.entitlementMobile: '+917048321663',
+      AppStorageKeyConst.entitlementStatus: 'paid',
+      AppStorageKeyConst.entitlementPlanId: 'default',
+    });
+    final storage = await AppStorage.create();
+    final service = AccountEntitlementService(
+      storage: storage,
+      network: const FixedNetworkStatus(false),
+      clock: () => DateTime.utc(2026, 9, 10),
+      billing: _StoreBillingStub(configured: false),
+    );
+
+    expect(await service.resolve(_VerifiedAuth()), EntitlementAccess.active);
+    expect(service.lastSnapshot?.status, 'paid');
+  });
+
+  test('configured store ignores a cached Firestore paid flag', () async {
+    SharedPreferences.setMockInitialValues({
+      AppStorageKeyConst.entitlementMobile: '+917048321663',
+      AppStorageKeyConst.entitlementStatus: 'paid',
+      AppStorageKeyConst.entitlementPlanId: 'default',
+    });
+    final storage = await AppStorage.create();
+    final service = AccountEntitlementService(
+      storage: storage,
+      network: const FixedNetworkStatus(false),
+      clock: () => DateTime.utc(2026, 9, 10),
+      billing: _StoreBillingStub(configured: true),
+    );
+
+    expect(await service.resolve(_VerifiedAuth()), EntitlementAccess.expired);
+    expect(service.lastSnapshot?.status, 'expired');
+  });
+
+  test('active RevenueCat entitlement opens the shop', () async {
+    final service = AccountEntitlementService(
+      network: const FixedNetworkStatus(true),
+      clock: () => DateTime.utc(2026, 9, 10),
+      billing: _StoreBillingStub(configured: true, active: true),
+    );
+
+    expect(await service.resolve(_VerifiedAuth()), EntitlementAccess.active);
+    expect(service.lastSnapshot?.status, 'subscribed');
+    expect(service.lastSnapshot?.planId, 'revenuecat');
   });
 
   test('entitlement cache keys stay out of the backup whitelist', () {

@@ -31,6 +31,38 @@ data offline and keeps entitlement out of backups.
 
 ## Current implementation
 
+- Plan screen identifies sandbox purchases from RevenueCat metadata, shows paid
+  access and expiry rather than a fabricated 365-day progress bar, and no longer
+  claims auto-renewal is off without store evidence. Firebase purchase mirroring
+  is not configured; the phone-keyed entitlement document remains trial history.
+
+### Store billing integration — September 8 baseline
+
+- RevenueCat Flutter SDK is wired for Apple/Google annual subscriptions. See
+  [REVENUECAT_SETUP.md](REVENUECAT_SETUP.md) for all console/build/test steps.
+  Earlier "billing design only" / manual-paid notes below are historical.
+- `StoreBilling` is injected into the entitlement service. Firebase handles
+  trials; RevenueCat entitlement `creovo_pro` handles paid access, identified
+  by Firebase Auth UID. No new paid flags or business-data uploads are added.
+- Subscribe uses the current offering's annual package and localized store
+  price; fake ₹999 comparison and 50% discount are removed from checkout.
+  When RevenueCat keys or the annual offering are missing, the card shows
+  `₹499 / year` (from `plans/default` or the offer fallback) plus
+  “Price available from the store at checkout.” Subscribe still opens native
+  checkout once the store quote loads; it does not stop after the first tap.
+  Missing keys/products fail safely. Restore, cancel, error, pending and success
+  are explicit states; pending checks on resume or Check status, never by
+  charging again. Continue runs the normal startup gate. Manage renewal uses
+  the RevenueCat store URL when available. Changing number, OTP edit-number,
+  install-bound sign-out, and erase-data call RevenueCat `logOut`.
+- Configure public keys with RC_APPLE_API_KEY / RC_GOOGLE_API_KEY. Development
+  RC_TEST_API_KEY permits Test Store testing now; release ignores test keys.
+  RevenueCat paid data stays in SDK cache, outside backup; expired cached access
+  cannot grant a permanent unlock. Legacy Firestore `status=paid` is ignored
+  only when `StoreBilling.configured` is true (keys present). Unconfigured
+  debug builds still honor Firebase trial and paid flags. Firebase never stores
+  `status=expired`; a `trial` row whose `trialEndsAt` is in the past is expired.
+
 - Creovo Yearly has three benefit rows (no reminders row or Khata label).
   Its single Subscribe action overlaps the card's bottom border; the separate
   long Subscribe CTA is removed. Offline connection notice remains connected.
@@ -938,6 +970,26 @@ As of 2026-09-04:
 
 ## Known issues / next work
 
+- Confirm `plans/default` has `trialDays` number `90`. Existing entitlement
+  `917048321663` was created 3 Sep 2026 22:09 IST and ended 7 Sep 2026 22:09
+  IST (4 days, not 90). `status` stayed `trial`; the app correctly showed
+  Trial ended on 8 Sep 2026. Firebase CLI was not logged in from this session,
+  so that document was not rewritten here. If the short window was accidental,
+  set `trialEndsAt` to `trialStartedAt + 90 days` (2 Dec 2026 22:09:08 IST /
+  `2026-12-02T16:39:08Z`) and relaunch online. Do not auto-extend trials in
+  the client.
+
+- Configure RevenueCat Firebase extension for server-written purchase records
+  after user approves Blaze billing/infrastructure. Do not let the mobile client
+  write paid entitlement flags or overwrite original trial dates. See setup doc.
+
+- RevenueCat account, offering, entitlement, products and native sandbox tests
+  are pending. User has an Apple bundle ID only; Play Console is in progress.
+  No actual purchase has been made/tested. Follow REVENUECAT_SETUP.md before
+  release, including real legal/support URLs, restore-transfer policy and
+  store agreement/privacy requirements. Older plan-management auto-renew copy
+  needs release QA against actual cancellation state.
+
 - Subscription gate test syntax error fixed September 8; offline Subscribe
   dialog dismissal and repeated attempts now have regression coverage.
 
@@ -1055,6 +1107,57 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-08 — Store price fallback and configured billing gate
+
+- Paywall shows `₹499 / year` when the store quote is missing, with
+  “Price available from the store at checkout” as helper copy, not the
+  headline. Subscribe loads the offer then continues into checkout instead of
+  returning after the first tap. RevenueCat identity is cleared on number
+  change and other sign-out paths. Firestore `status=paid` is ignored only
+  after RevenueCat keys are present; unconfigured builds keep Firebase trial
+  and paid flags.
+- Files: store billing, entitlement service, subscription gate, plan tests,
+  Hindi/Gujarati coverage strings. No schema or Firebase writes from the
+  client. Document `entitlements/917048321663` remains a 4-day trial that
+  ended 7 Sep 2026; extend it in the console if that window was unintentional.
+- Verification: `subscription_gate_test`, `entitlement_policy_test`, and
+  `plan_screen_test`. Live Play/App Store price still requires RevenueCat
+  public keys and an annual offering.
+
+### 2026-09-08 — Correct paid plan validity presentation
+
+- Removed paid 365-day denominator/progress and rounded day countdown; display
+  paid subscription status, actual expiry time, and sandbox/no-charge labeling.
+  Removed hard-coded auto-renewal-off and renewal-date claims.
+- Files: plan screen, billing access model, entitlement snapshot/service.
+  Sandbox metadata is in-memory only; no storage migration or Firebase writes.
+- Android Test Store debug build launched on connected device earlier this session.
+  Firebase mirroring awaits extension setup and billing approval.
+- Verification: targeted analysis passed; subscription gate and entitlement
+  suites passed (21 tests). Device disconnected before UI hot restart, so the
+  updated plan screen still needs device visual verification.
+
+### 2026-09-08 — Subscription fee and onboarding notes
+
+- Added current standard platform commissions, RevenueCat threshold and a
+  tax-excluded illustrative calculation to REVENUECAT_SETUP.md, with official
+  sources. Documentation only; no app behavior changes.
+
+### 2026-09-08 — RevenueCat store subscription integration
+
+- Added purchases_flutter and url_launcher; service handles signed-in UID,
+  annual offering, purchase, restore, status and store management URL. Integrated
+  paid access with Firebase trial resolution without persisting paid state in
+  Firestore or backup. Missing configuration cannot pretend to complete a sale.
+- Subscription screen uses actual store price and confirmation/pending/success
+  UX; removed unsupported discount claims and manual-payment trust copy.
+  Added purchase outcome and restore widget coverage, preserving offline tests.
+- Added REVENUECAT_SETUP.md and superseded legacy direct-APK design guidance.
+  No schema migrations or externally provisioned resources. Test and native
+  verification: 25 subscription/startup/entitlement tests passed, targeted
+  analysis and diff whitespace checks passed. Native device builds and real
+  RevenueCat/store transactions have not been verified; console setup is pending.
 
 ### 2026-09-08 — Subscription hierarchy and offer emphasis
 

@@ -15,6 +15,7 @@ import '../../../app/widgets/app_notification.dart';
 import '../../../data/services/account_phone.dart';
 import '../../../data/services/entitlement_policy.dart';
 import '../controllers/plan_controller.dart';
+import '../../../data/services/store_billing_service.dart';
 
 abstract final class _PlanIcons {
   static const back = 'assets/icons/plan/back.svg';
@@ -203,9 +204,17 @@ class _HeroCard extends StatelessWidget {
     final total = snapshot?.licenseTotalDays ?? 90;
     final progress = snapshot?.licenseProgress() ?? 0;
     final endsAt = snapshot?.trialEndsAt;
-    final price = snapshot?.yearlyPriceLabel ?? '₹499/yr';
+    final price = snapshot?.isSandbox == true
+        ? 'Sandbox · No real charge'
+        : snapshot?.planId == 'revenuecat'
+        ? 'Billed by your app store'
+        : snapshot?.yearlyPriceLabel ?? 'Yearly plan';
     final status = paid || days > 0 ? 'ACTIVE' : 'ENDED';
-    final licenseLabel = paid ? 'Active License' : 'Trial License';
+    final licenseLabel = snapshot?.isSandbox == true
+        ? 'Test subscription'
+        : paid
+        ? 'Active License'
+        : 'Trial License';
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -433,7 +442,7 @@ class _HeroCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  days > 0 ? '$days' : (paid ? '—' : '0'),
+                                  paid ? 'Active' : '$days',
                                   style: AppTextStyles.displayAmount.copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w800,
@@ -447,9 +456,11 @@ class _HeroCard extends StatelessWidget {
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 3),
                                     child: Text(
-                                      days > 0 || !paid
-                                          ? 'Days Remaining'
-                                          : 'Yearly license',
+                                      paid
+                                          ? 'Subscription'
+                                          : (days == 1
+                                                ? 'Day Remaining'
+                                                : 'Days Remaining'),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: AppTextStyles.caption.copyWith(
@@ -465,52 +476,56 @@ class _HeroCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 3),
-                            child: Text(
-                              '$days of $total days left',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.caption.copyWith(
-                                color: const Color(0xFF9CA3AF),
-                                fontWeight: FontWeight.w400,
-                                fontSize: 11,
-                                height: 1,
+                          if (!paid)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 3),
+                              child: Text(
+                                '$days of $total days left',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.caption.copyWith(
+                                  color: const Color(0xFF9CA3AF),
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 11,
+                                  height: 1,
+                                ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Container(
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: const Color(0xE61E293B),
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: const Color(0x1AFFFFFF)),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final width = constraints.maxWidth * progress;
-                            return Align(
-                              alignment: Alignment.centerLeft,
-                              child: Container(
-                                width: width < 10 && progress > 0 ? 10 : width,
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color(0xFFFBBF24),
-                                      Color(0xFFF43F5E),
-                                      Color(0xFF34D399),
-                                    ],
+                      if (!paid)
+                        Container(
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: const Color(0xE61E293B),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(color: const Color(0x1AFFFFFF)),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final width = constraints.maxWidth * progress;
+                              return Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width: width < 10 && progress > 0
+                                      ? 10
+                                      : width,
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xFFFBBF24),
+                                        Color(0xFFF43F5E),
+                                        Color(0xFF34D399),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
-                      ),
                       const SizedBox(height: 12),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -525,13 +540,13 @@ class _HeroCard extends StatelessWidget {
                             child: Text.rich(
                               TextSpan(
                                 children: [
-                                  TextSpan(text: '${l10n('Renews')} '),
+                                  TextSpan(text: '${l10n('Access until')} '),
                                   TextSpan(
                                     text: endsAt == null
-                                        ? l10n('yearly')
-                                        : DateFormat.yMMMd().format(
-                                            endsAt.toLocal(),
-                                          ),
+                                        ? l10n('No expiry provided')
+                                        : DateFormat(
+                                            'd MMM y, HH:mm',
+                                          ).format(endsAt.toLocal()),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
@@ -539,7 +554,7 @@ class _HeroCard extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              maxLines: 1,
+                              maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.caption.copyWith(
                                 color: const Color(0xFFE5E7EB),
@@ -596,10 +611,9 @@ class _AutoRenewStrip extends StatelessWidget {
     final ink = isDark ? AppColors.darkTextPrimary : _PlanUi.ink;
     final muted = isDark ? AppColors.darkTextSecondary : _PlanUi.muted;
     final endsAt = snapshot?.trialEndsAt;
-    final price = snapshot?.offerPriceInr ?? 499;
     final nextCharge = endsAt == null
-        ? 'Play billing isn’t connected yet.'
-        : 'Next charge ₹$price on ${DateFormat.yMMMd().format(endsAt.toLocal())}';
+        ? 'Check renewal details in your store account.'
+        : 'Access through ${DateFormat.yMMMd().format(endsAt.toLocal())}. Manage renewal in your store account.';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(15, 13, 15, 13),
@@ -637,7 +651,7 @@ class _AutoRenewStrip extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        'Auto-Renewal is Off',
+                        'Subscription management',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.caption.copyWith(
@@ -1375,9 +1389,13 @@ class _PlanIcon extends StatelessWidget {
   }
 }
 
-void _showManageRenewal() {
-  AppNotification.info(
-    'Manage renewal',
-    'Yearly billing from Play Store or App Store is not connected yet. Refresh plan to re-check this number.',
-  );
+Future<void> _showManageRenewal() async {
+  try {
+    await Get.find<StoreBilling>().manage();
+  } catch (_) {
+    AppNotification.info(
+      'Manage renewal',
+      'Open Subscriptions in your App Store or Google Play account settings.',
+    );
+  }
 }

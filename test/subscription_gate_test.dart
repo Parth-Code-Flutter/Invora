@@ -8,6 +8,7 @@ import 'package:creovo_invoice/data/services/account_auth_service.dart';
 import 'package:creovo_invoice/data/services/account_entitlement_service.dart';
 import 'package:creovo_invoice/data/services/entitlement_policy.dart';
 import 'package:creovo_invoice/data/services/network_status.dart';
+import 'package:creovo_invoice/data/services/store_billing_service.dart';
 import 'package:creovo_invoice/modules/account/controllers/subscription_gate_controller.dart';
 import 'package:creovo_invoice/modules/account/screens/subscription_gate_screen.dart';
 
@@ -19,9 +20,12 @@ void main() {
   Future<void> pumpGate(
     WidgetTester tester, {
     required EntitlementAccess access,
+    StoreBilling? billing,
+    bool online = false,
   }) async {
     final entitlements = AccountEntitlementService(
-      network: const FixedNetworkStatus(false),
+      network: FixedNetworkStatus(online),
+      billing: billing,
     );
     entitlements.lastAccess = access;
     entitlements.lastSnapshot = EntitlementSnapshot(
@@ -55,8 +59,14 @@ void main() {
 
     expect(find.text('Keep creating GST invoices'), findsOneWidget);
     expect(find.text('Creovo Yearly'), findsOneWidget);
-    expect(find.text('SAVE 50% TODAY'), findsOneWidget);
-    expect(find.text('₹499'), findsOneWidget);
+    expect(find.text('SAVE 50% TODAY'), findsNothing);
+    expect(find.text('₹499 / year'), findsOneWidget);
+    expect(
+      find.text(
+        'Price available from the store at checkout. Auto-renews yearly.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Subscribe'), findsOneWidget);
     expect(find.text('Payment reminders & WhatsApp share'), findsNothing);
     expect(find.text('Products, stock & customers'), findsOneWidget);
@@ -67,6 +77,66 @@ void main() {
     expect(find.byIcon(Icons.close_rounded), findsNothing);
     expect(find.widgetWithText(AppButton, 'Subscribe'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  for (final result in [
+    BillingResult.active,
+    BillingResult.pending,
+    BillingResult.cancelled,
+  ]) {
+    testWidgets('store purchase maps $result without granting pending access', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(400, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final billing = _FakeBilling(result);
+      await pumpGate(
+        tester,
+        access: EntitlementAccess.expired,
+        billing: billing,
+        online: true,
+      );
+      await Get.find<SubscriptionGateController>().loadOffer();
+      await tester.pumpAndSettle();
+      expect(find.text('₹599 / year'), findsOneWidget);
+      await tester.tap(find.widgetWithText(AppButton, 'Subscribe'));
+      await tester.pumpAndSettle();
+      expect(billing.purchases, 1);
+      expect(
+        Get.find<SubscriptionGateController>().stage.value,
+        result == BillingResult.active
+            ? SubscriptionStage.success
+            : result == BillingResult.pending
+            ? SubscriptionStage.pending
+            : SubscriptionStage.offer,
+      );
+      if (result == BillingResult.pending) {
+        expect(find.text('Waiting for payment confirmation'), findsOneWidget);
+        billing.active = true;
+        await tester.tap(find.text('Check status'));
+        await tester.pumpAndSettle();
+        expect(find.text('You’re subscribed!'), findsOneWidget);
+        expect(billing.purchases, 1);
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('restore does not start a new purchase', (tester) async {
+    final billing = _FakeBilling(BillingResult.active);
+    await pumpGate(
+      tester,
+      access: EntitlementAccess.expired,
+      billing: billing,
+      online: true,
+    );
+    await Get.find<SubscriptionGateController>().restore(
+      tester.element(find.byType(SubscriptionGateScreen)),
+    );
+    await tester.pumpAndSettle();
+    expect(billing.purchases, 0);
+    expect(find.text('You’re subscribed!'), findsOneWidget);
   });
 
   testWidgets('last-day offline prompt asks to turn internet on', (
@@ -117,4 +187,33 @@ void main() {
     expect(find.text('Connect to the internet'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+}
+
+class _FakeBilling implements StoreBilling {
+  @override
+  Future<void> manage() async {}
+  _FakeBilling(this.result);
+  final BillingResult result;
+  int purchases = 0;
+  bool active = false;
+  @override
+  bool get configured => true;
+  @override
+  String get priceLabel => '₹599';
+  @override
+  Future<void> loadOffer() async {}
+  @override
+  Future<BillingAccess> access({bool refresh = false}) async =>
+      BillingAccess(active: active);
+  @override
+  Future<BillingResult> purchase() async {
+    purchases++;
+    return result;
+  }
+
+  @override
+  Future<BillingResult> restore() async => result;
+
+  @override
+  Future<void> resetIdentity() async {}
 }

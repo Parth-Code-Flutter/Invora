@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -17,7 +17,9 @@ remain intentionally out of scope until explicitly requested.
   Add CTA inside the shared 160×160 / 20px / 13px empty graphic. The list FAB
   stays hidden while that CTA is on screen. There is no All catalog tab.
 - Online splash re-reads Firestore `status` and `trialEndsAt`. An expired trial
-  opens Creovo Yearly as the selected plan with Subscribe. The last trial day
+  opens Creovo Yearly with Subscribe. If RevenueCat has not returned a
+  localized price, the card shows `₹499 / year` and “Price available from
+  the store at checkout,” not a fake discount. The last trial day
   while offline asks to turn on internet. Entitlement prefs are not restored
   from a backup ZIP.
 
@@ -202,8 +204,9 @@ remain intentionally out of scope until explicitly requested.
   business setup does not change the account number. Do not create
   `entitlements` in the console by hand.
 - Plan gate: with internet, an entitlement whose `trialEndsAt` is in the past
-  must open the Stitch yearly subscribe page (₹499, SAVE 50%, Refresh plan),
-  not Home. There is no close/Restore header. On the last trial date in
+  must open the yearly subscribe page (store price when RevenueCat is
+  configured; otherwise `₹499 / year` plus store-at-checkout copy; no SAVE
+  50%), not Home. There is no close/Restore header. On the last trial date in
   airplane mode, confirm Turn on internet and the warm splash illustration.
   After reconnecting, either continue or show Creovo Yearly with Subscribe.
   Restore a backup and confirm

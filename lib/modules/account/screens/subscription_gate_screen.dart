@@ -27,6 +27,9 @@ class SubscriptionGateScreen extends GetView<SubscriptionGateController> {
       backgroundColor: isDark ? AppColors.darkBackground : Colors.white,
       body: SafeArea(
         child: Obx(() {
+          if (controller.stage.value != SubscriptionStage.offer) {
+            return _PurchaseProgress(controller: controller);
+          }
           final connect = controller.needsNetwork;
           final snapshot = controller.snapshot;
           return ListView(
@@ -66,7 +69,11 @@ class SubscriptionGateScreen extends GetView<SubscriptionGateController> {
               const SizedBox(height: 28),
               _YearlyPlanCard(
                 snapshot: snapshot,
-                showOfferBadge: !connect,
+                showOfferBadge: false,
+                yearlyPrice: controller.displayedYearlyPrice,
+                storeCaption: controller.hasLiveStorePrice
+                    ? 'Auto-renews yearly. Cancel in your store account settings.'
+                    : 'Price available from the store at checkout. Auto-renews yearly.',
                 subscribeAction: connect
                     ? null
                     : AppButton(
@@ -80,7 +87,10 @@ class SubscriptionGateScreen extends GetView<SubscriptionGateController> {
                       ),
               ),
               const SizedBox(height: 12),
-              const _TrustRow(),
+              const Text(
+                'Payment is handled securely by your app store.',
+                textAlign: TextAlign.center,
+              ),
               if (controller.errorMessage.value.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 _ErrorBanner(message: controller.errorMessage.value),
@@ -102,7 +112,7 @@ class SubscriptionGateScreen extends GetView<SubscriptionGateController> {
                 isDark: isDark,
                 connect: connect,
                 working: controller.working.value,
-                onRefresh: controller.retry,
+                onRefresh: () => controller.restore(context),
                 onChangeNumber: controller.useDifferentNumber,
               ),
             ],
@@ -189,19 +199,20 @@ class _YearlyPlanCard extends StatelessWidget {
   const _YearlyPlanCard({
     required this.showOfferBadge,
     this.snapshot,
+    this.yearlyPrice,
+    this.storeCaption,
     this.subscribeAction,
   });
   final Widget? subscribeAction;
 
   final EntitlementSnapshot? snapshot;
+  final String? yearlyPrice;
+  final String? storeCaption;
   final bool showOfferBadge;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final price = snapshot?.offerPriceInr ?? 499;
-    final listPrice = snapshot?.offerListPriceInr ?? 999;
-    final monthly = snapshot?.offerMonthlyInr ?? 41;
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -299,63 +310,16 @@ class _YearlyPlanCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 8,
-                      children: [
-                        Text(
-                          '₹$price',
-                          style: AppTextStyles.displayAmount.copyWith(
-                            fontSize: 24,
-                            color: isDark
-                                ? AppColors.darkTextPrimary
-                                : AppColors.textPrimary,
-                          ),
-                        ),
-                        Text(
-                          '₹$listPrice',
-                          style: AppTextStyles.body.copyWith(
-                            fontSize: 12,
-                            color: AppColors.textTertiary,
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                        Text(
-                          '/ year',
-                          style: AppTextStyles.caption.copyWith(
-                            color: AppColors.textTertiary,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 11,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '50% OFF',
-                            style: AppTextStyles.caption.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
                     Text(
-                      '${l10n('Billed annually')} (${l10n('Just')} ₹$monthly / ${l10n('month')})',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.success,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                      ),
+                      yearlyPrice ??
+                          '₹${snapshot?.offerPriceInr ?? 499} / year',
+                      style: AppTextStyles.displayAmount.copyWith(fontSize: 24),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      storeCaption ??
+                          'Auto-renews yearly. Cancel in your store account settings.',
+                      style: const TextStyle(fontSize: 12, height: 1.4),
                     ),
                   ],
                 ),
@@ -461,53 +425,6 @@ class _SaveBadge extends StatelessWidget {
   }
 }
 
-class _TrustRow extends StatelessWidget {
-  const _TrustRow();
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final muted = isDark
-        ? AppColors.darkTextSecondary
-        : AppColors.textSecondary;
-    return Row(
-      children: [
-        Icon(Icons.verified_rounded, size: 14, color: AppColors.success),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            '100% Safe UPI & Cards',
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.success,
-              fontWeight: FontWeight.w700,
-              fontSize: 11,
-            ),
-          ),
-        ),
-        Row(
-          children: [
-            for (var i = 0; i < 5; i++)
-              const Icon(
-                Icons.star_rounded,
-                size: 12,
-                color: Color(0xFFF5A524),
-              ),
-          ],
-        ),
-        const SizedBox(width: 6),
-        Text(
-          '4.9 / 5',
-          style: AppTextStyles.caption.copyWith(
-            color: muted,
-            fontWeight: FontWeight.w700,
-            fontSize: 11,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _FooterLinks extends StatelessWidget {
   const _FooterLinks({
     required this.isDark,
@@ -530,7 +447,7 @@ class _FooterLinks extends StatelessWidget {
       children: [
         if (!connect)
           Text(
-            'Instant activation • No hidden charges • Cancel anytime',
+            'Your store confirms the price and renewal terms before payment.',
             textAlign: TextAlign.center,
             style: AppTextStyles.caption.copyWith(
               color: muted,
@@ -554,7 +471,7 @@ class _FooterLinks extends StatelessWidget {
                 ),
                 children: [
                   TextSpan(
-                    text: 'Refresh plan',
+                    text: 'Restore purchases',
                     style: AppTextStyles.caption.copyWith(
                       color: AppColors.secondary,
                       fontWeight: FontWeight.w800,
@@ -674,3 +591,80 @@ const _features = [
     subtitle: 'Zero internet required. Safe, private, and local.',
   ),
 ];
+
+class _PurchaseProgress extends StatelessWidget {
+  const _PurchaseProgress({required this.controller});
+  final SubscriptionGateController controller;
+  @override
+  Widget build(BuildContext context) {
+    final state = controller.stage.value;
+    final success = state == SubscriptionStage.success;
+    final pending = state == SubscriptionStage.pending;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: success
+                      ? AppColors.successLight
+                      : AppColors.primaryLight,
+                ),
+                child: Icon(
+                  success
+                      ? Icons.verified_rounded
+                      : Icons.hourglass_top_rounded,
+                  size: 44,
+                  color: success ? AppColors.success : AppColors.secondary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                success
+                    ? 'You’re subscribed!'
+                    : pending
+                    ? 'Waiting for payment confirmation'
+                    : 'Confirming your subscription',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.sectionTitle,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                success
+                    ? 'Your Creovo access is ready. Let’s get back to your business.'
+                    : pending
+                    ? 'Your store has not confirmed payment yet. Complete any instructions from Apple or Google. You do not need to pay again.'
+                    : 'Follow the store instructions. We’ll verify your subscription automatically.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              if (controller.working.value)
+                const CircularProgressIndicator()
+              else
+                AppButton(
+                  label: success ? 'Continue' : 'Check status',
+                  onPressed: success
+                      ? controller.continueAfterPurchase
+                      : controller.checkPurchase,
+                ),
+              if (controller.errorMessage.value.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  controller.errorMessage.value,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

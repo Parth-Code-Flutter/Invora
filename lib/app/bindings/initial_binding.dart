@@ -46,6 +46,7 @@ import '../../modules/invoices/controllers/invoice_list_controller.dart';
 import '../../modules/delivery_challans/controllers/delivery_challan_controller.dart';
 import '../../modules/purchase_orders/controllers/purchase_order_controller.dart';
 import '../controllers/app_controller.dart';
+import '../../data/services/store_billing_service.dart';
 
 class InitialBinding extends Bindings {
   InitialBinding(this.appStorage, this.databaseService, {this.accountAuth});
@@ -62,7 +63,10 @@ class InitialBinding extends Bindings {
       permanent: true,
     );
     Get.put<AccountEntitlementService>(
-      AccountEntitlementService(storage: appStorage),
+      AccountEntitlementService(
+        storage: appStorage,
+        billing: Get.put<StoreBilling>(RevenueCatBilling(), permanent: true),
+      ),
       permanent: true,
     );
     Get.put<EntitlementGuard>(EntitlementGuard(), permanent: true);

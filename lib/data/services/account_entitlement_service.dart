@@ -8,6 +8,7 @@ import 'account_phone.dart';
 import 'app_storage.dart';
 import 'entitlement_policy.dart';
 import 'network_status.dart';
+import 'store_billing_service.dart';
 
 class AccountEntitlementService {
   AccountEntitlementService({
@@ -15,12 +16,14 @@ class AccountEntitlementService {
     this.network = const DnsNetworkStatus(),
     this.clock,
     this.firestore,
+    this.billing,
   });
 
   final AppStorage? storage;
   final NetworkStatus network;
   final DateTime Function()? clock;
   final FirebaseFirestore? firestore;
+  final StoreBilling? billing;
 
   FirebaseFirestore get _db => firestore ?? FirebaseFirestore.instance;
 
@@ -40,6 +43,10 @@ class AccountEntitlementService {
     await resolve(auth);
   }
 
+  Future<void> resetStoreIdentity() async {
+    await billing?.resetIdentity();
+  }
+
   Future<EntitlementAccess> resolve(AccountAuthService auth) async {
     if (auth is SkipAccountAuthService) {
       lastSyncError = '';
@@ -53,6 +60,27 @@ class AccountEntitlementService {
     }
 
     final online = await network.isOnline;
+    if (billing?.configured == true) {
+      try {
+        final paid = await billing!.access(refresh: online);
+        if (paid.active) {
+          lastSnapshot = EntitlementSnapshot(
+            mobile: phone,
+            status: 'subscribed',
+            planId: 'revenuecat',
+            trialEndsAt: paid.expiresAt,
+            isSandbox: paid.isSandbox,
+            planTitle: 'Creovo Yearly',
+          );
+          lastAccess = EntitlementAccess.active;
+          lastSyncError = '';
+          return lastAccess;
+        }
+      } catch (_) {
+        // Store unavailability must not invent paid access; the existing trial
+        // can still be resolved from Firebase or its account-bound cache.
+      }
+    }
     EntitlementSnapshot? remote;
     var usedServer = false;
     if (online) {
@@ -87,7 +115,17 @@ class AccountEntitlementService {
       }
     }
 
-    final snapshot = remote ?? _readCache(phone);
+    var snapshot = remote ?? _readCache(phone);
+    if (billing?.configured == true && snapshot?.isPaid == true) {
+      // Live store builds never treat a console-set Firestore paid flag as a
+      // purchase. Builds without RevenueCat keys still honor Firebase trial
+      // and legacy paid flags so local/debug shops are not locked out.
+      snapshot = EntitlementSnapshot(
+        mobile: phone,
+        status: 'expired',
+        planId: 'default',
+      );
+    }
     if (usedServer && snapshot != null) {
       await _persist(snapshot, _now);
     } else if (!online) {

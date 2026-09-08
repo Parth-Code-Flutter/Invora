@@ -82,6 +82,9 @@ abstract final class StartupNavigator {
       return;
     }
     if (account.isVerified) {
+      if (Get.isRegistered<AccountEntitlementService>()) {
+        await Get.find<AccountEntitlementService>().resetStoreIdentity();
+      }
       await account.signOut();
     }
     await storage.setBool(

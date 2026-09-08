@@ -69,7 +69,7 @@ void main() {
     expect(find.text('ACTIVE'), findsOneWidget);
     expect(find.text('VALIDITY & STATUS'), findsOneWidget);
     expect(find.text('Trial License'), findsOneWidget);
-    expect(find.text('Auto-Renewal is Off'), findsOneWidget);
+    expect(find.text('Subscription management'), findsOneWidget);
     expect(find.text('PLAN PRIVILEGES'), findsOneWidget);
     expect(find.text('Unlimited GST Bills'), findsOneWidget);
     expect(find.text('Ledger & Khata'), findsOneWidget);

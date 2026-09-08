@@ -152,6 +152,7 @@ class AccountOtpController extends GetxController {
     otp.clear();
     errorMessage.value = '';
     if (_auth.isVerified) {
+      await _entitlements.resetStoreIdentity();
       await _auth.signOut();
     }
   }
