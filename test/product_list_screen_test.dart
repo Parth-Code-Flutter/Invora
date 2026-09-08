@@ -84,6 +84,7 @@ void main() {
         type: ItemType.product,
         unit: 'box',
         salePriceMinor: 125050,
+        trackStock: true,
         hsnSac: '4802',
         taxRateBasisPoints: 1800,
         createdAt: now,
@@ -106,6 +107,9 @@ void main() {
     expect(find.text('Name · A–Z'), findsOneWidget);
     expect(find.text('1 item'), findsOneWidget);
     expect(find.textContaining('HSN 4802'), findsOneWidget);
+    expect(find.textContaining('Stock: 0 box'), findsOneWidget);
+    expect(find.textContaining('GST'), findsNothing);
+    expect(find.textContaining('On hand'), findsNothing);
     expect(find.byType(FloatingActionButton), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

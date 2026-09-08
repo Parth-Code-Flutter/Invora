@@ -10,7 +10,6 @@ import '../../../app/routes/app_routes.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/responsive_utils.dart';
 import '../../../app/utils/quantity_utils.dart';
-import '../../../app/utils/tax_utils.dart';
 import '../../../app/widgets/app_amount_text.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_catalog_empty_state.dart';
@@ -325,14 +324,17 @@ class _ProductCatalogTile extends StatelessWidget {
     final tertiary = isDark
         ? AppColors.darkTextSecondary
         : AppColors.textTertiary;
-    final meta = [
-      if (showType) item.type.label,
-      if (item.hsnSac?.trim().isNotEmpty ?? false) 'HSN ${item.hsnSac!.trim()}',
-      'GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}',
-    ].join(' · ');
+    final hsn = item.hsnSac?.trim() ?? '';
     final attributes = item.attributes.isEmpty
         ? null
         : item.attributes.take(3).map((value) => value.value).join(' · ');
+    final subtitle = [
+      if (showType) item.type.label,
+      if (hsn.isNotEmpty) 'HSN $hsn',
+      ?attributes,
+      if (onHandScaled != null)
+        '${l10n('Stock:')} ${QuantityUtils.formatSigned(onHandScaled!)} ${item.unit}',
+    ].join(' · ');
 
     return GestureDetector(
       onLongPress: () => _showActions(context),
@@ -388,22 +390,19 @@ class _ProductCatalogTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.listName,
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          [
-                            meta,
-                            ?attributes,
-                            if (onHandScaled != null)
-                              'On hand ${QuantityUtils.formatSigned(onHandScaled!)} ${item.unit}',
-                          ].join(' · '),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.caption.copyWith(
-                            color: secondary,
-                            fontSize: 11,
-                            height: 1.35,
+                        if (subtitle.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.caption.copyWith(
+                              color: secondary,
+                              fontSize: 11,
+                              height: 1.35,
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ),

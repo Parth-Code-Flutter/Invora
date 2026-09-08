@@ -94,6 +94,8 @@ remain intentionally out of scope until explicitly requested.
   optional format-checked copy only — no government portal lookup or
   Verified badge. Footer does not claim cloud sync.
 - Product/service create, filter, edit, units, GST presets, and soft delete.
+  Catalog list rows do not show GST; stock reads **Stock: qty unit**.
+  Rate remains on details and the form.
 - Create Invoice empty composer follows Figma `4210:1075` (pink `#INV-`
   pill, nested customer card, no DATE/TERMS until a line exists, items
   header inside the card, cream inner panel, compact Add Product / dashed

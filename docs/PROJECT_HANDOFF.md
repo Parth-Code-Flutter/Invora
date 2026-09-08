@@ -575,7 +575,8 @@ stores.
   counts beside the labels. Items sit in one compact list with hairline
   dividers (no red stripe, no separate puffy cards). Search and scan in the
   AppBar share the same chrome. Products / Services stay full-width
-  without horizontal scrolling. Name, details, price, and unit stay aligned.
+  without horizontal scrolling. Name, HSN, attributes, **Stock: qty unit**,
+  price, and unit stay aligned. GST rate stays on the item record, not the list.
   Tablet layouts retain responsive multi-column containment.
   The details screen is a focused item record with one compact identity and
   price/unit/GST summary, one non-duplicative information section, an optional
@@ -1108,6 +1109,26 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-08 — Catalog list says Stock
+
+- Catalog rows that keep stock now read **Stock: 20 pcs** instead of
+  **On hand 20 pcs**. GST remains off the list. Cash book and stock reports
+  still use On hand.
+- Important files: `product_list_screen.dart`,
+  `coverage_translation_maps.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/product_list_screen_test.dart`.
+
+### 2026-09-08 — Catalog list hides GST
+
+- Product and service rows no longer show `GST 0%` (or any GST rate) in
+  the subtitle. The list keeps HSN, attributes, and on-hand stock; GST
+  remains on the item details record and in the add/edit form.
+- Important files: `product_list_screen.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/product_list_screen_test.dart`.
 
 ### 2026-09-08 — Empty invoice items art sits on the cream card
 

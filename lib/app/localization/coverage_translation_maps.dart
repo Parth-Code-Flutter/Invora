@@ -52,6 +52,7 @@ const Map<String, String> appHindiCoverageTranslations = {
       'नकद, बैंक, UPI, ट्रांसफर और दैनिक बंद',
   'Add account': 'खाता जोड़ें',
   'On hand': 'पास',
+  'Stock:': 'स्टॉक:',
   'Close cash': 'नकद बंद करें',
   'Advances': 'अग्रिम',
   'Accounts': 'खाते',
@@ -1873,8 +1874,7 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Select state': 'राज्य चुनें',
   'Search state': 'राज्य खोजें',
   'No matching state': 'कोई मेल खाता राज्य नहीं',
-  'Save and create new invoice immediately':
-      'सहेजें और तुरंत नया इनवॉइस बनाएँ',
+  'Save and create new invoice immediately': 'सहेजें और तुरंत नया इनवॉइस बनाएँ',
   'Save Customer': 'ग्राहक सहेजें',
   'Instant offline save • Stays on this device':
       'तुरंत ऑफ़लाइन सेव • इसी डिवाइस पर रहता है',
@@ -1979,6 +1979,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
       'રોકડ, બેંક, UPI, ટ્રાન્સફર અને દૈનિક બંધ',
   'Add account': 'ખાતું ઉમેરો',
   'On hand': 'પાસે',
+  'Stock:': 'સ્ટોક:',
   'Close cash': 'રોકડ બંધ કરો',
   'Advances': 'એડવાન્સ',
   'Accounts': 'ખાતાં',
@@ -3788,8 +3789,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Select state': 'રાજ્ય પસંદ કરો',
   'Search state': 'રાજ્ય શોધો',
   'No matching state': 'મેળ ખાતું રાજ્ય નથી',
-  'Save and create new invoice immediately':
-      'સાચવો અને તરત નવું ઇનવોઇસ બનાવો',
+  'Save and create new invoice immediately': 'સાચવો અને તરત નવું ઇનવોઇસ બનાવો',
   'Save Customer': 'ગ્રાહક સાચવો',
   'Instant offline save • Stays on this device':
       'તરત ઑફલાઇન સેવ • આ ડિવાઇસ પર રહે છે',
