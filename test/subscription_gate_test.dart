@@ -53,22 +53,19 @@ void main() {
 
     await pumpGate(tester, access: EntitlementAccess.expired);
 
-    expect(
     expect(find.text('Keep creating GST invoices'), findsOneWidget);
-    );
     expect(find.text('Creovo Yearly'), findsOneWidget);
     expect(find.text('SAVE 50% TODAY'), findsOneWidget);
     expect(find.text('₹499'), findsOneWidget);
-    expect(find.text('Subscribe to Creovo Yearly'), findsOneWidget);
+    expect(find.text('Subscribe'), findsOneWidget);
+    expect(find.text('Payment reminders & WhatsApp share'), findsNothing);
+    expect(find.text('Products, stock & customers'), findsOneWidget);
     expect(find.text('Unlimited GST invoices & PDFs'), findsOneWidget);
     expect(find.text('Check subscription'), findsNothing);
     expect(find.text('Use a different phone number'), findsOneWidget);
     expect(find.text('RESTORE'), findsNothing);
     expect(find.byIcon(Icons.close_rounded), findsNothing);
-    expect(
-      find.widgetWithText(AppButton, 'Subscribe to Creovo Yearly'),
-      findsOneWidget,
-    );
+    expect(find.widgetWithText(AppButton, 'Subscribe'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -90,11 +87,34 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Turn on internet & continue'), findsOneWidget);
-    expect(find.text('Subscribe to Creovo Yearly'), findsNothing);
-    expect(
-      find.text('Keep creating GST invoices'),
-      findsNothing,
-    );
+    expect(find.text('Subscribe'), findsNothing);
+    expect(find.text('Keep creating GST invoices'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('offline subscribe shows notice and stays on gate', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await pumpGate(tester, access: EntitlementAccess.expired);
+    final subscribe = find.widgetWithText(AppButton, 'Subscribe');
+    await tester.ensureVisible(subscribe);
+    await tester.tap(subscribe);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Connect to the internet'), findsOneWidget);
+    expect(Get.find<SubscriptionGateController>().working.value, isTrue);
+    await tester.tap(find.text('Got it'));
+    await tester.pumpAndSettle();
+    expect(find.text('Connect to the internet'), findsNothing);
+    expect(find.byType(SubscriptionGateScreen), findsOneWidget);
+    expect(Get.find<SubscriptionGateController>().working.value, isFalse);
+    await tester.tap(subscribe);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Connect to the internet'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

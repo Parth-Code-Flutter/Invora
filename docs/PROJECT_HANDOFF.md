@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -30,6 +30,14 @@ data offline and keeps entitlement out of backups.
 - Local PDF generation, preview, save, share, and print
 
 ## Current implementation
+
+- Creovo Yearly has three benefit rows (no reminders row or Khata label).
+  Its single Subscribe action overlaps the card's bottom border; the separate
+  long Subscribe CTA is removed. Offline connection notice remains connected.
+
+- Offline Subscribe now checks connectivity and shows the common connection
+  notice dialog without leaving the subscription gate. Online continuation
+  is unchanged; this does not implement subscription checkout.
 
 ### Store identity (not submitted)
 
@@ -930,6 +938,9 @@ As of 2026-09-04:
 
 ## Known issues / next work
 
+- Subscription gate test syntax error fixed September 8; offline Subscribe
+  dialog dismissal and repeated attempts now have regression coverage.
+
 1. Physical-device QA of the unified shell: splash → OTP → onboarding →
    business setup → Home; dock Home / Documents / Products / Parties / More;
    Sales|Purchases and Customers|Suppliers tabs; list FABs create invoice,
@@ -1044,6 +1055,35 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-08 — Subscription hierarchy and offer emphasis
+
+- Moved the renewal heading, explanatory copy and expiry badge above the yearly
+  card. Reduced the hero to a wide 200px presentation. Added a warm bordered
+  price panel and stronger discount badge; widened Subscribe with a trailing
+  arrow while retaining its border-overlap placement and offline guard.
+- No storage or subscription behavior changes. Subscription tests and targeted
+  analysis verify the screen; device visual QA remains.
+
+### 2026-09-08 — Compact yearly plan action
+
+- Removed reminders benefit and Khata wording in the subscription gate card.
+  Moved Subscribe to a centered, bottom-border-overlapping button within the
+  card layout, reserving its full hit area. Kept connection-only CTA unchanged.
+- No data changes. Subscription widget tests cover updated copy and offline
+  action; targeted analysis is run for the screen and tests.
+
+### 2026-09-08 — Offline subscription notice
+
+- Subscribe checks the entitlement service's network status before continuing.
+  Offline users see `showAppNoticeDialog` with a Wi-Fi-off icon, connection
+  instructions and Got it. They remain on the gate; duplicate taps are guarded.
+- Updated subscription gate controller/screen and repaired the existing test
+  syntax error. Added offline dismissal/retry coverage. No storage changes or
+  migrations; online continuation is unchanged.
+- Verification: all three subscription gate widget tests passed; targeted
+  static analysis passed. Existing subscription SVG unsupported-element
+  warnings remain; device visual QA was not performed.
 
 ### 2026-09-07 — Create Invoice empty items Figma card
 

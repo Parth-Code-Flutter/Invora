@@ -33,14 +33,10 @@ class SubscriptionGateScreen extends GetView<SubscriptionGateController> {
             padding: EdgeInsets.fromLTRB(pad, 12, pad, 20),
             children: [
               if (connect) const _ConnectHero() else const _SubscribeHero(),
-              const SizedBox(height: 14),
-              _YearlyPlanCard(snapshot: snapshot, showOfferBadge: !connect),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
               Text(
                 connect ? 'Turn on internet' : 'Keep creating GST invoices',
                 textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.pageTitle.copyWith(
                   fontSize: 18,
                   height: 1.2,
@@ -67,6 +63,22 @@ class SubscriptionGateScreen extends GetView<SubscriptionGateController> {
                 const SizedBox(height: 8),
                 _StatusPill(connect: connect, endsAt: snapshot!.trialEndsAt!),
               ],
+              const SizedBox(height: 28),
+              _YearlyPlanCard(
+                snapshot: snapshot,
+                showOfferBadge: !connect,
+                subscribeAction: connect
+                    ? null
+                    : AppButton(
+                        label: 'Subscribe',
+                        trailingIcon: Icons.arrow_forward_rounded,
+                        radius: 16,
+                        isLoading: controller.working.value,
+                        onPressed: controller.working.value
+                            ? null
+                            : () => controller.subscribe(context),
+                      ),
+              ),
               const SizedBox(height: 12),
               const _TrustRow(),
               if (controller.errorMessage.value.isNotEmpty) ...[
@@ -74,25 +86,17 @@ class SubscriptionGateScreen extends GetView<SubscriptionGateController> {
                 _ErrorBanner(message: controller.errorMessage.value),
               ],
               const SizedBox(height: 14),
-              AppConstrainedAction(
-                child: connect
-                    ? AppButton(
-                        label: 'Turn on internet & continue',
-                        trailingIcon: Icons.wifi_rounded,
-                        isLoading: controller.working.value,
-                        onPressed: controller.working.value
-                            ? null
-                            : controller.retry,
-                      )
-                    : AppButton(
-                        label: 'Subscribe to Creovo Yearly',
-                        trailingIcon: Icons.arrow_forward_rounded,
-                        isLoading: controller.working.value,
-                        onPressed: controller.working.value
-                            ? null
-                            : controller.subscribe,
-                      ),
-              ),
+              if (connect)
+                AppConstrainedAction(
+                  child: AppButton(
+                    label: 'Turn on internet & continue',
+                    trailingIcon: Icons.wifi_rounded,
+                    isLoading: controller.working.value,
+                    onPressed: controller.working.value
+                        ? null
+                        : controller.retry,
+                  ),
+                ),
               const SizedBox(height: 10),
               _FooterLinks(
                 isDark: isDark,
@@ -117,11 +121,12 @@ class _SubscribeHero extends StatelessWidget {
     return Semantics(
       image: true,
       label: 'Creovo yearly plan',
-      child: AspectRatio(
-        aspectRatio: 390 / 320,
+      child: SizedBox(
+        height: 200,
+        width: double.infinity,
         child: SvgPicture.asset(
           SubscriptionGateScreen.headerAsset,
-          fit: BoxFit.contain,
+          fit: BoxFit.fill,
           placeholderBuilder: (_) => const SizedBox.expand(),
         ),
       ),
@@ -181,7 +186,12 @@ class _StatusPill extends StatelessWidget {
 }
 
 class _YearlyPlanCard extends StatelessWidget {
-  const _YearlyPlanCard({required this.showOfferBadge, this.snapshot});
+  const _YearlyPlanCard({
+    required this.showOfferBadge,
+    this.snapshot,
+    this.subscribeAction,
+  });
+  final Widget? subscribeAction;
 
   final EntitlementSnapshot? snapshot;
   final bool showOfferBadge;
@@ -196,8 +206,15 @@ class _YearlyPlanCard extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
+          key: const ValueKey('yearly-plan-card'),
+          margin: EdgeInsets.only(bottom: subscribeAction == null ? 0 : 24),
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(16, showOfferBadge ? 22 : 16, 16, 16),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            showOfferBadge ? 22 : 16,
+            16,
+            subscribeAction == null ? 16 : 36,
+          ),
           decoration: BoxDecoration(
             color: isDark ? AppColors.darkSurface : Colors.white,
             borderRadius: BorderRadius.circular(22),
@@ -273,7 +290,10 @@ class _YearlyPlanCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isDark
                       ? AppColors.darkSurfaceVariant
-                      : const Color(0xFFF7F4F8),
+                      : const Color(0xFFFFF1EC),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: .3),
+                  ),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Column(
@@ -314,15 +334,15 @@ class _YearlyPlanCard extends StatelessWidget {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryLight,
+                            color: AppColors.primary,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             '50% OFF',
                             style: AppTextStyles.caption.copyWith(
-                              color: AppColors.primaryDark,
+                              color: Colors.white,
                               fontWeight: FontWeight.w800,
-                              fontSize: 9,
+                              fontSize: 11,
                             ),
                           ),
                         ),
@@ -396,6 +416,8 @@ class _YearlyPlanCard extends StatelessWidget {
             ],
           ),
         ),
+        if (subscribeAction != null)
+          Positioned(bottom: 0, left: 32, right: 32, child: subscribeAction!),
         if (showOfferBadge)
           const Positioned(
             top: -12,
@@ -641,7 +663,7 @@ const _features = [
     icon: Icons.inventory_2_outlined,
     color: AppColors.secondary,
     background: AppColors.secondaryLight,
-    title: 'Products, stock, customers & khata',
+    title: 'Products, stock & customers',
     subtitle: 'Low stock alerts and balances stay on this phone.',
   ),
   _PlanFeature(
@@ -650,12 +672,5 @@ const _features = [
     background: AppColors.successLight,
     title: 'Works 100% offline — data stays on phone',
     subtitle: 'Zero internet required. Safe, private, and local.',
-  ),
-  _PlanFeature(
-    icon: Icons.chat_bubble_outline_rounded,
-    color: Color(0xFF2563EB),
-    background: Color(0xFFDBEAFE),
-    title: 'Payment reminders & WhatsApp share',
-    subtitle: 'Share a prepared reminder to collect faster.',
   ),
 ];
