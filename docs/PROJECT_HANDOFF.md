@@ -1107,6 +1107,16 @@ documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
 
+### 2026-09-08 — Restore iOS 15 deployment target for Firebase SPM
+
+- Xcode Runner had drifted back to iOS 13.0, so Firebase Auth/Core/Firestore
+  SPM products failed Target Integrity on the simulator. All three Runner
+  configurations are 15.0 again (Podfile was already 15.0).
+- Important files: `ios/Runner.xcodeproj/project.pbxproj`, this handoff.
+- Storage: none.
+- Verification: `IPHONEOS_DEPLOYMENT_TARGET = 15.0` in Debug, Profile, and
+  Release. Re-run the iOS simulator after this change.
+
 ### 2026-09-08 — Paywall price comes only from RevenueCat
 
 - Removed the ₹499 paywall fallback so the card shows the RevenueCat
