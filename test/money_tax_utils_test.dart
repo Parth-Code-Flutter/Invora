@@ -26,6 +26,13 @@ void main() {
     expect(CurrencyUtils.compactShopParts(1000000000), ('1', 'crore'));
     expect(CurrencyUtils.compactShopLabel(6500000), '65k');
     expect(CurrencyUtils.compactShopLabel(40000000), '4 lakh');
+    expect(CurrencyUtils.compactShopDisplay(0), '0');
+    expect(CurrencyUtils.compactShopDisplay(549000), '5.5k');
+    expect(CurrencyUtils.compactShopDisplay(19000000), '1.9 lakh');
+    expect(
+      CurrencyUtils.compactShopDisplay(40000000, localize: (key) => 'लाख'),
+      '4 लाख',
+    );
   });
 
   test('provides current common Indian GST rate presets', () {

@@ -57,11 +57,11 @@ void main() {
     );
 
     expect(find.text('Received'), findsOneWidget);
-    expect(find.text('₹11,000'), findsOneWidget);
+    expect(find.text('11k'), findsOneWidget);
     expect(find.text('Pending'), findsOneWidget);
-    expect(find.text('₹18,760'), findsOneWidget);
+    expect(find.text('19k'), findsOneWidget);
     expect(find.text('Overdue'), findsOneWidget);
-    expect(find.text('₹8,580'), findsOneWidget);
+    expect(find.text('8.6k'), findsOneWidget);
     expect(find.text('This month'), findsNothing);
     expect(tester.takeException(), isNull);
   });

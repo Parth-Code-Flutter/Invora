@@ -308,10 +308,10 @@ class _ProductCatalogTile extends StatelessWidget {
     final stock = onHandScaled == null
         ? null
         : '${l10n('Stock:')} ${QuantityUtils.formatSigned(onHandScaled!)} ${item.unit}';
-    final compact = CurrencyUtils.compactShopParts(item.salePriceMinor);
-    final amount = compact.$2 == null
-        ? compact.$1
-        : '${compact.$1} ${l10n(compact.$2!)}';
+    final amount = CurrencyUtils.compactShopDisplay(
+      item.salePriceMinor,
+      localize: l10n,
+    );
     return Material(
       color: Colors.transparent,
       child: Ink(

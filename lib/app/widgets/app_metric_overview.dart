@@ -4,7 +4,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 
 import '../constants/app_colors.dart';
 import '../themes/app_text_styles.dart';
-import 'app_amount_text.dart';
+import '../utils/currency_utils.dart';
 
 class AppMetricOverviewItem {
   const AppMetricOverviewItem({
@@ -139,14 +139,24 @@ class _MetricTile extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
-            child: AppAmountText(
-              amountMinor: item.amountMinor,
-              symbol: symbol,
-              textAlign: TextAlign.start,
-              style: AppTextStyles.listAmount.copyWith(
-                fontSize: 16,
-                height: 24 / 16,
-                letterSpacing: -0.4,
+            child: Semantics(
+              label: CurrencyUtils.formatMinor(
+                item.amountMinor,
+                symbol: symbol,
+              ),
+              child: Text(
+                CurrencyUtils.compactShopDisplay(
+                  item.amountMinor,
+                  localize: l10n,
+                ),
+                maxLines: 1,
+                softWrap: false,
+                textAlign: TextAlign.start,
+                style: AppTextStyles.listAmount.copyWith(
+                  fontSize: 16,
+                  height: 24 / 16,
+                  letterSpacing: -0.4,
+                ),
               ),
             ),
           ),

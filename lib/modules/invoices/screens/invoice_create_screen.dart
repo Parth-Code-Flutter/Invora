@@ -1172,7 +1172,7 @@ class _CustomerDetailsSection extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final customer = controller.customer.value;
     return AppCard(
-      padding: const EdgeInsets.all(17),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       color: isDark ? AppColors.darkSurface : Colors.white,
       borderColor: isDark ? AppColors.darkBorder : _ComposerUi.cardLine,
       child: Column(
@@ -1218,7 +1218,7 @@ class _CustomerDetailsSection extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           if (customer == null)
             Material(
               color: Colors.transparent,
@@ -1227,8 +1227,8 @@ class _CustomerDetailsSection extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
+                    horizontal: 12,
+                    vertical: 10,
                   ),
                   decoration: BoxDecoration(
                     color: isDark
@@ -1313,7 +1313,7 @@ class _SelectedCustomerCard extends StatelessWidget {
         onTap: () => _selectCustomer(context, controller),
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           decoration: BoxDecoration(
             color: isDark
                 ? AppColors.darkSurfaceVariant
@@ -1323,185 +1323,160 @@ class _SelectedCustomerCard extends StatelessWidget {
               color: isDark ? AppColors.darkBorder : _ComposerUi.innerLine,
             ),
           ),
-          child: Column(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isDark
-                            ? AppColors.darkBorder
-                            : _ComposerUi.cardLine,
-                      ),
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Color(0x1AF43F5E), Color(0x1A843B62)],
-                      ),
-                    ),
-                    child: Text(
-                      _partyInitials(displayName),
-                      style: AppTextStyles.cardTitle.copyWith(
-                        color: _ComposerUi.plum,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+              Container(
+                width: 36,
+                height: 36,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark ? AppColors.darkBorder : _ComposerUi.cardLine,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          displayName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.listName.copyWith(
-                            color: isDark
-                                ? AppColors.darkTextPrimary
-                                : const Color(0xFF0F172A),
-                          ),
-                        ),
-                        if (contact.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            contact,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.caption.copyWith(
-                              fontWeight: FontWeight.w400,
-                              color: isDark
-                                  ? AppColors.darkTextSecondary
-                                  : _ComposerUi.mutedBody,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0x1AF43F5E), Color(0x1A843B62)],
                   ),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    size: 16,
-                    color: AppColors.textTertiary,
-                  ),
-                ],
-              ),
-              if (gstin.isNotEmpty || balance >= 0) ...[
-                const SizedBox(height: 12),
-                Divider(
-                  height: 1,
-                  color: isDark
-                      ? AppColors.darkBorder
-                      : const Color(0xFFF5F5F4),
                 ),
-                const SizedBox(height: 11),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                child: Text(
+                  _partyInitials(displayName),
+                  style: AppTextStyles.cardTitle.copyWith(
+                    color: _ComposerUi.plum,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (gstin.isNotEmpty)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (_gstinLooksValid(gstin))
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 7,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFECFDF5),
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(
-                                    color: const Color(0xFFA7F3D0),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Looks valid',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: const Color(0xFF047857),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    height: 16 / 10,
-                                  ),
+                    Text(
+                      displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.listName.copyWith(
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    if (contact.isNotEmpty) ...[
+                      const SizedBox(height: 1),
+                      Text(
+                        contact,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption.copyWith(
+                          fontWeight: FontWeight.w400,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : _ComposerUi.mutedBody,
+                        ),
+                      ),
+                    ],
+                    if (gstin.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          if (_gstinLooksValid(gstin)) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFECFDF5),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: const Color(0xFFA7F3D0),
                                 ),
                               ),
-                            if (_gstinLooksValid(gstin))
-                              const SizedBox(height: 6),
-                            Text(
+                              child: Text(
+                                'Looks valid',
+                                style: AppTextStyles.caption.copyWith(
+                                  color: const Color(0xFF047857),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  height: 14 / 10,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          Flexible(
+                            child: Text(
                               gstin,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.caption.copyWith(
                                 fontWeight: FontWeight.w400,
                                 fontSize: 11,
-                                height: 16 / 11,
+                                height: 14 / 11,
                                 color: isDark
                                     ? AppColors.darkTextSecondary
                                     : const Color(0xFF57534E),
                               ),
                             ),
-                          ],
-                        ),
-                      )
-                    else
-                      const Spacer(),
-                    Row(
-                      children: [
-                        Text(
-                          'Balance:',
-                          style: AppTextStyles.caption.copyWith(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 11,
-                            color: isDark
-                                ? AppColors.darkTextSecondary
-                                : _ComposerUi.muted,
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: balance > 0
-                                ? AppColors.warningLight
-                                : const Color(0xFFECFDF5),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                              color: balance > 0
-                                  ? AppColors.warning.withValues(alpha: 0.4)
-                                  : const Color(0x99A7F3D0),
-                            ),
-                          ),
-                          child: Text(
-                            balance > 0
-                                ? CurrencyUtils.formatMinor(
-                                    balance,
-                                    symbol: symbol,
-                                  )
-                                : '$symbol 0 (${l10n('Clear')})',
-                            style: AppTextStyles.caption.copyWith(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 11,
-                              height: 16 / 11,
-                              color: balance > 0
-                                  ? AppColors.warning
-                                  : const Color(0xFF059669),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
-              ],
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Balance',
+                    style: AppTextStyles.caption.copyWith(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 10,
+                      height: 14 / 10,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : _ComposerUi.muted,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: balance > 0
+                          ? AppColors.warningLight
+                          : const Color(0xFFECFDF5),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: balance > 0
+                            ? AppColors.warning.withValues(alpha: 0.4)
+                            : const Color(0x99A7F3D0),
+                      ),
+                    ),
+                    child: Text(
+                      balance > 0
+                          ? CurrencyUtils.formatMinor(balance, symbol: symbol)
+                          : '$symbol 0 (${l10n('Clear')})',
+                      style: AppTextStyles.caption.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                        height: 16 / 11,
+                        color: balance > 0
+                            ? AppColors.warning
+                            : const Color(0xFF059669),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

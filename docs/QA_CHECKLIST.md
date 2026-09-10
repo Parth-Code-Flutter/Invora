@@ -13,6 +13,9 @@ remain intentionally out of scope until explicitly requested.
   counts line up with their labels. Phone-dock icons share one baseline. Tap or
   horizontal swipe preserves the active list state without a travelling tab bar.
   Themed AppBars have no hairline under the bar.
+- Documents Sales and Purchase payment tiles (Received / Pending / Overdue)
+  use the same compact shop amounts as catalog rows (`99` / `1k` / `4.5k` /
+  `4 lakh`) via `CurrencyUtils.compactShopDisplay`.
 - Catalog Products / Services empty screens use the Figma illustrations
   and copy (No products yet, No services yet) with an in-list
   Add CTA inside the shared 160×160 / 20px / 13px empty graphic. The list FAB
@@ -106,7 +109,8 @@ remain intentionally out of scope until explicitly requested.
   pill, nested customer card, no DATE/TERMS until a line exists, items
   header inside the card, cream inner panel, compact Add Product / dashed
   Add Service, compact notes row, WhatsApp footer control). Customer
-  picker still opens first. GSTIN is Looks valid only. WhatsApp from the
+  picker still opens first. A selected customer is a compact identity row
+  with balance on the right. GSTIN is Looks valid only. WhatsApp from the
   composer explains share waits until save. Review still opens preview.
   Filled item cards have no extra edit control and no trash beside the
   line total; quantity 1 minus still confirms remove.

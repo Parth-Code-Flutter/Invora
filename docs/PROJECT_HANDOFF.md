@@ -665,9 +665,9 @@ stores.
   `#FFF8F5` page, circular back, pink `#INV-…` pill (tap to edit number),
   `{business} • GST Tax Invoice` subtitle. New invoices still open the
   customer picker first, then land on the composer. Empty customer is **Add
-  Customer** inside the customer card; a selected customer shows a rounded
-  square initial, phone • city, GSTIN **Looks valid** (format only, never
-  Verified), and an on-device **Balance** chip. DATE / TERMS stay off the
+  Customer** inside the customer card; a selected customer shows a compact
+  row: initials, name, phone, GSTIN **Looks valid** when present, and the
+  on-device **Balance** chip on the right (no extra divider row). DATE / TERMS stay off the
   empty composer and appear after the first line. Empty items keep Invoice
   Items + count + **Scan barcode** in one card, with a cream inner panel,
   144px illustration, **No items added yet**, compact gradient Add Product,
@@ -716,7 +716,9 @@ stores.
   rows are built during initial display and scrolling. System reduced-motion
   settings bypass the entrance animation.
 - The invoice list begins with a responsive, theme-aware business summary for
-  received, pending, overdue, and current-month invoice totals. Summary values
+  received, pending, overdue, and current-month invoice totals. Those payment
+  tiles use the same shop-style compact amounts as catalog rows (`99`, `1k`,
+  `4.5k`, `4 lakh`) via `CurrencyUtils.compactShopDisplay`. Summary values
   always use the complete invoice collection and remain stable while users
   search or filter the visible list. Compact customer-led invoice cards use an
   initial avatar, invoice/customer/date hierarchy, a status badge and colored
@@ -1118,6 +1120,27 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-10 — Sales and purchase tiles use compact shop amounts
+
+- Received / Pending / Overdue (and purchase Paid / Payable / Overdue)
+  use `CurrencyUtils.compactShopDisplay`, the same method as catalog prices.
+  VoiceOver still speaks the full rupee amount.
+- Important files: `currency_utils.dart`, `app_metric_overview.dart`,
+  `product_list_screen.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/money_tax_utils_test.dart`,
+  `test/invoice_list_overview_test.dart`.
+
+### 2026-09-10 — Compact selected-customer card on Create Invoice
+
+- The selected customer is one row (initials, name/phone, balance) instead
+  of a tall nested card with a divider. GSTIN stays on that row when
+  present. Looks valid only; never Verified.
+- Important files: `invoice_create_screen.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`.
 
 ### 2026-09-10 — List create FAB is a circle only
 

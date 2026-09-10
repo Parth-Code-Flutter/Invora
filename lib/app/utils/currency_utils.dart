@@ -48,9 +48,17 @@ abstract final class CurrencyUtils {
     return ('$sign${abs.round()}', null);
   }
 
-  static String compactShopLabel(int minor) {
-    final parts = compactShopParts(minor);
-    return parts.$2 == null ? parts.$1 : '${parts.$1} ${parts.$2}';
+  static String compactShopLabel(int minor) => compactShopDisplay(minor);
+
+  /// Shop-style amount for catalog rows and payment tiles: `99`, `1k`,
+  /// `4.5k`, `4 lakh`. Pass [localize] so `lakh` / `crore` follow the app language.
+  static String compactShopDisplay(
+    int minor, {
+    String Function(String key)? localize,
+  }) {
+    final (amount, scale) = compactShopParts(minor);
+    if (scale == null) return amount;
+    return '$amount ${localize?.call(scale) ?? scale}';
   }
 
   static String _oneDecimal(double value) {
