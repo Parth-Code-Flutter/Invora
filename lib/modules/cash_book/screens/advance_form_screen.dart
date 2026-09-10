@@ -13,6 +13,7 @@ import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_notification.dart';
+import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/cash_book_models.dart';
 import '../controllers/cash_book_controller.dart';
@@ -212,23 +213,19 @@ class AdvanceFormScreen extends GetView<AdvanceFormController> {
                                 controller.method.value = value,
                           ),
                           const SizedBox(height: 10),
-                          TextField(
+                          AppTextField(
                             controller: controller.amount,
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),
-                            decoration: const InputDecoration(
-                              labelText: 'Amount',
-                              hintText: '0.00',
-                            ),
+                            label: 'Amount',
+                            hint: '0.00',
                           ),
                           const SizedBox(height: 10),
-                          TextField(
+                          AppTextField(
                             controller: controller.note,
-                            decoration: const InputDecoration(
-                              labelText: 'Note (optional)',
-                              hintText: 'e.g. Advance against next bill',
-                            ),
+                            label: 'Note (optional)',
+                            hint: 'e.g. Advance against next bill',
                           ),
                           const SizedBox(height: 16),
                           AppButton(

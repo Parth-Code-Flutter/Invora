@@ -22,6 +22,7 @@ import '../../../app/widgets/app_outlined_button.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_notification.dart';
+import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/app_status_chip.dart';
 import '../../../data/models/credit_note_model.dart';
 import '../../../data/models/invoice_model.dart';
@@ -1439,19 +1440,16 @@ class _PaymentReversalDialogState extends State<_PaymentReversalDialog> {
           'This keeps the original payment and adds a linked reversal. The invoice balance and status will be recalculated.',
         ),
         const SizedBox(height: 14),
-        TextField(
+        AppTextField(
           controller: reason,
           autofocus: true,
           minLines: 2,
           maxLines: 2,
-          textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
           textCapitalization: TextCapitalization.sentences,
-          decoration: InputDecoration(
-            labelText: l10n('Reversal reason *'),
-            hintText: l10n('e.g. Payment entered twice'),
-            alignLabelWithHint: true,
-            errorText: error,
-          ),
+          label: 'Reversal reason',
+          requiredField: true,
+          hint: 'e.g. Payment entered twice',
+          errorText: error,
         ),
       ],
     ),
@@ -1562,7 +1560,7 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               symbol: symbol,
             ),
             const SizedBox(height: 14),
-            TextField(
+            AppTextField(
               controller: input,
               autofocus: true,
               enabled: !isSaving,
@@ -1570,16 +1568,13 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                 decimal: true,
               ),
               textInputAction: TextInputAction.done,
-              decoration: InputDecoration(
-                labelText: l10n('Amount received now'),
-                hintText: l10n('0.00'),
-                prefixText: '$symbol ',
-                helperText: l10n(
+              label: 'Amount received now',
+              hint: '0.00',
+              prefixText: '$symbol ',
+              helperText:
                   'Remaining: ${CurrencyUtils.formatMinor(invoice.calculation.balanceDueMinor, symbol: symbol)}',
-                ),
-                errorText: error,
-              ),
-              onSubmitted: (_) => _save(),
+              errorText: error,
+              onFieldSubmitted: (_) => _save(),
             ),
             const SizedBox(height: 12),
             AppDropdownField<String>(
@@ -1651,27 +1646,23 @@ class _PaymentSheetState extends State<_PaymentSheet> {
               ),
             ],
             const SizedBox(height: 12),
-            TextField(
+            AppTextField(
               controller: reference,
               enabled: !isSaving,
               textInputAction: TextInputAction.next,
-              decoration: InputDecoration(
-                labelText: l10n('Reference number (optional)'),
-                hintText: l10n('UPI ref, cheque no. or UTR'),
-                prefixIcon: Icon(Icons.tag_rounded),
-              ),
+              label: 'Reference number (optional)',
+              hint: 'UPI ref, cheque no. or UTR',
+              prefixIcon: Icons.tag_rounded,
             ),
             const SizedBox(height: 12),
-            TextField(
+            AppTextField(
               controller: note,
               enabled: !isSaving,
               textInputAction: TextInputAction.done,
-              decoration: InputDecoration(
-                labelText: l10n('Note (optional)'),
-                hintText: l10n('e.g. Paid at the counter'),
-                prefixIcon: Icon(Icons.notes_rounded),
-              ),
-              onSubmitted: (_) => _save(),
+              label: 'Note (optional)',
+              hint: 'e.g. Paid at the counter',
+              prefixIcon: Icons.notes_rounded,
+              onFieldSubmitted: (_) => _save(),
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(

@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-09-10
+Last updated: 2026-09-11
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -243,7 +243,9 @@ stores.
   console for reliable Phone OTP on a device.
 - Empty text fields show relevant 12px grey hint copy (examples or expected
   format) via `AppTextStyles.hint`. Shared `AppTextField`s, search bars, and
-  remaining invoice/purchase/cash-book `TextField`s all pick this up.
+  date pickers use this chrome. Create Invoice notes/terms/opening payment
+  and other leftover form `TextField`s now use `AppTextField` like Create
+  Customer and Create Product.
   Single-line hints sit on the field midline; multi-line areas keep the hint
   at the top.
 - One app after OTP and business setup: splash, onboarding, and first save
@@ -665,20 +667,21 @@ stores.
 - Customer and valid items required before final save, preview, PDF, sharing,
   printing, or payment; incomplete work may be saved as a draft
 - New invoices match Figma Create Invoice empty (`4210:1075`): cream
-  `#FFF8F5` page, circular back, pink `#INV-…` pill (tap to edit number),
-  `{business} • GST Tax Invoice` subtitle. New invoices still open the
-  customer picker first, then land on the composer. Empty customer is **Add
-  Customer** inside the customer card; a selected customer shows a compact
-  row: initials, name, phone, GSTIN **Looks valid** when present, and the
-  on-device **Balance** chip on the right (no extra divider row). DATE / TERMS stay off the
-  empty composer and appear after the first line. Empty items keep Invoice
-  Items + count + **Scan barcode** in one card, with a cream inner panel,
-  144px illustration, **No items added yet**, compact gradient Add Product,
-  and white dashed Add Service. A compact **Invoice Notes & Terms** row
+  `#FFF8F5` page, circular back, pink `#INV-…` pill (tap to edit number).
+  No shop-name subtitle. New invoices still open the
+  customer picker first, then land on the composer. The customer card matches
+  New purchase bill’s supplier card: gradient identity strip, 48px branded
+  avatar, **Choose a customer** / **Select** or name + company · mobile · GSTIN
+  with **Change**, then compact Date / Due date cells in the same card. There is no
+  supplier bill-number field (invoice number stays in the AppBar pill) and no
+  Balance chip. Empty items keep Invoice Items + count + **Scan barcode**
+  in one card, with a cream inner panel,
+  144px illustration, **No items added yet**, and one centered **Add Items**
+  button that opens the catalog picker. A compact **Invoice Notes & Terms** row
   sits under the empty card. The footer is a WhatsApp button (save-first
   notice, no share from an unsaved composer) plus disabled **Add items to
   continue**; after a line exists it becomes **Review invoice** (still
-  opens preview) and Draft + defaults return in the header. Caption: Saved
+  opens preview) and a bookmark saves the draft (filled after save). Caption: Saved
   offline on phone • Ready for PDF & WhatsApp share.
 - Customer selection uses a focused searchable bottom sheet. Saved catalog
   selection uses a dedicated full-screen workspace designed for 100+ records,
@@ -1126,6 +1129,63 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-11 — Shared AppTextField on invoice notes and leftover forms
+
+- Create Invoice notes, terms, opening payment, and composer sheets use
+  `AppTextField` (label above the field), matching Create Customer / Product.
+  Purchase, cash book, invoice defaults, payment, and unit dialogs that
+  still used floating `labelText` fields were converted the same way.
+- Important files: `app_text_field.dart`, `invoice_create_screen.dart`,
+  `invoice_details_screen.dart`, `purchase_screens.dart`, cash-book and
+  settings forms, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`.
+
+### 2026-09-11 — Create Invoice empty items uses one Add Items button
+
+- Empty composer items replace Add Product / Add Service with one centered
+  **Add Items** button that opens the catalog picker. Customer name on the
+  identity strip is 14px.
+- Important files: `invoice_create_screen.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`.
+
+### 2026-09-11 — Create Invoice customer card matches purchase bill
+
+- The composer customer card uses the same identity strip, Change/Select
+  pill, and Date / Due date row as New purchase bill’s supplier card. Invoice
+  number stays in the AppBar; there is no supplier bill-number field and no
+  Balance chip. Dates stay on the card even with zero lines; the date cells
+  are a compact strip rather than tall tiles.
+- Important files: `invoice_create_screen.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`,
+  `test/responsive_layout_test.dart`.
+
+### 2026-09-11 — Create Invoice header bookmark and compact item rows
+
+- Composer header keeps only the invoice-number pill. Shop name / Tax
+  Invoice subtitle and the defaults gear are gone. Draft is a bookmark
+  that fills after a draft save. Line cards put the editable unit price
+  on the name row and drop the extra line-total amount. Item names use
+  the 14px list style.
+- Important files: `invoice_create_screen.dart`,
+  `invoice_create_controller.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`.
+
+### 2026-09-11 — Create Invoice drops the Customer Details header
+
+- The composer no longer shows a CUSTOMER DETAILS / Change row. Add
+  Customer and the selected compact card stay; tap the card to change.
+- Important files: `invoice_create_screen.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`,
+  `test/responsive_layout_test.dart`.
 
 ### 2026-09-10 — Add saved items uses catalog Products | Services tabs
 

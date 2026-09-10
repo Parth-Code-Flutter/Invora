@@ -6,6 +6,7 @@ import '../../data/services/unit_service.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import 'app_dialog.dart';
+import 'app_text_field.dart';
 import '../themes/app_text_styles.dart';
 import '../utils/app_focus.dart';
 import 'app_field_label.dart';
@@ -238,18 +239,15 @@ class _CreateUnitDialogState extends State<_CreateUnitDialog> {
     form: true,
     scrollable: true,
     title: const Text('Create unit'),
-    content: TextField(
+    content: AppTextField(
       controller: controller,
       autofocus: true,
       maxLength: 20,
-      textAlignVertical: TextAlignVertical.center,
       textCapitalization: TextCapitalization.none,
       textInputAction: TextInputAction.done,
-      decoration: InputDecoration(
-        labelText: l10n('Unit name'),
-        hintText: l10n('e.g. bundle, plate, session'),
-      ),
-      onSubmitted: (_) => _submit(),
+      label: 'Unit name',
+      hint: 'e.g. bundle, plate, session',
+      onFieldSubmitted: (_) => _submit(),
     ),
     actions: [
       AppDialogButton(

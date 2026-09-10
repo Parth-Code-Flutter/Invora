@@ -1498,6 +1498,10 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Update challan': 'चालान अपडेट करें',
   'Who is this challan for?': 'यह चालान किसके लिए है?',
   'Choose a customer': 'ग्राहक चुनें',
+  'Required for this invoice': 'इस इनवॉइस के लिए आवश्यक',
+  'Required for this quotation': 'इस कोटेशन के लिए आवश्यक',
+  'Due date': 'देय तारीख',
+  'DUE DATE': 'देय तारीख',
   'Choose the party receiving these goods.': 'माल पाने वाली पार्टी चुनें।',
   'Create your first customer to start this challan.':
       'यह चालान शुरू करने के लिए पहला ग्राहक बनाएँ।',
@@ -1903,6 +1907,7 @@ const Map<String, String> appHindiCoverageTranslations = {
   'Add due date': 'देय तिथि जोड़ें',
   'Invoice Items': 'इनवॉइस आइटम',
   'Add Item': 'आइटम जोड़ें',
+  'Add Items': 'आइटम जोड़ें',
   'No items added yet': 'अभी कोई आइटम नहीं',
   'Add products from your catalog or scan a barcode to build this invoice.':
       'कैटलॉग से प्रोडक्ट जोड़ें या बारकोड स्कैन करके यह इनवॉइस बनाएँ।',
@@ -3414,6 +3419,10 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Update challan': 'ચલણ અપડેટ કરો',
   'Who is this challan for?': 'આ ચલણ કોના માટે છે?',
   'Choose a customer': 'ગ્રાહક પસંદ કરો',
+  'Required for this invoice': 'આ ઇન્વોઇસ માટે જરૂરી',
+  'Required for this quotation': 'આ કોટેશન માટે જરૂરી',
+  'Due date': 'ચૂકવવાની તારીખ',
+  'DUE DATE': 'ચૂકવવાની તારીખ',
   'Choose the party receiving these goods.': 'માલ મેળવનાર પાર્ટી પસંદ કરો.',
   'Create your first customer to start this challan.':
       'આ ચલણ શરૂ કરવા પહેલો ગ્રાહક બનાવો.',
@@ -3820,6 +3829,7 @@ const Map<String, String> appGujaratiCoverageTranslations = {
   'Add due date': 'ચુકવણી તારીખ ઉમેરો',
   'Invoice Items': 'ઇનવોઇસ આઇટમ',
   'Add Item': 'આઇટમ ઉમેરો',
+  'Add Items': 'આઇટમ ઉમેરો',
   'No items added yet': 'હજુ કોઈ આઇટમ નથી',
   'Add products from your catalog or scan a barcode to build this invoice.':
       'કેટલોગમાંથી પ્રોડક્ટ ઉમેરો અથવા બારકોડ સ્કેન કરીને આ ઇનવોઇસ બનાવો.',

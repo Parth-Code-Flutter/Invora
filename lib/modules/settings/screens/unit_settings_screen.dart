@@ -7,6 +7,7 @@ import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_dialog.dart';
+import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../controllers/unit_settings_controller.dart';
 
@@ -246,19 +247,16 @@ class _UnitEditorDialogState extends State<_UnitEditorDialog> {
     icon: Icons.straighten_rounded,
     form: true,
     title: Text(widget.current == null ? 'Add a unit' : 'Rename unit'),
-    content: TextField(
+    content: AppTextField(
       controller: input,
       autofocus: true,
       enabled: !saving,
-      textAlignVertical: TextAlignVertical.center,
       textCapitalization: TextCapitalization.none,
       textInputAction: TextInputAction.done,
-      decoration: InputDecoration(
-        labelText: l10n('Unit name'),
-        hintText: l10n('e.g. bundle'),
-        errorText: error,
-      ),
-      onSubmitted: (_) => _save(),
+      label: 'Unit name',
+      hint: 'e.g. bundle',
+      errorText: error,
+      onFieldSubmitted: (_) => _save(),
     ),
     actions: [
       AppDialogButton(

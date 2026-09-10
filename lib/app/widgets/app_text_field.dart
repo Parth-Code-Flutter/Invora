@@ -20,10 +20,14 @@ class AppTextField extends StatelessWidget {
     this.inputFormatters,
     this.maxLines = 1,
     this.minLines,
+    this.maxLength,
     this.prefixIcon,
     this.prefixIconWidget,
     this.prefix,
+    this.prefixText,
     this.suffixIcon,
+    this.suffixText,
+    this.errorText,
     this.obscureText = false,
     this.textCapitalization = TextCapitalization.none,
     this.onChanged,
@@ -46,10 +50,14 @@ class AppTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final int maxLines;
   final int? minLines;
+  final int? maxLength;
   final IconData? prefixIcon;
   final Widget? prefixIconWidget;
   final Widget? prefix;
+  final String? prefixText;
   final Widget? suffixIcon;
+  final String? suffixText;
+  final String? errorText;
   final bool obscureText;
   final TextCapitalization textCapitalization;
   final ValueChanged<String>? onChanged;
@@ -106,6 +114,7 @@ class AppTextField extends StatelessWidget {
         inputFormatters: inputFormatters,
         minLines: resolvedMinLines,
         maxLines: resolvedMaxLines,
+        maxLength: maxLength,
         obscureText: obscureText,
         autocorrect: !obscureText,
         enableSuggestions: !obscureText,
@@ -130,8 +139,11 @@ class AppTextField extends StatelessWidget {
           contentPadding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
           prefixIconConstraints: iconConstraints,
           prefixIcon: prefix ?? icon,
+          prefixText: prefixText,
           suffixIcon: suffixIcon,
+          suffixText: suffixText,
           suffixIconConstraints: iconConstraints,
+          errorText: errorText,
           focusedBorder: focusColor == null
               ? null
               : OutlineInputBorder(

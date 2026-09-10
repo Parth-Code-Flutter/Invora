@@ -15,6 +15,7 @@ import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_notification.dart';
+import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/app_snapshot_visuals.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/cash_book_models.dart';
@@ -148,13 +149,11 @@ class CashBookScreen extends GetView<CashBookController> {
                     title: account == null ? 'Add account' : 'Rename account',
                   ),
                   const SizedBox(height: 16),
-                  TextField(
+                  AppTextField(
                     controller: name,
                     textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'Account name',
-                      hintText: 'e.g. Shop cash or HDFC current',
-                    ),
+                    label: 'Account name',
+                    hint: 'e.g. Shop cash or HDFC current',
                   ),
                   const SizedBox(height: 10),
                   AppDropdownField<MoneyAccountType>(
@@ -174,15 +173,13 @@ class CashBookScreen extends GetView<CashBookController> {
                   ),
                   if (account == null) ...[
                     const SizedBox(height: 10),
-                    TextField(
+                    AppTextField(
                       controller: opening,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Opening balance (optional)',
-                        hintText: '0.00',
-                      ),
+                      label: 'Opening balance (optional)',
+                      hint: '0.00',
                     ),
                   ],
                   const SizedBox(height: 16),
@@ -294,23 +291,19 @@ class CashBookScreen extends GetView<CashBookController> {
                     onChanged: (value) => setState(() => toId = value),
                   ),
                   const SizedBox(height: 10),
-                  TextField(
+                  AppTextField(
                     controller: amount,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    decoration: const InputDecoration(
-                      labelText: 'Amount',
-                      hintText: '0.00',
-                    ),
+                    label: 'Amount',
+                    hint: '0.00',
                   ),
                   const SizedBox(height: 10),
-                  TextField(
+                  AppTextField(
                     controller: note,
-                    decoration: const InputDecoration(
-                      labelText: 'Note (optional)',
-                      hintText: 'e.g. Moved cash to bank',
-                    ),
+                    label: 'Note (optional)',
+                    hint: 'e.g. Moved cash to bank',
                   ),
                   const SizedBox(height: 16),
                   AppButton(
@@ -377,23 +370,19 @@ class CashBookScreen extends GetView<CashBookController> {
                 ),
               ),
               const SizedBox(height: 12),
-              TextField(
+              AppTextField(
                 controller: counted,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(
-                  labelText: 'Counted cash',
-                  hintText: '0.00',
-                ),
+                label: 'Counted cash',
+                hint: '0.00',
               ),
               const SizedBox(height: 10),
-              TextField(
+              AppTextField(
                 controller: note,
-                decoration: const InputDecoration(
-                  labelText: 'Note (optional)',
-                  hintText: 'e.g. Short by ₹50',
-                ),
+                label: 'Note (optional)',
+                hint: 'e.g. Short by ₹50',
               ),
               const SizedBox(height: 16),
               AppButton(

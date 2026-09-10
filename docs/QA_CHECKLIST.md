@@ -110,14 +110,18 @@ remain intentionally out of scope until explicitly requested.
   Products, and Parties use a 44px circular create FAB with the branded
   button gradient and no square behind it.
 - Create Invoice empty composer follows Figma `4210:1075` (pink `#INV-`
-  pill, nested customer card, no DATE/TERMS until a line exists, items
-  header inside the card, cream inner panel, compact Add Product / dashed
-  Add Service, compact notes row, WhatsApp footer control). Customer
-  picker still opens first. A selected customer is a compact identity row
-  with balance on the right. GSTIN is Looks valid only. WhatsApp from the
+  pill only — no shop-name subtitle, Date / Due date on the customer card, items
+  header inside the card, cream inner panel, one centered Add Items button,
+  compact notes row, WhatsApp footer control). Customer
+  picker still opens first. The customer card matches New purchase bill’s
+  supplier card (gradient identity, Select/Change, compact Date / Due date in the
+  same card) without a supplier bill number or Balance chip. WhatsApp from the
   composer explains share waits until save. Review still opens preview.
-  Filled item cards have no extra edit control and no trash beside the
-  line total; quantity 1 minus still confirms remove. Add saved items uses
+  Filled item cards have no extra edit control and no line-total amount;
+  the unit price with edit sits on the name row. Quantity 1 minus still
+  confirms remove. After a line exists, a bookmark saves the draft (filled
+  after save); invoice defaults are not in the composer header. Notes,
+  terms, and opening payment use the shared `AppTextField`. Add saved items uses
   Products | Services tabs like the catalog list, with no All chip.
 - Complete GST lifecycle: business → customer → product → invoice → partial
   payment → reversal → full payment.

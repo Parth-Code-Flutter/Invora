@@ -14,6 +14,7 @@ import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_notification.dart';
+import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/app_snapshot_visuals.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/cash_book_models.dart';
@@ -196,12 +197,10 @@ class AccountStatementScreen extends GetView<AccountStatementController> {
                 ),
               ),
               const SizedBox(height: 12),
-              TextField(
+              AppTextField(
                 controller: reason,
-                decoration: const InputDecoration(
-                  labelText: 'Reason',
-                  hintText: 'e.g. Cheque returned by bank',
-                ),
+                label: 'Reason',
+                hint: 'e.g. Cheque returned by bank',
               ),
               const SizedBox(height: 16),
               AppButton(

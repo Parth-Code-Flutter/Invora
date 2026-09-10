@@ -11,6 +11,7 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
+import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../controllers/invoice_defaults_controller.dart';
 
@@ -79,14 +80,13 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
                   ),
                   if (controller.usesCustomDueDays) ...[
                     const SizedBox(height: 12),
-                    TextField(
+                    AppTextField(
                       controller: controller.customDueDays,
                       keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: l10n('Custom days *'),
-                        hintText: l10n('1–365'),
-                        suffixText: 'days',
-                      ),
+                      label: 'Custom days',
+                      requiredField: true,
+                      hint: '1–365',
+                      suffixText: 'days',
                     ),
                   ],
                   const SizedBox(height: 12),
@@ -168,38 +168,22 @@ class InvoiceDefaultsScreen extends GetView<InvoiceDefaultsController> {
               children: [
                 Text('Document text', style: AppTextStyles.sectionTitle),
                 const SizedBox(height: 14),
-                TextField(
+                AppTextField(
                   controller: controller.notes,
                   minLines: 2,
                   maxLines: 3,
-                  textAlignVertical: AppTextStyles.inputAlign(
-                    maxLines: 3,
-                    minLines: 2,
-                  ),
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                    labelText: l10n('Default notes'),
-                    hintText: l10n('e.g. Thank you for your business.'),
-                    alignLabelWithHint: true,
-                  ),
+                  label: 'Default notes',
+                  hint: 'e.g. Thank you for your business.',
                 ),
                 const SizedBox(height: 12),
-                TextField(
+                AppTextField(
                   controller: controller.terms,
                   minLines: 2,
                   maxLines: 4,
-                  textAlignVertical: AppTextStyles.inputAlign(
-                    maxLines: 4,
-                    minLines: 2,
-                  ),
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                    labelText: l10n('Default terms & conditions'),
-                    hintText: l10n(
-                      'e.g. Payment is due within the selected period.',
-                    ),
-                    alignLabelWithHint: true,
-                  ),
+                  label: 'Default terms & conditions',
+                  hint: 'e.g. Payment is due within the selected period.',
                 ),
               ],
             ),

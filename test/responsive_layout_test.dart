@@ -163,8 +163,11 @@ void main() {
       await tester.pump();
     }
 
-    expect(find.text('CUSTOMER DETAILS'), findsOneWidget);
-    expect(find.text('Add Customer'), findsOneWidget);
+    expect(find.text('CUSTOMER DETAILS'), findsNothing);
+    expect(find.text('Change'), findsNothing);
+    expect(find.text('Add Customer'), findsNothing);
+    expect(find.text('Choose a customer'), findsOneWidget);
+    expect(find.text('Select'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
     await tester.pumpWidget(const SizedBox.shrink());

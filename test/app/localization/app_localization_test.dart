@@ -104,7 +104,6 @@ void main() {
         'Create product',
         'Keep stock for this item',
         'Add items to continue',
-        'CUSTOMER DETAILS',
         'Invoice Items',
         'PAYMENT & TAX BREAKDOWN',
       ];

@@ -23,6 +23,7 @@ import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_snapshot_visuals.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_empty_state.dart';
+import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_grouped_tile.dart';
 import '../../../app/widgets/app_list_motion.dart';
@@ -4078,13 +4079,11 @@ class _PurchaseTaxEvidenceCard extends StatelessWidget {
       ),
       children: [
         const SizedBox(height: 10),
-        TextField(
+        AppTextField(
           controller: placeOfSupply,
-          decoration: const InputDecoration(
-            labelText: 'Place of supply',
-            hintText: 'e.g. Gujarat',
-            prefixIcon: Icon(Icons.location_on_outlined),
-          ),
+          label: 'Place of supply',
+          hint: 'e.g. Gujarat',
+          prefixIcon: Icons.location_on_outlined,
         ),
         const SizedBox(height: 10),
         AppDropdownField<String>(
@@ -4115,7 +4114,7 @@ class _PurchaseTaxEvidenceCard extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: TextField(
+              child: AppTextField(
                 controller: discount,
                 onChanged: (_) => onAmountChanged(),
                 keyboardType: const TextInputType.numberWithOptions(
@@ -4124,16 +4123,14 @@ class _PurchaseTaxEvidenceCard extends StatelessWidget {
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                 ],
-                decoration: const InputDecoration(
-                  labelText: 'Bill discount',
-                  hintText: '0.00',
-                  prefixText: '₹ ',
-                ),
+                label: 'Bill discount',
+                hint: '0.00',
+                prefixText: '₹ ',
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: TextField(
+              child: AppTextField(
                 controller: additionalCharges,
                 onChanged: (_) => onAmountChanged(),
                 keyboardType: const TextInputType.numberWithOptions(
@@ -4142,11 +4139,9 @@ class _PurchaseTaxEvidenceCard extends StatelessWidget {
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                 ],
-                decoration: const InputDecoration(
-                  labelText: 'Other charges',
-                  hintText: '0.00',
-                  prefixText: '₹ ',
-                ),
+                label: 'Other charges',
+                hint: '0.00',
+                prefixText: '₹ ',
               ),
             ),
           ],
@@ -4249,15 +4244,14 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           subtitle: 'Record only the amount already paid to your supplier.',
         ),
         const SizedBox(height: 16),
-        TextField(
+        AppTextField(
           controller: amount,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
-            labelText: 'Amount paid *',
-            hintText: '0.00',
-            prefixIcon: Icon(Icons.currency_rupee_rounded),
-          ),
+          label: 'Amount paid',
+          requiredField: true,
+          hint: '0.00',
+          prefixIcon: Icons.currency_rupee_rounded,
         ),
         const SizedBox(height: 10),
         AppDropdownField<String>(
@@ -4328,13 +4322,11 @@ class _PaymentSheetState extends State<_PaymentSheet> {
           ),
         ],
         const SizedBox(height: 10),
-        TextField(
+        AppTextField(
           controller: reference,
-          decoration: const InputDecoration(
-            labelText: 'Reference / transaction ID',
-            hintText: 'UPI ref, cheque no. or UTR',
-            prefixIcon: Icon(Icons.tag_rounded),
-          ),
+          label: 'Reference / transaction ID',
+          hint: 'UPI ref, cheque no. or UTR',
+          prefixIcon: Icons.tag_rounded,
         ),
         const SizedBox(height: 10),
         ListTile(
@@ -4353,16 +4345,12 @@ class _PaymentSheetState extends State<_PaymentSheet> {
             if (value != null) setState(() => date = value);
           },
         ),
-        TextField(
+        AppTextField(
           controller: note,
           minLines: 2,
           maxLines: 2,
-          textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
-          decoration: const InputDecoration(
-            labelText: 'Payment note',
-            hintText: 'e.g. Paid at the counter',
-            alignLabelWithHint: true,
-          ),
+          label: 'Payment note',
+          hint: 'e.g. Paid at the counter',
         ),
         const SizedBox(height: 16),
         AppButton(
@@ -4685,7 +4673,7 @@ class _PurchaseQuantitySheetState extends State<_PurchaseQuantitySheet> {
           style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
-        TextField(
+        AppTextField(
           controller: input,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -4693,14 +4681,13 @@ class _PurchaseQuantitySheetState extends State<_PurchaseQuantitySheet> {
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
           ],
-          decoration: InputDecoration(
-            labelText: l10n('Quantity *'),
-            hintText: l10n('e.g. 1'),
-            suffixText: widget.unit,
-            errorText: error,
-            prefixIcon: const Icon(Icons.numbers_rounded),
-          ),
-          onSubmitted: (_) => _save(),
+          label: 'Quantity',
+          requiredField: true,
+          hint: 'e.g. 1',
+          suffixText: widget.unit,
+          errorText: error,
+          prefixIcon: Icons.numbers_rounded,
+          onFieldSubmitted: (_) => _save(),
         ),
         const SizedBox(height: 16),
         FilledButton.icon(
@@ -5007,20 +4994,16 @@ Widget _field(
   Widget? suffixIcon,
 }) => Padding(
   padding: const EdgeInsets.only(bottom: 10),
-  child: TextFormField(
+  child: AppTextField(
     controller: controller,
+    label: label,
+    hint: hint,
     validator: validator,
     keyboardType: keyboard,
     minLines: lines > 1 ? lines : 1,
     maxLines: lines,
-    textAlignVertical: AppTextStyles.inputAlign(maxLines: lines),
     inputFormatters: inputFormatters,
-    decoration: InputDecoration(
-      labelText: label,
-      hintText: hint,
-      alignLabelWithHint: lines > 1,
-      suffixIcon: suffixIcon,
-    ),
+    suffixIcon: suffixIcon,
   ),
 );
 String? _null(String value) => value.trim().isEmpty ? null : value.trim();
@@ -5038,26 +5021,15 @@ Future<String?> _askReason(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(
+        AppTextField(
           controller: controller,
           autofocus: true,
           minLines: 3,
           maxLines: 3,
           maxLength: 240,
-          textAlignVertical: AppTextStyles.inputAlign(maxLines: 3),
-          decoration: InputDecoration(
-            labelText: hint,
-            hintText: 'Short reason for the audit trail',
-            alignLabelWithHint: true,
-            prefixIcon: const Padding(
-              padding: EdgeInsets.only(top: 12),
-              child: Icon(Icons.edit_note_rounded),
-            ),
-            prefixIconConstraints: const BoxConstraints(
-              minWidth: 48,
-              minHeight: 0,
-            ),
-          ),
+          label: hint,
+          hint: 'Short reason for the audit trail',
+          prefixIcon: Icons.edit_note_rounded,
         ),
         const SizedBox(height: 12),
         AppButton(

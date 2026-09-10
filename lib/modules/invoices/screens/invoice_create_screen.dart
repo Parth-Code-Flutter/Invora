@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 
 import '../../../app/constants/app_colors.dart';
 import '../../../app/constants/business_icons.dart';
@@ -27,6 +26,7 @@ import '../../../app/widgets/app_empty_state.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_notification.dart';
+import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/app_unit_field.dart';
 import '../../../app/widgets/unsaved_changes_scope.dart';
 import '../../../data/models/barcode_capture_result.dart';
@@ -52,13 +52,10 @@ abstract final class _ComposerUi {
   static const muted = Color(0xFFA8A29E);
   static const line = Color(0xFFE7E5E4);
   static const cardLine = Color(0xFFF1E5DF);
-  static const innerLine = Color(0xFFF3DFD6);
   static const emptyFill = Color(0xFFFAF6F3);
-  static const customerFill = Color(0xFFFFFBF9);
   static const coral = Color(0xFFF43F5E);
   static const plum = Color(0xFF843B62);
   static const productStart = Color(0xFFFF6F61);
-  static const serviceDash = Color(0xFFFECDD3);
   static const pillFill = Color(0xFFFFE4E6);
   static const disabledCta = Color(0xFFE7E5E4);
   static const whatsappFill = Color(0xFFECFDF5);
@@ -208,13 +205,8 @@ class _InvoiceComposerAppBar extends StatelessWidget {
           ),
           child: Obx(() {
             final number = controller.invoiceNumber.value;
-            final business = controller.businessName.value.trim();
             final hasItems = controller.items.isNotEmpty;
-            final document = controller.isQuotation
-                ? 'Estimate'
-                : controller.gstInvoice.value
-                ? 'GST Tax Invoice'
-                : 'Tax Invoice';
+            final draftSaved = controller.isDraftSaved.value;
             return Row(
               children: [
                 const _ComposerBack(),
@@ -223,75 +215,51 @@ class _InvoiceComposerAppBar extends StatelessWidget {
                   child: InkWell(
                     onTap: () => _editInvoiceNumber(context, controller),
                     borderRadius: BorderRadius.circular(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? AppColors.darkSurfaceVariant
-                                  : _ComposerUi.pillFill,
-                              borderRadius: BorderRadius.circular(99),
-                            ),
-                            child: Text(
-                              number.isEmpty ? 'New invoice' : '#$number',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.caption.copyWith(
-                                color: _ComposerUi.coral,
-                                fontWeight: FontWeight.w700,
-                                height: 16 / 12,
-                              ),
-                            ),
-                          ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          [
-                            if (business.isNotEmpty) business,
-                            document,
-                          ].join(' • '),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? AppColors.darkSurfaceVariant
+                              : _ComposerUi.pillFill,
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                        child: Text(
+                          number.isEmpty ? 'New invoice' : '#$number',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.caption.copyWith(
-                            color: isDark
-                                ? AppColors.darkTextSecondary
-                                : _ComposerUi.mutedBody,
-                            fontWeight: FontWeight.w400,
-                            height: 18 / 12,
+                            color: _ComposerUi.coral,
+                            fontWeight: FontWeight.w700,
+                            height: 16 / 12,
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-                if (hasItems) ...[
-                  TextButton(
+                if (hasItems)
+                  IconButton(
+                    tooltip: l10n('Save draft'),
                     onPressed: controller.isSaving.value
                         ? null
                         : () => controller.save(draft: true),
-                    child: const Text('Draft'),
-                  ),
-                  IconButton(
-                    tooltip: l10n('Invoice defaults'),
-                    onPressed: () =>
-                        Get.toNamed<void>(AppRoutes.invoiceDefaults),
                     icon: Icon(
-                      Icons.settings_outlined,
-                      size: 20,
-                      color: isDark
-                          ? AppColors.darkTextPrimary
-                          : _ComposerUi.ink,
+                      draftSaved
+                          ? Icons.bookmark_rounded
+                          : Icons.bookmark_border_rounded,
+                      size: 22,
+                      color: draftSaved
+                          ? AppColors.secondary
+                          : (isDark
+                                ? AppColors.darkTextPrimary
+                                : _ComposerUi.ink),
                     ),
                   ),
-                ],
               ],
             );
           }),
@@ -360,24 +328,11 @@ class _InvoiceForm extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _CustomerDetailsSection(controller: controller),
-          if (controller.items.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            _DateTermsRow(controller: controller),
-          ],
           const SizedBox(height: 16),
           if (controller.items.isEmpty) ...[
             _InvoiceEmptyItemsCard(
               controller: controller,
-              onAddProduct: () => _selectProductForInvoice(
-                context,
-                controller,
-                type: ItemType.product,
-              ),
-              onAddService: () => _selectProductForInvoice(
-                context,
-                controller,
-                type: ItemType.service,
-              ),
+              onAddItems: () => _selectProductForInvoice(context, controller),
             ),
             const SizedBox(height: 16),
             _NotesTermsRow(controller: controller),
@@ -388,7 +343,6 @@ class _InvoiceForm extends StatelessWidget {
             const SizedBox(height: 10),
             ...controller.items.asMap().entries.map((entry) {
               final item = entry.value;
-              final result = controller.calculation.value?.items[entry.key];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: AppCard(
@@ -417,56 +371,28 @@ class _InvoiceForm extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                InkWell(
-                                  onTap: () => _editItem(
-                                    context,
-                                    index: entry.key,
-                                    item: item,
-                                  ),
-                                  child: Text(
-                                    item.name,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: AppTextStyles.cardTitle,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                if ((item.hsnSac ?? '').trim().isNotEmpty ||
-                                    item.taxRateBasisPoints > 0)
-                                  Text(
-                                    [
-                                      if ((item.hsnSac ?? '').trim().isNotEmpty)
-                                        'HSN: ${item.hsnSac}',
-                                      if (item.taxRateBasisPoints > 0)
-                                        'Tax: ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)} GST',
-                                    ].join(' • '),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: AppTextStyles.small.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                if (Get.find<ProductSettingsService>()
-                                        .showAttributesOnInvoice &&
-                                    item.attributes.isNotEmpty) ...[
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    ProductAttributeUtils.compact(
-                                      item.attributes,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: AppTextStyles.small.copyWith(
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(height: 3),
-                                Wrap(
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  spacing: 6,
-                                  runSpacing: 4,
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () => _editItem(
+                                          context,
+                                          index: entry.key,
+                                          item: item,
+                                        ),
+                                        child: Text(
+                                          item.name,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: AppTextStyles.listName
+                                              .copyWith(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
                                     Tooltip(
                                       message: 'Change price for this invoice',
                                       child: InkWell(
@@ -515,13 +441,44 @@ class _InvoiceForm extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    Text(
-                                      '/ ${item.unit}${item.taxRateBasisPoints > 0 ? ' • GST ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)}' : ''}',
-                                      style: AppTextStyles.small.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
                                   ],
+                                ),
+                                const SizedBox(height: 2),
+                                if ((item.hsnSac ?? '').trim().isNotEmpty ||
+                                    item.taxRateBasisPoints > 0)
+                                  Text(
+                                    [
+                                      if ((item.hsnSac ?? '').trim().isNotEmpty)
+                                        'HSN: ${item.hsnSac}',
+                                      if (item.taxRateBasisPoints > 0)
+                                        'Tax: ${TaxUtils.formatBasisPoints(item.taxRateBasisPoints)} GST',
+                                    ].join(' • '),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.small.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                if (Get.find<ProductSettingsService>()
+                                        .showAttributesOnInvoice &&
+                                    item.attributes.isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    ProductAttributeUtils.compact(
+                                      item.attributes,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.small.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                                Text(
+                                  '/ ${item.unit}',
+                                  style: AppTextStyles.small.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
                                 ),
                               ],
                             ),
@@ -529,39 +486,28 @@ class _InvoiceForm extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          _QuantityStepper(
-                            value: QuantityUtils.toInputValue(
-                              item.quantityScaled,
-                            ),
-                            canDecrease: item.quantityScaled > 1000,
-                            onDecrease: () =>
-                                controller.decrementQuantity(entry.key),
-                            onRemove: () => _confirmRemoveItem(
-                              context,
-                              onConfirm: () => controller.removeItem(entry.key),
-                            ),
-                            onIncrease: () =>
-                                controller.incrementQuantity(entry.key),
-                            onEdit: () => _editQuantity(
-                              context,
-                              index: entry.key,
-                              value: item.quantityScaled,
-                              unit: item.unit,
-                            ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: _QuantityStepper(
+                          value: QuantityUtils.toInputValue(
+                            item.quantityScaled,
                           ),
-                          const Spacer(),
-                          Text(
-                            CurrencyUtils.formatMinor(
-                              result?.totalMinor ?? 0,
-                              symbol: controller.currencySymbol.value,
-                            ),
-                            style: AppTextStyles.cardTitle.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
+                          canDecrease: item.quantityScaled > 1000,
+                          onDecrease: () =>
+                              controller.decrementQuantity(entry.key),
+                          onRemove: () => _confirmRemoveItem(
+                            context,
+                            onConfirm: () => controller.removeItem(entry.key),
                           ),
-                        ],
+                          onIncrease: () =>
+                              controller.incrementQuantity(entry.key),
+                          onEdit: () => _editQuantity(
+                            context,
+                            index: entry.key,
+                            value: item.quantityScaled,
+                            unit: item.unit,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -787,13 +733,11 @@ Future<void> _editInvoiceItem(
 class _InvoiceEmptyItemsCard extends StatelessWidget {
   const _InvoiceEmptyItemsCard({
     required this.controller,
-    required this.onAddProduct,
-    required this.onAddService,
+    required this.onAddItems,
   });
 
   final InvoiceCreateController controller;
-  final VoidCallback onAddProduct;
-  final VoidCallback onAddService;
+  final VoidCallback onAddItems;
 
   @override
   Widget build(BuildContext context) {
@@ -917,27 +861,59 @@ class _InvoiceEmptyItemsCard extends StatelessWidget {
                         : _ComposerUi.mutedBody,
                   ),
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _EmptyCatalogChip(
-                        label: 'Add Product',
-                        iconAsset: 'assets/icons/catalog/add.svg',
-                        filled: true,
-                        onTap: onAddProduct,
+                const SizedBox(height: 16),
+                Center(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: onAddItems,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment(-0.7, -1),
+                            end: Alignment(0.9, 1),
+                            colors: [
+                              _ComposerUi.productStart,
+                              _ComposerUi.plum,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x0D000000),
+                              blurRadius: 1,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 22,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.add_rounded,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Add Items',
+                              style: AppTextStyles.caption.copyWith(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                                height: 16 / 13,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _EmptyCatalogChip(
-                        label: 'Add Service',
-                        iconAsset: 'assets/icons/catalog/tab_services.svg',
-                        filled: false,
-                        onTap: onAddService,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -946,146 +922,6 @@ class _InvoiceEmptyItemsCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _EmptyCatalogChip extends StatelessWidget {
-  const _EmptyCatalogChip({
-    required this.label,
-    required this.iconAsset,
-    required this.filled,
-    required this.onTap,
-  });
-
-  final String label;
-  final String iconAsset;
-  final bool filled;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final foreground = filled ? Colors.white : _ComposerUi.plum;
-    final child = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SvgPicture.asset(
-          iconAsset,
-          width: 16,
-          height: 16,
-          colorFilter: ColorFilter.mode(foreground, BlendMode.srcIn),
-        ),
-        const SizedBox(width: 6),
-        Flexible(
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.caption.copyWith(
-              fontWeight: FontWeight.w800,
-              fontSize: 12,
-              height: 16 / 12,
-              color: foreground,
-            ),
-          ),
-        ),
-      ],
-    );
-    return Semantics(
-      button: true,
-      label: label,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: filled
-              ? Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment(-0.7, -1),
-                      end: Alignment(0.9, 1),
-                      colors: [_ComposerUi.productStart, _ComposerUi.plum],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x0D000000),
-                        blurRadius: 1,
-                        offset: Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 12,
-                  ),
-                  child: child,
-                )
-              : CustomPaint(
-                  painter: const _DashedRRectPainter(
-                    color: _ComposerUi.serviceDash,
-                    radius: 12,
-                    strokeWidth: 1.75,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 12,
-                    ),
-                    child: child,
-                  ),
-                ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DashedRRectPainter extends CustomPainter {
-  const _DashedRRectPainter({
-    required this.color,
-    required this.radius,
-    this.strokeWidth = 1.25,
-  });
-
-  final Color color;
-  final double radius;
-  final double strokeWidth;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final inset = strokeWidth / 2;
-    final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(
-        inset,
-        inset,
-        size.width - strokeWidth,
-        size.height - strokeWidth,
-      ),
-      Radius.circular(radius),
-    );
-    final path = Path()..addRRect(rrect);
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-    const dash = 5.0;
-    const gap = 3.5;
-    for (final metric in path.computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = (distance + dash).clamp(0, metric.length).toDouble();
-        canvas.drawPath(metric.extractPath(distance, next), paint);
-        distance += dash + gap;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) =>
-      oldDelegate.color != color ||
-      oldDelegate.radius != radius ||
-      oldDelegate.strokeWidth != strokeWidth;
 }
 
 Future<void> _editInvoiceNumber(
@@ -1101,16 +937,12 @@ Future<void> _editInvoiceNumber(
       title: Text(
         controller.isQuotation ? 'Estimate number' : 'Invoice number',
       ),
-      content: TextField(
+      content: AppTextField(
         controller: input,
         autofocus: true,
         textCapitalization: TextCapitalization.characters,
-        decoration: InputDecoration(
-          labelText: controller.isQuotation
-              ? 'Estimate number'
-              : 'Invoice number',
-          hintText: 'INV-0001',
-        ),
+        label: controller.isQuotation ? 'Estimate number' : 'Invoice number',
+        hint: 'INV-0001',
       ),
       actions: [
         AppDialogButton(
@@ -1169,442 +1001,227 @@ class _CustomerDetailsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final customer = controller.customer.value;
+    final due = controller.dueDate.value;
+    final caption = customer == null
+        ? (controller.isQuotation
+              ? 'Required for this quotation'
+              : 'Required for this invoice')
+        : () {
+            final value = [
+              customer.companyName,
+              customer.mobile,
+              customer.gstin,
+            ].whereType<String>().where((v) => v.trim().isNotEmpty).join(' · ');
+            return value.isEmpty ? 'Customer' : value;
+          }();
     return AppCard(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      color: isDark ? AppColors.darkSurface : Colors.white,
-      borderColor: isDark ? AppColors.darkBorder : _ComposerUi.cardLine,
+      padding: EdgeInsets.zero,
+      borderColor: AppColors.secondary.withValues(alpha: .16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'CUSTOMER DETAILS',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.6,
-                    height: 16 / 12,
-                    color: isDark
-                        ? AppColors.darkTextSecondary
-                        : _ComposerUi.mutedBody,
-                  ),
+          InkWell(
+            onTap: () => _selectCustomer(context, controller),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary.withValues(alpha: .14),
+                    AppColors.secondary.withValues(alpha: .10),
+                  ],
                 ),
               ),
-              if (customer != null)
-                TextButton(
-                  onPressed: () => _selectCustomer(context, controller),
-                  style: TextButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    padding: EdgeInsets.zero,
-                    foregroundColor: _ComposerUi.productStart,
-                    textStyle: AppTextStyles.caption.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('Change'),
-                      SizedBox(width: 2),
-                      Icon(Icons.swap_vert_rounded, size: 14),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (customer == null)
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => _selectCustomer(context, controller),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? AppColors.darkSurfaceVariant
-                        : _ComposerUi.customerFill,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isDark
-                          ? AppColors.darkBorder
-                          : _ComposerUi.innerLine,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 28,
-                        height: 28,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.add_rounded,
-                          size: 18,
-                          color: AppColors.primary,
-                        ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppColors.primary, AppColors.secondary],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Text(
-                          'Add Customer',
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: customer == null
+                        ? const Icon(
+                            Icons.person_outline_rounded,
+                            color: Colors.white,
+                          )
+                        : Text(
+                            _partyInitial(customer.name),
+                            style: AppTextStyles.cardTitle.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          customer?.name ?? 'Choose a customer',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.cardTitle.copyWith(
-                            color: AppColors.primary,
+                          style: AppTextStyles.listName.copyWith(
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Text(
+                          caption,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.small.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(99),
+                      border: Border.all(
+                        color: AppColors.secondary.withValues(alpha: .18),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          customer == null ? 'Select' : 'Change',
+                          style: AppTextStyles.small.copyWith(
+                            color: AppColors.secondary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          size: 18,
+                          color: AppColors.secondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            )
-          else
-            _SelectedCustomerCard(controller: controller, customer: customer),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceSoft,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _InvoiceMetaCell(
+                      icon: Icons.calendar_today_outlined,
+                      label: 'Date',
+                      value: _shortComposerDate(controller.invoiceDate.value),
+                      onTap: () =>
+                          _pickComposerDate(context, controller, due: false),
+                    ),
+                  ),
+                  Container(width: 1, height: 22, color: AppColors.border),
+                  Expanded(
+                    child: _InvoiceMetaCell(
+                      icon: Icons.event_available_outlined,
+                      label: 'Due date',
+                      value: due == null ? 'Add date' : _shortComposerDate(due),
+                      muted: due == null,
+                      onTap: () =>
+                          _pickComposerDate(context, controller, due: true),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _SelectedCustomerCard extends StatelessWidget {
-  const _SelectedCustomerCard({
-    required this.controller,
-    required this.customer,
-  });
-
-  final InvoiceCreateController controller;
-  final CustomerSnapshotModel customer;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final gstin = customer.gstin?.trim() ?? '';
-    final displayName = customer.companyName?.trim().isNotEmpty == true
-        ? customer.companyName!
-        : customer.name;
-    final location = [
-      customer.city,
-      customer.state,
-    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(', ');
-    final contact = [
-      customer.mobile,
-      if (location.isNotEmpty) location,
-    ].whereType<String>().where((value) => value.trim().isNotEmpty).join(' • ');
-    final balance = controller.customerBalanceMinor.value;
-    final symbol = controller.currencySymbol.value;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => _selectCustomer(context, controller),
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkSurfaceVariant
-                : _ComposerUi.customerFill,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isDark ? AppColors.darkBorder : _ComposerUi.innerLine,
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: isDark ? AppColors.darkBorder : _ComposerUi.cardLine,
-                  ),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0x1AF43F5E), Color(0x1A843B62)],
-                  ),
-                ),
-                child: Text(
-                  _partyInitials(displayName),
-                  style: AppTextStyles.cardTitle.copyWith(
-                    color: _ComposerUi.plum,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      displayName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.listName.copyWith(
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : const Color(0xFF0F172A),
-                      ),
-                    ),
-                    if (contact.isNotEmpty) ...[
-                      const SizedBox(height: 1),
-                      Text(
-                        contact,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.caption.copyWith(
-                          fontWeight: FontWeight.w400,
-                          color: isDark
-                              ? AppColors.darkTextSecondary
-                              : _ComposerUi.mutedBody,
-                        ),
-                      ),
-                    ],
-                    if (gstin.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          if (_gstinLooksValid(gstin)) ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFECFDF5),
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(
-                                  color: const Color(0xFFA7F3D0),
-                                ),
-                              ),
-                              child: Text(
-                                'Looks valid',
-                                style: AppTextStyles.caption.copyWith(
-                                  color: const Color(0xFF047857),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
-                                  height: 14 / 10,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                          ],
-                          Flexible(
-                            child: Text(
-                              gstin,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.caption.copyWith(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 11,
-                                height: 14 / 11,
-                                color: isDark
-                                    ? AppColors.darkTextSecondary
-                                    : const Color(0xFF57534E),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Balance',
-                    style: AppTextStyles.caption.copyWith(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 10,
-                      height: 14 / 10,
-                      color: isDark
-                          ? AppColors.darkTextSecondary
-                          : _ComposerUi.muted,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: balance > 0
-                          ? AppColors.warningLight
-                          : const Color(0xFFECFDF5),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: balance > 0
-                            ? AppColors.warning.withValues(alpha: 0.4)
-                            : const Color(0x99A7F3D0),
-                      ),
-                    ),
-                    child: Text(
-                      balance > 0
-                          ? CurrencyUtils.formatMinor(balance, symbol: symbol)
-                          : '$symbol 0 (${l10n('Clear')})',
-                      style: AppTextStyles.caption.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                        height: 16 / 11,
-                        color: balance > 0
-                            ? AppColors.warning
-                            : const Color(0xFF059669),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-String _partyInitials(String name) {
-  final parts = name
-      .trim()
-      .split(RegExp(r'\s+'))
-      .where((part) => part.isNotEmpty)
-      .take(2);
-  final letters = parts
-      .map((part) => part.characters.first)
-      .join()
-      .toUpperCase();
-  return letters.isEmpty ? '?' : letters;
-}
-
-class _DateTermsRow extends StatelessWidget {
-  const _DateTermsRow({required this.controller});
-
-  final InvoiceCreateController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final due = controller.dueDate.value;
-    final days = controller.paymentTermDays;
-    return Row(
-      children: [
-        Expanded(
-          child: _MetaTile(
-            icon: Icons.calendar_today_outlined,
-            iconColor: _ComposerUi.coral,
-            label: 'DATE',
-            value: _prettyDate(controller.invoiceDate.value),
-            onTap: () => _pickComposerDate(context, controller, due: false),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _MetaTile(
-            icon: Icons.schedule_rounded,
-            iconColor: AppColors.secondary,
-            label: 'TERMS',
-            value: due == null
-                ? 'Add due date'
-                : 'Net $days (${_shortMonthDay(due)})',
-            onTap: () => _pickComposerDate(context, controller, due: true),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _MetaTile extends StatelessWidget {
-  const _MetaTile({
+class _InvoiceMetaCell extends StatelessWidget {
+  const _InvoiceMetaCell({
     required this.icon,
-    required this.iconColor,
     required this.label,
     required this.value,
-    required this.onTap,
+    this.onTap,
+    this.muted = false,
   });
 
   final IconData icon;
-  final Color iconColor;
   final String label;
   final String value;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool muted;
 
   @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Material(
-      color: isDark ? AppColors.darkSurface : Colors.white,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isDark ? AppColors.darkBorder : _ComposerUi.line,
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, size: 16, color: iconColor),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      style: AppTextStyles.caption.copyWith(
-                        fontSize: 10,
-                        letterSpacing: 0.6,
-                        color: AppColors.textSecondary,
-                      ),
+  Widget build(BuildContext context) => Material(
+    color: Colors.transparent,
+    borderRadius: BorderRadius.circular(12),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 11, color: AppColors.primary),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label.toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.caption.copyWith(
+                      fontSize: 8,
+                      height: 1.1,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.small.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: isDark
-                            ? AppColors.darkTextPrimary
-                            : _ComposerUi.ink,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
+              ],
+            ),
+            const SizedBox(height: 1),
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.small.copyWith(
+                color: muted
+                    ? AppColors.textTertiary
+                    : Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+                height: 1.15,
               ),
-              const Icon(Icons.chevron_right_rounded, size: 18),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
 class _ItemsHeader extends StatelessWidget {
@@ -1907,13 +1524,12 @@ class _MarkInvoiceStatus extends StatelessWidget {
         if (controller.requestingPartialPayment.value ||
             (paid > 0 && !full)) ...[
           const SizedBox(height: 10),
-          TextField(
+          AppTextField(
             controller: controller.paidController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: l10n('Opening payment'),
-              hintText: l10n('0.00'),
-            ),
+            label: 'Opening payment',
+            hint: '0.00',
+            prefixIcon: Icons.payments_outlined,
           ),
         ],
       ],
@@ -1998,28 +1614,24 @@ class _NotesTermsCard extends StatelessWidget {
         AppCard(
           child: Column(
             children: [
-              TextField(
+              AppTextField(
                 controller: controller.notesController,
                 minLines: 2,
-                maxLines: 2,
-                textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
-                decoration: InputDecoration(
-                  labelText: l10n('Notes'),
-                  hintText: l10n('Delivery, packing or internal notes'),
-                  alignLabelWithHint: true,
-                ),
+                maxLines: 4,
+                label: 'Notes',
+                hint: 'Delivery, packing or internal notes',
+                prefixIcon: Icons.notes_rounded,
+                textCapitalization: TextCapitalization.sentences,
               ),
               const SizedBox(height: 12),
-              TextField(
+              AppTextField(
                 controller: controller.termsController,
                 minLines: 2,
-                maxLines: 2,
-                textAlignVertical: AppTextStyles.inputAlign(maxLines: 2),
-                decoration: InputDecoration(
-                  labelText: l10n('Terms & conditions'),
-                  hintText: l10n('e.g. Goods once sold will not be taken back'),
-                  alignLabelWithHint: true,
-                ),
+                maxLines: 4,
+                label: 'Terms & conditions',
+                hint: 'e.g. Goods once sold will not be taken back',
+                prefixIcon: Icons.gavel_outlined,
+                textCapitalization: TextCapitalization.sentences,
               ),
             ],
           ),
@@ -2610,7 +2222,7 @@ class _QuantityEditorSheetState extends State<_QuantityEditorSheet> {
           style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
-        TextField(
+        AppTextField(
           controller: input,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -2618,14 +2230,13 @@ class _QuantityEditorSheetState extends State<_QuantityEditorSheet> {
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
           ],
-          decoration: InputDecoration(
-            labelText: l10n('Quantity *'),
-            hintText: l10n('e.g. 1'),
-            suffixText: widget.unit,
-            errorText: error,
-            prefixIcon: const Icon(Icons.numbers_rounded),
-          ),
-          onSubmitted: (_) => _save(),
+          label: 'Quantity',
+          requiredField: true,
+          hint: 'e.g. 1',
+          suffixText: widget.unit,
+          errorText: error,
+          prefixIcon: Icons.numbers_rounded,
+          onFieldSubmitted: (_) => _save(),
         ),
         const SizedBox(height: 16),
         FilledButton.icon(
@@ -3102,17 +2713,16 @@ class _InvoicePriceSheetState extends State<_InvoicePriceSheet> {
           ),
         ),
         const SizedBox(height: 16),
-        TextField(
+        AppTextField(
           controller: _rate,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           textInputAction: TextInputAction.done,
-          onSubmitted: (_) => _save(),
-          decoration: InputDecoration(
-            labelText: l10n('Invoice price *'),
-            prefixText: '${widget.currencySymbol} ',
-            hintText: l10n('0.00'),
-          ),
+          onFieldSubmitted: (_) => _save(),
+          label: 'Invoice price',
+          requiredField: true,
+          prefixText: '${widget.currencySymbol} ',
+          hint: '0.00',
         ),
         const SizedBox(height: 18),
         AppButton(onPressed: _save, label: l10n('Apply invoice price')),
@@ -3232,27 +2842,25 @@ class _ItemSheetState extends State<_ItemSheet> {
               label: const Text('Scan barcode'),
             ),
             const SizedBox(height: 18),
-            TextField(
+            AppTextField(
               controller: name,
               textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                labelText: l10n('Item name *'),
-                hintText: l10n('e.g. Website design'),
-              ),
+              label: 'Item name',
+              requiredField: true,
+              hint: 'e.g. Website design',
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: AppTextField(
                     controller: quantity,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    decoration: InputDecoration(
-                      labelText: l10n('Quantity *'),
-                      hintText: l10n('1'),
-                    ),
+                    label: 'Quantity',
+                    requiredField: true,
+                    hint: '1',
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -3266,26 +2874,23 @@ class _ItemSheetState extends State<_ItemSheet> {
               ],
             ),
             const SizedBox(height: 12),
-            TextField(
+            AppTextField(
               controller: rate,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: InputDecoration(
-                labelText: l10n('Rate *'),
-                hintText: l10n('0.00'),
-              ),
+              label: 'Rate',
+              requiredField: true,
+              hint: '0.00',
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
-                  child: TextField(
+                  child: AppTextField(
                     controller: hsn,
-                    decoration: InputDecoration(
-                      labelText: l10n('HSN/SAC'),
-                      hintText: l10n('e.g. 998314'),
-                    ),
+                    label: 'HSN/SAC',
+                    hint: 'e.g. 998314',
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -3324,16 +2929,15 @@ class _ItemSheetState extends State<_ItemSheet> {
             ),
             if (selectedTaxRate == _customGstRate) ...[
               const SizedBox(height: 12),
-              TextField(
+              AppTextField(
                 controller: tax,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: InputDecoration(
-                  labelText: l10n('Custom GST percentage *'),
-                  hintText: l10n('Enter a rate from 0 to 100'),
-                  prefixIcon: Icon(Icons.percent_rounded),
-                ),
+                label: 'Custom GST percentage',
+                requiredField: true,
+                hint: 'Enter a rate from 0 to 100',
+                prefixIcon: Icons.percent_rounded,
               ),
             ],
             const SizedBox(height: 12),
@@ -3360,17 +2964,15 @@ class _ItemSheetState extends State<_ItemSheet> {
             ),
             if (discountType != DiscountType.none) ...[
               const SizedBox(height: 12),
-              TextField(
+              AppTextField(
                 controller: discount,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: InputDecoration(
-                  labelText: discountType == DiscountType.fixed
-                      ? 'Discount amount'
-                      : 'Discount %',
-                  hintText: l10n('0'),
-                ),
+                label: discountType == DiscountType.fixed
+                    ? 'Discount amount'
+                    : 'Discount %',
+                hint: '0',
               ),
             ],
             const SizedBox(height: 20),
@@ -3542,27 +3144,23 @@ class _AdditionalChargeDialogState extends State<_AdditionalChargeDialog> {
     content: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        TextField(
+        AppTextField(
           controller: title,
           autofocus: true,
           textCapitalization: TextCapitalization.words,
           textInputAction: TextInputAction.next,
-          decoration: InputDecoration(
-            labelText: l10n('Charge title'),
-            hintText: l10n('e.g. Delivery'),
-          ),
+          label: 'Charge title',
+          hint: 'e.g. Delivery',
         ),
         const SizedBox(height: 12),
-        TextField(
+        AppTextField(
           controller: amount,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           textInputAction: TextInputAction.done,
-          onSubmitted: (_) => _submit(),
-          decoration: InputDecoration(
-            labelText: l10n('Amount'),
-            hintText: l10n('0.00'),
-            errorText: error,
-          ),
+          onFieldSubmitted: (_) => _submit(),
+          label: 'Amount',
+          hint: '0.00',
+          errorText: error,
         ),
       ],
     ),
@@ -3626,13 +3224,11 @@ class _DiscountDialogState extends State<_DiscountDialog> {
         ),
         if (type != DiscountType.none) ...[
           const SizedBox(height: 12),
-          TextField(
+          AppTextField(
             controller: value,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: type == DiscountType.fixed ? 'Amount' : 'Percentage',
-              hintText: type == DiscountType.fixed ? '0.00' : 'e.g. 10',
-            ),
+            label: type == DiscountType.fixed ? 'Amount' : 'Percentage',
+            hint: type == DiscountType.fixed ? '0.00' : 'e.g. 10',
           ),
         ],
       ],
@@ -3680,13 +3276,13 @@ Widget _amountRow(
   ),
 );
 
-String _prettyDate(DateTime value) => DateFormat('dd MMM yyyy').format(value);
+String _shortComposerDate(DateTime value) =>
+    '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}';
 
-String _shortMonthDay(DateTime value) => DateFormat('dd MMM').format(value);
-
-bool _gstinLooksValid(String gstin) {
-  final trimmed = gstin.trim().toUpperCase();
-  return trimmed.length == 15 && RegExp(r'^[0-9A-Z]{15}$').hasMatch(trimmed);
+String _partyInitial(String name) {
+  final trimmed = name.trim();
+  if (trimmed.isEmpty) return '?';
+  return trimmed.characters.first.toUpperCase();
 }
 
 String _discountLabel(DiscountInput discount, String symbol) =>

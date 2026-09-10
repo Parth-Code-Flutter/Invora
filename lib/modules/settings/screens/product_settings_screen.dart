@@ -8,6 +8,7 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_card.dart';
 import '../../../app/widgets/app_dialog.dart';
 import '../../../app/widgets/app_dropdown_field.dart';
+import '../../../app/widgets/app_text_field.dart';
 import '../../../app/widgets/responsive_content.dart';
 import '../../../data/models/business_category_model.dart';
 import '../../../data/models/product_attribute_model.dart';
@@ -225,15 +226,13 @@ class ProductSettingsScreen extends GetView<ProductSettingsController> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              AppTextField(
                 controller: input,
                 autofocus: true,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: InputDecoration(
-                  labelText: l10n('Field name *'),
-                  hintText: l10n('e.g. Finish or Batch no.'),
-                  errorText: error,
-                ),
+                label: 'Field name',
+                requiredField: true,
+                hint: 'e.g. Finish or Batch no.',
+                errorText: error,
               ),
               const SizedBox(height: 12),
               SegmentedButton<ProductCustomFieldType>(

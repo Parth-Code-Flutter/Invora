@@ -68,6 +68,7 @@ class InvoiceCreateController extends GetxController {
   final notesController = TextEditingController();
   final termsController = TextEditingController();
   final paidController = TextEditingController();
+  final isDraftSaved = false.obs;
   int? _id;
   DateTime _createdAt = DateTime.now();
   InvoiceStatus _originalStatus = InvoiceStatus.draft;
@@ -461,6 +462,7 @@ class InvoiceCreateController extends GetxController {
       }
       final saved = await _invoices.save(model);
       _id = saved.id;
+      if (draft) isDraftSaved.value = true;
       _captureBaseline();
       AppNotification.success(
         draft ? 'Draft saved' : 'Invoice saved',
@@ -531,6 +533,7 @@ class InvoiceCreateController extends GetxController {
     _id = model.id;
     _createdAt = model.createdAt;
     _originalStatus = model.status;
+    isDraftSaved.value = model.status == InvoiceStatus.draft;
     invoiceNumber.value = model.invoiceNumber;
     customer.value = model.customer.name.isEmpty ? null : model.customer;
     invoiceDate.value = model.invoiceDate;
