@@ -23,7 +23,7 @@ import '../../../data/models/business_category_model.dart';
 import '../controllers/business_setup_controller.dart';
 
 abstract final class _ProfileUi {
-  static const page = Color(0xFFFAF9F7);
+  static const page = AppColors.background;
   static const ink = Color(0xFF1C1917);
   static const stone = Color(0xFF44403C);
   static const body = Color(0xFF78716C);

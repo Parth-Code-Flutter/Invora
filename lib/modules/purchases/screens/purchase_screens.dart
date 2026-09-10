@@ -326,9 +326,6 @@ class _SupplierListScreenState extends State<SupplierListScreen> {
     final searchBar = AppSearchAppBar(
       title: 'Suppliers',
       largeTitle: true,
-      backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? null
-          : const Color(0xFFFAF9F7),
       titleSuffix: StreamBuilder<List<SupplierModel>>(
         stream: _supplierCountStream,
         builder: (context, snapshot) => Text(

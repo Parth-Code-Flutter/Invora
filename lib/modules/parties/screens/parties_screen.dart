@@ -123,9 +123,7 @@ class _PartiesScreenState extends State<PartiesScreen> {
               ),
             ),
             body: ColoredBox(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Theme.of(context).scaffoldBackgroundColor
-                  : const Color(0xFFFAF9F7),
+              color: Theme.of(context).scaffoldBackgroundColor,
               child: SafeArea(
                 bottom: false,
                 child: AppSwipeTabs(

@@ -30,6 +30,29 @@ abstract final class CurrencyUtils {
     return formatMinor(minor, symbol: symbol);
   }
 
+  /// Short shop-style amount without a rupee sign: `99`, `1k`, `4.5k`,
+  /// `4 lakh`, `1 crore`. [scale] is a localizable `lakh` / `crore` key.
+  static (String amount, String? scale) compactShopParts(int minor) {
+    final rupees = minor / 100;
+    final sign = rupees < 0 ? '-' : '';
+    final abs = rupees.abs();
+    if (abs >= 10000000) {
+      return ('$sign${_oneDecimal(abs / 10000000)}', 'crore');
+    }
+    if (abs >= 100000) {
+      return ('$sign${_oneDecimal(abs / 100000)}', 'lakh');
+    }
+    if (abs >= 1000) {
+      return ('$sign${_oneDecimal(abs / 1000)}k', null);
+    }
+    return ('$sign${abs.round()}', null);
+  }
+
+  static String compactShopLabel(int minor) {
+    final parts = compactShopParts(minor);
+    return parts.$2 == null ? parts.$1 : '${parts.$1} ${parts.$2}';
+  }
+
   static String _oneDecimal(double value) {
     final rounded = value >= 10
         ? value.roundToDouble()

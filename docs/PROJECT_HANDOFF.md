@@ -1,6 +1,6 @@
 # Creovo Billing — Project Handoff
 
-Last updated: 2026-09-08
+Last updated: 2026-09-10
 Active development branch: `parth-dev`  
 Product specification: [CODEX_IMPLEMENTATION_PLAN.md](CODEX_IMPLEMENTATION_PLAN.md)
 Production roadmap: [PRODUCTION_ROADMAP.md](PRODUCTION_ROADMAP.md)
@@ -438,8 +438,8 @@ stores.
 - Reusable gradient module banners give catalog, customer, invoice, and
   quotation workspaces distinct task-focused identities
 - Shared icon-led filter pills, expressive segmented options, and branded
-  AppBar chrome across Sales and Purchases: 20px titles, a hairline under the
-  bar, matching 36px outlined action wells, and `AppBarTitle` captions on
+  AppBar chrome across Sales and Purchases: 20px titles, no hairline under
+  the bar, matching 36px outlined action wells, and `AppBarTitle` captions on
   document screens (Invoice, Customer, Purchase bill, Supplier). Nested back
   controls use the same well as PDF, edit, search, and workspace-switch
   actions. List search uses the More tab SVG at 16px in a 36px well.
@@ -504,7 +504,8 @@ stores.
 ### Customers
 
 - Parties Customers/Suppliers headers and empty states follow Figma nodes
-  `2231:2` and `2231:112`: warm background, title counts, coloured SVG tab
+  `2231:2` and `2231:112`: shared white page color (same as Documents),
+  title counts, coloured SVG tab
   wells, exact exported illustrations and a single gradient add action.
   Shared segmented tabs retain swipe and remembered selection. Populated
   lists, search/no-match states, customer scan and existing record actions
@@ -575,8 +576,12 @@ stores.
   counts beside the labels. Items sit in one compact list with hairline
   dividers (no red stripe, no separate puffy cards). Search and scan in the
   AppBar share the same chrome. Products / Services stay full-width
-  without horizontal scrolling. Name, HSN, attributes, **Stock: qty unit**,
-  price, and unit stay aligned. GST rate stays on the item record, not the list.
+  without horizontal scrolling. Each row is **name** (80%) and a delete
+  icon (20%) on the first line, a compact amount (`99`, `1k`, `4.5k`,
+  `4 lakh`) at 13px plus `/ unit` on the second, and **Stock: qty unit** on the far
+  right when the item keeps stock. Services omit stock. Full rupee price, GST, and HSN stay
+  on the item record, not the list. Light catalog pages use the same white
+  page color as Documents / Invoices (`AppColors.background`).
   Tablet layouts retain responsive multi-column containment.
   The details screen is a focused item record with one compact identity and
   price/unit/GST summary, one non-duplicative information section, an optional
@@ -586,7 +591,9 @@ stores.
   counts come from the complete catalog rather than the current query, and the
   list states its A–Z order. Stream generations prevent stale search/filter
   results from replacing the latest query; load failures preserve data and
-  expose Retry. Overflow remains a quiet menu and the add FAB remains.
+  expose Retry. Each row has a delete icon (confirm before hide); tap the
+  row to open details. The add FAB is a 44px circle with the same
+  coral-to-plum gradient as branded buttons, with no square behind it.
 
 ### Invoices and quotations
 
@@ -631,7 +638,9 @@ stores.
   selected-item cards expose direct minus/plus quantity controls and line
   total; the stepper displays quantity only while unit stays with the rate and
   changes its decrement action to a delete icon when quantity reaches one.
-  That delete asks for confirmation before the line is removed.
+  That delete asks for confirmation before the line is removed. There is no
+  extra trash beside the line total and no separate edit icon on the card;
+  tap the item name to edit details, or the unit-price chip to change rate.
 - Populated invoice items use compact numbered rows with scan-friendly
   name/rate and line-total hierarchy, keeping long 20-item invoices manageable
 - Decimal quantity, rate, unit, HSN/SAC, GST, item/invoice discounts,
@@ -1109,6 +1118,96 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-10 — List create FAB is a circle only
+
+- The create FAB is 44px, clipped to a circle, with no Material square or
+  shadow behind the gradient.
+- Important files: `app_list_create_fab.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/design_system_test.dart`.
+
+### 2026-09-10 — AppBars have no under-bar divider
+
+- Home, Documents, Products, Parties, More, and other themed AppBars no
+  longer draw a hairline under the bar.
+- Important files: `app_theme.dart`, `more_screen.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/design_system_test.dart`.
+
+### 2026-09-10 — Invoice line cards drop extra edit and delete icons
+
+- Filled Create Invoice lines no longer show a separate edit control or a
+  trash beside the line total. Tap the name to edit details; unit price
+  still has its chip. Minus at quantity 1 still confirms remove.
+- Important files: `invoice_create_screen.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/invoice_create_screen_test.dart`.
+
+### 2026-09-10 — Compact branded list create FAB
+
+- Documents, Products, and Parties (and other lists using the shared helper)
+  use a 48px create FAB with the same coral-to-plum gradient as AppButton.
+- Important files: `app_list_create_fab.dart`, `app_colors.dart`,
+  `app_button.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/design_system_test.dart`,
+  `test/product_list_screen_test.dart`.
+
+### 2026-09-10 — Catalog list price is 1px larger
+
+- Compact list amounts (`65k`, `2 lakh`) are 13px; `/ unit` stays 12px.
+- Important files: `product_list_screen.dart`, this handoff.
+- Storage: none.
+- Verification: visual catalog list.
+
+### 2026-09-10 — Shared Documents page color across the app
+
+- Light screens use the Invoices/Documents page color (`AppColors.background`)
+  instead of per-tab cream overlays. Catalog, Parties, More, plan, customer
+  form, business setup, and Create Invoice inherit that white page.
+- Important files: `app_colors.dart`, `product_list_screen.dart`,
+  `parties_screen.dart`, `more_screen.dart`, `customer_list_screen.dart`,
+  `purchase_screens.dart`, `customer_form_screen.dart`,
+  `business_setup_screen.dart`, `invoice_create_screen.dart`,
+  `plan_screen.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/product_list_screen_test.dart`.
+
+### 2026-09-10 — Catalog rows use an in-row delete icon
+
+- The three-dot item menu is gone. The first line is 80% name and 20%
+  delete; delete still confirms, then hides the item from lists.
+  Tapping the row still opens details.
+- Important files: `product_list_screen.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/product_list_screen_test.dart`.
+
+### 2026-09-10 — Catalog list uses compact amounts
+
+- List prices now read `99`, `1k`, `4.5k`, or `4 lakh` in the same grey
+  as `/ unit`. The full rupee amount stays on the item record. Name,
+  stock-on-the-right, and GST/HSN-off-the-list are unchanged.
+- Important files: `currency_utils.dart`, `product_list_screen.dart`,
+  this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/money_tax_utils_test.dart`,
+  `test/product_list_screen_test.dart`.
+
+### 2026-09-10 — Catalog rows put stock on the right
+
+- Product and service list rows now keep the name alone on the first
+  line, **₹price / unit** on the second, and **Stock: qty unit** on the
+  far right for tracked products. Services have no stock column. HSN and
+  GST stay on the item record.
+- Important files: `product_list_screen.dart`, this handoff,
+  `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/product_list_screen_test.dart`.
 
 ### 2026-09-08 — Catalog list says Stock
 

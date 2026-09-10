@@ -20,7 +20,7 @@ import '../controllers/more_controller.dart';
 import '../more_destinations.dart';
 
 abstract final class _MoreUi {
-  static const page = Color(0xFFFBF9F7);
+  static const page = AppColors.background;
   static const ink = Color(0xFF1C1917);
   static const muted = Color(0xFFA8A29E);
   static const body = Color(0xFF78716C);
@@ -46,14 +46,7 @@ class MoreScreen extends GetView<MoreController> {
     return Theme(
       data: theme.copyWith(
         scaffoldBackgroundColor: page,
-        appBarTheme: theme.appBarTheme.copyWith(
-          backgroundColor: page,
-          shape: Border(
-            bottom: BorderSide(
-              color: isDark ? AppColors.darkBorder : const Color(0x66E7E5E4),
-            ),
-          ),
-        ),
+        appBarTheme: theme.appBarTheme.copyWith(backgroundColor: page),
       ),
       child: AppShell(
         destination: MainDestination.more,

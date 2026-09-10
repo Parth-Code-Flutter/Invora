@@ -63,12 +63,6 @@ abstract final class AppTheme {
           color: isDark ? AppColors.darkTextPrimary : AppColors.secondary,
           size: 20,
         ),
-        shape: Border(
-          bottom: BorderSide(
-            color: isDark ? AppColors.darkBorder : AppColors.border,
-            width: 0.5,
-          ),
-        ),
       ),
       cardTheme: CardThemeData(
         color: colorScheme.surface,

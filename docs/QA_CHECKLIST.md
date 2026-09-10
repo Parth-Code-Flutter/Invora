@@ -1,6 +1,6 @@
 # Creovo Billing — Whole-Flow QA Checklist
 
-Last updated: 2026-09-08
+Last updated: 2026-09-10
 
 This checklist separates repeatable automated coverage from native operations
 that still require an Android/iOS device. Release signing and store submission
@@ -12,6 +12,7 @@ remain intentionally out of scope until explicitly requested.
   with a sliding white pill. Icon and label sit on the pill midline. Filter-chip
   counts line up with their labels. Phone-dock icons share one baseline. Tap or
   horizontal swipe preserves the active list state without a travelling tab bar.
+  Themed AppBars have no hairline under the bar.
 - Catalog Products / Services empty screens use the Figma illustrations
   and copy (No products yet, No services yet) with an in-list
   Add CTA inside the shared 160×160 / 20px / 13px empty graphic. The list FAB
@@ -94,14 +95,21 @@ remain intentionally out of scope until explicitly requested.
   optional format-checked copy only — no government portal lookup or
   Verified badge. Footer does not claim cloud sync.
 - Product/service create, filter, edit, units, GST presets, and soft delete.
-  Catalog list rows do not show GST; stock reads **Stock: qty unit**.
-  Rate remains on details and the form.
+  Catalog list rows are name (80%) plus a delete icon (20%), then a compact
+  amount (`99` / `1k` / `4.5k` / `4 lakh`) at 13px plus `/ unit` in the usual grey,
+  with **Stock: qty unit** on the right for tracked products. GST and HSN
+  stay on details and the form. Catalog, Parties, More, and other light
+  pages share the Documents / Invoices white page color. Documents,
+  Products, and Parties use a 44px circular create FAB with the branded
+  button gradient and no square behind it.
 - Create Invoice empty composer follows Figma `4210:1075` (pink `#INV-`
   pill, nested customer card, no DATE/TERMS until a line exists, items
   header inside the card, cream inner panel, compact Add Product / dashed
   Add Service, compact notes row, WhatsApp footer control). Customer
   picker still opens first. GSTIN is Looks valid only. WhatsApp from the
   composer explains share waits until save. Review still opens preview.
+  Filled item cards have no extra edit control and no trash beside the
+  line total; quantity 1 minus still confirms remove.
 - Complete GST lifecycle: business → customer → product → invoice → partial
   payment → reversal → full payment.
 - Payment receipt numbering, INR PDF generation, and reversed-payment receipt

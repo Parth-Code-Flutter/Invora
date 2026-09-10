@@ -6,6 +6,15 @@ abstract final class AppColors {
   static const primaryLight = Color(0xFFFFEEE9);
   static const secondary = Color(0xFF6A315F);
   static const secondaryLight = Color(0xFFF8EAF1);
+
+  /// Coral-to-plum fill used by primary actions and the list create FAB.
+  static const brandedGradient = LinearGradient(
+    colors: [primary, secondary],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  /// Light page color for the whole app (Documents / Invoices list).
   static const background = Color(0xFFFFFFFF);
   static const surface = Color(0xFFFFFFFF);
   static const surfaceSoft = Color(0xFFFFFCF8);

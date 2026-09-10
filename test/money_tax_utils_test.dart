@@ -18,6 +18,16 @@ void main() {
     expect(TaxUtils.formatBasisPoints(1250), '12.5%');
   });
 
+  test('compact shop amounts use k, lakh, crore, or a plain rupee count', () {
+    expect(CurrencyUtils.compactShopParts(9900), ('99', null));
+    expect(CurrencyUtils.compactShopParts(100000), ('1k', null));
+    expect(CurrencyUtils.compactShopParts(450000), ('4.5k', null));
+    expect(CurrencyUtils.compactShopParts(40000000), ('4', 'lakh'));
+    expect(CurrencyUtils.compactShopParts(1000000000), ('1', 'crore'));
+    expect(CurrencyUtils.compactShopLabel(6500000), '65k');
+    expect(CurrencyUtils.compactShopLabel(40000000), '4 lakh');
+  });
+
   test('provides current common Indian GST rate presets', () {
     expect(TaxUtils.gstRateBasisPoints, [0, 25, 300, 500, 1200, 1800, 2800]);
   });

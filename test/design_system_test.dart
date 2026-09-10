@@ -10,6 +10,7 @@ import 'package:creovo_invoice/app/widgets/app_search_app_bar.dart';
 import 'package:creovo_invoice/app/utils/app_focus.dart';
 import 'package:creovo_invoice/app/widgets/app_back_button.dart';
 import 'package:creovo_invoice/app/widgets/app_button.dart';
+import 'package:creovo_invoice/app/widgets/app_list_create_fab.dart';
 import 'package:creovo_invoice/app/widgets/app_dropdown_field.dart';
 import 'package:creovo_invoice/app/widgets/app_filter_chip.dart';
 import 'package:creovo_invoice/app/widgets/app_otp_field.dart';
@@ -202,6 +203,45 @@ void main() {
             as BoxDecoration;
     expect(decoration.gradient, isA<LinearGradient>());
     expect(find.byKey(const ValueKey('app-button-loader')), findsOneWidget);
+  });
+
+  testWidgets('list create FAB is compact and uses the branded gradient', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          floatingActionButton: appListCreateFab(
+            emptyCreateVisible: false,
+            tooltip: 'Add product',
+            onPressed: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(AppListCreateFab), findsOneWidget);
+    expect(tester.getSize(find.byType(AppListCreateFab)), const Size(44, 44));
+    final ink = tester.widget<Ink>(
+      find.descendant(
+        of: find.byType(AppListCreateFab),
+        matching: find.byType(Ink),
+      ),
+    );
+    expect(
+      (ink.decoration! as BoxDecoration).gradient,
+      AppColors.brandedGradient,
+    );
+    expect((ink.decoration! as BoxDecoration).boxShadow, isNull);
+    expect(
+      appListCreateFab(
+        emptyCreateVisible: true,
+        tooltip: 'Add product',
+        onPressed: () {},
+      ),
+      isNull,
+    );
   });
 
   testWidgets('primary action keeps a long label inside narrow bounds', (
@@ -553,6 +593,7 @@ void main() {
       AppTheme.light.appBarTheme.titleTextStyle?.fontSize,
       AppTextStyles.appBarTitle.fontSize,
     );
+    expect(AppTheme.light.appBarTheme.shape, isNull);
     expect(find.text('Paid'), findsOneWidget);
     expect(
       tester.getSemantics(find.byType(AppFilterChip)),

@@ -84,13 +84,7 @@ class AppButton extends StatelessWidget {
           ResponsiveUtils.isTablet(context) ? 56 : AppSpacing.buttonHeight,
         ),
         decoration: BoxDecoration(
-          gradient: branded
-              ? const LinearGradient(
-                  colors: [AppColors.primary, AppColors.secondary],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                )
-              : null,
+          gradient: branded ? AppColors.brandedGradient : null,
           color: branded
               ? null
               : isDark

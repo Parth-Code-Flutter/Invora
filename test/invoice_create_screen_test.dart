@@ -41,10 +41,7 @@ void main() {
       ),
     );
     await tester.pumpWidget(
-      GetMaterialApp(
-        theme: AppTheme.light,
-        home: const InvoiceCreateScreen(),
-      ),
+      GetMaterialApp(theme: AppTheme.light, home: const InvoiceCreateScreen()),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 900));
@@ -157,6 +154,8 @@ void main() {
     expect(find.text('DATE'), findsOneWidget);
     expect(find.text('TERMS'), findsOneWidget);
     expect(find.text('Draft'), findsOneWidget);
+    expect(find.byTooltip('Edit item details'), findsNothing);
+    expect(find.byTooltip('Remove item'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

@@ -45,7 +45,7 @@ import '../../../data/models/scanned_invoice_line.dart';
 import 'invoice_item_picker_screen.dart';
 
 abstract final class _ComposerUi {
-  static const page = Color(0xFFFFF8F5);
+  static const page = AppColors.background;
   static const ink = Color(0xFF1F1A24);
   static const body = Color(0xFF78716C);
   static const mutedBody = Color(0xFF7A6E75);
@@ -392,7 +392,7 @@ class _InvoiceForm extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: AppCard(
-                  padding: const EdgeInsets.fromLTRB(12, 11, 8, 11),
+                  padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
                   child: Column(
                     children: [
                       Row(
@@ -417,11 +417,18 @@ class _InvoiceForm extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  item.name,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTextStyles.cardTitle,
+                                InkWell(
+                                  onTap: () => _editItem(
+                                    context,
+                                    index: entry.key,
+                                    item: item,
+                                  ),
+                                  child: Text(
+                                    item.name,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.cardTitle,
+                                  ),
                                 ),
                                 const SizedBox(height: 2),
                                 if ((item.hsnSac ?? '').trim().isNotEmpty ||
@@ -519,21 +526,6 @@ class _InvoiceForm extends StatelessWidget {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          IconButton(
-                            tooltip: l10n('Edit item details'),
-                            onPressed: () => _editItem(
-                              context,
-                              index: entry.key,
-                              item: item,
-                            ),
-                            icon: const Icon(Icons.edit_outlined, size: 18),
-                            style: IconButton.styleFrom(
-                              backgroundColor: AppColors.primaryLight,
-                              foregroundColor: AppColors.primary,
-                              minimumSize: const Size(36, 36),
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -567,18 +559,6 @@ class _InvoiceForm extends StatelessWidget {
                             ),
                             style: AppTextStyles.cardTitle.copyWith(
                               fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: l10n('Remove item'),
-                            onPressed: () => _confirmRemoveItem(
-                              context,
-                              onConfirm: () => controller.removeItem(entry.key),
-                            ),
-                            icon: const Icon(
-                              Icons.delete_outline_rounded,
-                              size: 18,
-                              color: AppColors.error,
                             ),
                           ),
                         ],
@@ -922,9 +902,7 @@ class _InvoiceEmptyItemsCard extends StatelessWidget {
                   style: AppTextStyles.listName.copyWith(
                     fontWeight: FontWeight.w800,
                     height: 20 / 14,
-                    color: isDark
-                        ? AppColors.darkTextPrimary
-                        : _ComposerUi.ink,
+                    color: isDark ? AppColors.darkTextPrimary : _ComposerUi.ink,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -1419,7 +1397,9 @@ class _SelectedCustomerCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Divider(
                   height: 1,
-                  color: isDark ? AppColors.darkBorder : const Color(0xFFF5F5F4),
+                  color: isDark
+                      ? AppColors.darkBorder
+                      : const Color(0xFFF5F5F4),
                 ),
                 const SizedBox(height: 11),
                 Row(
@@ -2115,9 +2095,7 @@ class _NotesTermsRow extends StatelessWidget {
                 child: Icon(
                   Icons.edit_note_rounded,
                   size: 16,
-                  color: isDark
-                      ? AppColors.darkTextSecondary
-                      : _ComposerUi.ink,
+                  color: isDark ? AppColors.darkTextSecondary : _ComposerUi.ink,
                 ),
               ),
               const SizedBox(width: 10),

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import 'package:creovo_invoice/app/enums/item_type.dart';
 import 'package:creovo_invoice/app/themes/app_theme.dart';
+import 'package:creovo_invoice/app/widgets/app_list_create_fab.dart';
 import 'package:creovo_invoice/data/models/product_service_model.dart';
 import 'package:creovo_invoice/data/repositories/business_repository.dart';
 import 'package:creovo_invoice/data/repositories/product_repository.dart';
@@ -57,7 +58,7 @@ void main() {
     expect(find.text('Add product'), findsOneWidget);
     expect(find.text('Add product or service'), findsNothing);
     expect(find.text('(0)'), findsOneWidget);
-    expect(find.byType(FloatingActionButton), findsNothing);
+    expect(find.byType(AppListCreateFab), findsNothing);
 
     await tester.tap(find.text('Services'));
     await tester.pumpAndSettle();
@@ -67,7 +68,7 @@ void main() {
     );
     expect(find.text('No services yet'), findsOneWidget);
     expect(find.text('Add service'), findsOneWidget);
-    expect(find.byType(FloatingActionButton), findsNothing);
+    expect(find.byType(AppListCreateFab), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -106,11 +107,25 @@ void main() {
     expect(find.text('Premium Paper'), findsOneWidget);
     expect(find.text('Name · A–Z'), findsOneWidget);
     expect(find.text('1 item'), findsOneWidget);
-    expect(find.textContaining('HSN 4802'), findsOneWidget);
+    expect(find.textContaining('1.3k / box'), findsOneWidget);
     expect(find.textContaining('Stock: 0 box'), findsOneWidget);
+    expect(find.textContaining('HSN 4802'), findsNothing);
     expect(find.textContaining('GST'), findsNothing);
     expect(find.textContaining('On hand'), findsNothing);
-    expect(find.byType(FloatingActionButton), findsOneWidget);
+    expect(find.byType(AppListCreateFab), findsOneWidget);
+    expect(find.byIcon(Icons.more_horiz_rounded), findsNothing);
+    expect(find.byIcon(Icons.delete_outline_rounded), findsOneWidget);
     expect(tester.takeException(), isNull);
+
+    tester.view.physicalSize = const Size(320, 720);
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    expect(find.text('Premium Paper'), findsOneWidget);
+    expect(find.textContaining('Stock: 0 box'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.delete_outline_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete product?'), findsOneWidget);
+    expect(find.text('Delete'), findsOneWidget);
   });
 }

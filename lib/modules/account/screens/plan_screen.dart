@@ -39,7 +39,7 @@ abstract final class _PlanIcons {
 }
 
 abstract final class _PlanUi {
-  static const page = Color(0xFFF8F6F4);
+  static const page = AppColors.background;
   static const ink = Color(0xFF180E1C);
   static const muted = Color(0xFF685D70);
   static const plum = Color(0xFF4E1B59);

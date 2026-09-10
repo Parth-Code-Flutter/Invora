@@ -20,7 +20,7 @@ import '../../../data/services/gst_indian_states.dart';
 import '../controllers/customer_form_controller.dart';
 
 abstract final class _CustomerUi {
-  static const page = Color(0xFFFAF9F7);
+  static const page = AppColors.background;
   static const ink = Color(0xFF1C1917);
   static const body = Color(0xFF78716C);
   static const muted = Color(0xFFA8A29E);

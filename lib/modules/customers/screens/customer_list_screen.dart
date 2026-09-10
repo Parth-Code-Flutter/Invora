@@ -39,9 +39,6 @@ class CustomerListScreen extends GetView<CustomerListController> {
         width: 16,
         height: 16,
       ),
-      backgroundColor: Theme.of(context).brightness == Brightness.dark
-          ? null
-          : const Color(0xFFFAF9F7),
       titleSuffix: Obx(
         () => Text(
           '(${controller.totalCustomerCount.value})',
