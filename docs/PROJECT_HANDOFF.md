@@ -584,6 +584,7 @@ stores.
   right when the item keeps stock. Services omit stock. Full rupee price, GST, and HSN stay
   on the item record, not the list. Light catalog pages use the same white
   page color as Documents / Invoices (`AppColors.background`).
+  Add saved items uses the same Products | Services tabs (no All).
   Tablet layouts retain responsive multi-column containment.
   The details screen is a focused item record with one compact identity and
   price/unit/GST summary, one non-duplicative information section, an optional
@@ -712,7 +713,8 @@ stores.
   breakdown, payment status pills, and notes after the first line. Phone layouts avoid repeating the full totals card
   because the fixed footer already keeps Review visible; tablets retain the
   live summary side panel. Product/Service catalog picks reuse the existing
-  full-screen picker with an optional initial filter.
+  full-screen picker with Products | Services tabs (same cream control as
+  the catalog list; no All) and an optional initial filter.
 - Customer and invoice lists replace blocking spinners with reusable animated
   skeleton rows and apply a subtle staggered fade/translate/scale entrance as
   rows are built during initial display and scrolling. System reduced-motion
@@ -844,12 +846,12 @@ stores.
   credit notes dated in that period; received stays actual payments;
   outstanding uses each invoice’s remaining balance after payments and applied
   credit. Reports now offer This month / Last month / This FY / Last FY /
-  Custom, a collection progress bar, received/outstanding KPI tiles, and a
+  Custom, a teal/peach collection progress bar, received/outstanding KPI tiles, and a
   12-month Line or Bars chart with a y-axis, grid, and selected-month
   amounts. Empty months stay a faint baseline. Paid and pending counts sit
   in an invoice-mix donut and open the invoice list; outstanding opens Ageing.
 - Dashboard Home is an action surface: this-month net sales (received vs
-  outstanding and collection progress), matching Reports, plus a jump strip
+  outstanding and a soft teal/peach collection bar), matching Reports, plus a jump strip
   (Products, Estimates, Expenses, Reports). Net sales, received, outstanding,
   To collect, and To pay amounts use `AppAmountText(compact: true)` /
   `CurrencyUtils.compactShopDisplay`. To collect is a separate card
@@ -1124,6 +1126,26 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-10 — Add saved items uses catalog Products | Services tabs
+
+- The invoice/purchase/challan saved-item picker no longer has All. It
+  uses the same cream Products | Services control as the catalog list.
+  Opening without a type starts on Products; Add still creates that type.
+- Important files: `invoice_item_picker_screen.dart`, `app_pair_tabs.dart`,
+  `product_list_screen.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/product_list_screen_test.dart`,
+  `test/design_system_test.dart`.
+
+### 2026-09-10 — Collection bar uses received and outstanding colors
+
+- Home and Reports net-sales collection track is a soft teal received /
+  peach outstanding mix, with a white thumb and teal ring. Received and
+  Outstanding amounts on that card use the same colors as the KPI tiles.
+- Important files: `report_charts.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/dashboard_overview_test.dart`.
 
 ### 2026-09-10 — Home and customer lists use compact shop amounts
 

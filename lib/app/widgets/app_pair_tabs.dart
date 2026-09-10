@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:creovo_invoice/app/localization/localized_text.dart';
 
@@ -15,7 +16,7 @@ const _countStrut = StrutStyle(
 );
 
 /// Segmented tabs for Sales | Purchases, Customers | Suppliers,
-/// and catalog All | Products | Services.
+/// and catalog Products | Services.
 class AppSegmentTabs extends StatelessWidget {
   const AppSegmentTabs({
     required this.labels,
@@ -317,5 +318,38 @@ class _AppKeepAliveState extends State<AppKeepAlive>
   Widget build(BuildContext context) {
     super.build(context);
     return widget.child;
+  }
+}
+
+/// Mint / rose wells used by catalog Products | Services tabs.
+const catalogTabLeadingIcons = <Widget>[
+  CatalogTabIcon(
+    asset: 'assets/icons/catalog/tab_products.svg',
+    well: Color(0xFFF0FDFA),
+  ),
+  CatalogTabIcon(
+    asset: 'assets/icons/catalog/tab_services.svg',
+    well: Color(0xFFFFF1F2),
+  ),
+];
+
+class CatalogTabIcon extends StatelessWidget {
+  const CatalogTabIcon({required this.asset, required this.well, super.key});
+
+  final String asset;
+  final Color well;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: well,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: SvgPicture.asset(asset, width: 14, height: 14),
+      ),
+    );
   }
 }

@@ -502,6 +502,7 @@ class ReportCollectionCard extends StatelessWidget {
                   label: 'Received',
                   amountMinor: receivedMinor,
                   symbol: symbol,
+                  color: AppColors.success,
                 ),
               ),
               Expanded(
@@ -511,6 +512,7 @@ class ReportCollectionCard extends StatelessWidget {
                     label: 'Outstanding',
                     amountMinor: outstandingMinor,
                     symbol: symbol,
+                    color: AppColors.warning,
                     alignEnd: true,
                   ),
                 ),
@@ -530,12 +532,14 @@ class _TargetStat extends StatelessWidget {
     required this.label,
     required this.amountMinor,
     required this.symbol,
+    this.color,
     this.alignEnd = false,
   });
 
   final String label;
   final int amountMinor;
   final String symbol;
+  final Color? color;
   final bool alignEnd;
 
   @override
@@ -554,8 +558,9 @@ class _TargetStat extends StatelessWidget {
           amountMinor: amountMinor,
           symbol: symbol,
           compact: true,
+          color: color,
           textAlign: alignEnd ? TextAlign.end : TextAlign.start,
-          style: AppTextStyles.listAmount,
+          style: AppTextStyles.listAmount.copyWith(color: color),
         ),
       ],
     );
@@ -566,15 +571,28 @@ class _CollectionTrack extends StatelessWidget {
   const _CollectionTrack({required this.progress});
   final double progress;
 
+  static const _receivedGradient = LinearGradient(
+    colors: [Color(0xFF7DD4CB), AppColors.accent],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  static const _outstandingGradient = LinearGradient(
+    colors: [Color(0xFFF6C7A0), AppColors.warning],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final thumb = 22.0;
+        const thumb = 22.0;
         final x = ((constraints.maxWidth - thumb) * progress).clamp(
-          0,
+          0.0,
           constraints.maxWidth - thumb,
         );
+        final receivedFactor = progress <= 0 ? 0.0 : progress.clamp(0.05, 1.0);
         return SizedBox(
           height: 22,
           child: Stack(
@@ -584,17 +602,24 @@ class _CollectionTrack extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(99),
                   child: SizedBox(
-                    height: 10,
+                    height: 8,
                     width: constraints.maxWidth,
                     child: Stack(
                       children: [
-                        const ColoredBox(
-                          color: AppColors.surfaceMuted,
+                        const DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: _outstandingGradient,
+                          ),
                           child: SizedBox.expand(),
                         ),
                         FractionallySizedBox(
-                          widthFactor: progress.clamp(0.02, 1),
-                          child: const ColoredBox(color: AppColors.accent),
+                          widthFactor: receivedFactor,
+                          child: const DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: _receivedGradient,
+                            ),
+                            child: SizedBox.expand(),
+                          ),
                         ),
                       ],
                     ),
@@ -610,10 +635,10 @@ class _CollectionTrack extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.border, width: 3),
+                    border: Border.all(color: AppColors.accent, width: 2.5),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: .08),
+                        color: AppColors.accent.withValues(alpha: .18),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),

@@ -12,12 +12,14 @@ remain intentionally out of scope until explicitly requested.
   with a sliding white pill. Icon and label sit on the pill midline. Filter-chip
   counts line up with their labels. Phone-dock icons share one baseline. Tap or
   horizontal swipe preserves the active list state without a travelling tab bar.
-  Themed AppBars have no hairline under the bar.
+  Themed AppBars have no hairline under the bar. Add saved items uses the
+  same Products | Services tabs as the catalog list (no All).
 - Documents Sales and Purchase payment tiles (Received / Pending / Overdue)
   use the same compact shop amounts as catalog rows (`99` / `1k` / `4.5k` /
   `4 lakh`) via `CurrencyUtils.compactShopDisplay`. Home net sales / received /
   outstanding / To collect and Parties customer list amounts use the same
-  compact style through `AppAmountText(compact: true)`.
+  compact style through `AppAmountText(compact: true)`. Home and Reports
+  collection progress is a soft teal received / peach outstanding mix bar.
 - Catalog Products / Services empty screens use the Figma illustrations
   and copy (No products yet, No services yet) with an in-list
   Add CTA inside the shared 160×160 / 20px / 13px empty graphic. The list FAB
@@ -115,7 +117,8 @@ remain intentionally out of scope until explicitly requested.
   with balance on the right. GSTIN is Looks valid only. WhatsApp from the
   composer explains share waits until save. Review still opens preview.
   Filled item cards have no extra edit control and no trash beside the
-  line total; quantity 1 minus still confirms remove.
+  line total; quantity 1 minus still confirms remove. Add saved items uses
+  Products | Services tabs like the catalog list, with no All chip.
 - Complete GST lifecycle: business → customer → product → invoice → partial
   payment → reversal → full payment.
 - Payment receipt numbering, INR PDF generation, and reversed-payment receipt
@@ -277,7 +280,7 @@ remain intentionally out of scope until explicitly requested.
 - Share/print the debit-note PDF in airplane mode.
 - Open Reports. Switch This month / Last month / This FY. Confirm twelve
   months on the chart with a y-axis (empty months are a faint baseline, not a
-  filled bar), Line and Bars, collection progress, KPI tiles, and the
+  filled bar), Line and Bars, teal/peach collection progress, KPI tiles, and the
   invoice-mix donut. Tap a month on the chart. Tap Paid, Pending, and
   Outstanding.
 - Open GST / CA export from More and Reports. Confirm This month,

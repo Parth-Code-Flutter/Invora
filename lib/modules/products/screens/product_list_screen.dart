@@ -87,16 +87,7 @@ class ProductListScreen extends GetView<ProductListController> {
                 iconSize: 24,
                 tabHeight: 42,
                 padding: const EdgeInsets.fromLTRB(20, 2, 20, 8),
-                leadingIcons: const [
-                  _CatalogTabIcon(
-                    asset: 'assets/icons/catalog/tab_products.svg',
-                    well: Color(0xFFF0FDFA),
-                  ),
-                  _CatalogTabIcon(
-                    asset: 'assets/icons/catalog/tab_services.svg',
-                    well: Color(0xFFFFF1F2),
-                  ),
-                ],
+                leadingIcons: catalogTabLeadingIcons,
                 counts: [
                   controller.countFor(ItemType.product),
                   controller.countFor(ItemType.service),
@@ -448,27 +439,6 @@ class _ProductCatalogTile extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _CatalogTabIcon extends StatelessWidget {
-  const _CatalogTabIcon({required this.asset, required this.well});
-
-  final String asset;
-  final Color well;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: well,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(5),
-        child: SvgPicture.asset(asset, width: 14, height: 14),
       ),
     );
   }

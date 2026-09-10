@@ -15,8 +15,8 @@ import '../../../app/widgets/app_back_button.dart';
 import '../../../app/widgets/app_button.dart';
 import '../../../app/widgets/app_constrained_action.dart';
 import '../../../app/widgets/app_empty_state.dart';
-import '../../../app/widgets/app_filter_chip.dart';
 import '../../../app/widgets/app_form_grid.dart';
+import '../../../app/widgets/app_pair_tabs.dart';
 import '../../../data/models/product_service_model.dart';
 import '../../../data/models/scanned_invoice_line.dart';
 import '../../../data/repositories/business_repository.dart';
@@ -62,7 +62,7 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
   late final String _alreadyAddedLabel;
   late Stream<List<ProductServiceModel>> _itemsStream;
   Timer? _searchDebounce;
-  ItemType? _filter;
+  late ItemType _filter;
   String _currency = '₹';
 
   @override
@@ -75,7 +75,9 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
     _alreadyAddedLabel = args is InvoiceItemPickerArgs
         ? args.alreadyAddedLabel
         : 'On invoice';
-    _filter = args is InvoiceItemPickerArgs ? args.initialFilter : null;
+    _filter = args is InvoiceItemPickerArgs
+        ? (args.initialFilter ?? ItemType.product)
+        : ItemType.product;
     _selectedIds.addAll(_alreadyAdded);
     _itemsStream = _repository.watchItems(type: _filter);
     _loadCurrency();
@@ -161,67 +163,53 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
                   ResponsiveUtils.horizontalPadding(context),
                   0,
                 ),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _search,
-                      onChanged: (_) {
-                        _searchDebounce?.cancel();
-                        _searchDebounce = Timer(
-                          const Duration(milliseconds: 220),
-                          _refreshItems,
-                        );
-                        setState(() {});
-                      },
-                      textInputAction: TextInputAction.search,
-                      textAlignVertical: TextAlignVertical.center,
-                      decoration: InputDecoration(
-                        hintText: l10n('Search saved items'),
-                        prefixIcon: const Icon(Icons.search_rounded),
-                        suffixIcon: _search.text.isEmpty
-                            ? null
-                            : IconButton(
-                                tooltip: l10n('Clear search'),
-                                onPressed: () {
-                                  _searchDebounce?.cancel();
-                                  _search.clear();
-                                  _refreshItems();
-                                },
-                                icon: const Icon(Icons.close_rounded),
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          AppFilterChip(
-                            label: 'All',
-                            selected: _filter == null,
-                            onSelected: (_) => _setFilter(null),
+                child: TextField(
+                  controller: _search,
+                  onChanged: (_) {
+                    _searchDebounce?.cancel();
+                    _searchDebounce = Timer(
+                      const Duration(milliseconds: 220),
+                      _refreshItems,
+                    );
+                    setState(() {});
+                  },
+                  textInputAction: TextInputAction.search,
+                  textAlignVertical: TextAlignVertical.center,
+                  decoration: InputDecoration(
+                    hintText: l10n('Search saved items'),
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    suffixIcon: _search.text.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: l10n('Clear search'),
+                            onPressed: () {
+                              _searchDebounce?.cancel();
+                              _search.clear();
+                              _refreshItems();
+                            },
+                            icon: const Icon(Icons.close_rounded),
                           ),
-                          const SizedBox(width: 8),
-                          AppFilterChip(
-                            label: 'Products',
-                            icon: Icons.inventory_2_outlined,
-                            selected: _filter == ItemType.product,
-                            onSelected: (_) => _setFilter(ItemType.product),
-                          ),
-                          const SizedBox(width: 8),
-                          AppFilterChip(
-                            label: 'Services',
-                            icon: Icons.design_services_outlined,
-                            selected: _filter == ItemType.service,
-                            onSelected: (_) => _setFilter(ItemType.service),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 12),
+              AppSegmentTabs(
+                labels: const ['Products', 'Services'],
+                inkSelected: true,
+                iconSize: 24,
+                tabHeight: 42,
+                padding: EdgeInsets.fromLTRB(
+                  ResponsiveUtils.horizontalPadding(context),
+                  2,
+                  ResponsiveUtils.horizontalPadding(context),
+                  8,
+                ),
+                leadingIcons: catalogTabLeadingIcons,
+                index: _filter == ItemType.service ? 1 : 0,
+                onChanged: (index) => _setFilter(
+                  index == 1 ? ItemType.service : ItemType.product,
+                ),
+              ),
               Expanded(
                 child: StreamBuilder<List<ProductServiceModel>>(
                   stream: _itemsStream,
@@ -588,7 +576,10 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
   }
 
   Future<void> _createItem() async {
-    final result = await Get.toNamed<dynamic>(AppRoutes.productAdd);
+    final result = await Get.toNamed<dynamic>(
+      AppRoutes.productAdd,
+      arguments: _filter,
+    );
     if (!mounted || result is! ProductServiceModel || result.id == null) return;
     setState(() {
       _knownItems[result.id!] = result;
@@ -623,7 +614,7 @@ class _InvoiceItemPickerScreenState extends State<InvoiceItemPickerScreen> {
 
   bool get _hasChanges => _addedIds.isNotEmpty || _removedIds.isNotEmpty;
 
-  void _setFilter(ItemType? value) {
+  void _setFilter(ItemType value) {
     _filter = value;
     _refreshItems();
   }
