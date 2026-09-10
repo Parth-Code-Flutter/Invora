@@ -40,8 +40,8 @@ void main() {
 
     expect(find.text('B E Dhaval'), findsOneWidget);
     expect(tester.widget<Text>(find.text('B E Dhaval')).style?.fontSize, 14);
-    expect(find.text('₹2,305,800'), findsOneWidget);
-    expect(tester.widget<Text>(find.text('₹2,305,800')).style?.fontSize, 12);
+    expect(find.text('23 lakh'), findsOneWidget);
+    expect(tester.widget<Text>(find.text('23 lakh')).style?.fontSize, 12);
     expect(find.text('9876543210'), findsNothing);
     expect(find.byIcon(Icons.phone_outlined), findsNothing);
     expect(find.text('1 invoice due'), findsOneWidget);
@@ -49,7 +49,7 @@ void main() {
     expect(find.text('Due'), findsOneWidget);
 
     final nameRect = tester.getRect(find.text('B E Dhaval'));
-    final amountRect = tester.getRect(find.text('₹2,305,800'));
+    final amountRect = tester.getRect(find.text('23 lakh'));
     expect(nameRect.overlaps(amountRect), isFalse);
     expect(tester.takeException(), isNull);
   });
@@ -88,7 +88,7 @@ void main() {
       ),
     );
 
-    expect(find.text('₹99,999,999'), findsOneWidget);
+    expect(find.text('10 crore'), findsOneWidget);
     expect(find.text('Paid'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

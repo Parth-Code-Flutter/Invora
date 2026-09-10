@@ -46,4 +46,24 @@ void main() {
     expect(find.text('₹550'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('compact amounts use shop-style k and lakh labels', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: AppAmountText(
+            amountMinor: 19000000,
+            symbol: '₹',
+            compact: true,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('1.9 lakh'), findsOneWidget);
+    expect(find.text('₹1,90,000'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -44,9 +44,8 @@ void main() {
     expect(find.text('August 2026'), findsOneWidget);
     expect(find.text('Received'), findsWidgets);
     expect(find.text('Outstanding'), findsWidgets);
-    expect(find.text('₹2,308,000'), findsWidgets);
-    expect(find.text('₹650'), findsWidgets);
-    expect(find.text('₹2,307,472'), findsWidgets);
+    expect(find.text('23 lakh'), findsWidgets);
+    expect(find.text('650'), findsWidgets);
     expect(find.text('All collected'), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -75,9 +74,9 @@ void main() {
       ),
     );
 
-    expect(find.text('₹99,999,999'), findsWidgets);
-    expect(find.text('₹12,345,678.90'), findsWidgets);
-    expect(find.text('₹87,654,321'), findsWidgets);
+    expect(find.text('10 crore'), findsWidgets);
+    expect(find.text('1.2 crore'), findsWidgets);
+    expect(find.text('8.8 crore'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 }

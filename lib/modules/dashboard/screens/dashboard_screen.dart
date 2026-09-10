@@ -670,6 +670,7 @@ class _PayCard extends StatelessWidget {
               AppAmountText(
                 amountMinor: payableMinor,
                 symbol: symbol,
+                compact: true,
                 color: overdue ? AppColors.error : AppColors.warning,
                 style: AppTextStyles.listAmount.copyWith(fontSize: 16),
               ),
@@ -868,6 +869,7 @@ class _CollectFilter extends StatelessWidget {
               AppAmountText(
                 amountMinor: amountMinor,
                 symbol: symbol,
+                compact: true,
                 color: color,
                 style: AppTextStyles.listAmount.copyWith(
                   fontSize: 12,
@@ -949,6 +951,7 @@ class _CollectPersonRow extends StatelessWidget {
                         child: AppAmountText(
                           amountMinor: invoice.balanceMinor,
                           symbol: symbol,
+                          compact: true,
                           color: color,
                           textAlign: TextAlign.end,
                           style: AppTextStyles.listAmount.copyWith(

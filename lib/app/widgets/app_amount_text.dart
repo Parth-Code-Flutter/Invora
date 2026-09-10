@@ -15,6 +15,7 @@ class AppAmountText extends StatelessWidget {
     required this.amountMinor,
     required this.symbol,
     this.hero = false,
+    this.compact = false,
     this.color,
     this.style,
     this.suffix,
@@ -25,6 +26,11 @@ class AppAmountText extends StatelessWidget {
   final int amountMinor;
   final String symbol;
   final bool hero;
+
+  /// Catalog-style `99` / `1k` / `4.5k` / `4 lakh` via
+  /// [CurrencyUtils.compactShopDisplay]. VoiceOver still speaks the full rupee
+  /// amount.
+  final bool compact;
   final Color? color;
   final TextStyle? style;
   final String? suffix;
@@ -46,9 +52,12 @@ class AppAmountText extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       )))
             .copyWith(color: color);
-    final label =
+    final full =
         '${CurrencyUtils.formatMinor(amountMinor, symbol: symbol)}${suffix ?? ''}';
-    return FittedBox(
+    final label = compact
+        ? '${CurrencyUtils.compactShopDisplay(amountMinor, localize: l10n)}${suffix ?? ''}'
+        : full;
+    final text = FittedBox(
       fit: BoxFit.scaleDown,
       alignment: _alignment,
       child: Text(
@@ -59,6 +68,8 @@ class AppAmountText extends StatelessWidget {
         style: resolved,
       ),
     );
+    if (!compact) return text;
+    return Semantics(label: full, child: text);
   }
 }
 

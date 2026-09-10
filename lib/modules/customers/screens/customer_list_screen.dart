@@ -420,6 +420,7 @@ class CustomerSummaryCard extends StatelessWidget {
                                 ? balanceMinor
                                 : billedMinor,
                             symbol: currencySymbol,
+                            compact: true,
                             textAlign: TextAlign.end,
                             color: balanceMinor == 0 && invoiceCount > 0
                                 ? (isDark

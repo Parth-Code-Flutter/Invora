@@ -15,7 +15,9 @@ remain intentionally out of scope until explicitly requested.
   Themed AppBars have no hairline under the bar.
 - Documents Sales and Purchase payment tiles (Received / Pending / Overdue)
   use the same compact shop amounts as catalog rows (`99` / `1k` / `4.5k` /
-  `4 lakh`) via `CurrencyUtils.compactShopDisplay`.
+  `4 lakh`) via `CurrencyUtils.compactShopDisplay`. Home net sales / received /
+  outstanding / To collect and Parties customer list amounts use the same
+  compact style through `AppAmountText(compact: true)`.
 - Catalog Products / Services empty screens use the Figma illustrations
   and copy (No products yet, No services yet) with an in-list
   Add CTA inside the shared 160×160 / 20px / 13px empty graphic. The list FAB

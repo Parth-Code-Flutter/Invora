@@ -136,6 +136,7 @@ class _MetricView extends StatelessWidget {
           AppAmountText(
             amountMinor: metric.amountMinor!,
             symbol: currencySymbol,
+            compact: true,
             style: AppTextStyles.listAmount.copyWith(fontSize: 14),
           )
         else

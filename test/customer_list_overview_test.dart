@@ -30,9 +30,9 @@ void main() {
     expect(find.text('Total customers'), findsOneWidget);
     expect(find.text('12'), findsOneWidget);
     expect(find.text('Amount due'), findsOneWidget);
-    expect(find.text('₹7,370'), findsOneWidget);
+    expect(find.text('7.4k'), findsOneWidget);
     expect(find.text('Paid amount'), findsOneWidget);
-    expect(find.text('₹12,210'), findsOneWidget);
+    expect(find.text('12k'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

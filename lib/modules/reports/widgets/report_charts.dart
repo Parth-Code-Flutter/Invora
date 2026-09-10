@@ -7,6 +7,7 @@ import 'package:creovo_invoice/app/localization/localized_text.dart';
 import '../../../app/constants/app_colors.dart';
 import '../../../app/themes/app_text_styles.dart';
 import '../../../app/utils/currency_utils.dart';
+import '../../../app/widgets/app_amount_text.dart';
 import '../../../data/models/report_summary_model.dart';
 
 enum ReportChartStyle { trend, bars }
@@ -461,10 +462,11 @@ class ReportCollectionCard extends StatelessWidget {
           const SizedBox(height: 6),
           SizedBox(
             width: double.infinity,
-            child: Text(
-              CurrencyUtils.formatMinor(salesMinor, symbol: symbol),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: AppAmountText(
+              amountMinor: salesMinor,
+              symbol: symbol,
+              compact: true,
+              textAlign: TextAlign.start,
               style: AppTextStyles.pageTitle.copyWith(fontSize: 28),
             ),
           ),
@@ -548,10 +550,11 @@ class _TargetStat extends StatelessWidget {
           style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 2),
-        Text(
-          CurrencyUtils.formatMinor(amountMinor, symbol: symbol),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        AppAmountText(
+          amountMinor: amountMinor,
+          symbol: symbol,
+          compact: true,
+          textAlign: alignEnd ? TextAlign.end : TextAlign.start,
           style: AppTextStyles.listAmount,
         ),
       ],
@@ -683,10 +686,12 @@ class ReportKpiTile extends StatelessWidget {
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
-                child: Text(
-                  CurrencyUtils.formatMinor(amountMinor, symbol: symbol),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                child: AppAmountText(
+                  amountMinor: amountMinor,
+                  symbol: symbol,
+                  compact: true,
+                  color: color,
+                  textAlign: TextAlign.start,
                   style: AppTextStyles.pageTitle.copyWith(
                     fontSize: 20,
                     color: color,

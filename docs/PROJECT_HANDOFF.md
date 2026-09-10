@@ -514,6 +514,8 @@ stores.
 
 - Create, search, edit, view, and soft-delete customers. List search matches
   partial words across name, company, mobile, email, and GSTIN.
+  List billed/due totals and the Amount due / Paid amount overview use
+  compact shop amounts (`99`, `1k`, `4.5k`, `4 lakh`).
 - Mobile length/format and email regex validation
 - Customer name and a valid mobile number are required. Phone uses the
   shared country picker (India +91 by default) and stores E.164 in the
@@ -848,7 +850,9 @@ stores.
   in an invoice-mix donut and open the invoice list; outstanding opens Ageing.
 - Dashboard Home is an action surface: this-month net sales (received vs
   outstanding and collection progress), matching Reports, plus a jump strip
-  (Products, Estimates, Expenses, Reports). To collect is a separate card
+  (Products, Estimates, Expenses, Reports). Net sales, received, outstanding,
+  To collect, and To pay amounts use `AppAmountText(compact: true)` /
+  `CurrencyUtils.compactShopDisplay`. To collect is a separate card
   under that snapshot: compact Overdue
   / This week filters, then up to three people with the balance due. Tap a
   name to open that invoice; View all opens the filtered Documents sales list.
@@ -1120,6 +1124,19 @@ Store/IAP and signed license keys for selling the app itself are the exception
 documented in LICENSING_AND_DEMO.md; they must not upload invoice data.
 
 ## Implementation log
+
+### 2026-09-10 — Home and customer lists use compact shop amounts
+
+- Home net sales, received, outstanding, To collect, and To pay, plus
+  Parties customer list totals, use `AppAmountText(compact: true)` so they
+  share `CurrencyUtils.compactShopDisplay` with catalog and Documents tiles.
+- Important files: `app_amount_text.dart`, `report_charts.dart`,
+  `dashboard_screen.dart`, `customer_list_screen.dart`,
+  `customer_list_overview.dart`, this handoff, `docs/QA_CHECKLIST.md`.
+- Storage: none.
+- Verification: `test/dashboard_overview_test.dart`,
+  `test/customer_summary_card_test.dart`, `test/customer_list_overview_test.dart`,
+  `test/app_amount_text_test.dart`.
 
 ### 2026-09-10 — Sales and purchase tiles use compact shop amounts
 
